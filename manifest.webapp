@@ -1,15 +1,27 @@
 {
-  "name": "App Template",
-  "slug": "apptemplate",
-  "icon": "assets/icon.png",
-  "categories": [],
+  "name": "Assistant",
+  "name_prefix": "Twake",
+  "slug": "aiassistant",
+  "icon": "assets/app-icon.svg",
+  "type": "webapp",
+  "categories": ["cozy"],
   "version": "0.1.0",
   "licence": "AGPL-3.0",
-  "editor": "",
+  "editor": "Cozy",
   "source": "",
   "developer": {
-    "name": "Cozy Cloud",
-    "url": "https://cozy.io"
+    "name": "Twake Workplace",
+    "url": "https://twake.app"
+  },
+  "locales": {
+    "en": {
+      "short_description": "Your AI assistant",
+      "long_description": "Chat with an AI assistant that answers from the documents of your Twake Workplace."
+    },
+    "fr": {
+      "short_description": "Votre assistant IA",
+      "long_description": "Discutez avec un assistant IA qui répond à partir des documents de votre Twake Workplace."
+    }
   },
   "routes": {
     "/": {
@@ -29,11 +41,6 @@
     }
   },
   "permissions": {
-    "banners": {
-      "description": "Required by the cozy-bar to display platform messages",
-      "type": "io.cozy.banners",
-      "verbs": ["GET", "PUT"]
-    },
     "apps": {
       "description": "Required by the cozy-bar to display the icons of the apps",
       "type": "io.cozy.apps",
@@ -44,10 +51,35 @@
       "type": "io.cozy.settings",
       "verbs": ["GET"]
     },
-    "contacts": {
-      "description": "To demonstrate what is possible",
-      "type": "io.cozy.contacts",
+    "banners": {
+      "description": "Required by the cozy-bar to display platform messages",
+      "type": "io.cozy.banners",
+      "verbs": ["GET", "PUT"]
+    },
+    "chatConversations": {
+      "description": "Required by the AI Assistant to show conversations",
+      "type": "io.cozy.ai.chat.conversations",
+      "verbs": ["ALL"]
+    },
+    "chatEvents": {
+      "description": "Required by the AI Assistant to receive realtime events",
+      "type": "io.cozy.ai.chat.events",
       "verbs": ["GET"]
+    },
+    "assistants": {
+      "description": "Required to fetch, create and update AI assistants",
+      "type": "io.cozy.ai.chat.assistants",
+      "verbs": ["ALL"]
+    },
+    "accounts": {
+      "description": "Required by the AI Assistant to manage the providers of the assistants",
+      "type": "io.cozy.accounts",
+      "verbs": ["ALL"]
+    },
+    "files": {
+      "description": "Required to chat with the documents and to create the folders of the assistants",
+      "type": "io.cozy.files",
+      "verbs": ["GET", "POST"]
     }
   }
 }
