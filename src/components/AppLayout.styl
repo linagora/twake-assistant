@@ -1,0 +1,17 @@
+@require 'settings/breakpoints.styl'
+
+$coz-bar-size = 3rem
+
+.assistant-view
+    padding 0
+    height 'calc(100vh - %s - 1px)' % $coz-bar-size
+    display flex
+    flex-direction column
+    flex 1
+
++small-screen()
+    .assistant-view
+        margin-top $coz-bar-size
+
+.topbar-border
+    border-bottom 1px solid var(--dividerColor)

@@ -1,40 +1,42 @@
 import React from 'react'
-import { Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 
-import { BarComponent, BarCenter } from 'cozy-bar'
-import { useClient } from 'cozy-client'
-import BarTitle from 'cozy-ui/transpiled/react/BarTitle'
-import { Layout, Main, Content } from 'cozy-ui/transpiled/react/Layout'
-import Typography from 'cozy-ui/transpiled/react/Typography'
-import Alerter from 'cozy-ui/transpiled/react/deprecated/Alerter'
-import useBreakpoints from 'cozy-ui/transpiled/react/providers/Breakpoints'
-import { useI18n } from 'twake-i18n'
+import { TwakeWorkplace } from '@linagora/twake-icons'
+import { BarComponent, BarLeft } from 'cozy-bar'
+import { RealTimeQueries } from 'cozy-client'
+import { AiText } from 'cozy-search'
+import AppTitle from 'cozy-ui/transpiled/react/AppTitle'
+import { Layout } from 'cozy-ui/transpiled/react/Layout'
 
-import Sidebar from '@/components/Sidebar'
+import styles from '@/components/AppLayout.styl'
+import {
+  DOCTYPE_AI_CHAT_ASSISTANTS,
+  DOCTYPE_AI_CHAT_CONVERSATIONS
+} from '@/doctypes'
 
 const AppLayout = () => {
-  const { t } = useI18n()
-  const { isMobile } = useBreakpoints()
-  const client = useClient()
-
   return (
-    <Layout>
-      <BarCenter>
-        <BarTitle>App Template</BarTitle>
-      </BarCenter>
-      <BarComponent searchOptions={{ enabled: false }} />
-      <Sidebar />
-      <Main>
-        <Content>
-          {isMobile && (
-            <BarCenter>
-              <Typography variant="h5">{client.appMetadata.slug}</Typography>
-            </BarCenter>
-          )}
-          <Outlet />
-        </Content>
-      </Main>
-      <Alerter t={t} />
+    <Layout monoColumn>
+      <RealTimeQueries doctype={DOCTYPE_AI_CHAT_CONVERSATIONS} />
+      <RealTimeQueries doctype={DOCTYPE_AI_CHAT_ASSISTANTS} />
+      <BarComponent
+        searchOptions={{ enabled: true }}
+        appIcon={TwakeWorkplace}
+        appTextIcon={AiText}
+        componentsProps={{
+          Wrapper: {
+            className: `u-elevation-0 ${styles['topbar-border']}`
+          }
+        }}
+      />
+      <BarLeft>
+        <Link to="/" className="coz-nav-apps-btns-home">
+          <AppTitle appIcon={TwakeWorkplace} appTextIcon={AiText} />
+        </Link>
+      </BarLeft>
+      <main className={styles['assistant-view']}>
+        <Outlet />
+      </main>
     </Layout>
   )
 }
