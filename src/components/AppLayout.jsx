@@ -4,7 +4,7 @@ import { Link, Outlet } from 'react-router-dom'
 import { TwakeWorkplace } from '@linagora/twake-icons'
 import { BarComponent, BarLeft } from 'cozy-bar'
 import { RealTimeQueries } from 'cozy-client'
-import { AiText } from 'cozy-search'
+import { AiText, useAssistantsSetup } from 'cozy-search'
 import AppTitle from 'cozy-ui/transpiled/react/AppTitle'
 import { Layout } from 'cozy-ui/transpiled/react/Layout'
 
@@ -15,6 +15,8 @@ import {
 } from '@/doctypes'
 
 const AppLayout = () => {
+  useAssistantsSetup()
+
   return (
     <Layout monoColumn>
       <RealTimeQueries doctype={DOCTYPE_AI_CHAT_CONVERSATIONS} />

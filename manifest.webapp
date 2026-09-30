@@ -80,6 +80,13 @@
       "description": "Required to chat with the documents and to create the folders of the assistants",
       "type": "io.cozy.files",
       "verbs": ["GET", "POST"]
+    },
+    "ragIndexTriggers": {
+      "description": "Required to index the documents of the assistants",
+      "type": "io.cozy.triggers",
+      "verbs": ["GET", "POST", "DELETE"],
+      "selector": "worker",
+      "values": ["rag-index"]
     }
   }
 }
