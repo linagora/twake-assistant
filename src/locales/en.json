@@ -1,1 +1,5 @@
-{}
+{
+  "intent": {
+    "error": "The assistant cannot be opened."
+  }
+}
