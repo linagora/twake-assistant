@@ -7,19 +7,14 @@ import { initTranslation } from 'twake-i18n'
 
 import manifest from '../../../manifest.webapp'
 
-import schema from '@/doctypes'
+import { schema } from '@/doctypes'
 
-/**
- * Make and returns cozy client instance
- * @param {HTMLElement} container - application container
- * @returns {import('cozy-client/types/CozyClient').default} cozy client instance
- */
-const makeClient = container => {
+function makeClient(container) {
   const data = JSON.parse(container.dataset.cozy)
   const protocol = window.location.protocol
   const cozyUrl = `${protocol}//${data.domain}`
 
-  const client = new CozyClient({
+  return new CozyClient({
     uri: cozyUrl,
     token: data.token,
     appMetadata: {
@@ -29,17 +24,14 @@ const makeClient = container => {
     schema,
     store: true
   })
-
-  return client
 }
 
-const getDataOrDefault = (data, defaultData) =>
-  /^\{\{\..*\}\}$/.test(data) ? defaultData : data
+// The stack fills the template: an unfilled {{.Value}} means it did not
+function getDataOrDefault(data, defaultData) {
+  return /^\{\{\..*\}\}$/.test(data) ? defaultData : data
+}
 
-/**
- * Memoize this function in its own file so that it is correctly memoized
- */
-const setupApp = () => {
+export function setupApp() {
   const container = document.querySelector('[role=application]')
   const root = createRoot(container)
   const client = makeClient(container)
@@ -51,5 +43,3 @@ const setupApp = () => {
 
   return { root, client, lang, polyglot }
 }
-
-export default setupApp

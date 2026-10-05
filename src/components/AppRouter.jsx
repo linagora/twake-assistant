@@ -4,7 +4,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom'
 import { BarRoutes } from 'cozy-bar'
 import { AssistantView } from 'cozy-search'
 
-import AppLayout from '@/components/AppLayout'
+import { AppLayout } from '@/components/AppLayout'
 import { NewConversation } from '@/components/Views/NewConversation'
 
 export const ASSISTANT_ROUTE_PATH = 'assistant/:conversationId'
@@ -14,7 +14,7 @@ const barRoutes = BarRoutes.filter(
   route => route.props?.path !== ASSISTANT_ROUTE_PATH
 )
 
-const AppRouter = () => {
+export function AppRouter() {
   return (
     <HashRouter>
       <Routes>
@@ -27,5 +27,3 @@ const AppRouter = () => {
     </HashRouter>
   )
 }
-
-export default AppRouter

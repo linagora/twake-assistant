@@ -14,7 +14,7 @@ import {
   DOCTYPE_AI_CHAT_CONVERSATIONS
 } from '@/doctypes'
 
-const AppLayout = () => {
+export function AppLayout() {
   useAssistantsSetup()
 
   return (
@@ -42,5 +42,3 @@ const AppLayout = () => {
     </Layout>
   )
 }
-
-export default AppLayout

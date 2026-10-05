@@ -4,7 +4,7 @@ export const DOCTYPE_AI_CHAT_CONVERSATIONS = 'io.cozy.ai.chat.conversations'
 
 // cozy-search includes the provider of an assistant and the assistant of a
 // conversation in its queries: both relationships must be declared here.
-export default {
+export const schema = {
   assistants: {
     doctype: DOCTYPE_AI_CHAT_ASSISTANTS,
     relationships: {

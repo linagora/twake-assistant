@@ -9,7 +9,7 @@ import { BreakpointsProvider } from 'cozy-ui/transpiled/react/providers/Breakpoi
 import CozyTheme from 'cozy-ui-plus/dist/providers/CozyTheme'
 import { I18n } from 'twake-i18n'
 
-const AppProviders = ({ client, lang, polyglot, children }) => {
+export function AppProviders({ client, lang, polyglot, children }) {
   return (
     <WebviewIntentProvider>
       <CozyProvider client={client}>
@@ -28,5 +28,3 @@ const AppProviders = ({ client, lang, polyglot, children }) => {
     </WebviewIntentProvider>
   )
 }
-
-export default AppProviders
