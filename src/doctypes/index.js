@@ -1,6 +1,8 @@
 export const DOCTYPE_ACCOUNTS = 'io.cozy.accounts'
 export const DOCTYPE_AI_CHAT_ASSISTANTS = 'io.cozy.ai.chat.assistants'
 export const DOCTYPE_AI_CHAT_CONVERSATIONS = 'io.cozy.ai.chat.conversations'
+export const DOCTYPE_AI_CHAT_EVENTS = 'io.cozy.ai.chat.events'
+export const DOCTYPE_FILES = 'io.cozy.files'
 
 // cozy-search includes the provider of an assistant and the assistant of a
 // conversation in its queries: both relationships must be declared here.

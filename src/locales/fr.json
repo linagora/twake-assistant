@@ -1,5 +1,69 @@
 {
   "intent": {
     "error": "L'assistant ne peut pas être ouvert."
+  },
+  "scribe": {
+    "title": "Twake AI",
+    "welcome": "Comment puis-je vous aider aujourd'hui ?",
+    "placeholder": "Décrivez une tâche",
+    "send": "Envoyer",
+    "stop": "Arrêter",
+    "documents": "Utiliser mes documents",
+    "thinking": "L'assistant rédige…",
+    "error": "Une erreur est survenue pendant la rédaction de la réponse. Veuillez réessayer.",
+    "empty": "Je n'ai pas trouvé de réponse à votre demande. Essayez de la reformuler.",
+    "sources": "%{smart_count} source |||| %{smart_count} sources",
+    "disclaimer": "Twake AI peut faire des erreurs. Vérifiez les informations importantes.",
+    "instructions": "Tu aides l'utilisateur à travailler un texte dans son éditeur. Regarde d'abord ce qu'il demande.\nS'il pose une question sur le texte ou demande ton avis, réponds-lui normalement, en quelques phrases, sans réécrire le texte.\nS'il demande d'écrire ou de modifier un texte, ta réponse sera insérée telle quelle dans son document : réponds alors uniquement avec ce texte, dans la langue du texte, en une seule version, sans introduction, sans commentaire sur ta réponse, sans ligne de séparation, sans emoji et sans rien à compléter entre crochets. Garde la forme du texte, sauf si on te demande de la changer, et n'invente pas d'informations.",
+    "content": "Texte :",
+    "actions": {
+      "insert": "Insérer",
+      "replace": "Remplacer"
+    },
+    "suggestions": {
+      "translate": {
+        "label": "Traduire",
+        "en": {
+          "label": "Anglais",
+          "prompt": "Traduis ce texte en anglais. Réponds uniquement avec la traduction. N'ajoute ni introduction, ni guillemets, ni commentaire."
+        },
+        "fr": {
+          "label": "Français",
+          "prompt": "Traduis ce texte en français. Réponds uniquement avec la traduction. N'ajoute ni introduction, ni guillemets, ni commentaire."
+        },
+        "es": {
+          "label": "Espagnol",
+          "prompt": "Traduis ce texte en espagnol. Réponds uniquement avec la traduction. N'ajoute ni introduction, ni guillemets, ni commentaire."
+        },
+        "de": {
+          "label": "Allemand",
+          "prompt": "Traduis ce texte en allemand. Réponds uniquement avec la traduction. N'ajoute ni introduction, ni guillemets, ni commentaire."
+        },
+        "it": {
+          "label": "Italien",
+          "prompt": "Traduis ce texte en italien. Réponds uniquement avec la traduction. N'ajoute ni introduction, ni guillemets, ni commentaire."
+        }
+      },
+      "summarize": {
+        "label": "Résumer",
+        "prompt": "Résume ce texte en deux ou trois phrases. Réponds uniquement avec le résumé. N'ajoute ni introduction, ni guillemets, ni commentaire."
+      },
+      "improve": {
+        "label": "Améliorer",
+        "prompt": "Améliore la rédaction de ce texte, en gardant son sens et sa langue. Réponds uniquement avec le texte amélioré. N'ajoute ni introduction, ni guillemets, ni commentaire."
+      },
+      "fix": {
+        "label": "Corriger",
+        "prompt": "Corrige l'orthographe et la grammaire de ce texte, sans rien changer d'autre. Réponds uniquement avec le texte corrigé. N'ajoute ni introduction, ni guillemets, ni commentaire."
+      },
+      "shorten": {
+        "label": "Raccourcir",
+        "prompt": "Raccourcis ce texte, en gardant son sens et sa langue. Réponds uniquement avec le texte raccourci. N'ajoute ni introduction, ni guillemets, ni commentaire."
+      },
+      "expand": {
+        "label": "Développer",
+        "prompt": "Développe ce texte, en gardant son sens et sa langue. Réponds uniquement avec le texte développé. N'ajoute ni introduction, ni guillemets, ni commentaire."
+      }
+    }
   }
 }
