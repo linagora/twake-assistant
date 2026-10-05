@@ -11,7 +11,7 @@ the one embedded in Twake Drive and Home, on its own route.
 
 ## Requirements on the instance
 
-- The flags `cozy.assistant.enabled` and `ai.available`.
+- The flag `cozy.assistant.enabled`.
 - A RAG server configured in cozy-stack (`rag:` in `cozy.yml`).
 - Optional: `cozy.assistant.autoprovision` lists the assistants to create. The
   app sets them up at startup, with the `rag-index` triggers that index their
