@@ -12,7 +12,8 @@
     "lint": "yarn lint:js && yarn lint:styles",
     "lint:js": "eslint '{src,test}/**/*.{js,jsx,ts,tsx}'",
     "lint:styles": "stylint src/styles --config ./node_modules/stylus-config-cozy-app/.stylintrc",
-    "test": "jest"
+    "test": "jest",
+    "cozyPublish": "cozy-app-publish --token $REGISTRY_TOKEN --prepublish downcloud"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
     "babel-jest": "30.5.2",
     "babel-preset-cozy-app": "^2.8.4",
     "core-js": "3.50.0",
+    "cozy-app-publish": "^0.41.0",
     "cozy-tsconfig": "^2.0.0",
     "eslint": "10.11.0",
     "eslint-config-cozy-app": "^7.1.0",
