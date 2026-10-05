@@ -51,6 +51,7 @@
     "typescript": "5.9.3"
   },
   "dependencies": {
+    "@assistant-ui/react": "^0.12.5",
     "@linagora/twake-icons": "^2.13.0",
     "cozy-bar": "^35.4.11",
     "cozy-client": "^60.37.1",
