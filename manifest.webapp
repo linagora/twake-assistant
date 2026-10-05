@@ -38,8 +38,20 @@
       "folder": "/",
       "index": "index.html",
       "public": false
+    },
+    "/intents": {
+      "folder": "/intents",
+      "index": "index.html",
+      "public": false
     }
   },
+  "intents": [
+    {
+      "action": "OPEN",
+      "type": ["io.cozy.ai.chat.conversations"],
+      "href": "/intents"
+    }
+  ],
   "permissions": {
     "apps": {
       "description": "Required by the cozy-bar to display the icons of the apps",
