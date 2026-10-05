@@ -6,8 +6,7 @@ import { AssistantView } from 'cozy-search'
 
 import { AppLayout } from '@/components/AppLayout'
 import { NewConversation } from '@/components/Views/NewConversation'
-
-export const ASSISTANT_ROUTE_PATH = 'assistant/:conversationId'
+import { ASSISTANT_ROUTE_PATH } from '@/lib/conversation'
 
 // The assistant has its own route here, not the dialog of the cozy-bar
 const barRoutes = BarRoutes.filter(
