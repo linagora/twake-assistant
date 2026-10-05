@@ -9,6 +9,12 @@ the one embedded in Twake Drive and Home, on its own route.
 - `#/assistant/:conversationId`: a conversation.
 - Any other route opens a new conversation.
 
+## Intent
+
+Another app opens the assistant with the `OPEN` intent on
+`io.cozy.ai.chat.conversations`, in a modal or in a side panel. See
+[the Assistant intent](docs/assistant-intent.md).
+
 ## Requirements on the instance
 
 - The flag `cozy.assistant.enabled`.
