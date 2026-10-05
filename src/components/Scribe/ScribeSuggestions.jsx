@@ -1,0 +1,94 @@
+import { useComposerRuntime } from '@assistant-ui/react'
+import React, { useRef, useState } from 'react'
+
+import ActionsMenu from 'cozy-ui/transpiled/react/ActionsMenu'
+import ActionsMenuItem from 'cozy-ui/transpiled/react/ActionsMenu/ActionsMenuItem'
+import Chip from 'cozy-ui/transpiled/react/Chips'
+import Typography from 'cozy-ui/transpiled/react/Typography'
+
+import { useScribe } from '@/components/Scribe/ScribeProvider'
+
+/**
+ * A prompt about the text of the app: the chip sends it, or opens a menu of
+ * prompts
+ */
+function SuggestionChip({ suggestion, onSend }) {
+  const chipRef = useRef(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const handleClick = () => {
+    if (suggestion.options) {
+      setIsMenuOpen(true)
+    } else {
+      onSend(suggestion.prompt)
+    }
+  }
+  const handleClose = () => setIsMenuOpen(false)
+  const handleSelect = prompt => {
+    setIsMenuOpen(false)
+    onSend(prompt)
+  }
+
+  return (
+    <>
+      <Chip
+        ref={chipRef}
+        className="u-mr-half u-mb-half"
+        label={suggestion.label}
+        clickable
+        {...(suggestion.options && {
+          'aria-haspopup': 'menu',
+          'aria-expanded': isMenuOpen
+        })}
+        onClick={handleClick}
+      />
+      {isMenuOpen && (
+        <ActionsMenu
+          open
+          ref={chipRef}
+          onClose={handleClose}
+          actions={[]}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        >
+          {suggestion.options.map(option => (
+            // The menu gives its items a ref: no component of our own here
+            <ActionsMenuItem
+              key={option.name}
+              onClick={() => handleSelect(option.prompt)}
+            >
+              <Typography variant="body1">{option.label}</Typography>
+            </ActionsMenuItem>
+          ))}
+        </ActionsMenu>
+      )}
+    </>
+  )
+}
+
+/**
+ * The prompts about the text of the app, above the composer of an empty
+ * conversation
+ */
+export function ScribeSuggestions() {
+  const { suggestions } = useScribe()
+  const composerRuntime = useComposerRuntime()
+
+  if (suggestions.length === 0) return null
+
+  const handleSend = prompt => {
+    composerRuntime.setText(prompt)
+    composerRuntime.send()
+  }
+
+  return (
+    <div className="u-flex u-flex-wrap">
+      {suggestions.map(suggestion => (
+        <SuggestionChip
+          key={suggestion.name}
+          suggestion={suggestion}
+          onSend={handleSend}
+        />
+      ))}
+    </div>
+  )
+}

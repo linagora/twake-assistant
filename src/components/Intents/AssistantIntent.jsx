@@ -9,12 +9,18 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
 import { IntentProviders } from '@/components/IntentProviders'
+import { ScribeView } from '@/components/Scribe/ScribeView'
 import {
   DOCTYPE_AI_CHAT_ASSISTANTS,
   DOCTYPE_AI_CHAT_CONVERSATIONS
 } from '@/doctypes'
 import { ASSISTANT_ROUTE_PATH, makeConversationId } from '@/lib/conversation'
 import { getIntentConfig } from '@/lib/intent'
+import {
+  makeScribeAnswerActions,
+  makeScribePrepareQuery,
+  makeScribeSuggestions
+} from '@/lib/scribe'
 
 const log = Minilog('🤖 [AssistantIntent]')
 
@@ -47,8 +53,37 @@ function PlainAssistant() {
   )
 }
 
-function AssistantIntentView({ service }) {
+function Scribe({ service, config }) {
+  const { t } = useI18n()
+  const [conversationId] = useState(makeConversationId)
+
+  const scribeProps = useMemo(() => {
+    const { content, answerActions } = config
+
+    return {
+      // The assistant stays open after an action: the answer is a result
+      // handed to the app, not the end of the intent, which the app closes
+      // itself
+      answerActions: makeScribeAnswerActions(answerActions, t, result =>
+        service.sendResult(result)
+      ),
+      // The answers of a scribe go into the document of the app: the LLM is
+      // told so, in a system message
+      instructions: t('scribe.instructions'),
+      ...(content && {
+        suggestions: makeScribeSuggestions(t),
+        prepareQuery: makeScribePrepareQuery(content, t)
+      })
+    }
+  }, [service, config, t])
+
+  return <ScribeView conversationId={conversationId} {...scribeProps} />
+}
+
+function AssistantIntentView({ service, config }) {
   const hasNotifiedReadyRef = useRef(false)
+  // With a text or actions of the app, the assistant works for it
+  const isScribe = config.content !== '' || config.answerActions.length > 0
 
   // The assistant is rendered: an app that waits for it can show the intent
   useEffect(() => {
@@ -57,11 +92,16 @@ function AssistantIntentView({ service }) {
     service.notifyReadyToUse()
   }, [service])
 
-  return <PlainAssistant />
+  return isScribe ? (
+    <Scribe service={service} config={config} />
+  ) : (
+    <PlainAssistant />
+  )
 }
 
 /**
- * The assistant opened by another app (see docs/assistant-intent.md)
+ * The assistant opened by another app, as a scribe when the app gives a text
+ * or takes the answers back (see docs/assistant-intent.md)
  */
 export function AssistantIntent({ client, lang, polyglot, intentId }) {
   const [service, setService] = useState(null)
@@ -94,7 +134,11 @@ export function AssistantIntent({ client, lang, polyglot, intentId }) {
       polyglot={polyglot}
       themeType={config.theme.type}
     >
-      {service ? <AssistantIntentView service={service} /> : <IntentError />}
+      {service ? (
+        <AssistantIntentView service={service} config={config} />
+      ) : (
+        <IntentError />
+      )}
     </IntentProviders>
   )
 }

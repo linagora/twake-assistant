@@ -1,5 +1,69 @@
 {
   "intent": {
     "error": "The assistant cannot be opened."
+  },
+  "scribe": {
+    "title": "Twake AI",
+    "welcome": "How can I help you today?",
+    "placeholder": "Describe a task",
+    "send": "Send",
+    "stop": "Stop",
+    "documents": "Use my documents",
+    "thinking": "The assistant is writing…",
+    "error": "An error occurred while writing the answer. Please try again.",
+    "empty": "I could not find an answer to your request. Please try rephrasing it.",
+    "sources": "%{smart_count} source |||| %{smart_count} sources",
+    "disclaimer": "Twake AI can make mistakes. Please verify important information.",
+    "instructions": "You help the user work on a text in their editor. First look at what they ask.\nIf they ask a question about the text or want your opinion, answer normally, in a few sentences, without rewriting the text.\nIf they ask to write or change a text, your answer will be put in their document as it is: answer with that text only, in the language of the text, in a single version, with no introduction, no comment about your answer, no separator line, no emoji and nothing to fill in between brackets. Keep the form of the text, unless asked to change it, and do not make up information.",
+    "content": "Text:",
+    "actions": {
+      "insert": "Insert",
+      "replace": "Replace"
+    },
+    "suggestions": {
+      "translate": {
+        "label": "Translate",
+        "en": {
+          "label": "English",
+          "prompt": "Translate this text into English. Answer with the translation only. Do not add any introduction, quote or comment."
+        },
+        "fr": {
+          "label": "French",
+          "prompt": "Translate this text into French. Answer with the translation only. Do not add any introduction, quote or comment."
+        },
+        "es": {
+          "label": "Spanish",
+          "prompt": "Translate this text into Spanish. Answer with the translation only. Do not add any introduction, quote or comment."
+        },
+        "de": {
+          "label": "German",
+          "prompt": "Translate this text into German. Answer with the translation only. Do not add any introduction, quote or comment."
+        },
+        "it": {
+          "label": "Italian",
+          "prompt": "Translate this text into Italian. Answer with the translation only. Do not add any introduction, quote or comment."
+        }
+      },
+      "summarize": {
+        "label": "Summarize",
+        "prompt": "Summarize this text in two or three sentences. Answer with the summary only. Do not add any introduction, quote or comment."
+      },
+      "improve": {
+        "label": "Improve",
+        "prompt": "Improve the writing of this text, keeping its meaning and its language. Answer with the improved text only. Do not add any introduction, quote or comment."
+      },
+      "fix": {
+        "label": "Fix spelling",
+        "prompt": "Fix the spelling and the grammar of this text, without changing anything else. Answer with the corrected text only. Do not add any introduction, quote or comment."
+      },
+      "shorten": {
+        "label": "Make shorter",
+        "prompt": "Make this text shorter, keeping its meaning and its language. Answer with the shorter text only. Do not add any introduction, quote or comment."
+      },
+      "expand": {
+        "label": "Make longer",
+        "prompt": "Develop this text, keeping its meaning and its language. Answer with the developed text only. Do not add any introduction, quote or comment."
+      }
+    }
   }
 }
