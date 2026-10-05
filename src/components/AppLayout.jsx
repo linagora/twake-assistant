@@ -1,13 +1,12 @@
 import React from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
-import { TwakeWorkplace } from '@linagora/twake-icons'
-import { BarComponent, BarLeft } from 'cozy-bar'
+import { BarComponent } from 'cozy-bar'
 import { RealTimeQueries } from 'cozy-client'
 import { AiText, useAssistantsSetup } from 'cozy-search'
-import AppTitle from 'cozy-ui/transpiled/react/AppTitle'
 import { Layout } from 'cozy-ui/transpiled/react/Layout'
 
+import TwakeAiIcon from '@/assets/icons/twake-ai.svg'
 import styles from '@/components/AppLayout.styl'
 import {
   DOCTYPE_AI_CHAT_ASSISTANTS,
@@ -22,8 +21,7 @@ export function AppLayout() {
       <RealTimeQueries doctype={DOCTYPE_AI_CHAT_CONVERSATIONS} />
       <RealTimeQueries doctype={DOCTYPE_AI_CHAT_ASSISTANTS} />
       <BarComponent
-        searchOptions={{ enabled: true }}
-        appIcon={TwakeWorkplace}
+        appIcon={TwakeAiIcon}
         appTextIcon={AiText}
         componentsProps={{
           Wrapper: {
@@ -31,11 +29,6 @@ export function AppLayout() {
           }
         }}
       />
-      <BarLeft>
-        <Link to="/" className="coz-nav-apps-btns-home">
-          <AppTitle appIcon={TwakeWorkplace} appTextIcon={AiText} />
-        </Link>
-      </BarLeft>
       <main className={styles['assistant-view']}>
         <Outlet />
       </main>
