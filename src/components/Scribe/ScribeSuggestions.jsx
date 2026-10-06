@@ -20,13 +20,13 @@ function SuggestionChip({ suggestion, onSend }) {
     if (suggestion.options) {
       setIsMenuOpen(true)
     } else {
-      onSend(suggestion.prompt)
+      onSend(suggestion)
     }
   }
   const handleClose = () => setIsMenuOpen(false)
-  const handleSelect = prompt => {
+  const handleSelect = option => {
     setIsMenuOpen(false)
-    onSend(prompt)
+    onSend(option)
   }
 
   return (
@@ -54,7 +54,7 @@ function SuggestionChip({ suggestion, onSend }) {
             // The menu gives its items a ref: no component of our own here
             <ActionsMenuItem
               key={option.name}
-              onClick={() => handleSelect(option.prompt)}
+              onClick={() => handleSelect(option)}
             >
               <Typography variant="body1">{option.label}</Typography>
             </ActionsMenuItem>
@@ -75,9 +75,14 @@ export function ScribeSuggestions() {
 
   if (suggestions.length === 0) return null
 
-  const handleSend = prompt => {
-    composerRuntime.setText(prompt)
+  // The conversation shows the request, the chat sends the prompt of the
+  // catalogue that goes with it. The composer keeps its run config after a
+  // message: the next one, typed, has no prompt.
+  const handleSend = suggestion => {
+    composerRuntime.setText(suggestion.request)
+    composerRuntime.setRunConfig({ custom: { prompt: suggestion.prompt } })
     composerRuntime.send()
+    composerRuntime.setRunConfig({})
   }
 
   return (
