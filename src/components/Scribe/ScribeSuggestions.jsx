@@ -1,4 +1,4 @@
-import { useComposerRuntime } from '@assistant-ui/react'
+import { useThreadRuntime } from '@assistant-ui/react'
 import React, { useRef, useState } from 'react'
 
 import ActionsMenu from 'cozy-ui/transpiled/react/ActionsMenu'
@@ -71,18 +71,20 @@ function SuggestionChip({ suggestion, onSend }) {
  */
 export function ScribeSuggestions() {
   const { suggestions } = useScribe()
-  const composerRuntime = useComposerRuntime()
+  const threadRuntime = useThreadRuntime()
 
   if (suggestions.length === 0) return null
 
   // The conversation shows the request, the chat sends the prompt of the
-  // catalogue that goes with it. The composer keeps its run config after a
-  // message: the next one, typed, has no prompt.
+  // catalogue that goes with it. The message is added to the thread with its
+  // run config, not through the composer, which would keep it for the next
+  // message typed.
   const handleSend = suggestion => {
-    composerRuntime.setText(suggestion.request)
-    composerRuntime.setRunConfig({ custom: { prompt: suggestion.prompt } })
-    composerRuntime.send()
-    composerRuntime.setRunConfig({})
+    threadRuntime.append({
+      role: 'user',
+      content: [{ type: 'text', text: suggestion.request }],
+      runConfig: { custom: { prompt: suggestion.prompt } }
+    })
   }
 
   return (
