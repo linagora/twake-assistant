@@ -35,6 +35,8 @@ function sendAsItIs(text) {
  * buttons under each answer
  * @param {Function} [props.prepareQuery] - turns the text of a message into
  * the query sent to the stack
+ * @param {Function} [props.preparePrompt] - the query and the instructions of
+ * a prompt of the catalogue, for a message sent by a suggestion
  * @param {string} [props.instructions] - how to answer, sent to the LLM as a
  * system message with each message
  * @param {string} [props.text] - the text of the app the requests are about.
@@ -45,6 +47,7 @@ export function ScribeProvider({
   suggestions = [],
   answerActions = [],
   prepareQuery = sendAsItIs,
+  preparePrompt = null,
   instructions = null,
   text = '',
   children
@@ -58,8 +61,8 @@ export function ScribeProvider({
   const [chat] = useState(() => makeScribeChat({ client, conversationId }))
 
   useEffect(() => {
-    chat.setRequest({ prepareQuery, hasDocuments, instructions })
-  }, [chat, prepareQuery, hasDocuments, instructions])
+    chat.setRequest({ prepareQuery, preparePrompt, hasDocuments, instructions })
+  }, [chat, prepareQuery, preparePrompt, hasDocuments, instructions])
 
   useEffect(() => {
     const realtime = client.plugins.realtime

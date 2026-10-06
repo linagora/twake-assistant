@@ -21,48 +21,66 @@
       "replace": "Remplacer"
     },
     "suggestions": {
+      "correct": {
+        "label": "Corriger",
+        "request": "Corrige la grammaire et l'orthographe du texte."
+      },
+      "improve": {
+        "label": "Améliorer",
+        "shorter": {
+          "label": "Raccourcir",
+          "request": "Raccourcis le texte."
+        },
+        "expand": {
+          "label": "Développer",
+          "request": "Développe le texte avec plus de détails."
+        },
+        "emojify": {
+          "label": "Ajouter des émojis",
+          "request": "Ajoute des émojis au texte."
+        },
+        "bullets": {
+          "label": "Transformer en liste",
+          "request": "Transforme le texte en liste à puces."
+        }
+      },
+      "tone": {
+        "label": "Changer le ton",
+        "professional": {
+          "label": "Plus professionnel",
+          "request": "Rends le ton du texte plus professionnel."
+        },
+        "casual": {
+          "label": "Plus décontracté",
+          "request": "Rends le ton du texte plus décontracté."
+        },
+        "polite": {
+          "label": "Plus poli",
+          "request": "Rends le ton du texte plus poli."
+        }
+      },
       "translate": {
         "label": "Traduire",
-        "en": {
-          "label": "Anglais",
-          "prompt": "Traduis ce texte en anglais. Réponds uniquement avec la traduction. N'ajoute ni introduction, ni guillemets, ni commentaire."
-        },
-        "fr": {
+        "french": {
           "label": "Français",
-          "prompt": "Traduis ce texte en français. Réponds uniquement avec la traduction. N'ajoute ni introduction, ni guillemets, ni commentaire."
+          "request": "Traduis le texte en français."
         },
-        "es": {
-          "label": "Espagnol",
-          "prompt": "Traduis ce texte en espagnol. Réponds uniquement avec la traduction. N'ajoute ni introduction, ni guillemets, ni commentaire."
+        "english": {
+          "label": "Anglais",
+          "request": "Traduis le texte en anglais."
         },
-        "de": {
-          "label": "Allemand",
-          "prompt": "Traduis ce texte en allemand. Réponds uniquement avec la traduction. N'ajoute ni introduction, ni guillemets, ni commentaire."
+        "russian": {
+          "label": "Russe",
+          "request": "Traduis le texte en russe."
         },
-        "it": {
-          "label": "Italien",
-          "prompt": "Traduis ce texte en italien. Réponds uniquement avec la traduction. N'ajoute ni introduction, ni guillemets, ni commentaire."
+        "vietnamese": {
+          "label": "Vietnamien",
+          "request": "Traduis le texte en vietnamien."
         }
       },
       "summarize": {
         "label": "Résumer",
-        "prompt": "Résume ce texte en deux ou trois phrases. Réponds uniquement avec le résumé. N'ajoute ni introduction, ni guillemets, ni commentaire."
-      },
-      "improve": {
-        "label": "Améliorer",
-        "prompt": "Améliore la rédaction de ce texte, en gardant son sens et sa langue. Réponds uniquement avec le texte amélioré. N'ajoute ni introduction, ni guillemets, ni commentaire."
-      },
-      "fix": {
-        "label": "Corriger",
-        "prompt": "Corrige l'orthographe et la grammaire de ce texte, sans rien changer d'autre. Réponds uniquement avec le texte corrigé. N'ajoute ni introduction, ni guillemets, ni commentaire."
-      },
-      "shorten": {
-        "label": "Raccourcir",
-        "prompt": "Raccourcis ce texte, en gardant son sens et sa langue. Réponds uniquement avec le texte raccourci. N'ajoute ni introduction, ni guillemets, ni commentaire."
-      },
-      "expand": {
-        "label": "Développer",
-        "prompt": "Développe ce texte, en gardant son sens et sa langue. Réponds uniquement avec le texte développé. N'ajoute ni introduction, ni guillemets, ni commentaire."
+        "request": "Résume le texte."
       }
     }
   }

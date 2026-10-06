@@ -6,6 +6,7 @@
   },
   "scripts": {
     "build": "rsbuild build",
+    "prompts:update": "node scripts/update-scribe-prompts.mjs",
     "watch": "rsbuild build --watch --mode development",
     "start": "rsbuild dev",
     "analyze": "RSDOCTOR=true yarn build",
