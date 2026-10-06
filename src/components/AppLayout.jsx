@@ -1,12 +1,12 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 
+import { Ai } from '@linagora/twake-icons'
 import { BarComponent } from 'cozy-bar'
 import { RealTimeQueries } from 'cozy-client'
 import { AiText, useAssistantsSetup } from 'cozy-search'
 import { Layout } from 'cozy-ui/transpiled/react/Layout'
 
-import TwakeAiIcon from '@/assets/icons/twake-ai.svg'
 import styles from '@/components/AppLayout.styl'
 import {
   DOCTYPE_AI_CHAT_ASSISTANTS,
@@ -21,7 +21,7 @@ export function AppLayout() {
       <RealTimeQueries doctype={DOCTYPE_AI_CHAT_CONVERSATIONS} />
       <RealTimeQueries doctype={DOCTYPE_AI_CHAT_ASSISTANTS} />
       <BarComponent
-        appIcon={TwakeAiIcon}
+        appIcon={Ai}
         appTextIcon={AiText}
         componentsProps={{
           Wrapper: {
