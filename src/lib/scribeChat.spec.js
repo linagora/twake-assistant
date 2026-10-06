@@ -99,6 +99,36 @@ describe('makeScribeChatAdapter', () => {
     ])
   })
 
+  it('sends the prompt of the catalogue of a suggestion', async () => {
+    const preparePrompt = jest.fn(name =>
+      name === 'make-shorter'
+        ? { q: 'INSTRUCTION: shorter TEXT: Bonjour', instructions: 'Edit only' }
+        : null
+    )
+    const { adapter, fetchJSON } = setup({
+      events: [{ object: 'done' }],
+      options: { preparePrompt, instructions: 'Scribe' }
+    })
+
+    const results = []
+    for await (const result of adapter.run({
+      messages: [userMessage('Make the text shorter.')],
+      runConfig: { custom: { prompt: 'make-shorter' } }
+    })) {
+      results.push(result)
+    }
+    await run(adapter, [userMessage('Fix it')])
+
+    expect(fetchJSON.mock.calls.map(call => call[2])).toEqual([
+      {
+        q: 'INSTRUCTION: shorter TEXT: Bonjour',
+        documents: false,
+        instructions: 'Edit only'
+      },
+      { q: 'Fix it', documents: false, instructions: 'Scribe' }
+    ])
+  })
+
   it('sends the instructions of the scribe', async () => {
     const { adapter, fetchJSON } = setup({
       events: [{ object: 'done' }],

@@ -21,48 +21,66 @@
       "replace": "Replace"
     },
     "suggestions": {
+      "correct": {
+        "label": "Correct",
+        "request": "Correct the grammar and spelling of the text."
+      },
+      "improve": {
+        "label": "Improve",
+        "shorter": {
+          "label": "Make it shorter",
+          "request": "Make the text shorter."
+        },
+        "expand": {
+          "label": "Expand context",
+          "request": "Expand the text with more details."
+        },
+        "emojify": {
+          "label": "Emojify",
+          "request": "Add emojis to the text."
+        },
+        "bullets": {
+          "label": "Transform to bullets",
+          "request": "Turn the text into a bulleted list."
+        }
+      },
+      "tone": {
+        "label": "Change tone",
+        "professional": {
+          "label": "More professional",
+          "request": "Make the tone of the text more professional."
+        },
+        "casual": {
+          "label": "More casual",
+          "request": "Make the tone of the text more casual."
+        },
+        "polite": {
+          "label": "More polite",
+          "request": "Make the tone of the text more polite."
+        }
+      },
       "translate": {
         "label": "Translate",
-        "en": {
-          "label": "English",
-          "prompt": "Translate this text into English. Answer with the translation only. Do not add any introduction, quote or comment."
-        },
-        "fr": {
+        "french": {
           "label": "French",
-          "prompt": "Translate this text into French. Answer with the translation only. Do not add any introduction, quote or comment."
+          "request": "Translate the text into French."
         },
-        "es": {
-          "label": "Spanish",
-          "prompt": "Translate this text into Spanish. Answer with the translation only. Do not add any introduction, quote or comment."
+        "english": {
+          "label": "English",
+          "request": "Translate the text into English."
         },
-        "de": {
-          "label": "German",
-          "prompt": "Translate this text into German. Answer with the translation only. Do not add any introduction, quote or comment."
+        "russian": {
+          "label": "Russian",
+          "request": "Translate the text into Russian."
         },
-        "it": {
-          "label": "Italian",
-          "prompt": "Translate this text into Italian. Answer with the translation only. Do not add any introduction, quote or comment."
+        "vietnamese": {
+          "label": "Vietnamese",
+          "request": "Translate the text into Vietnamese."
         }
       },
       "summarize": {
         "label": "Summarize",
-        "prompt": "Summarize this text in two or three sentences. Answer with the summary only. Do not add any introduction, quote or comment."
-      },
-      "improve": {
-        "label": "Improve",
-        "prompt": "Improve the writing of this text, keeping its meaning and its language. Answer with the improved text only. Do not add any introduction, quote or comment."
-      },
-      "fix": {
-        "label": "Fix spelling",
-        "prompt": "Fix the spelling and the grammar of this text, without changing anything else. Answer with the corrected text only. Do not add any introduction, quote or comment."
-      },
-      "shorten": {
-        "label": "Make shorter",
-        "prompt": "Make this text shorter, keeping its meaning and its language. Answer with the shorter text only. Do not add any introduction, quote or comment."
-      },
-      "expand": {
-        "label": "Make longer",
-        "prompt": "Develop this text, keeping its meaning and its language. Answer with the developed text only. Do not add any introduction, quote or comment."
+        "request": "Summarize the text."
       }
     }
   }

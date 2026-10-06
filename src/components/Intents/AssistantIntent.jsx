@@ -18,6 +18,7 @@ import { ASSISTANT_ROUTE_PATH, makeConversationId } from '@/lib/conversation'
 import { getIntentConfig } from '@/lib/intent'
 import {
   makeScribeAnswerActions,
+  makeScribePreparePrompt,
   makeScribePrepareQuery,
   makeScribeSuggestions
 } from '@/lib/scribe'
@@ -72,7 +73,8 @@ function Scribe({ service, config }) {
       content
         ? {
             suggestions: makeScribeSuggestions(t),
-            prepareQuery: makeScribePrepareQuery(content, t)
+            prepareQuery: makeScribePrepareQuery(content, t),
+            preparePrompt: makeScribePreparePrompt(content)
           }
         : {},
     [content, t]
