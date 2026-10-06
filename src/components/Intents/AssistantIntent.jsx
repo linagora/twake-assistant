@@ -56,28 +56,39 @@ function PlainAssistant() {
 function Scribe({ service, config }) {
   const { t } = useI18n()
   const [conversationId] = useState(makeConversationId)
+  const { content, answerActions } = config
 
-  const scribeProps = useMemo(() => {
-    const { content, answerActions } = config
-
-    return {
-      // The assistant stays open after an action: the answer is a result
-      // handed to the app, not the end of the intent, which the app closes
-      // itself
-      answerActions: makeScribeAnswerActions(answerActions, t, result =>
+  // The assistant stays open after an action: the answer is a result handed
+  // to the app, not the end of the intent, which the app closes itself
+  const scribeActions = useMemo(
+    () =>
+      makeScribeAnswerActions(answerActions, t, result =>
         service.sendResult(result)
       ),
+    [service, answerActions, t]
+  )
+  const textProps = useMemo(
+    () =>
+      content
+        ? {
+            suggestions: makeScribeSuggestions(t),
+            prepareQuery: makeScribePrepareQuery(content, t)
+          }
+        : {},
+    [content, t]
+  )
+
+  return (
+    <ScribeView
+      conversationId={conversationId}
+      answerActions={scribeActions}
       // The answers of a scribe go into the document of the app: the LLM is
       // told so, in a system message
-      instructions: t('scribe.instructions'),
-      ...(content && {
-        suggestions: makeScribeSuggestions(t),
-        prepareQuery: makeScribePrepareQuery(content, t)
-      })
-    }
-  }, [service, config, t])
-
-  return <ScribeView conversationId={conversationId} {...scribeProps} />
+      instructions={t('scribe.instructions')}
+      text={content}
+      {...textProps}
+    />
+  )
 }
 
 function AssistantIntentView({ service, config }) {
@@ -106,12 +117,16 @@ function AssistantIntentView({ service, config }) {
 export function AssistantIntent({ client, lang, polyglot, intentId }) {
   const [service, setService] = useState(null)
   const [hasError, setHasError] = useState(false)
+  // The app may give new data while the intent goes on, as another text
+  const [data, setData] = useState(null)
 
   useEffect(() => {
     const fetchService = async () => {
       try {
         const intents = new Intents({ client })
-        setService(await intents.createService(intentId, window))
+        const intentService = await intents.createService(intentId, window)
+        setData(intentService.getData())
+        setService(intentService)
       } catch (error) {
         log.error('Cannot start the assistant intent', error)
         setHasError(true)
@@ -121,7 +136,14 @@ export function AssistantIntent({ client, lang, polyglot, intentId }) {
     fetchService()
   }, [client, intentId])
 
-  const config = useMemo(() => getIntentConfig(service?.getData()), [service])
+  useEffect(() => service?.onData?.(setData), [service])
+
+  const config = useMemo(() => getIntentConfig(data), [data])
+  // The theme is the one of the opening: new data do not change it
+  const [themeType, setThemeType] = useState(null)
+  if (service && themeType === null && config.theme.type !== null) {
+    setThemeType(config.theme.type)
+  }
 
   // Nothing is shown before the data of the intent are known: its theme is
   // among them, and another one would flash first
@@ -132,7 +154,7 @@ export function AssistantIntent({ client, lang, polyglot, intentId }) {
       client={client}
       lang={lang}
       polyglot={polyglot}
-      themeType={config.theme.type}
+      themeType={themeType ?? config.theme.type}
     >
       {service ? (
         <AssistantIntentView service={service} config={config} />
