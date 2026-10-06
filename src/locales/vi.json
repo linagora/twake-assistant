@@ -1,0 +1,69 @@
+{
+  "intent": {
+    "error": "Không thể mở trợ lý."
+  },
+  "scribe": {
+    "title": "Twake AI",
+    "welcome": "Hôm nay tôi có thể giúp gì cho bạn?",
+    "placeholder": "Mô tả một nhiệm vụ",
+    "send": "Gửi",
+    "stop": "Dừng",
+    "documents": "Sử dụng tài liệu của tôi",
+    "thinking": "Trợ lý đang viết…",
+    "error": "Đã xảy ra lỗi khi viết câu trả lời. Vui lòng thử lại.",
+    "empty": "Tôi không tìm thấy câu trả lời cho yêu cầu của bạn. Vui lòng thử diễn đạt lại.",
+    "sources": "%{smart_count} nguồn |||| %{smart_count} nguồn",
+    "disclaimer": "Twake AI có thể mắc lỗi. Vui lòng kiểm tra lại các thông tin quan trọng.",
+    "instructions": "Bạn giúp người dùng làm việc với một văn bản trong trình soạn thảo của họ. Trước tiên, hãy xem họ yêu cầu gì.\nNếu họ đặt câu hỏi về văn bản hoặc muốn biết ý kiến của bạn, hãy trả lời bình thường, trong vài câu, mà không viết lại văn bản.\nNếu họ yêu cầu viết hoặc thay đổi một văn bản, câu trả lời của bạn sẽ được đưa nguyên vẹn vào tài liệu của họ: khi đó chỉ trả lời bằng chính văn bản đó, bằng ngôn ngữ của văn bản, trong một phiên bản duy nhất, không có lời giới thiệu, không bình luận về câu trả lời, không có dòng phân cách, không có emoji và không có chỗ trống nào cần điền trong ngoặc. Giữ nguyên hình thức của văn bản, trừ khi được yêu cầu thay đổi, và không bịa ra thông tin.",
+    "content": "Văn bản:",
+    "actions": {
+      "insert": "Chèn",
+      "replace": "Thay thế"
+    },
+    "suggestions": {
+      "translate": {
+        "label": "Dịch",
+        "en": {
+          "label": "Tiếng Anh",
+          "prompt": "Dịch văn bản này sang tiếng Anh. Chỉ trả lời bằng bản dịch. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+        },
+        "fr": {
+          "label": "Tiếng Pháp",
+          "prompt": "Dịch văn bản này sang tiếng Pháp. Chỉ trả lời bằng bản dịch. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+        },
+        "es": {
+          "label": "Tiếng Tây Ban Nha",
+          "prompt": "Dịch văn bản này sang tiếng Tây Ban Nha. Chỉ trả lời bằng bản dịch. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+        },
+        "de": {
+          "label": "Tiếng Đức",
+          "prompt": "Dịch văn bản này sang tiếng Đức. Chỉ trả lời bằng bản dịch. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+        },
+        "it": {
+          "label": "Tiếng Ý",
+          "prompt": "Dịch văn bản này sang tiếng Ý. Chỉ trả lời bằng bản dịch. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+        }
+      },
+      "summarize": {
+        "label": "Tóm tắt",
+        "prompt": "Tóm tắt văn bản này trong hai hoặc ba câu. Chỉ trả lời bằng bản tóm tắt. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+      },
+      "improve": {
+        "label": "Cải thiện",
+        "prompt": "Cải thiện cách viết của văn bản này, giữ nguyên ý nghĩa và ngôn ngữ của nó. Chỉ trả lời bằng văn bản đã được cải thiện. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+      },
+      "fix": {
+        "label": "Sửa chính tả",
+        "prompt": "Sửa lỗi chính tả và ngữ pháp của văn bản này, không thay đổi gì khác. Chỉ trả lời bằng văn bản đã sửa. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+      },
+      "shorten": {
+        "label": "Rút gọn",
+        "prompt": "Rút gọn văn bản này, giữ nguyên ý nghĩa và ngôn ngữ của nó. Chỉ trả lời bằng văn bản đã rút gọn. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+      },
+      "expand": {
+        "label": "Mở rộng",
+        "prompt": "Phát triển văn bản này, giữ nguyên ý nghĩa và ngôn ngữ của nó. Chỉ trả lời bằng văn bản đã được phát triển. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+      }
+    }
+  }
+}
