@@ -35,13 +35,13 @@ describe('makeScribePrepareQuery', () => {
   const prepareQuery = makeScribePrepareQuery('Bonjour à tous', mockT)
 
   it('joins the text of the app to the first message', () => {
-    expect(prepareQuery('Translate', { isFirstMessage: true })).toBe(
+    expect(prepareQuery('Translate', { isFirstOnText: true })).toBe(
       'Translate\n\nText:\n"""\nBonjour à tous\n"""'
     )
   })
 
   it('sends a later message as it is', () => {
-    expect(prepareQuery('Shorter', { isFirstMessage: false })).toBe('Shorter')
+    expect(prepareQuery('Shorter', { isFirstOnText: false })).toBe('Shorter')
   })
 })
 

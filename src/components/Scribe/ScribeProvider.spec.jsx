@@ -7,11 +7,13 @@ import { ScribeProvider, useScribe } from '@/components/Scribe/ScribeProvider'
 
 let mockAdapter = null
 
+let mockMessages = []
+
 jest.mock('@assistant-ui/react', () => ({
   AssistantRuntimeProvider: ({ children }) => children,
   useLocalRuntime: adapter => {
     mockAdapter = adapter
-    return {}
+    return { thread: { getState: () => ({ messages: mockMessages }) } }
   }
 }))
 jest.mock('cozy-minilog', () => () => ({ error: jest.fn() }))
@@ -36,16 +38,18 @@ function setup(props = {}) {
     data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
   }))
   const onScribe = jest.fn()
-  const result = render(
+  const makeTree = treeProps => (
     <CozyProvider client={client}>
-      <ScribeProvider conversationId="c1" {...props}>
+      <ScribeProvider conversationId="c1" {...treeProps}>
         <Probe onScribe={onScribe} />
       </ScribeProvider>
     </CozyProvider>
   )
+  const result = render(makeTree(props))
 
   return {
     ...result,
+    rerenderWith: nextProps => result.rerender(makeTree(nextProps)),
     client,
     emit: event => handlers.forEach(handler => handler(event)),
     getScribe: () => onScribe.mock.calls.at(-1)[0]
@@ -66,10 +70,40 @@ const userMessage = text => ({
 })
 
 describe('ScribeProvider', () => {
+  beforeEach(() => {
+    mockMessages = []
+  })
+
+  it('joins a new text of the app to the next message, and offers its prompts again', async () => {
+    const prepareQuery = (text, { isFirstOnText }) =>
+      isFirstOnText ? `${text} <text>` : text
+    const { client, emit, getScribe, rerenderWith } = setup({
+      prepareQuery,
+      text: 'Bonjour'
+    })
+    client.stackClient.fetchJSON.mockImplementation(async () => {
+      emit({ _id: 'q1', object: 'done' })
+      return {
+        data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
+      }
+    })
+    expect(getScribe().textStart).toBe(0)
+
+    await run([userMessage('Fix it')])
+    mockMessages = [userMessage('Fix it'), { role: 'assistant' }]
+    rerenderWith({ prepareQuery, text: 'Au revoir' })
+    await run([...mockMessages, userMessage('Translate')])
+
+    expect(getScribe().textStart).toBe(1)
+    expect(
+      client.stackClient.fetchJSON.mock.calls.map(call => call[2].q)
+    ).toEqual(['Fix it <text>', 'Translate <text>'])
+  })
+
   it('answers a message with the events of the realtime', async () => {
     const { client, emit } = setup({
-      prepareQuery: (text, { isFirstMessage }) =>
-        isFirstMessage ? `${text} <Bonjour>` : text,
+      prepareQuery: (text, { isFirstOnText }) =>
+        isFirstOnText ? `${text} <Bonjour>` : text,
       instructions: 'Answer with the text only.'
     })
     client.stackClient.fetchJSON.mockImplementation(async () => {

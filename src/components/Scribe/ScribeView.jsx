@@ -7,7 +7,7 @@ import { useI18n } from 'twake-i18n'
 
 import { ScribeAnswer } from '@/components/Scribe/ScribeAnswer'
 import { ScribeComposer } from '@/components/Scribe/ScribeComposer'
-import { ScribeProvider } from '@/components/Scribe/ScribeProvider'
+import { ScribeProvider, useScribe } from '@/components/Scribe/ScribeProvider'
 import { ScribeRequest } from '@/components/Scribe/ScribeRequest'
 import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
 import styles from '@/components/Scribe/styles.styl'
@@ -20,6 +20,12 @@ const MESSAGE_COMPONENTS = {
 function ScribeConversation() {
   const { t } = useI18n()
   const isEmpty = useThread(state => state.messages.length === 0)
+  const requestCount = useThread(
+    state => state.messages.filter(message => message.role === 'user').length
+  )
+  // The prompts are about the text: offered again when the app gives another
+  const { textStart } = useScribe()
+  const hasNewText = requestCount === textStart
 
   return (
     <ThreadPrimitive.Root className={styles['scribe']}>
@@ -45,7 +51,7 @@ function ScribeConversation() {
         <ThreadPrimitive.Messages components={MESSAGE_COMPONENTS} />
       </ThreadPrimitive.Viewport>
       <div className={styles['scribe-footer']}>
-        {isEmpty && <ScribeSuggestions />}
+        {hasNewText && <ScribeSuggestions />}
         <ScribeComposer />
         <Typography
           variant="caption"

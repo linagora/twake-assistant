@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 
 import { createMockClient } from 'cozy-client'
@@ -19,8 +19,13 @@ const mockService = {
   terminate: jest.fn(),
   cancel: jest.fn(),
   sendResult: jest.fn(),
-  notifyReadyToUse: jest.fn()
+  notifyReadyToUse: jest.fn(),
+  onData: jest.fn(listener => {
+    mockSendData = listener
+    return () => {}
+  })
 }
+let mockSendData = null
 const mockCreateService = jest.fn()
 
 jest.mock('cozy-interapp', () =>
@@ -98,10 +103,48 @@ describe('AssistantIntent', () => {
     expect(suggestions.map(suggestion => suggestion.name)).toContain(
       'translate'
     )
-    expect(prepareQuery('Fix', { isFirstMessage: true })).toContain('Bonjour')
+    expect(prepareQuery('Fix', { isFirstOnText: true })).toContain('Bonjour')
     expect(instructions).toBe(en.scribe.instructions)
     expect(answerActions).toEqual([])
     expect(screen.queryByTestId('assistant-view')).toBe(null)
+  })
+
+  it('works on the new text the app gives while it is open', async () => {
+    mockService.getData.mockReturnValue({
+      content: 'Bonjour',
+      answerActions: [{ name: 'insert' }]
+    })
+    renderIntent()
+    await findScribeProps()
+
+    act(() =>
+      mockSendData({
+        content: 'Au revoir',
+        answerActions: [{ name: 'insert' }, { name: 'replace' }]
+      })
+    )
+
+    const { text, prepareQuery, answerActions } = await findScribeProps()
+    expect(text).toBe('Au revoir')
+    expect(prepareQuery('Fix', { isFirstOnText: true })).toContain('Au revoir')
+    expect(answerActions.map(action => action.name)).toEqual([
+      'insert',
+      'replace'
+    ])
+  })
+
+  it('keeps the theme of the opening when the app gives new data', async () => {
+    mockService.getData.mockReturnValue({
+      content: 'Bonjour',
+      theme: { type: 'dark' }
+    })
+    renderIntent()
+    await findScribeProps()
+
+    act(() => mockSendData({ content: 'Au revoir', theme: { type: 'light' } }))
+
+    await findScribeProps()
+    expect(CozyTheme.mock.calls.at(-1)[0].type).toBe('dark')
   })
 
   it('opens a scribe with the actions of the app, without a text', async () => {

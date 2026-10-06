@@ -64,8 +64,9 @@ function makeAnswer() {
 
 /**
  * @typedef {object} ScribeRequest
- * @property {(text: string, context: { isFirstMessage: boolean }) => string} prepareQuery -
- * turns the text of a message into the query sent to the stack
+ * @property {(text: string, context: { isFirstOnText: boolean }) => string} prepareQuery -
+ * turns the text of a message into the query sent to the stack:
+ * `isFirstOnText` for the first message about the text of the app
  * @property {boolean} hasDocuments - whether the answer comes from the
  * documents of the user
  * @property {string|null} instructions - how to answer, sent to the LLM as a
@@ -83,13 +84,17 @@ function makeAnswer() {
  * @param {import('./chatEvents').ChatEventStream} options.events
  * @param {() => ScribeRequest} options.getRequest - how to send a message,
  * read when it is sent: the user changes it between two messages
+ * @param {(index: number) => number} [options.getTextIndex] - the index,
+ * among the messages of the user, of the first one about the text of the
+ * app, given the index of the message sent
  * @returns {import('@assistant-ui/react').ChatModelAdapter}
  */
 export function makeScribeChatAdapter({
   client,
   conversationId,
   events,
-  getRequest
+  getRequest,
+  getTextIndex = () => 0
 }) {
   return {
     async *run({ messages, abortSignal }) {
@@ -97,8 +102,9 @@ export function makeScribeChatAdapter({
       if (text === null) return
 
       const { prepareQuery, hasDocuments, instructions } = getRequest()
-      const isFirstMessage =
-        messages.filter(message => message.role === 'user').length === 1
+      const index =
+        messages.filter(message => message.role === 'user').length - 1
+      const isFirstOnText = index === getTextIndex(index)
       const answer = makeAnswer()
       let sources = null
 
@@ -108,7 +114,7 @@ export function makeScribeChatAdapter({
           'POST',
           `/ai/chat/conversations/${conversationId}`,
           {
-            q: prepareQuery(text, { isFirstMessage }),
+            q: prepareQuery(text, { isFirstOnText }),
             // The LLM answers alone, unless the user asks for their documents
             ...(!hasDocuments && { documents: false }),
             ...(instructions && { instructions })
@@ -164,7 +170,8 @@ export function makeScribeChatAdapter({
  * @returns {{
  *   events: ChatEventStream,
  *   adapter: import('@assistant-ui/react').ChatModelAdapter,
- *   setRequest: (request: ScribeRequest) => void
+ *   setRequest: (request: ScribeRequest) => void,
+ *   startNewText: () => void
  * }}
  */
 export function makeScribeChat({ client, conversationId }) {
@@ -174,6 +181,10 @@ export function makeScribeChat({ client, conversationId }) {
     hasDocuments: false,
     instructions: null
   }
+  // The first message about the text of the app: the first one, or the
+  // next one after the app gives another text. A message sent again keeps
+  // its index, and is still about the text.
+  let textIndex = 0
 
   return {
     events,
@@ -181,10 +192,17 @@ export function makeScribeChat({ client, conversationId }) {
       client,
       conversationId,
       events,
-      getRequest: () => request
+      getRequest: () => request,
+      getTextIndex: index => {
+        if (textIndex === null) textIndex = index
+        return textIndex
+      }
     }),
     setRequest: nextRequest => {
       request = nextRequest
+    },
+    startNewText: () => {
+      textIndex = null
     }
   }
 }
