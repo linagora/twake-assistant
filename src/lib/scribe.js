@@ -26,8 +26,9 @@ export function makeScribeSuggestions(t) {
 }
 
 /**
- * Joins the text of the app to the first message of a conversation only:
- * the next ones are about the answers. Nothing else is added to what the
+ * Joins the text of the app to the first message about it only: the next
+ * ones are about the answers, until the app gives another text. Nothing
+ * else is added to what the
  * user asks: an instruction on how to answer belongs to the prompt of a
  * suggestion, and would twist a request it was not written for.
  *
@@ -36,8 +37,8 @@ export function makeScribeSuggestions(t) {
  * @returns {import('cozy-search').PrepareQuery}
  */
 export function makeScribePrepareQuery(content, t) {
-  return (text, { isFirstMessage }) =>
-    isFirstMessage
+  return (text, { isFirstOnText }) =>
+    isFirstOnText
       ? `${text}\n\n${t('scribe.content')}\n"""\n${content}\n"""`
       : text
 }

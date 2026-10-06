@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState
 } from 'react'
 
@@ -36,6 +37,8 @@ function sendAsItIs(text) {
  * the query sent to the stack
  * @param {string} [props.instructions] - how to answer, sent to the LLM as a
  * system message with each message
+ * @param {string} [props.text] - the text of the app the requests are about.
+ * When the app gives another one, the next request is about it.
  */
 export function ScribeProvider({
   conversationId,
@@ -43,6 +46,7 @@ export function ScribeProvider({
   answerActions = [],
   prepareQuery = sendAsItIs,
   instructions = null,
+  text = '',
   children
 }) {
   const client = useClient()
@@ -69,9 +73,33 @@ export function ScribeProvider({
 
   const runtime = useLocalRuntime(chat.adapter)
 
+  // The text, and the number of requests of the user when it was given: the
+  // prompts are offered until the next request. Read while rendering, as
+  // React advises for a state derived from a prop.
+  const [given, setGiven] = useState({ text, start: 0 })
+  if (given.text !== text) {
+    const { messages } = runtime.thread.getState()
+    const start = messages.filter(message => message.role === 'user').length
+    setGiven({ text, start })
+  }
+  const textStart = given.start
+
+  const textRef = useRef(text)
+  useEffect(() => {
+    if (text === textRef.current) return
+    textRef.current = text
+    chat.startNewText()
+  }, [text, chat])
+
   const value = useMemo(
-    () => ({ suggestions, answerActions, hasDocuments, setHasDocuments }),
-    [suggestions, answerActions, hasDocuments]
+    () => ({
+      suggestions,
+      answerActions,
+      hasDocuments,
+      setHasDocuments,
+      textStart
+    }),
+    [suggestions, answerActions, hasDocuments, textStart]
   )
 
   return (

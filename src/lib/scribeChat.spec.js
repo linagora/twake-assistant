@@ -78,8 +78,8 @@ describe('makeScribeChatAdapter', () => {
   })
 
   it('prepares the query of the first message, then of the next ones', async () => {
-    const prepareQuery = jest.fn((text, { isFirstMessage }) =>
-      isFirstMessage ? `${text} + the text` : text
+    const prepareQuery = jest.fn((text, { isFirstOnText }) =>
+      isFirstOnText ? `${text} + the text` : text
     )
     const { adapter, fetchJSON } = setup({
       events: [{ object: 'done' }],
@@ -255,6 +255,55 @@ describe('makeScribeChat', () => {
     expect(fetchJSON.mock.calls.map(call => call[2])).toEqual([
       { q: 'Hello', documents: false },
       { q: 'Hello!', instructions: 'Shout' }
+    ])
+  })
+
+  it('joins a new text of the app to the next message, sent again or not', async () => {
+    const chat = makeScribeChat({
+      client: {
+        stackClient: {
+          fetchJSON: jest.fn(async (method, path, body) => {
+            chat.events.push({ _id: 'q1', object: 'done' })
+            sent.push(body.q)
+            return {
+              data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
+            }
+          })
+        }
+      },
+      conversationId: 'c1'
+    })
+    const sent = []
+    chat.setRequest({
+      prepareQuery: (text, { isFirstOnText }) =>
+        isFirstOnText ? `${text} + the text` : text,
+      hasDocuments: true,
+      instructions: null
+    })
+    const first = [userMessage('Fix it'), assistantMessage('Fixed')]
+
+    await run(chat.adapter, [userMessage('Fix it')])
+    await run(chat.adapter, [...first, userMessage('Shorter')])
+    chat.startNewText()
+    await run(chat.adapter, [
+      ...first,
+      userMessage('Shorter'),
+      assistantMessage('Short'),
+      userMessage('Translate')
+    ])
+    // The same message, sent again
+    await run(chat.adapter, [
+      ...first,
+      userMessage('Shorter'),
+      assistantMessage('Short'),
+      userMessage('Translate')
+    ])
+
+    expect(sent).toEqual([
+      'Fix it + the text',
+      'Shorter',
+      'Translate + the text',
+      'Translate + the text'
     ])
   })
 
