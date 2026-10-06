@@ -2474,10 +2474,10 @@
   resolved "https://registry.yarnpkg.com/@keyv/serialize/-/serialize-1.1.1.tgz#0c01dd3a3483882af7cf3878d4e71d505c81fc4a"
   integrity sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==
 
-"@linagora/twake-icons@^2.10.0":
-  version "2.10.0"
-  resolved "https://registry.yarnpkg.com/@linagora/twake-icons/-/twake-icons-2.10.0.tgz#3af50922e66eb8cd8e725307ee92d245034e8291"
-  integrity sha512-/hwKyhS/+Kt9nJAhj72ADvr5i3qEXHJgTXkqJp5DBIIIHxeVJ/lj84nLijxb+e7EeKyihM5gCs/AxntdbcVIIA==
+"@linagora/twake-icons@^2.13.0":
+  version "2.13.0"
+  resolved "https://registry.yarnpkg.com/@linagora/twake-icons/-/twake-icons-2.13.0.tgz#2c77e92bc920f99ee1a28a7f6f4e25e5e4a590d6"
+  integrity sha512-HxiZfilTqD7Unaq9q5sP2ChmyfS/GwreAJAE2ZWgLnQmDfYVkEuY6N9xilAn2OwJVomBezUaS7UM+UDwSU9wUg==
   dependencies:
     mime "4.1.0"
 
