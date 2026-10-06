@@ -159,9 +159,17 @@ describe('AssistantIntent', () => {
     })
     renderIntent()
 
-    const { suggestions, prepareQuery, answerActions } = await findScribeProps()
-    expect(suggestions).toBe(undefined)
+    const {
+      suggestions,
+      prepareQuery,
+      instructions,
+      documents,
+      answerActions
+    } = await findScribeProps()
+    expect(suggestions).toEqual([])
     expect(prepareQuery).toBe(undefined)
+    expect(instructions).toBe(undefined)
+    expect(documents).toBe(true)
     expect(answerActions.map(action => action.label)).toEqual([
       'Add to the note'
     ])
@@ -183,6 +191,84 @@ describe('AssistantIntent', () => {
     })
     expect(mockService.terminate).not.toHaveBeenCalled()
     expect(mockService.cancel).not.toHaveBeenCalled()
+  })
+
+  it('offers the suggestions of the app, and gives the router their requests', async () => {
+    mockService.getData.mockReturnValue({
+      content: 'Bonjour',
+      capabilities: [
+        {
+          name: 'insert_slide',
+          description: 'add a slide',
+          parameters: { type: 'object', properties: {} },
+          confirm: false
+        }
+      ],
+      suggestions: [
+        { name: 'catalogue' },
+        {
+          name: 'new_slide',
+          capability: 'insert_slide',
+          label: 'New slide',
+          message: 'Add a slide after this one'
+        }
+      ]
+    })
+    renderIntent()
+
+    const { suggestions, capabilities, documents } = await findScribeProps()
+    expect(suggestions.at(-1)).toEqual({
+      name: 'new_slide',
+      label: 'New slide',
+      request: 'Add a slide after this one'
+    })
+    expect(suggestions.map(suggestion => suggestion.name)).toContain('correct')
+    expect(capabilities[0].confirm).toBe(false)
+    expect(capabilities[0].action.examples).toEqual([
+      { message: 'Add a slide after this one', needs_documents: false }
+    ])
+    expect(documents).toBe(false)
+  })
+
+  it('opens a scribe on the suggestions of the app alone', async () => {
+    mockService.getData.mockReturnValue({
+      suggestions: [{ name: 'joke', message: 'Tell a joke', label: 'Joke' }],
+      documents: false
+    })
+    renderIntent()
+
+    const { suggestions, documents } = await findScribeProps()
+    expect(suggestions).toEqual([
+      { name: 'joke', label: 'Joke', request: 'Tell a joke' }
+    ])
+    expect(documents).toBe(false)
+  })
+
+  it('hands the call of a capability the user confirms to the app', async () => {
+    const insertSlide = {
+      name: 'insert_slide',
+      label: 'Insert the slide',
+      description: 'add a slide',
+      parameters: { type: 'object', properties: {} }
+    }
+    mockService.getData.mockReturnValue({ capabilities: [insertSlide] })
+    renderIntent()
+
+    const { capabilities } = await findScribeProps()
+    expect(capabilities.map(capability => capability.action)).toEqual([
+      {
+        name: 'insert_slide',
+        description: 'add a slide',
+        parameters: { type: 'object', properties: {} }
+      }
+    ])
+    capabilities[0].onClick({ title: 'Risks', bullets: [] })
+
+    expect(mockService.sendResult).toHaveBeenCalledWith({
+      capability: 'insert_slide',
+      params: { title: 'Risks', bullets: [] }
+    })
+    expect(mockService.terminate).not.toHaveBeenCalled()
   })
 
   it('takes the theme the app asks for', async () => {

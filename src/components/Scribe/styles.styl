@@ -55,6 +55,28 @@ $gutter = 1rem
     margin-top 1.5rem
     overflow-wrap anywhere
 
+.scribe-capability
+    margin-top .5rem
+    padding .75rem
+    border 1px solid var(--dividerColor)
+    border-radius .75rem
+    background-color var(--paperBackgroundColor)
+
+// Nested to win over the weight of the typography of cozy-ui
+.scribe-capability .scribe-capability-title
+    color var(--primaryTextColor)
+    font-weight bold
+
+.scribe-capability-list
+    margin .25rem 0 0
+    padding-left 1.25rem
+
+.scribe-capability-done
+    display flex
+    align-items center
+    margin-top .5rem
+    color var(--successColor)
+
 .scribe-sources
     margin .25rem 0 0
     padding-left 1.25rem

@@ -20,6 +20,13 @@ jest.mock('@assistant-ui/react', () => ({
 jest.mock('@/components/Scribe/ScribeProvider', () => ({
   useScribe: jest.fn()
 }))
+jest.mock('@/components/Scribe/ScribeCapabilityCard', () => ({
+  ScribeCapabilityCard: ({ messageId, capability, params, text }) => (
+    <div data-testid="capability">
+      {messageId} {capability.name} {params.title} {text}
+    </div>
+  )
+}))
 jest.mock('@/components/Scribe/ScribeSources', () => ({
   ScribeSources: ({ sources }) => (
     <div data-testid="sources">{sources.length}</div>
@@ -27,14 +34,15 @@ jest.mock('@/components/Scribe/ScribeSources', () => ({
 }))
 
 const answer = (text, status, custom = {}) => ({
+  id: 'a1',
   content: [{ type: 'text', text }],
   status: { type: status },
   metadata: { custom }
 })
 
-function renderAnswer(message, answerActions = []) {
+function renderAnswer(message, answerActions = [], capabilities = []) {
   mockMessage = message
-  useScribe.mockReturnValue({ answerActions })
+  useScribe.mockReturnValue({ answerActions, capabilities })
 
   return render(
     <I18n lang="en" polyglot={initTranslation('en', () => en)}>
@@ -102,5 +110,47 @@ describe('ScribeAnswer', () => {
     )
 
     expect(screen.queryByTestId('sources')).toHaveTextContent('2')
+  })
+
+  describe('the call of a capability the LLM proposes', () => {
+    const insertSlide = { name: 'insert_slide', label: 'Insert' }
+    const action = { name: 'insert_slide', params: { title: 'Risks' } }
+
+    it('shows it in place of an answer, without the actions of the answer', () => {
+      renderAnswer(answer('', 'complete', { action }), actions, [insertSlide])
+
+      expect(screen.getByTestId('capability').textContent).toBe(
+        'a1 insert_slide Risks '
+      )
+      expect(screen.queryByText(en.scribe.empty)).toBe(null)
+      expect(screen.queryByRole('button')).toBe(null)
+    })
+
+    it('shows it under an answer, with the answer for its content', () => {
+      renderAnswer(answer('Here', 'complete', { action }), actions, [
+        insertSlide
+      ])
+
+      expect(screen.getByTestId('capability').textContent).toBe(
+        'a1 insert_slide Risks Here'
+      )
+      expect(
+        screen.queryByRole('button', { name: 'Insert' })
+      ).toBeInTheDocument()
+    })
+
+    it('waits for the answer to be complete', () => {
+      renderAnswer(answer('Here', 'running', { action }), actions, [
+        insertSlide
+      ])
+
+      expect(screen.queryByTestId('capability')).toBe(null)
+    })
+
+    it('leaves out a call of a capability the app does not have', () => {
+      renderAnswer(answer('', 'complete', { action }), [], [])
+
+      expect(screen.queryByTestId('capability')).toBe(null)
+    })
   })
 })

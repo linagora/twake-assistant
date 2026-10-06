@@ -18,6 +18,7 @@ import { ASSISTANT_ROUTE_PATH, makeConversationId } from '@/lib/conversation'
 import { getIntentConfig } from '@/lib/intent'
 import {
   makeScribeAnswerActions,
+  makeScribeCapabilities,
   makeScribePreparePrompt,
   makeScribePrepareQuery,
   makeScribeSuggestions
@@ -57,7 +58,8 @@ function PlainAssistant() {
 function Scribe({ service, config }) {
   const { t } = useI18n()
   const [conversationId] = useState(makeConversationId)
-  const { content, answerActions } = config
+  const { content, answerActions, capabilities, suggestions, documents } =
+    config
 
   // The assistant stays open after an action: the answer is a result handed
   // to the app, not the end of the intent, which the app closes itself
@@ -68,25 +70,50 @@ function Scribe({ service, config }) {
       ),
     [service, answerActions, t]
   )
+  const scribeCapabilities = useMemo(
+    () =>
+      makeScribeCapabilities(
+        capabilities,
+        t,
+        result => service.sendResult(result),
+        suggestions
+      ),
+    [service, capabilities, suggestions, t]
+  )
+  // The suggestions are about the text, unless the app asks for its own
+  const scribeSuggestions = useMemo(
+    () =>
+      content || suggestions
+        ? makeScribeSuggestions(t, suggestions, scribeCapabilities)
+        : [],
+    [content, suggestions, scribeCapabilities, t]
+  )
   const textProps = useMemo(
     () =>
       content
         ? {
-            suggestions: makeScribeSuggestions(t),
             prepareQuery: makeScribePrepareQuery(content, t),
-            preparePrompt: makeScribePreparePrompt(content)
+            // The answers of a scribe go into the document of the app: the
+            // LLM is told so, in a system message
+            instructions: t('scribe.instructions')
           }
         : {},
     [content, t]
+  )
+  const preparePrompt = useMemo(
+    () => makeScribePreparePrompt(content),
+    [content]
   )
 
   return (
     <ScribeView
       conversationId={conversationId}
       answerActions={scribeActions}
-      // The answers of a scribe go into the document of the app: the LLM is
-      // told so, in a system message
-      instructions={t('scribe.instructions')}
+      capabilities={scribeCapabilities}
+      suggestions={scribeSuggestions}
+      preparePrompt={preparePrompt}
+      // Without a text, the assistant works from the documents of the user
+      documents={documents ?? content === ''}
       text={content}
       {...textProps}
     />
@@ -95,8 +122,13 @@ function Scribe({ service, config }) {
 
 function AssistantIntentView({ service, config }) {
   const hasNotifiedReadyRef = useRef(false)
-  // With a text or actions of the app, the assistant works for it
-  const isScribe = config.content !== '' || config.answerActions.length > 0
+  // With a text, actions, capabilities or suggestions of the app, the
+  // assistant works for it
+  const isScribe =
+    config.content !== '' ||
+    config.answerActions.length > 0 ||
+    config.capabilities.length > 0 ||
+    config.suggestions !== null
 
   // The assistant is rendered: an app that waits for it can show the intent
   useEffect(() => {

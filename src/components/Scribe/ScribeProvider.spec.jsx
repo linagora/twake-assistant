@@ -146,6 +146,27 @@ describe('ScribeProvider', () => {
     )
   })
 
+  it('offers the capabilities of the app to the LLM, and gives them to the scribe', async () => {
+    const action = { name: 'insert_slide', description: 'add a slide' }
+    const capabilities = [
+      { name: 'insert_slide', label: 'Insert', action, onClick: jest.fn() }
+    ]
+    const { client, emit, getScribe } = setup({ capabilities })
+    client.stackClient.fetchJSON.mockImplementation(async () => {
+      emit({ _id: 'q1', object: 'done' })
+      return {
+        data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
+      }
+    })
+
+    await run([userMessage('Add a slide')])
+
+    expect(getScribe().capabilities).toBe(capabilities)
+    expect(client.stackClient.fetchJSON.mock.calls[0][2].actions).toEqual([
+      action
+    ])
+  })
+
   it('gives the scribe the prompts and the actions of the app', () => {
     const suggestions = [{ name: 'fix', label: 'Fix', prompt: 'Fix it.' }]
     const answerActions = [
