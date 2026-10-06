@@ -8,14 +8,10 @@ import { useScribe } from '@/components/Scribe/ScribeProvider'
 import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
 import en from '@/locales/en.json'
 
-const mockComposer = {
-  setText: jest.fn(),
-  setRunConfig: jest.fn(),
-  send: jest.fn()
-}
+const mockThread = { append: jest.fn() }
 
 jest.mock('@assistant-ui/react', () => ({
-  useComposerRuntime: () => mockComposer
+  useThreadRuntime: () => mockThread
 }))
 jest.mock('@/components/Scribe/ScribeProvider', () => ({
   useScribe: jest.fn()
@@ -48,13 +44,12 @@ describe('ScribeSuggestions', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Correct' }))
 
-    expect(mockComposer.setText).toHaveBeenCalledWith('Correct the text.')
-    expect(mockComposer.setRunConfig).toHaveBeenCalledWith({
-      custom: { prompt: 'correct-grammar' }
+    expect(mockThread.append).toHaveBeenCalledTimes(1)
+    expect(mockThread.append).toHaveBeenCalledWith({
+      role: 'user',
+      content: [{ type: 'text', text: 'Correct the text.' }],
+      runConfig: { custom: { prompt: 'correct-grammar' } }
     })
-    expect(mockComposer.send).toHaveBeenCalledTimes(1)
-    // The next message, typed, is sent without the prompt
-    expect(mockComposer.setRunConfig).toHaveBeenLastCalledWith({})
   })
 
   it('offers the prompts of a chip in a menu', () => {
@@ -80,14 +75,14 @@ describe('ScribeSuggestions', () => {
     ])
 
     fireEvent.click(screen.getByRole('button', { name: 'Translate' }))
-    expect(mockComposer.send).not.toHaveBeenCalled()
+    expect(mockThread.append).not.toHaveBeenCalled()
     fireEvent.click(screen.getByText('French'))
 
-    expect(mockComposer.setText).toHaveBeenCalledWith('Translate into French.')
-    expect(mockComposer.setRunConfig).toHaveBeenCalledWith({
-      custom: { prompt: 'translate-french' }
+    expect(mockThread.append).toHaveBeenCalledWith({
+      role: 'user',
+      content: [{ type: 'text', text: 'Translate into French.' }],
+      runConfig: { custom: { prompt: 'translate-french' } }
     })
-    expect(mockComposer.send).toHaveBeenCalledTimes(1)
   })
 
   it('shows nothing without prompts', () => {
