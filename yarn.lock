@@ -6107,10 +6107,10 @@ cozy-intent@^2.31.1:
     cozy-minilog "^3.10.1"
     post-me "0.4.5"
 
-cozy-interapp@^0.19.0:
-  version "0.19.0"
-  resolved "https://registry.yarnpkg.com/cozy-interapp/-/cozy-interapp-0.19.0.tgz#412e22b1c01816d45d0ca9653f0c39e926f9db76"
-  integrity sha512-jdrK/0ST/NcWHe+cqisKg5NjRKj8XXdKJ90IFAIlhwOrJK26nQ2FR3n/EFTirbZCQZ3uls3hlkz5HPTVrsaePA==
+cozy-interapp@^0.21.0:
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/cozy-interapp/-/cozy-interapp-0.21.0.tgz#bb8ea45d78da7de70a018902fddc68e1095f049e"
+  integrity sha512-a7oRhPTQ2y0DCdfOcKcnxeJagV6ggBcbqTGj/T9psz/MvTblTPZMTBxbqR4XD/vVeMUa6VHbGoLmTFBkj260Ow==
 
 cozy-logger@^1.18.1:
   version "1.18.1"
