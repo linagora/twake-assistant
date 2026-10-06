@@ -28,7 +28,7 @@ Pass the Assistant configuration in the intent data.
 - With `cozy-interapp`, pass it as the third argument of `intents.create()`.
 - In a raw intent, post it to the service in reply to its `ready` message.
 
-The assistant only reads the data it receives in that handshake. It does not read `attributes.data` of the intent document: with `cozy-interapp` 0.20.1 or later, the data are not sent to the cozy-stack at all when the intent is created.
+The assistant only reads the data it receives in that handshake, and the new data the calling app sends while it is open (see [Another text while the assistant is open](#another-text-while-the-assistant-is-open)). It does not read `attributes.data` of the intent document: with `cozy-interapp` 0.20.1 or later, the data are not sent to the cozy-stack at all when the intent is created.
 
 ```json
 {
@@ -151,6 +151,16 @@ Set `content` to the text the user wants to work on:
 
 The text is plain text.
 
+### Another text while the assistant is open
+
+The calling app sends new data to the open assistant, with another `content`, when the user selects another text: `sendData(data)` on the started intent of `cozy-interapp`, or new `data` given to `IntentIframe`. They travel in a `data` message (see [Protocol](#protocol)), and replace the whole configuration: send the `answerActions` and the `theme` again with the new `content`. The theme does not change while the assistant is open. The assistant keeps its conversation:
+
+- the next message, typed or from a prompt, gets the new text joined to it, and the messages after it are sent as they are;
+- the prompts are offered again above the composer until that message;
+- the action buttons follow the new `answerActions`, under every answer.
+
+Send new data for another text only, not for a cursor that moves: the next message would be about the same text again.
+
 ## Answer actions
 
 Set `answerActions` to get the answers of the assistant back:
@@ -251,7 +261,9 @@ The messages of the assistant intent, in order. They all go through `window.post
 | 1 | Assistant → app | `intent-{id}:ready` | none | handled by `cozy-interapp` |
 | 2 | App → assistant | the data, without envelope | `AssistantIntentConfig` | third argument of `intents.create()`, `service.getData()` |
 | 3 | Assistant → app | `intent-{id}:readyToUse` | none, once | `onReadyToUse` option of `start()` |
-| 4 | Assistant → app | `intent-{id}:cancel` | none, only when the page of the assistant is unloaded | the intent promise resolves with `null` |
+| 4 | Assistant → app | `intent-{id}:result` | `result: AssistantIntentResult`, any number of times | `service.sendResult()`, `onResult` option of `start()` |
+| 5 | App → assistant | `intent-{id}:data` | `data: AssistantIntentConfig`, any number of times | `sendData()` of the started intent, `service.onData()` |
+| 6 | Assistant → app | `intent-{id}:cancel` | none, only when the page of the assistant is unloaded | the intent promise resolves with `null` |
 
 The calling app ends the exchange itself, by stopping the intent or removing its iframe (see [End of the intent](#end-of-the-intent)). The assistant never sends `done`, `error` or `resize`.
 
@@ -263,9 +275,13 @@ The messages of an exchange, one per line:
 // 1. ready
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:ready" }
 // 2. the data
-{ "theme": { "type": "light" } }
+{ "content": "bonjour à tous", "answerActions": [{ "name": "insert" }], "theme": { "type": "light" } }
 // 3. readyToUse
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:readyToUse" }
+// 4. a result
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result", "result": { "answerAction": "insert", "text": "Bonjour à tous.", "format": "markdown" } }
+// 5. new data
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "Merci de confirmer", "answerActions": [{ "name": "insert" }, { "name": "replace" }], "theme": { "type": "light" } } }
 ```
 
 ## Interoperability with Open Buro
@@ -285,6 +301,7 @@ That draft is not normative yet: its message catalogue, the shape of its envelop
 | `intent:ready`, provider → consumer | `intent-{id}:ready` |
 | `intent:init`, consumer → provider, with the parameters | The data, in reply to `ready` |
 | `intent:resize`, optional | `intent-{id}:resize`, not sent by the assistant |
+| `intent:done`, which may be sent several times with `final: false` | `intent-{id}:result`, any number of times: a result that does not end the intent |
 | `intent:cancel`, `intent:error` | `intent-{id}:cancel` on unload, no error |
 | An `intentId` in every message | The id of the intent in the type of every message |
 | Strict origins: no `*` target, the origin of every message checked | The same (see [Protocol](#protocol)) |
@@ -292,9 +309,12 @@ That draft is not normative yet: its message catalogue, the shape of its envelop
 ### The differences, and how they are bridged
 
 - **Envelope.** Open Buro leans towards `{ type: "intent:done", intentId, payload }`, where `cozy-interapp` puts the id in the type (`intent-{id}:readyToUse`) and replies to `ready` with the data alone. The mapping is mechanical: an Open Buro binding of `cozy-interapp` can speak both, without a change to the assistant.
+- **Results while the intent goes on.** The assistant hands each chosen answer over without ending the intent. Open Buro reaches the same with `intent:done` and `final: false`, which it plans for streamed documents. A `result` is a non-final `done`; no message of the assistant is final, since the calling app closes it.
+- **New data while the intent is open.** The draft only has `intent:init`: its parameters cannot change once the provider has them. The assistant needs them to change, for another text selected while it is open. The `data` message carries the same payload as the first data; it is the extension Twake would bring to Open Buro, as an `intent:update` from the consumer for instance.
 - **`readyToUse`.** No Open Buro equivalent. Like `intent:resize` there, it is optional: a calling app must not wait for it.
-- **Capability.** Open Buro only defines `PICK` and `SAVE`. The assistant is `OPEN` on `io.cozy.ai.chat.conversations`; as an Open Buro capability it would be a new action, declared in the manifest of the provider.
+- **Capability.** Open Buro only defines `PICK` and `SAVE`. The assistant is `OPEN` on `io.cozy.ai.chat.conversations`; as an Open Buro capability it would be a new action, declared in the manifest of the provider, with `content` and `answerActions` as its parameters and `{ answerAction, text, format }` as its answer.
 - **Source of the messages.** Open Buro also binds every message to the `Window` it expects (`event.source === iframe.contentWindow`). `cozy-interapp` checks the origin and the id of the intent, not the window yet: the check to add for an Open Buro binding.
+- **Answer.** An Open Buro answer lists `documents` (`id`, `name`, `mimeType`, `url` or content). The assistant answers with a text and its format: a value, not a document, which an assistant capability would define as its own answer.
 
 ## Opening the assistant
 
@@ -343,17 +363,16 @@ scribe.stop()
 
 ## Requirements
 
-- A `cozy-interapp` that has the `result` message (`service.sendResult()` and the `onResult` option), in the calling app. With an older one, the assistant opens but the clicks on the action buttons do not reach the calling app.
-- For the `onResult` prop, a `cozy-ui-plus` whose `IntentIframe` and `IntentDialogOpener` have it.
+- `cozy-interapp` 0.20.0 or later in the calling app, for the `result` message (`service.sendResult()`, `onResult` option of `start()`). With an older one, the assistant opens but the clicks on the action buttons do not reach the calling app.
+- To give another text while the assistant is open, `cozy-interapp` 0.21.0 or later in the calling app, for the `data` message (`sendData()` on the started intent). With an older one, the assistant keeps the first text.
+- For the `onResult` prop and new `data` given to `IntentIframe` and `IntentDialogOpener`, `cozy-ui-plus` 14.0.0 or later, which requires `cozy-interapp` 0.21.0.
 - For the scribe, a cozy-stack that knows the `documents` and `instructions` options of `POST /ai/chat/conversations/:id`.
 
 ## Limitations
 
 The assistant opened as it is expects the bar of an app above it: in a frame of the full height of the window, an empty band of the height of the bar stays under its composer. The scribe fills its frame.
 
-The text is the one sent when the intent is opened: to work on another text with the prompts, the calling app opens the intent again.
-
-The text is sent in the first message of the conversation, so it is kept in the conversations of the assistant like any other message.
+The text is sent in the first message about it, so it is kept in the conversations of the assistant like any other message.
 
 The prompts and the system message of the scribe exist in English and in French only.
 
