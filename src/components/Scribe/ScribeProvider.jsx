@@ -1,6 +1,7 @@
 import { AssistantRuntimeProvider, useLocalRuntime } from '@assistant-ui/react'
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -33,6 +34,11 @@ function sendAsItIs(text) {
  * prompts offered above the composer of an empty conversation
  * @param {import('@/lib/scribe').AnswerAction[]} [props.answerActions] - the
  * buttons under each answer
+ * @param {import('@/lib/scribe').ScribeCapability[]} [props.capabilities] -
+ * what the app can do, offered to the LLM: it may propose one of them in
+ * place of an answer
+ * @param {boolean} [props.documents] - whether the answers come from the
+ * documents of the user at first; the user changes it in the composer
  * @param {Function} [props.prepareQuery] - turns the text of a message into
  * the query sent to the stack
  * @param {Function} [props.preparePrompt] - the query and the instructions of
@@ -46,6 +52,8 @@ export function ScribeProvider({
   conversationId,
   suggestions = [],
   answerActions = [],
+  capabilities = [],
+  documents = false,
   prepareQuery = sendAsItIs,
   preparePrompt = null,
   instructions = null,
@@ -54,15 +62,41 @@ export function ScribeProvider({
 }) {
   const client = useClient()
   // The answers come from the LLM alone until the user asks for their
-  // documents
-  const [hasDocuments, setHasDocuments] = useState(false)
+  // documents, unless the app opens the scribe on them
+  const [hasDocuments, setHasDocuments] = useState(documents)
+  // The calls of a capability already handed to the app, by the id of their
+  // message: a call the app does not confirm is handed once, whatever
+  // renders its card again
+  const handedCallsRef = useRef(new Set())
+  const handCall = useCallback((messageId, hand) => {
+    if (handedCallsRef.current.has(messageId)) return
+    handedCallsRef.current.add(messageId)
+    hand()
+  }, [])
+  const isCallHanded = useCallback(
+    messageId => handedCallsRef.current.has(messageId),
+    []
+  )
   // The chat lasts as long as the scribe: the runtime keeps its first
   // adapter, which reads how to send a message when it sends it
   const [chat] = useState(() => makeScribeChat({ client, conversationId }))
 
   useEffect(() => {
-    chat.setRequest({ prepareQuery, preparePrompt, hasDocuments, instructions })
-  }, [chat, prepareQuery, preparePrompt, hasDocuments, instructions])
+    chat.setRequest({
+      prepareQuery,
+      preparePrompt,
+      hasDocuments,
+      instructions,
+      actions: capabilities.map(capability => capability.action)
+    })
+  }, [
+    chat,
+    prepareQuery,
+    preparePrompt,
+    hasDocuments,
+    instructions,
+    capabilities
+  ])
 
   useEffect(() => {
     const realtime = client.plugins.realtime
@@ -98,11 +132,22 @@ export function ScribeProvider({
     () => ({
       suggestions,
       answerActions,
+      capabilities,
       hasDocuments,
       setHasDocuments,
+      handCall,
+      isCallHanded,
       textStart
     }),
-    [suggestions, answerActions, hasDocuments, textStart]
+    [
+      suggestions,
+      answerActions,
+      capabilities,
+      hasDocuments,
+      handCall,
+      isCallHanded,
+      textStart
+    ]
   )
 
   return (

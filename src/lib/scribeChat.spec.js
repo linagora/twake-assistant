@@ -41,9 +41,13 @@ function setup({ events: answerEvents = [], options = {}, messageId = 'q1' }) {
   return { adapter, events, fetchJSON }
 }
 
-async function run(adapter, messages, abortSignal) {
+async function run(adapter, messages, abortSignal, runConfig) {
   const results = []
-  for await (const result of adapter.run({ messages, abortSignal })) {
+  for await (const result of adapter.run({
+    messages,
+    abortSignal,
+    runConfig
+  })) {
     results.push(result)
   }
   return results
@@ -227,6 +231,72 @@ describe('makeScribeChatAdapter', () => {
     const results = await run(adapter, [userMessage('Fix it')])
 
     expect(results.at(-1).metadata.custom).toEqual({ isEmpty: true })
+  })
+
+  it('sends the instructions of a request of the app', async () => {
+    const { adapter, fetchJSON } = setup({
+      events: [{ object: 'done' }],
+      options: { instructions: 'Answer with the text only' }
+    })
+
+    await run(adapter, [userMessage('Tell a joke')], undefined, {
+      custom: { instructions: 'Be funny' }
+    })
+
+    expect(fetchJSON.mock.calls[0][2]).toEqual({
+      q: 'Tell a joke',
+      documents: false,
+      instructions: 'Be funny'
+    })
+  })
+
+  it('offers the capabilities of the app to the LLM', async () => {
+    const actions = [{ name: 'insert_slide', description: 'add a slide' }]
+    const { adapter, fetchJSON } = setup({
+      events: [{ object: 'done' }],
+      options: { actions }
+    })
+
+    await run(adapter, [userMessage('Add a slide')])
+
+    expect(fetchJSON.mock.calls[0][2]).toEqual({
+      q: 'Add a slide',
+      documents: false,
+      actions
+    })
+  })
+
+  it('gives the call the LLM proposes in place of an answer', async () => {
+    const action = {
+      name: 'insert_slide',
+      params: { title: 'Risks', bullets: ['Delay'] }
+    }
+    const { adapter } = setup({
+      events: [{ object: 'action', action }, { object: 'done' }],
+      options: { actions: [{ name: 'insert_slide' }] }
+    })
+
+    const results = await run(adapter, [userMessage('Add a slide')])
+
+    expect(getText(results.at(-1))).toBe('')
+    expect(results.at(-1).status).toEqual({ type: 'complete', reason: 'stop' })
+    expect(results.at(-1).metadata.custom).toEqual({ action })
+  })
+
+  it('gives the call the LLM proposes after an answer', async () => {
+    const action = { name: 'insert_slide', params: { title: 'Risks' } }
+    const { adapter } = setup({
+      events: [
+        { object: 'delta', content: 'Here are the risks', position: 0 },
+        { object: 'action', action },
+        { object: 'done' }
+      ]
+    })
+
+    const results = await run(adapter, [userMessage('Add a slide')])
+
+    expect(getText(results.at(-1))).toBe('Here are the risks')
+    expect(results.at(-1).metadata.custom).toEqual({ action })
   })
 
   it('leaves the answer as it is when the user stops it', async () => {

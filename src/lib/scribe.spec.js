@@ -2,6 +2,7 @@ import { initTranslation } from 'twake-i18n'
 
 import {
   makeScribeAnswerActions,
+  makeScribeCapabilities,
   makeScribePreparePrompt,
   makeScribePrepareQuery,
   makeScribeSuggestions
@@ -48,6 +49,106 @@ describe('makeScribeSuggestions', () => {
       expect(names).toContain(suggestion.prompt)
       expect(suggestion.request).not.toMatch(/^scribe\./)
     })
+  })
+})
+
+describe('makeScribeSuggestions with the suggestions of the app', () => {
+  const capabilities = [{ name: 'insert_slide', label: 'Insert the slide' }]
+
+  it('puts the default menu where the app asks for it', () => {
+    const suggestions = makeScribeSuggestions(
+      mockT,
+      [
+        {
+          name: 'new_slide',
+          capability: 'insert_slide',
+          label: 'New slide',
+          message: 'Add a slide after this one'
+        },
+        { name: 'catalogue' }
+      ],
+      capabilities
+    )
+
+    expect(suggestions[0]).toEqual({
+      name: 'new_slide',
+      label: 'New slide',
+      request: 'Add a slide after this one'
+    })
+    expect(suggestions.slice(1)).toEqual(makeScribeSuggestions(mockT))
+  })
+
+  it('names a prompt of the catalogue as the default menu does, unless the app does', () => {
+    const [correct, summary] = makeScribeSuggestions(mockT, [
+      { name: 'correct', prompt: 'correct-grammar' },
+      {
+        name: 'summary',
+        prompt: 'summarize',
+        label: 'Sum up',
+        message: 'Sum the text up.'
+      }
+    ])
+
+    expect(correct).toEqual({
+      name: 'correct',
+      label: 'Correct',
+      request: 'Correct the grammar and spelling of the text.',
+      prompt: 'correct-grammar'
+    })
+    expect(summary).toEqual({
+      name: 'summary',
+      label: 'Sum up',
+      request: 'Sum the text up.',
+      prompt: 'summarize'
+    })
+  })
+
+  it('names a request for a capability after the capability', () => {
+    const [newSlide] = makeScribeSuggestions(
+      mockT,
+      [{ name: 'new_slide', capability: 'insert_slide', message: 'Add one' }],
+      capabilities
+    )
+
+    expect(newSlide).toEqual({
+      name: 'new_slide',
+      label: 'Insert the slide',
+      request: 'Add one'
+    })
+  })
+
+  it('keeps the instructions of a request of the app, in a menu too', () => {
+    const [more] = makeScribeSuggestions(mockT, [
+      {
+        name: 'more',
+        label: 'More',
+        options: [
+          {
+            name: 'joke',
+            label: 'A joke',
+            message: 'Tell a joke about the text',
+            instructions: 'Be funny'
+          }
+        ]
+      }
+    ])
+
+    expect(more).toEqual({
+      name: 'more',
+      label: 'More',
+      options: [
+        {
+          name: 'joke',
+          label: 'A joke',
+          request: 'Tell a joke about the text',
+          instructions: 'Be funny'
+        }
+      ]
+    })
+  })
+
+  it('offers nothing when the app asks for nothing', () => {
+    expect(makeScribeSuggestions(mockT, [])).toEqual([])
   })
 })
 
@@ -127,5 +228,105 @@ describe('makeScribeAnswerActions', () => {
     )
 
     expect(action.label).toBe('create_task')
+  })
+})
+
+describe('makeScribeCapabilities', () => {
+  const action = { name: 'insert_slide', description: 'add a slide' }
+
+  it('hands the call and its params to the app', () => {
+    const onCall = jest.fn()
+    const [insertSlide] = makeScribeCapabilities(
+      [{ name: 'insert_slide', label: 'Insert the slide', action }],
+      mockT,
+      onCall
+    )
+
+    expect(insertSlide.label).toBe('Insert the slide')
+    expect(insertSlide.action).toEqual(action)
+    expect(insertSlide.hasContent).toBe(false)
+    insertSlide.onClick({ title: 'Risks', bullets: ['Delay'] }, 'ignored')
+    expect(onCall).toHaveBeenCalledWith({
+      capability: 'insert_slide',
+      params: { title: 'Risks', bullets: ['Delay'] }
+    })
+  })
+
+  it('hands the content the assistant wrote with the call', () => {
+    const onCall = jest.fn()
+    const [createDocument] = makeScribeCapabilities(
+      [
+        {
+          name: 'create_document',
+          label: 'Create',
+          confirm: true,
+          action: { name: 'create_document', content: { max_tokens: 1024 } }
+        }
+      ],
+      mockT,
+      onCall
+    )
+
+    expect(createDocument.hasContent).toBe(true)
+    createDocument.onClick({ title: 'Report' }, '# Report\n\nAll is well.')
+    expect(onCall).toHaveBeenCalledWith({
+      capability: 'create_document',
+      params: { title: 'Report' },
+      text: '# Report\n\nAll is well.',
+      format: 'markdown'
+    })
+  })
+
+  it('gives the router the requests of the suggestions as examples', () => {
+    const [insertSlide] = makeScribeCapabilities(
+      [
+        {
+          name: 'insert_slide',
+          label: null,
+          confirm: false,
+          action: {
+            ...action,
+            examples: [{ message: 'Add a slide', needs_documents: false }]
+          }
+        }
+      ],
+      mockT,
+      jest.fn(),
+      [
+        { name: 'catalogue' },
+        {
+          name: 'new_slide',
+          capability: 'insert_slide',
+          message: 'Nouvelle diapositive après celle-ci'
+        },
+        {
+          name: 'more',
+          options: [
+            {
+              name: 'again',
+              capability: 'insert_slide',
+              message: 'Add a slide'
+            },
+            { name: 'other', capability: 'other', message: 'Other' }
+          ]
+        }
+      ]
+    )
+
+    expect(insertSlide.confirm).toBe(false)
+    expect(insertSlide.action.examples).toEqual([
+      { message: 'Add a slide', needs_documents: false },
+      { message: 'Nouvelle diapositive après celle-ci', needs_documents: false }
+    ])
+  })
+
+  it('has a label for a capability the app does not name', () => {
+    const [insertSlide] = makeScribeCapabilities(
+      [{ name: 'insert_slide', label: null, action }],
+      mockT,
+      jest.fn()
+    )
+
+    expect(insertSlide.label).toBe('Apply')
   })
 })

@@ -20,6 +20,10 @@
       "insert": "Insérer",
       "replace": "Remplacer"
     },
+    "capabilities": {
+      "run": "Appliquer",
+      "done": "Fait"
+    },
     "suggestions": {
       "correct": {
         "label": "Corriger",

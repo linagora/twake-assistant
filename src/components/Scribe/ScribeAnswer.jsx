@@ -8,6 +8,7 @@ import Spinner from 'cozy-ui/transpiled/react/Spinner'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
+import { ScribeCapabilityCard } from '@/components/Scribe/ScribeCapabilityCard'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import { ScribeSources } from '@/components/Scribe/ScribeSources'
 import styles from '@/components/Scribe/styles.styl'
@@ -35,11 +36,12 @@ function AnswerActionButton({ action, text }) {
 
 /**
  * An answer of the LLM, with the buttons of the actions of the app once it
- * is complete
+ * is complete, and the call of a capability of the app it proposes
  */
 export function ScribeAnswer() {
   const { t } = useI18n()
-  const { answerActions } = useScribe()
+  const { answerActions, capabilities } = useScribe()
+  const messageId = useMessage(message => message.id)
   const text = useMessage(getText)
   const status = useMessage(message => message.status?.type)
   const isError = useMessage(
@@ -49,6 +51,9 @@ export function ScribeAnswer() {
     message => message.metadata?.custom?.isEmpty === true
   )
   const sources = useMessage(message => message.metadata?.custom?.sources)
+  const action = useMessage(message => message.metadata?.custom?.action)
+  const capability =
+    action && capabilities.find(capability => capability.name === action.name)
 
   const isThinking = status === 'running' && text === ''
   // Only a whole answer goes into the document of the app
@@ -76,6 +81,14 @@ export function ScribeAnswer() {
             <AnswerActionButton key={action.name} action={action} text={text} />
           ))}
         </div>
+      )}
+      {capability && status === 'complete' && (
+        <ScribeCapabilityCard
+          messageId={messageId}
+          capability={capability}
+          params={action.params ?? {}}
+          text={text}
+        />
       )}
     </MessagePrimitive.Root>
   )
