@@ -2,7 +2,7 @@
 
 This document describes the **Assistant intent** exposed by Twake Assistant.
 
-It assumes you already know how to create and run a Cozy intent (requesting an intent, loading the returned service URL, and handling the generic `ready` / `done` / `error` / `cancel` postMessage flow). It only documents what is specific to the Assistant service.
+It assumes you already know how to create and run a Cozy intent (requesting an intent, loading the returned service URL, and handling the generic `ready` / `done` / `error` / `cancel` postMessage flow). It documents what is specific to the Assistant service: its data, its messages (see [Protocol](#protocol)), and how they line up with the draft standard of Open Buro (see [Interoperability with Open Buro](#interoperability-with-open-buro)).
 
 ## Intent identity
 
@@ -26,7 +26,7 @@ Pass the Assistant configuration in the intent data.
 - With `cozy-interapp`, pass it as the third argument of `intents.create()`.
 - In a raw intent, post it to the service in reply to its `ready` message.
 
-The assistant only reads the data it receives in that handshake. It does not read `attributes.data` of the intent document.
+The assistant only reads the data it receives in that handshake. It does not read `attributes.data` of the intent document: with `cozy-interapp` 0.20.1 or later, the data are not sent to the cozy-stack at all when the intent is created.
 
 ```json
 {
@@ -91,6 +91,60 @@ The assistant only sends the generic intent `cancel` when its page is unloaded w
 In addition to the generic intent `ready` handshake, the assistant sends a `readyToUse` message once its UI is rendered with the data of the intent.
 
 The signal fires exactly once per intent.
+
+## Protocol
+
+The messages of the assistant intent, in order. They all go through `window.postMessage`, and the type of each one holds the id of the intent.
+
+| # | Direction | Message | Content | API |
+| --- | --- | --- | --- | --- |
+| 1 | Assistant → app | `intent-{id}:ready` | none | handled by `cozy-interapp` |
+| 2 | App → assistant | the data, without envelope | `AssistantIntentConfig` | third argument of `intents.create()`, `service.getData()` |
+| 3 | Assistant → app | `intent-{id}:readyToUse` | none, once | `onReadyToUse` option of `start()` |
+| 4 | Assistant → app | `intent-{id}:cancel` | none, only when the page of the assistant is unloaded | the intent promise resolves with `null` |
+
+The calling app ends the exchange itself, by stopping the intent or removing its iframe (see [End of the intent](#end-of-the-intent)). The assistant never sends `done`, `error` or `resize`.
+
+Each side checks where a message comes from: `cozy-interapp` takes the messages of the client from the origin of the assistant only, with the id of its intent, and the assistant takes the messages of the service from the origin of the calling app only (`attributes.client` of the intent document).
+
+The messages of an exchange, one per line:
+
+```jsonc
+// 1. ready
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:ready" }
+// 2. the data
+{ "theme": { "type": "light" } }
+// 3. readyToUse
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:readyToUse" }
+```
+
+## Interoperability with Open Buro
+
+[Open Buro](https://github.com/openburo) drafts a standard for applications that do not know each other to work together, each one showing its own interface in an iframe of the other and talking with `postMessage`. Its TechSprint #02 (June 2026) wrote an Editor's Draft for a first use case, the file picker: [TechSprint-n-02-juin-2026-FilePicker](https://github.com/openburo/TechSprint-n-02-juin-2026-FilePicker).
+
+That draft is not normative yet: its message catalogue, the shape of its envelope and of its answers, and the API of its Bridge are marked as reserved. The assistant intent does not follow it to the letter. It is kept in line with it: the same model, messages that map one to one, and no choice that a future Open Buro binding could not carry.
+
+### The same model
+
+| Open Buro draft | Assistant intent |
+| --- | --- |
+| A **consumer** casts an intent, a **provider** serves it | The calling app casts the intent, Twake Assistant serves it |
+| The provider declares its capabilities in a manifest, a platform registry lists them, a chooser picks one | The assistant declares its intent in its manifest (`intents`), the cozy-stack lists the services of an intent (`POST /intents`) |
+| The provider supplies the whole interface, the consumer none | The same |
+| The consumer owns the lifecycle and tears the iframe down | The same: the assistant never closes itself |
+| `intent:ready`, provider → consumer | `intent-{id}:ready` |
+| `intent:init`, consumer → provider, with the parameters | The data, in reply to `ready` |
+| `intent:resize`, optional | `intent-{id}:resize`, not sent by the assistant |
+| `intent:cancel`, `intent:error` | `intent-{id}:cancel` on unload, no error |
+| An `intentId` in every message | The id of the intent in the type of every message |
+| Strict origins: no `*` target, the origin of every message checked | The same (see [Protocol](#protocol)) |
+
+### The differences, and how they are bridged
+
+- **Envelope.** Open Buro leans towards `{ type: "intent:done", intentId, payload }`, where `cozy-interapp` puts the id in the type (`intent-{id}:readyToUse`) and replies to `ready` with the data alone. The mapping is mechanical: an Open Buro binding of `cozy-interapp` can speak both, without a change to the assistant.
+- **`readyToUse`.** No Open Buro equivalent. Like `intent:resize` there, it is optional: a calling app must not wait for it.
+- **Capability.** Open Buro only defines `PICK` and `SAVE`. The assistant is `OPEN` on `io.cozy.ai.chat.conversations`; as an Open Buro capability it would be a new action, declared in the manifest of the provider.
+- **Source of the messages.** Open Buro also binds every message to the `Window` it expects (`event.source === iframe.contentWindow`). `cozy-interapp` checks the origin and the id of the intent, not the window yet: the check to add for an Open Buro binding.
 
 ## Opening the assistant
 
