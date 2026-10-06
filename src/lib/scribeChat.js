@@ -71,6 +71,9 @@ function makeAnswer() {
  * documents of the user
  * @property {string|null} instructions - how to answer, sent to the LLM as a
  * system message
+ * @property {(name: string) => { q: string, instructions: string|null }|null} [preparePrompt] -
+ * the query and the instructions of a prompt of the catalogue, for a message
+ * sent by a suggestion
  */
 
 /**
@@ -97,14 +100,21 @@ export function makeScribeChatAdapter({
   getTextIndex = () => 0
 }) {
   return {
-    async *run({ messages, abortSignal }) {
+    async *run({ messages, abortSignal, runConfig }) {
       const text = findLastUserText(messages)
       if (text === null) return
 
-      const { prepareQuery, hasDocuments, instructions } = getRequest()
+      const { prepareQuery, preparePrompt, hasDocuments, instructions } =
+        getRequest()
       const index =
         messages.filter(message => message.role === 'user').length - 1
       const isFirstOnText = index === getTextIndex(index)
+      // A prompt of the catalogue, from a suggestion, brings its own query
+      // and instructions
+      const promptName = runConfig?.custom?.prompt
+      const prompt = promptName ? preparePrompt?.(promptName) : null
+      const query = prompt?.q ?? prepareQuery(text, { isFirstOnText })
+      const system = prompt ? prompt.instructions : instructions
       const answer = makeAnswer()
       let sources = null
 
@@ -114,10 +124,10 @@ export function makeScribeChatAdapter({
           'POST',
           `/ai/chat/conversations/${conversationId}`,
           {
-            q: prepareQuery(text, { isFirstOnText }),
+            q: query,
             // The LLM answers alone, unless the user asks for their documents
             ...(!hasDocuments && { documents: false }),
-            ...(instructions && { instructions })
+            ...(system && { instructions: system })
           }
         )
 

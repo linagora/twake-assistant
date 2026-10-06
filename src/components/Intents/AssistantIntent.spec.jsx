@@ -98,11 +98,17 @@ describe('AssistantIntent', () => {
     mockService.getData.mockReturnValue({ content: 'Bonjour' })
     renderIntent()
 
-    const { suggestions, prepareQuery, instructions, answerActions } =
-      await findScribeProps()
+    const {
+      suggestions,
+      prepareQuery,
+      preparePrompt,
+      instructions,
+      answerActions
+    } = await findScribeProps()
     expect(suggestions.map(suggestion => suggestion.name)).toContain(
       'translate'
     )
+    expect(preparePrompt('summarize').q).toContain('Bonjour')
     expect(prepareQuery('Fix', { isFirstOnText: true })).toContain('Bonjour')
     expect(instructions).toBe(en.scribe.instructions)
     expect(answerActions).toEqual([])

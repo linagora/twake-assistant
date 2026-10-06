@@ -8,7 +8,11 @@ import { useScribe } from '@/components/Scribe/ScribeProvider'
 import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
 import en from '@/locales/en.json'
 
-const mockComposer = { setText: jest.fn(), send: jest.fn() }
+const mockComposer = {
+  setText: jest.fn(),
+  setRunConfig: jest.fn(),
+  send: jest.fn()
+}
 
 jest.mock('@assistant-ui/react', () => ({
   useComposerRuntime: () => mockComposer
@@ -32,13 +36,25 @@ function renderSuggestions(suggestions) {
 describe('ScribeSuggestions', () => {
   beforeEach(() => jest.clearAllMocks())
 
-  it('sends the prompt of a chip', () => {
-    renderSuggestions([{ name: 'fix', label: 'Fix', prompt: 'Fix the text.' }])
+  it('sends the request of a chip, with its prompt of the catalogue', () => {
+    renderSuggestions([
+      {
+        name: 'correct',
+        label: 'Correct',
+        request: 'Correct the text.',
+        prompt: 'correct-grammar'
+      }
+    ])
 
-    fireEvent.click(screen.getByRole('button', { name: 'Fix' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Correct' }))
 
-    expect(mockComposer.setText).toHaveBeenCalledWith('Fix the text.')
+    expect(mockComposer.setText).toHaveBeenCalledWith('Correct the text.')
+    expect(mockComposer.setRunConfig).toHaveBeenCalledWith({
+      custom: { prompt: 'correct-grammar' }
+    })
     expect(mockComposer.send).toHaveBeenCalledTimes(1)
+    // The next message, typed, is sent without the prompt
+    expect(mockComposer.setRunConfig).toHaveBeenLastCalledWith({})
   })
 
   it('offers the prompts of a chip in a menu', () => {
@@ -47,8 +63,18 @@ describe('ScribeSuggestions', () => {
         name: 'translate',
         label: 'Translate',
         options: [
-          { name: 'en', label: 'English', prompt: 'Translate into English.' },
-          { name: 'fr', label: 'French', prompt: 'Translate into French.' }
+          {
+            name: 'english',
+            label: 'English',
+            request: 'Translate into English.',
+            prompt: 'translate-english'
+          },
+          {
+            name: 'french',
+            label: 'French',
+            request: 'Translate into French.',
+            prompt: 'translate-french'
+          }
         ]
       }
     ])
@@ -58,6 +84,9 @@ describe('ScribeSuggestions', () => {
     fireEvent.click(screen.getByText('French'))
 
     expect(mockComposer.setText).toHaveBeenCalledWith('Translate into French.')
+    expect(mockComposer.setRunConfig).toHaveBeenCalledWith({
+      custom: { prompt: 'translate-french' }
+    })
     expect(mockComposer.send).toHaveBeenCalledTimes(1)
   })
 

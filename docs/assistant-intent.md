@@ -145,9 +145,17 @@ Set `content` to the text the user wants to work on:
 }
 ```
 
-- Prompts about the text are offered above the composer of the empty conversation: translate (into English, French, Spanish, German or Italian), summarize, improve, fix spelling, make shorter, make longer.
+- Prompts about the text are offered above the composer of the empty conversation: correct, improve (make it shorter, expand context, emojify, transform to bullets), change tone (more professional, more casual, more polite), translate (into French, English, Russian or Vietnamese), and summarize.
 - The user can also type any request about the text.
 - The text is joined to the first message of the conversation only. The next messages are sent as they are: the conversation already holds the text and the previous answers, so a follow-up such as "shorter" works on the last answer.
+
+### The prompts
+
+The prompts are the ones of the catalogue of [linagora/ai-prompts](https://github.com/linagora/ai-prompts), evaluated there and published at `https://files.twake.app/prompts/scribe/latest.json`: the scribe of Twake Mail uses the same catalogue, and the assistant arranges them as its menu. The assistant bundles a copy of the catalogue (`yarn prompts:update` refreshes it), since the page of an app cannot fetch another domain under the content security policy of the cozy-stack.
+
+- A prompt of the catalogue has a system message and a user message with the text in place of `{{input}}`. When the user picks one, the user message, with the text, is sent as the query of the chat, and the system message as its `instructions`.
+- The conversation shows a short request instead, in the language of the user, such as "Correct the grammar and spelling of the text.".
+- A typed request is sent with the instructions of the scribe: a question about the text gets a normal answer, a request to write or change a text gets that text only.
 
 The text is plain text.
 
@@ -374,6 +382,6 @@ The assistant opened as it is expects the bar of an app above it: in a frame of 
 
 The text is sent in the first message about it, so it is kept in the conversations of the assistant like any other message.
 
-The prompts and the system message of the scribe exist in English and in French only.
+The labels of the prompts and the system message of the scribe exist in English and in French only. The prompts of the catalogue are in English; they keep the language of the text, unless they translate it.
 
 The conversation of a scribe is saved like any other: it is listed in the Twake Assistant app, with the text of the calling app in its first message.
