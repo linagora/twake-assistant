@@ -21,48 +21,66 @@
       "replace": "Thay thế"
     },
     "suggestions": {
+      "correct": {
+        "label": "Sửa lỗi",
+        "request": "Sửa lỗi ngữ pháp và chính tả của văn bản."
+      },
+      "improve": {
+        "label": "Cải thiện",
+        "shorter": {
+          "label": "Rút gọn",
+          "request": "Rút gọn văn bản."
+        },
+        "expand": {
+          "label": "Mở rộng nội dung",
+          "request": "Mở rộng văn bản với nhiều chi tiết hơn."
+        },
+        "emojify": {
+          "label": "Thêm emoji",
+          "request": "Thêm emoji vào văn bản."
+        },
+        "bullets": {
+          "label": "Chuyển thành danh sách",
+          "request": "Chuyển văn bản thành danh sách gạch đầu dòng."
+        }
+      },
+      "tone": {
+        "label": "Đổi giọng văn",
+        "professional": {
+          "label": "Chuyên nghiệp hơn",
+          "request": "Làm cho giọng văn của văn bản chuyên nghiệp hơn."
+        },
+        "casual": {
+          "label": "Thân mật hơn",
+          "request": "Làm cho giọng văn của văn bản thân mật hơn."
+        },
+        "polite": {
+          "label": "Lịch sự hơn",
+          "request": "Làm cho giọng văn của văn bản lịch sự hơn."
+        }
+      },
       "translate": {
         "label": "Dịch",
-        "en": {
-          "label": "Tiếng Anh",
-          "prompt": "Dịch văn bản này sang tiếng Anh. Chỉ trả lời bằng bản dịch. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
-        },
-        "fr": {
+        "french": {
           "label": "Tiếng Pháp",
-          "prompt": "Dịch văn bản này sang tiếng Pháp. Chỉ trả lời bằng bản dịch. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+          "request": "Dịch văn bản sang tiếng Pháp."
         },
-        "es": {
-          "label": "Tiếng Tây Ban Nha",
-          "prompt": "Dịch văn bản này sang tiếng Tây Ban Nha. Chỉ trả lời bằng bản dịch. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+        "english": {
+          "label": "Tiếng Anh",
+          "request": "Dịch văn bản sang tiếng Anh."
         },
-        "de": {
-          "label": "Tiếng Đức",
-          "prompt": "Dịch văn bản này sang tiếng Đức. Chỉ trả lời bằng bản dịch. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+        "russian": {
+          "label": "Tiếng Nga",
+          "request": "Dịch văn bản sang tiếng Nga."
         },
-        "it": {
-          "label": "Tiếng Ý",
-          "prompt": "Dịch văn bản này sang tiếng Ý. Chỉ trả lời bằng bản dịch. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+        "vietnamese": {
+          "label": "Tiếng Việt",
+          "request": "Dịch văn bản sang tiếng Việt."
         }
       },
       "summarize": {
         "label": "Tóm tắt",
-        "prompt": "Tóm tắt văn bản này trong hai hoặc ba câu. Chỉ trả lời bằng bản tóm tắt. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
-      },
-      "improve": {
-        "label": "Cải thiện",
-        "prompt": "Cải thiện cách viết của văn bản này, giữ nguyên ý nghĩa và ngôn ngữ của nó. Chỉ trả lời bằng văn bản đã được cải thiện. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
-      },
-      "fix": {
-        "label": "Sửa chính tả",
-        "prompt": "Sửa lỗi chính tả và ngữ pháp của văn bản này, không thay đổi gì khác. Chỉ trả lời bằng văn bản đã sửa. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
-      },
-      "shorten": {
-        "label": "Rút gọn",
-        "prompt": "Rút gọn văn bản này, giữ nguyên ý nghĩa và ngôn ngữ của nó. Chỉ trả lời bằng văn bản đã rút gọn. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
-      },
-      "expand": {
-        "label": "Mở rộng",
-        "prompt": "Phát triển văn bản này, giữ nguyên ý nghĩa và ngôn ngữ của nó. Chỉ trả lời bằng văn bản đã được phát triển. Không thêm lời giới thiệu, trích dẫn hay bình luận nào."
+        "request": "Tóm tắt văn bản."
       }
     }
   }
