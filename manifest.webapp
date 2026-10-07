@@ -1,7 +1,7 @@
 {
   "name": "Assistant",
   "name_prefix": "Twake",
-  "slug": "aiassistant",
+  "slug": "assistant",
   "icon": "assets/app-icon.svg",
   "type": "webapp",
   "categories": ["cozy"],
