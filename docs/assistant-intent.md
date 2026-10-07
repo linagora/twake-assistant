@@ -114,8 +114,9 @@ A capability is a function of the calling app, described for the LLM as a tool o
 ```ts
 interface Capability {
   /**
-   * Name of the capability: lowercase letters, digits and `_`, 40 characters
-   * at most. `search` is reserved. Sent back with the call.
+   * Name of the capability: a lowercase letter, then lowercase letters,
+   * digits and `_`. `search` is reserved, and two capabilities cannot share
+   * a name. Sent back with the call.
    */
   name: string
 
@@ -128,21 +129,21 @@ interface Capability {
 
   /**
    * What the capability does, and when to pick it, for the LLM.
-   * 1000 characters at most.
    */
   description: string
 
   /**
    * Requests for which the LLM picks the capability, each with whether it
-   * needs the documents of the user. 5 at most, 300 characters each.
+   * needs the documents of the user.
    */
   examples?: { message: string; needs_documents: boolean }[]
 
   /**
-   * The JSON schema of the parameters the LLM fills: an `object` whose
-   * `properties` are strings or arrays of strings, each with a
-   * `description`. `required` lists the ones without which the capability
-   * is not proposed. Either `parameters` or `content`.
+   * The JSON schema of the parameters the LLM fills: an `object` with at
+   * least one property, each a string or an array of strings, with a
+   * `description`, and named with a letter, then letters, digits and `_`.
+   * `required` lists the ones without which the capability is not
+   * proposed, among the properties. Either `parameters` or `content`.
    */
   parameters?: {
     type: 'object'
@@ -155,13 +156,12 @@ interface Capability {
    * the content is written as the answer, in Markdown starting with a
    * `# title` line, and the call gets the title as its only parameter and
    * the content as its text. `max_tokens` bounds the content (1024 by
-   * default, 4096 at most). Either `parameters` or `content`.
+   * default). Either `parameters` or `content`.
    */
   content?: { max_tokens?: number }
 
   /**
    * How to fill the parameters or write the content, for the LLM.
-   * 1000 characters at most.
    */
   instructions?: string
 
@@ -258,7 +258,7 @@ When no config is provided, the assistant uses:
 }
 ```
 
-A field that is missing, `null` or of another type falls back to its default. An entry of `answerActions` without a non-empty string `name` is left out. A capability the stack would refuse is left out: without a valid name or a description, with both `parameters` and `content` or neither; the texts and the examples are cut to what the stack takes, and the capabilities after the tenth are left out. A suggestion that sends nothing, without `prompt` nor `message`, is left out, and so is a menu with no item left. The assistant never fails on a configuration it cannot read: it opens with what it understands.
+A field that is missing, `null` or of another type falls back to its default. An entry of `answerActions` without a non-empty string `name` is left out. A capability the stack would refuse is left out, since the stack refuses the whole message for it: an invalid or reserved name, the name of another capability, no description, an example without a message, both `parameters` and `content` or neither, parameters that are not a schema as described in [Capability](#capability), a negative `max_tokens`. The reason is written in the console of the browser, as `Capability <name> left out: <reason>`. Nothing is cut: the assistant does not limit the number of the capabilities nor the length of their texts. A suggestion that sends nothing, without `prompt` nor `message`, is left out, and so is a menu with no item left. The assistant never fails on a configuration it cannot read: it opens with what it understands.
 
 Default labels:
 
@@ -424,7 +424,7 @@ For a capability with `content`, the assistant writes the content as its answer,
 - `parameters` take strings and arrays of strings only. Describe each one for the LLM: its language, its length, what it must not contain. Every parameter is present in the call, `""` or `[]` when unknown.
 - `instructions` tell the LLM how to fill the parameters or write the content: the language, what to keep from the text of the app, what not to invent.
 - `confirm: false` is for what the user can undo in the app, like a slide or a table in the editor. A call that creates something the user cannot take back, like a file, keeps the confirmation.
-- There are at most 10 capabilities, 5 examples each, 10 parameters each. A description and instructions have at most 1000 characters; an example and the description of a parameter at most 300.
+- The number of the capabilities, of their examples and parameters, and the length of their texts are up to the app: neither the assistant nor the stack limits them. They are all sent with each message, to the router and to the LLM: what fits depends on the LLM.
 
 The capabilities are those of the calling app: it declares what it can run, and runs what it gets. The assistant has no catalogue of them.
 
