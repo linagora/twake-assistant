@@ -258,7 +258,7 @@ When no config is provided, the assistant uses:
 }
 ```
 
-A field that is missing, `null` or of another type falls back to its default. An entry of `answerActions` without a non-empty string `name` is left out. A capability the stack would refuse is left out: without a valid name or a description, with both `parameters` and `content` or neither; the texts and the examples are cut to what the stack takes, and the capabilities after the tenth are left out. A suggestion that sends nothing, without `prompt` nor `message`, is left out, and so is a menu with no item left. The assistant never fails on a configuration it cannot read: it opens with what it understands.
+A field that is missing, `null` or of another type falls back to its default. An entry of `answerActions` without a non-empty string `name` is left out. A capability that cozy-stack would refuse is left out, with the reason in the console of the assistant: the stack refuses a whole message for one action it cannot take. It refuses a name that is not lowercase letters, digits and `_`, or that is taken by another capability; a description, instructions, examples or parameters over the limits of [Writing a capability](#writing-a-capability); both `parameters` and `content`, or neither; a parameter that is neither a string nor a list of strings, or a `required` parameter that is not a property. The capabilities after the tenth are left out too. A suggestion that sends nothing, without `prompt` nor `message`, is left out, and so is a menu with no item left. The assistant never fails on a configuration it cannot read: it opens with what it understands.
 
 Default labels:
 
@@ -424,7 +424,7 @@ For a capability with `content`, the assistant writes the content as its answer,
 - `parameters` take strings and arrays of strings only. Describe each one for the LLM: its language, its length, what it must not contain. Every parameter is present in the call, `""` or `[]` when unknown.
 - `instructions` tell the LLM how to fill the parameters or write the content: the language, what to keep from the text of the app, what not to invent.
 - `confirm: false` is for what the user can undo in the app, like a slide or a table in the editor. A call that creates something the user cannot take back, like a file, keeps the confirmation.
-- There are at most 10 capabilities, 5 examples each, 10 parameters each. A description and instructions have at most 1000 characters; an example and the description of a parameter at most 300.
+- There are at most 10 capabilities, 5 examples each, 1 to 10 parameters each, and `max_tokens` is at most 4096. A description and instructions have at most 1000 characters; an example and the description of a parameter at most 300. These are the limits of cozy-stack (`ValidateActions`): the definitions go into the prompts of a small LLM. The request of a chip for a capability is added to its examples only while they stay within them.
 
 The capabilities are those of the calling app: it declares what it can run, and runs what it gets. The assistant has no catalogue of them.
 
