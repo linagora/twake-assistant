@@ -1,3 +1,5 @@
+import { Comment, Globe, MagicTrick, Pen, Text } from '@linagora/twake-icons'
+
 import { findExampleError } from '@/lib/chatActions'
 import { DEFAULT_MENU_SUGGESTION } from '@/lib/intent'
 import catalogue from '@/lib/scribePrompts.json'
@@ -6,9 +8,10 @@ import catalogue from '@/lib/scribePrompts.json'
 // (https://files.twake.app/prompts/scribe/latest.json), shared with the scribe
 // of Twake Mail, and arranged as in its menu
 const SUGGESTIONS = [
-  { name: 'correct', prompt: 'correct-grammar' },
+  { name: 'correct', icon: Pen, prompt: 'correct-grammar' },
   {
     name: 'improve',
+    icon: MagicTrick,
     options: [
       { name: 'shorter', prompt: 'make-shorter' },
       { name: 'expand', prompt: 'expand-context' },
@@ -18,6 +21,7 @@ const SUGGESTIONS = [
   },
   {
     name: 'tone',
+    icon: Comment,
     options: [
       { name: 'professional', prompt: 'change-tone-professional' },
       { name: 'casual', prompt: 'change-tone-casual' },
@@ -26,6 +30,7 @@ const SUGGESTIONS = [
   },
   {
     name: 'translate',
+    icon: Globe,
     options: [
       { name: 'french', prompt: 'translate-french' },
       { name: 'english', prompt: 'translate-english' },
@@ -33,13 +38,14 @@ const SUGGESTIONS = [
       { name: 'vietnamese', prompt: 'translate-vietnamese' }
     ]
   },
-  { name: 'summarize', prompt: 'summarize' }
+  { name: 'summarize', icon: Text, prompt: 'summarize' }
 ]
 
 /**
  * @typedef {object} Suggestion
  * @property {string} name
  * @property {string} label - the label of its chip or of its item
+ * @property {Function} [icon] - the icon of its chip, from twake-icons
  * @property {string} [request] - the request shown in the conversation
  * @property {string} [prompt] - the name of its prompt in the catalogue
  * @property {string} [instructions] - the system message of a request of
@@ -54,6 +60,7 @@ function makeDefaultMenu(t) {
       return {
         name: suggestion.name,
         label: t(`${key}.label`),
+        icon: suggestion.icon,
         options: suggestion.options.map(option =>
           makeSuggestion(option, [...path, suggestion.name])
         )
@@ -62,6 +69,7 @@ function makeDefaultMenu(t) {
     return {
       name: suggestion.name,
       label: t(`${key}.label`),
+      icon: suggestion.icon,
       request: t(`${key}.request`),
       prompt: suggestion.prompt
     }
