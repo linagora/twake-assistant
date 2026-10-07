@@ -1,0 +1,20 @@
+name: CI/CD
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: linagora/twake-workflows/.github/workflows/build-and-publish-cozy-app.yml@7a9b5b559685986780342b928debdfdfbe8414c7 # v1.1.0
+    secrets:
+      REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+      DOWNCLOUD_SSH_KEY: ${{ secrets.DOWNCLOUD_SSH_KEY }}
