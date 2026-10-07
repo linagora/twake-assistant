@@ -134,9 +134,9 @@ interface Capability {
 
   /**
    * Requests for which the LLM picks the capability, each with whether it
-   * needs the documents of the user.
+   * needs the documents of the user (false when absent).
    */
-  examples?: { message: string; needs_documents: boolean }[]
+  examples?: { message: string; needs_documents?: boolean }[]
 
   /**
    * The JSON schema of the parameters the LLM fills: an `object` with at
