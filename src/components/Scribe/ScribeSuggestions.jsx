@@ -8,6 +8,7 @@ import Chip from 'cozy-ui/transpiled/react/Chips'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 
 import { useScribe } from '@/components/Scribe/ScribeProvider'
+import styles from '@/components/Scribe/styles.styl'
 
 /**
  * A prompt about the text of the app: the chip sends it, or opens a menu of
@@ -34,9 +35,13 @@ function SuggestionChip({ suggestion, onSend }) {
     <>
       <Chip
         ref={chipRef}
-        className="u-mr-half u-mb-half"
+        className={styles['scribe-suggestion']}
         icon={suggestion.icon && <Icon icon={suggestion.icon} size={16} />}
-        label={suggestion.label}
+        label={
+          <Typography variant="caption" color="textSecondary" component="span">
+            {suggestion.label}
+          </Typography>
+        }
         clickable
         {...(suggestion.options && {
           'aria-haspopup': 'menu',
@@ -101,8 +106,8 @@ export function ScribeSuggestions({ isCentered = false }) {
     <div
       className={
         isCentered
-          ? 'u-flex u-flex-wrap u-flex-justify-center'
-          : 'u-flex u-flex-wrap'
+          ? `${styles['scribe-suggestions']} u-flex-justify-center`
+          : styles['scribe-suggestions']
       }
     >
       {suggestions.map(suggestion => (

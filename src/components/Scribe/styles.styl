@@ -68,6 +68,18 @@ $gutter = 1rem
     margin-top .5rem
     color var(--successColor)
 
+.scribe-suggestions
+    display flex
+    flex-wrap wrap
+    gap .5rem
+
+// The design fills a chip with the hover color, without a border: cozy-ui only
+// has outlined and ghost chips. Nested: a single class loses to the border of
+// the chip of cozy-ui
+.scribe-suggestions .scribe-suggestion
+    border 0
+    background-color var(--actionColorHover)
+
 .scribe-composer
     box-sizing border-box
     padding .5rem .5rem .5rem 1rem
