@@ -62,11 +62,10 @@ export function ScribeProvider({
 }) {
   const client = useClient()
   // The answers come from the LLM alone until the user asks for their
-  // documents, unless the app opens the scribe on them
+  // documents
   const [hasDocuments, setHasDocuments] = useState(documents)
-  // The calls of a capability already handed to the app, by the id of their
-  // message: a call the app does not confirm is handed once, whatever
-  // renders its card again
+  // A call without confirmation is handed when its card mounts: the ids of
+  // their messages keep a card that mounts again from handing it twice
   const handedCallsRef = useRef(new Set())
   const handCall = useCallback((messageId, hand) => {
     if (handedCallsRef.current.has(messageId)) return

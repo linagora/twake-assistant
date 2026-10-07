@@ -200,7 +200,10 @@ describe('AssistantIntent', () => {
         {
           name: 'insert_slide',
           description: 'add a slide',
-          parameters: { type: 'object', properties: {} },
+          parameters: {
+            type: 'object',
+            properties: { title: { type: 'string' } }
+          },
           confirm: false
         }
       ],
@@ -249,7 +252,7 @@ describe('AssistantIntent', () => {
       name: 'insert_slide',
       label: 'Insert the slide',
       description: 'add a slide',
-      parameters: { type: 'object', properties: {} }
+      parameters: { type: 'object', properties: { title: { type: 'string' } } }
     }
     mockService.getData.mockReturnValue({ capabilities: [insertSlide] })
     renderIntent()
@@ -259,7 +262,10 @@ describe('AssistantIntent', () => {
       {
         name: 'insert_slide',
         description: 'add a slide',
-        parameters: { type: 'object', properties: {} }
+        parameters: {
+          type: 'object',
+          properties: { title: { type: 'string' } }
+        }
       }
     ])
     capabilities[0].onClick({ title: 'Risks', bullets: [] })

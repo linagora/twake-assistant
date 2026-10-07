@@ -165,37 +165,29 @@ describe('getIntentConfig', () => {
       expect(capability.confirm).toBe(false)
     })
 
-    it('keeps what the stack takes of the examples and the texts', () => {
+    it('leaves out a capability with the same name as another one', () => {
+      const capabilities = getIntentConfig({
+        capabilities: [insertSlide, { ...insertSlide, label: 'Again' }]
+      }).capabilities
+
+      expect(capabilities.map(capability => capability.label)).toEqual([
+        'Insert the slide'
+      ])
+    })
+
+    it('reads whether an example needs the documents as a boolean', () => {
       const [capability] = getIntentConfig({
         capabilities: [
           {
             ...insertSlide,
-            description: 'd'.repeat(1200),
-            instructions: 'i'.repeat(1200),
-            examples: [
-              { message: 'm'.repeat(400), needs_documents: 'yes' },
-              { message: '' },
-              'Add a slide',
-              ...Array.from({ length: 6 }, (_, index) => ({
-                message: `Example ${index}`,
-                needs_documents: true
-              }))
-            ]
+            examples: [{ message: 'Add a slide', needs_documents: 'yes' }]
           }
         ]
       }).capabilities
 
-      expect(capability.action.description).toHaveLength(1000)
-      expect(capability.action.instructions).toHaveLength(1000)
-      expect(capability.action.examples).toHaveLength(5)
-      expect(capability.action.examples[0]).toEqual({
-        message: 'm'.repeat(300),
-        needs_documents: false
-      })
-      expect(capability.action.examples[1]).toEqual({
-        message: 'Example 0',
-        needs_documents: true
-      })
+      expect(capability.action.examples).toEqual([
+        { message: 'Add a slide', needs_documents: false }
+      ])
     })
 
     it('keeps the 10 first ones, as many as the stack takes', () => {

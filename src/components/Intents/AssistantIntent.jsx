@@ -80,7 +80,6 @@ function Scribe({ service, config }) {
       ),
     [service, capabilities, suggestions, t]
   )
-  // The suggestions are about the text, unless the app asks for its own
   const scribeSuggestions = useMemo(
     () =>
       content || suggestions
@@ -93,8 +92,6 @@ function Scribe({ service, config }) {
       content
         ? {
             prepareQuery: makeScribePrepareQuery(content, t),
-            // The answers of a scribe go into the document of the app: the
-            // LLM is told so, in a system message
             instructions: t('scribe.instructions')
           }
         : {},
@@ -112,7 +109,6 @@ function Scribe({ service, config }) {
       capabilities={scribeCapabilities}
       suggestions={scribeSuggestions}
       preparePrompt={preparePrompt}
-      // Without a text, the assistant works from the documents of the user
       documents={documents ?? content === ''}
       text={content}
       {...textProps}
@@ -122,8 +118,6 @@ function Scribe({ service, config }) {
 
 function AssistantIntentView({ service, config }) {
   const hasNotifiedReadyRef = useRef(false)
-  // With a text, actions, capabilities or suggestions of the app, the
-  // assistant works for it
   const isScribe =
     config.content !== '' ||
     config.answerActions.length > 0 ||

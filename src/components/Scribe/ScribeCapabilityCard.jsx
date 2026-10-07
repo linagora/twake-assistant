@@ -8,7 +8,6 @@ import { useI18n } from 'twake-i18n'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import styles from '@/components/Scribe/styles.styl'
 
-// The params in the order of the schema of the capability, then the others
 function getParamNames(capability, params) {
   const names = Object.keys(capability.action.parameters?.properties ?? {})
   return [
@@ -32,7 +31,6 @@ function ParamValue({ name, value }) {
   }
   if (typeof value !== 'string' || value === '') return null
 
-  // A title is what the call makes: it heads the card
   return name === 'title' ? (
     <Typography className={styles['scribe-capability-title']}>
       {value}
@@ -43,10 +41,8 @@ function ParamValue({ name, value }) {
 }
 
 /**
- * A call of a capability of the app that the LLM proposes, with the params it
- * filled, or the title of the content it wrote. The app makes it once the
- * user confirms, or at once when the app does not ask for a confirmation:
- * the card then says it is done, and the user can ask for another one.
+ * A call of a capability the LLM proposes, handed to the app on the click of
+ * the user, or at once when the capability needs no confirmation
  */
 export function ScribeCapabilityCard({ messageId, capability, params, text }) {
   const { t } = useI18n()
@@ -58,10 +54,10 @@ export function ScribeCapabilityCard({ messageId, capability, params, text }) {
     setIsDone(true)
   }
 
-  // Without a confirmation, the call is handed as soon as it is proposed,
-  // once: the card may be rendered again
   useEffect(() => {
     if (!capability.confirm) hand()
+    // Once, when the card mounts: handCall keeps a card that mounts again from
+    // handing the call twice
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
