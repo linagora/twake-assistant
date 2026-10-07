@@ -1,4 +1,4 @@
-import { Comment, Globe, MagicTrick, Pen, Text } from '@linagora/twake-icons'
+import { CheckList, Globe, Pen, Text } from '@linagora/twake-icons'
 
 import { findExampleError } from '@/lib/chatActions'
 import { DEFAULT_MENU_SUGGESTION } from '@/lib/intent'
@@ -6,28 +6,11 @@ import catalogue from '@/lib/scribePrompts.json'
 
 // The prompts of the scribe are the ones of the catalogue of linagora/ai-prompts
 // (https://files.twake.app/prompts/scribe/latest.json), shared with the scribe
-// of Twake Mail, and arranged as in its menu
+// of Twake Mail, arranged as in the design of the side panel
 const SUGGESTIONS = [
+  { name: 'summarize', icon: Text, prompt: 'summarize' },
   { name: 'correct', icon: Pen, prompt: 'correct-grammar' },
-  {
-    name: 'improve',
-    icon: MagicTrick,
-    options: [
-      { name: 'shorter', prompt: 'make-shorter' },
-      { name: 'expand', prompt: 'expand-context' },
-      { name: 'emojify', prompt: 'emojify' },
-      { name: 'bullets', prompt: 'transform-to-bullets' }
-    ]
-  },
-  {
-    name: 'tone',
-    icon: Comment,
-    options: [
-      { name: 'professional', prompt: 'change-tone-professional' },
-      { name: 'casual', prompt: 'change-tone-casual' },
-      { name: 'polite', prompt: 'change-tone-polite' }
-    ]
-  },
+  { name: 'keypoints', icon: CheckList, prompt: 'transform-to-bullets' },
   {
     name: 'translate',
     icon: Globe,
@@ -37,8 +20,7 @@ const SUGGESTIONS = [
       { name: 'russian', prompt: 'translate-russian' },
       { name: 'vietnamese', prompt: 'translate-vietnamese' }
     ]
-  },
-  { name: 'summarize', icon: Text, prompt: 'summarize' }
+  }
 ]
 
 /**

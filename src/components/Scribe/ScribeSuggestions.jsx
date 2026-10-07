@@ -10,6 +10,8 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import styles from '@/components/Scribe/styles.styl'
 
+const CHIP_CLASSES = { icon: styles['scribe-suggestion-icon'] }
+
 /**
  * A prompt about the text of the app: the chip sends it, or opens a menu of
  * prompts
@@ -36,6 +38,7 @@ function SuggestionChip({ suggestion, onSend }) {
       <Chip
         ref={chipRef}
         className={styles['scribe-suggestion']}
+        classes={CHIP_CLASSES}
         icon={suggestion.icon && <Icon icon={suggestion.icon} size={16} />}
         label={
           <Typography variant="caption" color="textSecondary" component="span">

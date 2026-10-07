@@ -25,43 +25,17 @@
       "done": "Done"
     },
     "suggestions": {
+      "summarize": {
+        "label": "Summarize",
+        "request": "Summarize the text."
+      },
       "correct": {
         "label": "Correct",
         "request": "Correct the grammar and spelling of the text."
       },
-      "improve": {
-        "label": "Improve",
-        "shorter": {
-          "label": "Make it shorter",
-          "request": "Make the text shorter."
-        },
-        "expand": {
-          "label": "Expand context",
-          "request": "Expand the text with more details."
-        },
-        "emojify": {
-          "label": "Emojify",
-          "request": "Add emojis to the text."
-        },
-        "bullets": {
-          "label": "Transform to bullets",
-          "request": "Turn the text into a bulleted list."
-        }
-      },
-      "tone": {
-        "label": "Change tone",
-        "professional": {
-          "label": "More professional",
-          "request": "Make the tone of the text more professional."
-        },
-        "casual": {
-          "label": "More casual",
-          "request": "Make the tone of the text more casual."
-        },
-        "polite": {
-          "label": "More polite",
-          "request": "Make the tone of the text more polite."
-        }
+      "keypoints": {
+        "label": "Key points",
+        "request": "List the key points of the text."
       },
       "translate": {
         "label": "Translate",
@@ -81,10 +55,6 @@
           "label": "Vietnamese",
           "request": "Translate the text into Vietnamese."
         }
-      },
-      "summarize": {
-        "label": "Summarize",
-        "request": "Summarize the text."
       }
     }
   }
