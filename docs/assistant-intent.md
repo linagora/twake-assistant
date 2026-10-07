@@ -267,28 +267,63 @@ For instance, with these capabilities, the assistant keeps `insert_slide` and le
   "capabilities": [
     {
       "name": "insert_slide",
-      "description": "add a new slide after the current one",
+      "label": "Insert the slide",
+      "description": "add a new slide after the current one in the presentation the user is editing, with a title and bullet points. Pick it when the user asks for a new slide. Do not pick it to change the text given with the message: that is an answer.",
+      "examples": [
+        { "message": "Add a slide about the budget", "needs_documents": false }
+      ],
       "parameters": {
         "type": "object",
-        "properties": { "title": { "type": "string", "description": "the title of the slide" } },
-        "required": ["title"]
-      }
+        "properties": {
+          "title": { "type": "string", "description": "the title of the slide, short" },
+          "bullets": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "the bullet points of the slide, 3 to 6 short lines"
+          }
+        },
+        "required": ["title", "bullets"]
+      },
+      "instructions": "Write the slide in the language of the presentation.",
+      "confirm": false
     },
     {
       "name": "insert_slide",
-      "description": "add a slide at the end of the presentation",
+      "label": "Add at the end",
+      "description": "add a slide at the end of the presentation, with a title. Pick it when the user asks for a closing slide.",
+      "examples": [
+        { "message": "Add a closing slide", "needs_documents": false }
+      ],
       "parameters": {
         "type": "object",
-        "properties": { "title": { "type": "string", "description": "the title of the slide" } }
-      }
+        "properties": {
+          "title": { "type": "string", "description": "the title of the slide, short" }
+        },
+        "required": ["title"]
+      },
+      "instructions": "Write the title in the language of the presentation.",
+      "confirm": true
     },
     {
       "name": "insert_table",
-      "description": "insert a table at the cursor",
+      "label": "Insert the table",
+      "description": "insert an empty table at the cursor of the document the user is editing. Pick it when the user asks for a table.",
+      "examples": [
+        { "message": "Insert a table with the name, the role and the email", "needs_documents": false }
+      ],
       "parameters": {
         "type": "object",
-        "properties": { "column-names": { "type": "array", "items": { "type": "string" } } }
-      }
+        "properties": {
+          "column-names": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "the headers of the columns, in the order the user gives them"
+          }
+        },
+        "required": ["column-names"]
+      },
+      "instructions": "Write the headers in the language of the document.",
+      "confirm": false
     }
   ]
 }
