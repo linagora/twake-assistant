@@ -114,8 +114,8 @@ A capability is a function of the calling app, described for the LLM as a tool o
 ```ts
 interface Capability {
   /**
-   * Name of the capability: lowercase letters, digits and `_`, 40 characters
-   * at most. `search` is reserved. Sent back with the call.
+   * Name of the capability: lowercase letters, digits and `_`, starting
+   * with a letter. `search` is reserved. Sent back with the call.
    */
   name: string
 
