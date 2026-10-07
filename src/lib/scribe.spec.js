@@ -1,3 +1,4 @@
+import { Pen } from '@linagora/twake-icons'
 import { initTranslation } from 'twake-i18n'
 
 import {
@@ -27,6 +28,7 @@ describe('makeScribeSuggestions', () => {
     expect(suggestions[0]).toEqual({
       name: 'correct',
       label: 'Correct',
+      icon: Pen,
       request: 'Correct the grammar and spelling of the text.',
       prompt: 'correct-grammar'
     })

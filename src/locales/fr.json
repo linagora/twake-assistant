@@ -3,8 +3,8 @@
     "error": "L'assistant ne peut pas être ouvert."
   },
   "scribe": {
-    "title": "Twake AI",
-    "welcome": "Comment puis-je vous aider aujourd'hui ?",
+    "title": "Demander à Twake AI",
+    "welcome": "Posez-moi une question sur votre document",
     "placeholder": "Aide-moi à écrire",
     "send": "Envoyer",
     "stop": "Arrêter",

@@ -1,7 +1,7 @@
 import { ThreadPrimitive, useThread } from '@assistant-ui/react'
 import React from 'react'
 
-import { Ai } from '@linagora/twake-icons'
+import { AssistantColor } from '@linagora/twake-icons'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
@@ -30,8 +30,7 @@ function ScribeConversation() {
   return (
     <ThreadPrimitive.Root className={styles['scribe']}>
       <header className={styles['scribe-header']}>
-        <Ai width={24} height={24} aria-hidden="true" />
-        <Typography variant="h6" component="h1" className="u-ml-half">
+        <Typography variant="h6" component="h1">
           {t('scribe.title')}
         </Typography>
       </header>
@@ -40,18 +39,23 @@ function ScribeConversation() {
         className={styles['scribe-messages']}
       >
         {isEmpty && (
-          <Typography
-            variant="h4"
-            component="h2"
-            className={styles['scribe-welcome']}
-          >
-            {t('scribe.welcome')}
-          </Typography>
+          <div className="u-flex u-flex-column u-flex-items-center u-flex-justify-center u-h-100">
+            <AssistantColor width={48} height={48} aria-hidden="true" />
+            <Typography
+              variant="body2"
+              component="h2"
+              color="textSecondary"
+              className="u-ta-center u-mv-1"
+            >
+              {t('scribe.welcome')}
+            </Typography>
+            <ScribeSuggestions isCentered />
+          </div>
         )}
         <ThreadPrimitive.Messages components={MESSAGE_COMPONENTS} />
       </ThreadPrimitive.Viewport>
       <div className={styles['scribe-footer']}>
-        {hasNewText && <ScribeSuggestions />}
+        {!isEmpty && hasNewText && <ScribeSuggestions />}
         <ScribeComposer />
         <Typography
           variant="caption"

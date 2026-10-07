@@ -1,6 +1,7 @@
 import { useThreadRuntime } from '@assistant-ui/react'
 import React, { useRef, useState } from 'react'
 
+import { Icon } from '@linagora/twake-icons'
 import ActionsMenu from 'cozy-ui/transpiled/react/ActionsMenu'
 import ActionsMenuItem from 'cozy-ui/transpiled/react/ActionsMenu/ActionsMenuItem'
 import Chip from 'cozy-ui/transpiled/react/Chips'
@@ -34,6 +35,7 @@ function SuggestionChip({ suggestion, onSend }) {
       <Chip
         ref={chipRef}
         className="u-mr-half u-mb-half"
+        icon={suggestion.icon && <Icon icon={suggestion.icon} size={16} />}
         label={suggestion.label}
         clickable
         {...(suggestion.options && {
@@ -66,10 +68,11 @@ function SuggestionChip({ suggestion, onSend }) {
 }
 
 /**
- * The prompts about the text of the app, above the composer of an empty
- * conversation
+ * The prompts about the text of the app: under the welcome of an empty
+ * conversation, centered, and above the composer when the app gives another
+ * text
  */
-export function ScribeSuggestions() {
+export function ScribeSuggestions({ isCentered = false }) {
   const { suggestions } = useScribe()
   const threadRuntime = useThreadRuntime()
 
@@ -95,7 +98,13 @@ export function ScribeSuggestions() {
   }
 
   return (
-    <div className="u-flex u-flex-wrap">
+    <div
+      className={
+        isCentered
+          ? 'u-flex u-flex-wrap u-flex-justify-center'
+          : 'u-flex u-flex-wrap'
+      }
+    >
       {suggestions.map(suggestion => (
         <SuggestionChip
           key={suggestion.name}

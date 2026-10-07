@@ -3,8 +3,8 @@
     "error": "Không thể mở trợ lý."
   },
   "scribe": {
-    "title": "Twake AI",
-    "welcome": "Hôm nay tôi có thể giúp gì cho bạn?",
+    "title": "Hỏi Twake AI",
+    "welcome": "Hãy đặt câu hỏi cho tôi về tài liệu của bạn",
     "placeholder": "Giúp tôi viết",
     "send": "Gửi",
     "stop": "Dừng",
