@@ -20,6 +20,10 @@
       "insert": "Chèn",
       "replace": "Thay thế"
     },
+    "capabilities": {
+      "run": "Áp dụng",
+      "done": "Đã xong"
+    },
     "suggestions": {
       "correct": {
         "label": "Sửa lỗi",
