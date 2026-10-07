@@ -307,7 +307,12 @@ describe('makeScribeCapabilities', () => {
               capability: 'insert_slide',
               message: 'Add a slide'
             },
-            { name: 'other', capability: 'other', message: 'Other' }
+            { name: 'other', capability: 'other', message: 'Other' },
+            {
+              name: 'long',
+              capability: 'insert_slide',
+              message: 'm'.repeat(301)
+            }
           ]
         }
       ]

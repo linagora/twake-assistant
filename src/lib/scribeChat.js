@@ -75,7 +75,7 @@ function makeAnswer() {
  * the query and the instructions of a prompt of the catalogue, for a message
  * sent by a suggestion
  * @property {object[]} actions - the capabilities of the app, as chat actions
- * of the stack: the LLM may propose one instead of an answer
+ * of cozy-stack
  */
 
 /**
@@ -117,7 +117,7 @@ export function makeScribeChatAdapter({
         messages.filter(message => message.role === 'user').length - 1
       const isFirstOnText = index === getTextIndex(index)
       // A prompt of the catalogue, from a suggestion, brings its own query
-      // and instructions; a request of the app may bring its instructions
+      // and instructions
       const custom = runConfig?.custom ?? {}
       const prompt = custom.prompt ? preparePrompt?.(custom.prompt) : null
       const query = prompt?.q ?? prepareQuery(text, { isFirstOnText })
@@ -148,8 +148,6 @@ export function makeScribeChatAdapter({
         )) {
           if (event.object === 'error') throw new Error(event.message)
           if (event.object === 'sources') sources = event.content
-          // The LLM proposes to call a capability of the app, in place of
-          // the answer or after it
           if (event.object === 'action') action = event.action ?? null
           if (event.object === 'delta') {
             answer.add(event)

@@ -36,7 +36,7 @@ function AnswerActionButton({ action, text }) {
 
 /**
  * An answer of the LLM, with the buttons of the actions of the app once it
- * is complete, and the call of a capability of the app it proposes
+ * is complete
  */
 export function ScribeAnswer() {
   const { t } = useI18n()
