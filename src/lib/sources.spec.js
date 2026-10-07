@@ -1,3 +1,10 @@
+import {
+  FileTypeNote,
+  FileTypePdf,
+  FileTypeText,
+  Globe
+} from '@linagora/twake-icons'
+
 import { getFileSourceIds, makeSourceLinks } from '@/lib/sources'
 
 const mockClient = {
@@ -25,10 +32,19 @@ describe('makeSourceLinks', () => {
     const links = makeSourceLinks({
       sources: [],
       files: [
-        { _id: 'f1', name: 'Report.pdf', dir_id: 'd1', type: 'file' },
+        {
+          _id: 'f1',
+          name: 'Report.pdf',
+          path: '/Work/2026/Report.pdf',
+          mime: 'application/pdf',
+          dir_id: 'd1',
+          type: 'file'
+        },
         {
           _id: 'n1',
           name: 'Meeting.cozy-note',
+          path: '/Notes/Meeting.cozy-note',
+          mime: 'text/vnd.cozy.note+markdown',
           dir_id: 'd1',
           type: 'file',
           metadata: { content: {}, schema: {}, title: 'Meeting', version: 1 }
@@ -41,14 +57,29 @@ describe('makeSourceLinks', () => {
       {
         key: 'file:f1',
         label: 'Report.pdf',
-        href: 'https://drive.alice.cozy.example/#/folder/d1/file/f1'
+        secondary: '/Work/2026/',
+        href: 'https://drive.alice.cozy.example/#/folder/d1/file/f1',
+        icon: FileTypePdf
       },
       {
         key: 'file:n1',
         label: 'Meeting.cozy-note',
-        href: 'https://notes.alice.cozy.example/#/n/n1'
+        secondary: '/Notes/',
+        href: 'https://notes.alice.cozy.example/#/n/n1',
+        icon: FileTypeNote
       }
     ])
+  })
+
+  it('gives an icon to a file of any type, and no folder without a path', () => {
+    const [link] = makeSourceLinks({
+      sources: [],
+      files: [{ _id: 'f1', name: 'notes.txt', dir_id: 'd1', type: 'file' }],
+      client: mockClient
+    })
+
+    expect(link.icon).toBe(FileTypeText)
+    expect(link.secondary).toBe(null)
   })
 
   it('links each web page once, by its title or its address', () => {
@@ -67,12 +98,16 @@ describe('makeSourceLinks', () => {
       {
         key: 'web:https://a.example',
         label: 'Page A',
-        href: 'https://a.example'
+        secondary: 'https://a.example',
+        href: 'https://a.example',
+        icon: Globe
       },
       {
         key: 'web:https://b.example',
         label: 'https://b.example',
-        href: 'https://b.example'
+        secondary: 'https://b.example',
+        href: 'https://b.example',
+        icon: Globe
       }
     ])
   })
