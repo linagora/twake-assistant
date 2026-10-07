@@ -2,8 +2,8 @@
 // model/rag/router.go). The stack refuses a whole message for one action
 // that breaks them, with a 400: a capability that breaks one is left out
 // before the message is sent.
-const ACTION_NAME = /^[a-z][a-z0-9_]{0,39}$/
-const PARAM_NAME = /^[a-zA-Z][a-zA-Z0-9_]{0,39}$/
+const ACTION_NAME = /^[a-z][a-z0-9_]*$/
+const PARAM_NAME = /^[a-zA-Z][a-zA-Z0-9_]*$/
 // The stack routes a plain request as this action
 const RESERVED_NAME = 'search'
 
