@@ -1,4 +1,4 @@
-import { MAX_EXAMPLES, findExampleError } from '@/lib/chatActions'
+import { findExampleError } from '@/lib/chatActions'
 import { DEFAULT_MENU_SUGGESTION } from '@/lib/intent'
 import catalogue from '@/lib/scribePrompts.json'
 
@@ -251,7 +251,7 @@ export function makeScribeCapabilities(
       action: {
         ...action,
         ...(requests.length > 0 && {
-          examples: [...examples, ...requests].slice(0, MAX_EXAMPLES)
+          examples: [...examples, ...requests]
         })
       },
       onClick: (params, text = '') =>

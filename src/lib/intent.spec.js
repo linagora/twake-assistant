@@ -190,13 +190,13 @@ describe('getIntentConfig', () => {
       ])
     })
 
-    it('keeps the 10 first ones, as many as the stack takes', () => {
+    it('keeps as many capabilities as the app gives', () => {
       const capabilities = Array.from({ length: 12 }, (_, index) => ({
         ...insertSlide,
         name: `action_${index}`
       }))
 
-      expect(getIntentConfig({ capabilities }).capabilities).toHaveLength(10)
+      expect(getIntentConfig({ capabilities }).capabilities).toHaveLength(12)
     })
   })
 

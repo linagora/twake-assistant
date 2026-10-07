@@ -1,6 +1,6 @@
 import Minilog from 'cozy-minilog'
 
-import { MAX_ACTIONS, findChatActionError } from '@/lib/chatActions'
+import { findChatActionError } from '@/lib/chatActions'
 
 const log = Minilog('🤖 [AssistantIntent]')
 
@@ -60,19 +60,17 @@ function findCapabilityError(capability, names) {
 // capability is left out, and the app can see why in the console
 function readCapabilities(capabilities) {
   const names = new Set()
-  const valid = capabilities.filter(capability => {
-    const error = findCapabilityError(capability, names)
-    if (error) {
-      log.warn(`Capability ${capability?.name} left out: ${error}`)
-      return false
-    }
-    names.add(capability.name)
-    return true
-  })
-  if (valid.length > MAX_ACTIONS) {
-    log.warn(`Capabilities after the first ${MAX_ACTIONS} left out`)
-  }
-  return valid.slice(0, MAX_ACTIONS).map(readCapability)
+  return capabilities
+    .filter(capability => {
+      const error = findCapabilityError(capability, names)
+      if (error) {
+        log.warn(`Capability ${capability?.name} left out: ${error}`)
+        return false
+      }
+      names.add(capability.name)
+      return true
+    })
+    .map(readCapability)
 }
 
 function isSuggestion(suggestion) {

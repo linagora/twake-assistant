@@ -33,15 +33,8 @@ describe('findChatActionError', () => {
     ['a name too long', { name: 'a'.repeat(41) }],
     ['the reserved name', { name: 'search' }],
     ['no description', { description: ' ' }],
-    ['a description too long', { description: 'é'.repeat(1001) }],
-    ['instructions too long', { instructions: 'i'.repeat(1001) }],
     ['instructions that are not a text', { instructions: 12 }],
-    [
-      'too many examples',
-      { examples: Array(6).fill({ message: 'Add a slide' }) }
-    ],
     ['an empty example', { examples: [{ message: '' }] }],
-    ['an example too long', { examples: [{ message: 'm'.repeat(301) }] }],
     ['both parameters and a content', { content: {} }],
     ['neither parameters nor a content', { parameters: undefined }],
     [
@@ -51,20 +44,6 @@ describe('findChatActionError', () => {
     [
       'parameters without properties',
       { parameters: { type: 'object', properties: {} } }
-    ],
-    [
-      'too many parameters',
-      {
-        parameters: {
-          type: 'object',
-          properties: Object.fromEntries(
-            Array.from({ length: 11 }, (_, index) => [
-              `p${index}`,
-              { type: 'string' }
-            ])
-          )
-        }
-      }
     ],
     [
       'a param name the stack does not allow',
@@ -94,17 +73,6 @@ describe('findChatActionError', () => {
       }
     ],
     [
-      'the description of a param too long',
-      {
-        parameters: {
-          type: 'object',
-          properties: {
-            title: { type: 'string', description: 'd'.repeat(301) }
-          }
-        }
-      }
-    ],
-    [
       'x-user-written that is not a boolean',
       {
         parameters: {
@@ -122,10 +90,36 @@ describe('findChatActionError', () => {
   })
 
   it.each([
-    ['max_tokens too high', { max_tokens: 4097 }],
+    ['negative max_tokens', { max_tokens: -1 }],
     ['max_tokens that is not a number', { max_tokens: '100' }]
   ])('refuses a content with %s', (_, content) => {
     expect(findChatActionError({ ...createDocument, content })).not.toBe(null)
+  })
+
+  it('leaves the size of the definitions to the client, as cozy-stack does', () => {
+    expect(
+      findChatActionError({
+        ...insertSlide,
+        description: 'd'.repeat(5000),
+        instructions: 'i'.repeat(5000),
+        examples: Array(20).fill({ message: 'm'.repeat(2000) }),
+        parameters: {
+          type: 'object',
+          properties: Object.fromEntries(
+            Array.from({ length: 30 }, (_, index) => [
+              `p${index}`,
+              { type: 'string', description: 'd'.repeat(2000) }
+            ])
+          )
+        }
+      })
+    ).toBe(null)
+    expect(
+      findChatActionError({
+        ...createDocument,
+        content: { max_tokens: 100000 }
+      })
+    ).toBe(null)
   })
 
   it('refuses what is not an action', () => {
@@ -135,10 +129,8 @@ describe('findChatActionError', () => {
 })
 
 describe('findExampleError', () => {
-  it('takes an example of 1 to 300 characters', () => {
+  it('takes an example with a message', () => {
     expect(findExampleError({ message: 'Add a slide' })).toBe(null)
-    expect(findExampleError({ message: 'é'.repeat(300) })).toBe(null)
-    expect(findExampleError({ message: 'é'.repeat(301) })).not.toBe(null)
     expect(findExampleError({ message: '  ' })).not.toBe(null)
   })
 })

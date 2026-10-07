@@ -1,13 +1,7 @@
-// The limits of cozy-stack on the actions of its chat (ValidateActions in
-// model/rag/router.go): they go into the prompts of a small LLM. The stack
-// refuses a message whose actions break one with a 400, so a capability
-// that breaks one is left out before the message is sent.
-export const MAX_ACTIONS = 10
-export const MAX_EXAMPLES = 5
-const MAX_PARAMS = 10
-const MAX_DESCRIPTION_CHARS = 1000
-const MAX_SHORT_TEXT_CHARS = 300
-const MAX_CONTENT_TOKENS = 4096
+// The rules of cozy-stack on the actions of its chat (ValidateActions in
+// model/rag/router.go). The stack refuses a whole message for one action
+// that breaks them, with a 400: a capability that breaks one is left out
+// before the message is sent.
 const ACTION_NAME = /^[a-z][a-z0-9_]{0,39}$/
 const PARAM_NAME = /^[a-zA-Z][a-zA-Z0-9_]{0,39}$/
 // The stack routes a plain request as this action
@@ -15,11 +9,6 @@ const RESERVED_NAME = 'search'
 
 function isObject(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-// The stack counts characters, not UTF-16 units
-function countChars(text) {
-  return [...text].length
 }
 
 function isFilled(text) {
@@ -33,11 +22,7 @@ function isFilled(text) {
  * @returns {string|null} the reason, null for an example it takes
  */
 export function findExampleError(example) {
-  if (!isFilled(example?.message)) return 'an example has no message'
-  if (countChars(example.message) > MAX_SHORT_TEXT_CHARS) {
-    return `an example has more than ${MAX_SHORT_TEXT_CHARS} characters`
-  }
-  return null
+  return isFilled(example?.message) ? null : 'an example has no message'
 }
 
 function findParamError(name, schema) {
@@ -49,10 +34,9 @@ function findParamError(name, schema) {
   }
   if (
     schema.description !== undefined &&
-    (typeof schema.description !== 'string' ||
-      countChars(schema.description) > MAX_SHORT_TEXT_CHARS)
+    typeof schema.description !== 'string'
   ) {
-    return `the description of param ${name} must have at most ${MAX_SHORT_TEXT_CHARS} characters`
+    return `the description of param ${name} is not a text`
   }
   const userWritten = schema['x-user-written']
   if (userWritten !== undefined && typeof userWritten !== 'boolean') {
@@ -66,9 +50,7 @@ function findParametersError(parameters) {
     return 'parameters is not an object schema'
   }
   const names = Object.keys(parameters.properties)
-  if (names.length === 0 || names.length > MAX_PARAMS) {
-    return `parameters must have 1 to ${MAX_PARAMS} properties`
-  }
+  if (names.length === 0) return 'parameters have no property'
   for (const name of names) {
     const error = findParamError(name, parameters.properties[name])
     if (error) return error
@@ -96,23 +78,12 @@ export function findChatActionError(definition) {
     return `invalid name ${name}`
   }
   if (name === RESERVED_NAME) return `the name ${name} is reserved`
-  if (
-    !isFilled(description) ||
-    countChars(description) > MAX_DESCRIPTION_CHARS
-  ) {
-    return `the description must have 1 to ${MAX_DESCRIPTION_CHARS} characters`
-  }
-  if (
-    instructions !== undefined &&
-    (typeof instructions !== 'string' ||
-      countChars(instructions) > MAX_DESCRIPTION_CHARS)
-  ) {
-    return `the instructions must have at most ${MAX_DESCRIPTION_CHARS} characters`
+  if (!isFilled(description)) return 'no description'
+  if (instructions !== undefined && typeof instructions !== 'string') {
+    return 'the instructions are not a text'
   }
   if (examples !== undefined) {
-    if (!Array.isArray(examples) || examples.length > MAX_EXAMPLES) {
-      return `at most ${MAX_EXAMPLES} examples`
-    }
+    if (!Array.isArray(examples)) return 'examples is not a list'
     const error = examples.map(findExampleError).find(Boolean)
     if (error) return error
   }
@@ -121,14 +92,9 @@ export function findChatActionError(definition) {
   }
   if (isObject(content)) {
     const maxTokens = content.max_tokens ?? 0
-    if (
-      !Number.isInteger(maxTokens) ||
-      maxTokens < 0 ||
-      maxTokens > MAX_CONTENT_TOKENS
-    ) {
-      return `max_tokens must be at most ${MAX_CONTENT_TOKENS}`
-    }
-    return null
+    return Number.isInteger(maxTokens) && maxTokens >= 0
+      ? null
+      : 'max_tokens is not a positive integer'
   }
   return findParametersError(parameters)
 }
