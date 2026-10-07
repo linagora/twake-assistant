@@ -5,7 +5,7 @@
   "scribe": {
     "title": "Twake AI",
     "welcome": "How can I help you today?",
-    "placeholder": "Describe a task",
+    "placeholder": "Help me write",
     "send": "Send",
     "stop": "Stop",
     "documents": "Use my documents",
