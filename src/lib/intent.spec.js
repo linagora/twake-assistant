@@ -180,13 +180,17 @@ describe('getIntentConfig', () => {
         capabilities: [
           {
             ...insertSlide,
-            examples: [{ message: 'Add a slide', needs_documents: 'yes' }]
+            examples: [
+              { message: 'Add a slide', needs_documents: 'yes' },
+              { message: 'Add a closing slide' }
+            ]
           }
         ]
       }).capabilities
 
       expect(capability.action.examples).toEqual([
-        { message: 'Add a slide', needs_documents: false }
+        { message: 'Add a slide', needs_documents: false },
+        { message: 'Add a closing slide', needs_documents: false }
       ])
     })
 
