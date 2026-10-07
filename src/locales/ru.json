@@ -20,6 +20,10 @@
       "insert": "Вставить",
       "replace": "Заменить"
     },
+    "capabilities": {
+      "run": "Применить",
+      "done": "Готово"
+    },
     "suggestions": {
       "correct": {
         "label": "Исправить",
