@@ -36,7 +36,9 @@ export function ScribeComposer() {
   const handleToggleDocuments = () => setHasDocuments(value => !value)
 
   return (
-    <ComposerPrimitive.Root className={styles['scribe-composer']}>
+    <ComposerPrimitive.Root
+      className={`${styles['scribe-composer']} u-flex u-flex-items-end`}
+    >
       <ComposerPrimitive.Input
         className={styles['scribe-composer-input']}
         placeholder={t('scribe.placeholder')}
@@ -46,7 +48,7 @@ export function ScribeComposer() {
         autoFocus={!isMobileDevice()}
         submitOnEnter={!isMobileDevice()}
       />
-      <div className="u-flex u-flex-items-center u-flex-justify-between">
+      <div className="u-flex u-flex-items-center u-flex-shrink-0 u-ml-half">
         <Tooltip title={t('scribe.documents')}>
           <IconButton
             size="small"
