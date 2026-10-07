@@ -28,9 +28,15 @@ export function IntentProviders({
           >
             <BreakpointsProvider>
               <AlertProvider>
-                {/* The intent paints its background: the one of the app
-                    behind its frame may be of another theme */}
-                <Box className="u-w-100 u-h-100" bgcolor="background.paper">
+                {/* The intent paints its background and its text: the app
+                    behind its frame may be of another theme, and the browser
+                    gives a raw element the text color of the scheme of the
+                    system (color-scheme of the page), not of the theme */}
+                <Box
+                  className="u-w-100 u-h-100"
+                  bgcolor="background.paper"
+                  color="text.primary"
+                >
                   {children}
                 </Box>
               </AlertProvider>
