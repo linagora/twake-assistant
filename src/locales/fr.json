@@ -25,43 +25,17 @@
       "done": "Fait"
     },
     "suggestions": {
+      "summarize": {
+        "label": "Résumer",
+        "request": "Résume le texte."
+      },
       "correct": {
         "label": "Corriger",
         "request": "Corrige la grammaire et l'orthographe du texte."
       },
-      "improve": {
-        "label": "Améliorer",
-        "shorter": {
-          "label": "Raccourcir",
-          "request": "Raccourcis le texte."
-        },
-        "expand": {
-          "label": "Développer",
-          "request": "Développe le texte avec plus de détails."
-        },
-        "emojify": {
-          "label": "Ajouter des émojis",
-          "request": "Ajoute des émojis au texte."
-        },
-        "bullets": {
-          "label": "Transformer en liste",
-          "request": "Transforme le texte en liste à puces."
-        }
-      },
-      "tone": {
-        "label": "Changer le ton",
-        "professional": {
-          "label": "Plus professionnel",
-          "request": "Rends le ton du texte plus professionnel."
-        },
-        "casual": {
-          "label": "Plus décontracté",
-          "request": "Rends le ton du texte plus décontracté."
-        },
-        "polite": {
-          "label": "Plus poli",
-          "request": "Rends le ton du texte plus poli."
-        }
+      "keypoints": {
+        "label": "Points clés",
+        "request": "Liste les points clés du texte."
       },
       "translate": {
         "label": "Traduire",
@@ -81,10 +55,6 @@
           "label": "Vietnamien",
           "request": "Traduis le texte en vietnamien."
         }
-      },
-      "summarize": {
-        "label": "Résumer",
-        "request": "Résume le texte."
       }
     }
   }

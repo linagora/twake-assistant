@@ -80,6 +80,12 @@ $gutter = 1rem
     border 0
     background-color var(--actionColorHover)
 
+// The margins of the design: 12px before the icon, where cozy-ui leaves 4px,
+// and 4px between the icon and the label. Nested twice: cozy-ui sets the
+// margin of the icon under the root of the chip
+.scribe-suggestions .scribe-suggestion .scribe-suggestion-icon
+    margin 0 -8px 0 .75rem
+
 .scribe-composer
     box-sizing border-box
     padding .5rem .5rem .5rem 1rem

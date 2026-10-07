@@ -25,43 +25,17 @@
       "done": "Đã xong"
     },
     "suggestions": {
+      "summarize": {
+        "label": "Tóm tắt",
+        "request": "Tóm tắt văn bản."
+      },
       "correct": {
         "label": "Sửa lỗi",
         "request": "Sửa lỗi ngữ pháp và chính tả của văn bản."
       },
-      "improve": {
-        "label": "Cải thiện",
-        "shorter": {
-          "label": "Rút gọn",
-          "request": "Rút gọn văn bản."
-        },
-        "expand": {
-          "label": "Mở rộng nội dung",
-          "request": "Mở rộng văn bản với nhiều chi tiết hơn."
-        },
-        "emojify": {
-          "label": "Thêm emoji",
-          "request": "Thêm emoji vào văn bản."
-        },
-        "bullets": {
-          "label": "Chuyển thành danh sách",
-          "request": "Chuyển văn bản thành danh sách gạch đầu dòng."
-        }
-      },
-      "tone": {
-        "label": "Đổi giọng văn",
-        "professional": {
-          "label": "Chuyên nghiệp hơn",
-          "request": "Làm cho giọng văn của văn bản chuyên nghiệp hơn."
-        },
-        "casual": {
-          "label": "Thân mật hơn",
-          "request": "Làm cho giọng văn của văn bản thân mật hơn."
-        },
-        "polite": {
-          "label": "Lịch sự hơn",
-          "request": "Làm cho giọng văn của văn bản lịch sự hơn."
-        }
+      "keypoints": {
+        "label": "Điểm chính",
+        "request": "Liệt kê các điểm chính của văn bản."
       },
       "translate": {
         "label": "Dịch",
@@ -81,10 +55,6 @@
           "label": "Tiếng Việt",
           "request": "Dịch văn bản sang tiếng Việt."
         }
-      },
-      "summarize": {
-        "label": "Tóm tắt",
-        "request": "Tóm tắt văn bản."
       }
     }
   }

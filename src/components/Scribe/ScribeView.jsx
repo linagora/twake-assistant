@@ -1,10 +1,10 @@
 import { ThreadPrimitive, useThread } from '@assistant-ui/react'
 import React from 'react'
 
-import { AssistantColor } from '@linagora/twake-icons'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
+import DocumentAssistant from '@/assets/illu-document-assistant.svg'
 import { ScribeAnswer } from '@/components/Scribe/ScribeAnswer'
 import { ScribeComposer } from '@/components/Scribe/ScribeComposer'
 import { ScribeProvider, useScribe } from '@/components/Scribe/ScribeProvider'
@@ -40,12 +40,12 @@ function ScribeConversation() {
       >
         {isEmpty && (
           <div className="u-flex u-flex-column u-flex-items-center u-flex-justify-center u-h-100">
-            <AssistantColor width={48} height={48} aria-hidden="true" />
+            <DocumentAssistant aria-hidden="true" />
             <Typography
               variant="body2"
               component="h2"
               color="textSecondary"
-              className="u-ta-center u-mv-1"
+              className="u-ta-center u-mt-1-half u-mb-1"
             >
               {t('scribe.welcome')}
             </Typography>

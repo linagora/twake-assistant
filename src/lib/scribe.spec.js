@@ -1,4 +1,4 @@
-import { Pen } from '@linagora/twake-icons'
+import { Text } from '@linagora/twake-icons'
 import { initTranslation } from 'twake-i18n'
 
 import {
@@ -15,22 +15,21 @@ const polyglot = initTranslation('en', () => en)
 const mockT = polyglot.t.bind(polyglot)
 
 describe('makeScribeSuggestions', () => {
-  it('arranges the prompts of the catalogue as the scribe of Twake Mail', () => {
+  it('arranges the prompts of the catalogue as the design of the side panel', () => {
     const suggestions = makeScribeSuggestions(mockT)
 
     expect(suggestions.map(suggestion => suggestion.name)).toEqual([
+      'summarize',
       'correct',
-      'improve',
-      'tone',
-      'translate',
-      'summarize'
+      'keypoints',
+      'translate'
     ])
     expect(suggestions[0]).toEqual({
-      name: 'correct',
-      label: 'Correct',
-      icon: Pen,
-      request: 'Correct the grammar and spelling of the text.',
-      prompt: 'correct-grammar'
+      name: 'summarize',
+      label: 'Summarize',
+      icon: Text,
+      request: 'Summarize the text.',
+      prompt: 'summarize'
     })
     expect(suggestions[3].label).toBe('Translate')
     expect(suggestions[3].options.map(option => option.prompt)).toEqual([
