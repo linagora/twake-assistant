@@ -260,6 +260,47 @@ When no config is provided, the assistant uses:
 
 A field that is missing, `null` or of another type falls back to its default. An entry of `answerActions` without a non-empty string `name` is left out. A capability the stack would refuse is left out, since the stack refuses the whole message for it: an invalid or reserved name, the name of another capability, no description, an example without a message, both `parameters` and `content` or neither, parameters that are not a schema as described in [Capability](#capability), a negative `max_tokens`. The reason is written in the console of the browser, as `Capability <name> left out: <reason>`. Nothing is cut: the assistant does not limit the number of the capabilities nor the length of their texts. A suggestion that sends nothing, without `prompt` nor `message`, is left out, and so is a menu with no item left. The assistant never fails on a configuration it cannot read: it opens with what it understands.
 
+For instance, with these capabilities, the assistant keeps `insert_slide` and leaves the two others out:
+
+```json
+{
+  "capabilities": [
+    {
+      "name": "insert_slide",
+      "description": "add a new slide after the current one",
+      "parameters": {
+        "type": "object",
+        "properties": { "title": { "type": "string", "description": "the title of the slide" } },
+        "required": ["title"]
+      }
+    },
+    {
+      "name": "insert_slide",
+      "description": "add a slide at the end of the presentation",
+      "parameters": {
+        "type": "object",
+        "properties": { "title": { "type": "string", "description": "the title of the slide" } }
+      }
+    },
+    {
+      "name": "insert_table",
+      "description": "insert a table at the cursor",
+      "parameters": {
+        "type": "object",
+        "properties": { "column-names": { "type": "array", "items": { "type": "string" } } }
+      }
+    }
+  ]
+}
+```
+
+The console of the browser then shows:
+
+```text
+Capability insert_slide left out: another capability has its name
+Capability insert_table left out: invalid param name column-names
+```
+
 Default labels:
 
 | Action name | Default label |
