@@ -30,7 +30,6 @@ describe('findChatActionError', () => {
 
   it.each([
     ['a name the stack does not allow', { name: 'insertSlide' }],
-    ['a name too long', { name: 'a'.repeat(41) }],
     ['the reserved name', { name: 'search' }],
     ['no description', { description: ' ' }],
     ['instructions that are not a text', { instructions: 12 }],
@@ -97,6 +96,9 @@ describe('findChatActionError', () => {
   })
 
   it('leaves the size of the definitions to the client, as cozy-stack does', () => {
+    expect(findChatActionError({ ...insertSlide, name: 'a'.repeat(100) })).toBe(
+      null
+    )
     expect(
       findChatActionError({
         ...insertSlide,
