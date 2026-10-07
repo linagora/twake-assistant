@@ -288,20 +288,20 @@ For instance, with these capabilities, the assistant keeps `insert_slide` and le
       "confirm": false
     },
     {
-      "name": "insert_slide",
-      "label": "Add at the end",
-      "description": "add a slide at the end of the presentation, with a title. Pick it when the user asks for a closing slide.",
+      "name": "search",
+      "label": "Search",
+      "description": "search the presentation the user is editing for a word, and select its first occurrence. Pick it when the user asks where a word is.",
       "examples": [
-        { "message": "Add a closing slide", "needs_documents": false }
+        { "message": "Where do I talk about the budget?", "needs_documents": false }
       ],
       "parameters": {
         "type": "object",
         "properties": {
-          "title": { "type": "string", "description": "the title of the slide, short" }
+          "query": { "type": "string", "description": "the word to search for, as the user wrote it" }
         },
-        "required": ["title"]
+        "required": ["query"]
       },
-      "instructions": "Write the title in the language of the presentation.",
+      "instructions": "Keep the word in the language the user wrote it in.",
       "confirm": true
     },
     {
@@ -332,7 +332,7 @@ For instance, with these capabilities, the assistant keeps `insert_slide` and le
 The console of the browser then shows:
 
 ```text
-Capability insert_slide left out: another capability has its name
+Capability search left out: the name search is reserved
 Capability insert_table left out: invalid param name column-names
 ```
 
