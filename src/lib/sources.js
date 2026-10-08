@@ -40,6 +40,11 @@ function getFileIcon(file) {
     : getFileTypeIcon(file.name, file.mime)
 }
 
+// A link of a web source opens only a web page, not a script
+function isHttpUrl(url) {
+  return typeof url === 'string' && /^https?:\/\//i.test(url.trim())
+}
+
 function getFolderPath(file) {
   if (typeof file.path !== 'string') return null
   return file.path.slice(0, file.path.lastIndexOf('/') + 1)
@@ -67,7 +72,10 @@ export function makeSourceLinks({ sources, files, client }) {
   const urls = [
     ...new Set(
       sources
-        .filter(source => source.sourceType === WEB_SOURCE_TYPE && source.url)
+        .filter(
+          source =>
+            source.sourceType === WEB_SOURCE_TYPE && isHttpUrl(source.url)
+        )
         .map(source => source.url)
     )
   ]
