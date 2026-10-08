@@ -4,12 +4,12 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { RealTimeQueries } from 'cozy-client'
 import Intents from 'cozy-interapp'
 import Minilog from 'cozy-minilog'
-import { AssistantView } from 'cozy-search'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
 import { IntentProviders } from '@/components/IntentProviders'
 import { ScribeView } from '@/components/Scribe/ScribeView'
+import AssistantView from '@/components/Views/AssistantView'
 import {
   DOCTYPE_AI_CHAT_ASSISTANTS,
   DOCTYPE_AI_CHAT_CONVERSATIONS

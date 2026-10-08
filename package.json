@@ -54,6 +54,7 @@
   "dependencies": {
     "@assistant-ui/react": "^0.12.5",
     "@linagora/twake-icons": "^2.13.0",
+    "classnames": "^2.5.1",
     "cozy-bar": "^35.4.11",
     "cozy-client": "^60.37.1",
     "cozy-dataproxy-lib": "^4.15.7",
@@ -68,6 +69,8 @@
     "cozy-search": "^2.11.0",
     "cozy-ui": "^142.1.0",
     "cozy-ui-plus": "^13.0.8",
+    "lodash": "^4.17.21",
+    "mime-types": "2.1.35",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "6.30.6",

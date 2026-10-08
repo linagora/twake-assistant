@@ -2,12 +2,12 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 
 import { createMockClient } from 'cozy-client'
-import { AssistantView } from 'cozy-search'
 import CozyTheme from 'cozy-ui-plus/dist/providers/CozyTheme'
 import { initTranslation } from 'twake-i18n'
 
 import { AssistantIntent } from '@/components/Intents/AssistantIntent'
 import { ScribeView } from '@/components/Scribe/ScribeView'
+import AssistantView from '@/components/Views/AssistantView'
 import en from '@/locales/en.json'
 
 const mockService = {
@@ -33,9 +33,9 @@ jest.mock('cozy-interapp', () =>
     createService: mockCreateService
   }))
 )
-jest.mock('cozy-search', () => ({
-  AssistantView: jest.fn(() => <div data-testid="assistant-view" />)
-}))
+jest.mock('@/components/Views/AssistantView', () =>
+  jest.fn(() => <div data-testid="assistant-view" />)
+)
 jest.mock('@/components/Scribe/ScribeView', () => ({
   ScribeView: jest.fn(() => <div data-testid="scribe-view" />)
 }))
