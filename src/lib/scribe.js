@@ -1,4 +1,4 @@
-import { CheckList, Globe, Pen, Text } from '@linagora/twake-icons'
+import { CheckList, Globe, Text, TextInfo } from '@linagora/twake-icons'
 
 import { findExampleError } from '@/lib/chatActions'
 import { DEFAULT_MENU_SUGGESTION } from '@/lib/intent'
@@ -10,7 +10,7 @@ import catalogue from '@/lib/scribePrompts.json'
 // of Twake Mail, arranged as in the design of the side panel
 const SUGGESTIONS = [
   { name: 'summarize', icon: Text, prompt: 'summarize' },
-  { name: 'correct', icon: Pen, prompt: 'correct-grammar' },
+  { name: 'correct', icon: TextInfo, prompt: 'correct-grammar' },
   { name: 'keypoints', icon: CheckList, prompt: 'transform-to-bullets' },
   {
     name: 'translate',
