@@ -4,6 +4,7 @@
   },
   "scribe": {
     "title": "Ask Twake AI",
+    "close": "Close",
     "welcome": "Ask me a question about your document",
     "placeholder": "Help me write",
     "send": "Send",

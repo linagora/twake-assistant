@@ -1,6 +1,9 @@
 import { ThreadPrimitive, useThread } from '@assistant-ui/react'
 import React from 'react'
 
+import { CrossSmall, Icon } from '@linagora/twake-icons'
+import IconButton from 'cozy-ui/transpiled/react/IconButton'
+import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
@@ -17,6 +20,16 @@ const MESSAGE_COMPONENTS = {
   AssistantMessage: ScribeAnswer
 }
 
+function HeaderButton({ label, onClick, children }) {
+  return (
+    <Tooltip title={label}>
+      <IconButton size="small" aria-label={label} onClick={onClick}>
+        {children}
+      </IconButton>
+    </Tooltip>
+  )
+}
+
 function ScribeConversation() {
   const { t } = useI18n()
   const isEmpty = useThread(state => state.messages.length === 0)
@@ -28,12 +41,7 @@ function ScribeConversation() {
   const hasNewText = requestCount === textStart
 
   return (
-    <ThreadPrimitive.Root className={styles['scribe']}>
-      <header className={styles['scribe-header']}>
-        <Typography variant="h6" component="h1">
-          {t('scribe.title')}
-        </Typography>
-      </header>
+    <ThreadPrimitive.Root className="u-flex u-flex-column u-flex-auto u-ov-hidden">
       <ThreadPrimitive.Viewport
         autoScroll
         className={styles['scribe-messages']}
@@ -72,12 +80,33 @@ function ScribeConversation() {
 
 /**
  * The assistant as a scribe: it works on a text of the app that opened it,
- * and hands its answers back. See ScribeProvider for the props.
+ * and hands its answers back. See ScribeProvider for the other props.
+ *
+ * @param {object} props
+ * @param {Function} [props.onClose] - no close button without it
  */
-export function ScribeView(props) {
+export function ScribeView({ onClose, ...props }) {
+  const { t } = useI18n()
+
   return (
-    <ScribeProvider {...props}>
-      <ScribeConversation />
-    </ScribeProvider>
+    <div className={styles['scribe']}>
+      <header className="u-flex u-flex-items-center u-flex-shrink-0 u-pt-half u-ph-1">
+        <Typography
+          variant="h5"
+          component="h1"
+          className="u-flex-auto u-ellipsis"
+        >
+          {t('scribe.title')}
+        </Typography>
+        {onClose && (
+          <HeaderButton label={t('scribe.close')} onClick={onClose}>
+            <Icon icon={CrossSmall} size={20} />
+          </HeaderButton>
+        )}
+      </header>
+      <ScribeProvider {...props}>
+        <ScribeConversation />
+      </ScribeProvider>
+    </div>
   )
 }

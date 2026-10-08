@@ -112,6 +112,7 @@ function Scribe({ service, config }) {
       documents={documents ?? content === ''}
       text={content}
       {...textProps}
+      onClose={() => service.cancel()}
     />
   )
 }
