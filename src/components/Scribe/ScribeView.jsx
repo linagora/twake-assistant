@@ -34,6 +34,7 @@ function HeaderButton({ label, isPressed, onClick, children }) {
     <Tooltip title={label}>
       <IconButton
         size="small"
+        color="inherit"
         aria-label={label}
         aria-pressed={isPressed}
         onClick={onClick}
@@ -125,7 +126,7 @@ export function ScribeView({ onClose, ...props }) {
   return (
     <div className={styles['scribe']}>
       <RealTimeQueries doctype={DOCTYPE_AI_CHAT_CONVERSATIONS} />
-      <header className="u-flex u-flex-items-center u-flex-shrink-0 u-pt-half u-ph-1">
+      <header className="u-flex u-flex-items-center u-flex-shrink-0 u-pt-1 u-ph-1">
         <Typography
           variant="h5"
           component="h1"
@@ -134,18 +135,18 @@ export function ScribeView({ onClose, ...props }) {
           {t('scribe.title')}
         </Typography>
         <HeaderButton label={t('scribe.new')} onClick={handleNew}>
-          <Icon icon={Note} size={20} />
+          <Icon icon={Note} size={16} />
         </HeaderButton>
         <HeaderButton
           label={t('scribe.history.title')}
           isPressed={isHistoryOpen}
           onClick={handleToggleHistory}
         >
-          <Icon icon={History} size={20} />
+          <Icon icon={History} size={16} />
         </HeaderButton>
         {onClose && (
           <HeaderButton label={t('scribe.close')} onClick={onClose}>
-            <Icon icon={CrossSmall} size={20} />
+            <Icon icon={CrossSmall} size={16} />
           </HeaderButton>
         )}
       </header>
