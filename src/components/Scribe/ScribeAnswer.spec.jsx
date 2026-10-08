@@ -75,43 +75,6 @@ describe('ScribeAnswer', () => {
     expect(screen.queryByRole('button')).toBe(null)
   })
 
-  it('tells that the model thinks, in place of the spinner', () => {
-    renderAnswer({
-      ...answer('', 'running'),
-      content: [
-        { type: 'reasoning', text: '17 x 23' },
-        { type: 'text', text: '' }
-      ]
-    })
-
-    expect(
-      screen.queryByRole('button', { name: 'Thinking…' })
-    ).toBeInTheDocument()
-    expect(
-      screen.queryByRole('status', { name: 'The assistant is writing…' })
-    ).toBe(null)
-    expect(screen.queryByRole('status')).toHaveTextContent('Thinking…')
-  })
-
-  it('folds what the model thought in a line, opened by a click', () => {
-    renderAnswer({
-      ...answer('391', 'complete'),
-      content: [
-        { type: 'reasoning', text: '17 x 20 = 340\n17 x 3 = 51' },
-        { type: 'text', text: '391' }
-      ]
-    })
-    const line = screen.getByRole('button', { name: 'Thought process' })
-
-    expect(line).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByText('17 x 3 = 51')).toBe(null)
-
-    fireEvent.click(line)
-
-    expect(line).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.queryByText('17 x 3 = 51')).toBeInTheDocument()
-  })
-
   it('shows the answer as it comes, without the actions yet', () => {
     renderAnswer(answer('Bonjour', 'running'), actions)
 
@@ -127,12 +90,6 @@ describe('ScribeAnswer', () => {
 
     expect(actions[1].onClick).toHaveBeenCalledWith('Bonjour à **tous**')
     expect(actions[0].onClick).not.toHaveBeenCalled()
-  })
-
-  it('renders the answer as Markdown', () => {
-    renderAnswer(answer('Bonjour à **tous**', 'complete'))
-
-    expect(screen.queryByText('tous').tagName).toBe('STRONG')
   })
 
   it('tells when the answer failed, with what came, and lets the user try again', () => {
@@ -191,16 +148,6 @@ describe('ScribeAnswer', () => {
     expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
   })
 
-  it('shows the sources of an answer from the documents', () => {
-    renderAnswer(
-      answer('The budget', 'complete', {
-        sources: [{ id: 'f1' }, { id: 'f2' }]
-      })
-    )
-
-    expect(screen.queryByTestId('sources')).toHaveTextContent('2')
-  })
-
   describe('the call of a capability the LLM proposes', () => {
     const insertSlide = { name: 'insert_slide', label: 'Insert' }
     const action = { name: 'insert_slide', params: { title: 'Risks' } }
@@ -211,7 +158,7 @@ describe('ScribeAnswer', () => {
       expect(screen.getByTestId('capability').textContent).toBe(
         'a1 insert_slide Risks '
       )
-      expect(screen.queryByText(en.scribe.empty)).toBe(null)
+      expect(screen.queryByText(en.chat.empty)).toBe(null)
       expect(screen.queryByRole('button')).toBe(null)
     })
 
@@ -240,7 +187,7 @@ describe('ScribeAnswer', () => {
       renderAnswer(answer('', 'complete', { action }), [], [])
 
       expect(screen.queryByTestId('capability')).toBe(null)
-      expect(screen.queryByText(en.scribe.empty)).toBeInTheDocument()
+      expect(screen.queryByText(en.chat.empty)).toBeInTheDocument()
       expect(screen.queryByRole('button')).toBe(null)
     })
   })

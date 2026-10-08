@@ -16,14 +16,7 @@
     "send": "Gửi",
     "stop": "Dừng",
     "documents": "Sử dụng tài liệu của tôi",
-    "thinking": "Trợ lý đang viết…",
-    "reasoning": {
-      "running": "Đang suy nghĩ…",
-      "done": "Quá trình suy nghĩ"
-    },
-    "error": "Đã xảy ra lỗi khi viết câu trả lời. Vui lòng thử lại.",
     "retry": "Thử lại",
-    "empty": "Tôi không tìm thấy câu trả lời cho yêu cầu của bạn. Vui lòng thử diễn đạt lại.",
     "disclaimer": "Twake AI có thể mắc lỗi. Vui lòng kiểm tra lại các thông tin quan trọng.",
     "instructions": "Bạn giúp người dùng làm việc với một văn bản trong trình soạn thảo của họ. Trước tiên, hãy xem họ yêu cầu gì.\nNếu họ đặt câu hỏi về văn bản hoặc muốn biết ý kiến của bạn, hãy trả lời bình thường, trong vài câu, mà không viết lại văn bản.\nNếu họ yêu cầu viết hoặc thay đổi một văn bản, câu trả lời của bạn sẽ được đưa nguyên vẹn vào tài liệu của họ: khi đó chỉ trả lời bằng chính văn bản đó, bằng ngôn ngữ của văn bản, trong một phiên bản duy nhất, không có lời giới thiệu, không bình luận về câu trả lời, không có dòng phân cách, không có emoji và không có chỗ trống nào cần điền trong ngoặc. Giữ nguyên hình thức của văn bản, trừ khi được yêu cầu thay đổi, và không bịa ra thông tin.",
     "content": "Văn bản:",
@@ -130,8 +123,7 @@
     "hide": "Ẩn",
     "show": "Hiện",
     "message": {
-      "welcome": "Tôi có thể giúp gì cho bạn hôm nay?",
-      "running": "Trợ lý đang chạy..."
+      "welcome": "Tôi có thể giúp gì cho bạn hôm nay?"
     },
     "search_conversation": {
       "placeholder": "Tìm kiếm trong các cuộc trò chuyện...",
@@ -315,6 +307,13 @@
     }
   },
   "chat": {
+    "thinking": "Trợ lý đang viết…",
+    "reasoning": {
+      "running": "Đang suy nghĩ…",
+      "done": "Quá trình suy nghĩ"
+    },
+    "error": "Đã xảy ra lỗi khi viết câu trả lời. Vui lòng thử lại.",
+    "empty": "Tôi không tìm thấy câu trả lời cho yêu cầu của bạn. Vui lòng thử diễn đạt lại.",
     "sources": "%{smart_count} nguồn |||| %{smart_count} nguồn"
   }
 }
