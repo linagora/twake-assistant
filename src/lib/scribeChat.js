@@ -125,6 +125,14 @@ export function makeScribeChatAdapter({
         ? prompt.instructions
         : (custom.instructions ?? instructions)
       const answer = makeAnswer()
+      const reasoning = makeAnswer()
+      const getContent = () => {
+        const thought = reasoning.getText()
+        return [
+          ...(thought !== '' ? [{ type: 'reasoning', text: thought }] : []),
+          { type: 'text', text: answer.getText() }
+        ]
+      }
       let sources = null
       let action = null
 
@@ -149,9 +157,13 @@ export function makeScribeChatAdapter({
           if (event.object === 'error') throw new Error(event.message)
           if (event.object === 'sources') sources = event.content
           if (event.object === 'action') action = event.action ?? null
+          if (event.object === 'reasoning') {
+            reasoning.add(event)
+            yield { content: getContent() }
+          }
           if (event.object === 'delta') {
             answer.add(event)
-            yield { content: [{ type: 'text', text: answer.getText() }] }
+            yield { content: getContent() }
           }
         }
 
@@ -160,7 +172,7 @@ export function makeScribeChatAdapter({
 
         const answerText = answer.getText()
         yield {
-          content: [{ type: 'text', text: answerText }],
+          content: getContent(),
           status: { type: 'complete', reason: 'stop' },
           metadata: {
             custom: {
@@ -173,7 +185,7 @@ export function makeScribeChatAdapter({
       } catch (error) {
         log.error('The scribe got no answer', error)
         yield {
-          content: [{ type: 'text', text: answer.getText() }],
+          content: getContent(),
           status: { type: 'incomplete', reason: 'error' },
           metadata: { custom: { isError: true } }
         }
