@@ -170,7 +170,7 @@ export function makeScribePreparePrompt(content) {
  *
  * @param {string} content - the text of the app
  * @param {Function} t - translation function
- * @returns {import('cozy-search').PrepareQuery}
+ * @returns {(text: string, options: { isFirstOnText: boolean }) => string}
  */
 export function makeScribePrepareQuery(content, t) {
   return (text, { isFirstOnText }) =>
@@ -275,6 +275,13 @@ export function getScribeConversationTitle(conversation, t) {
 }
 
 /**
+ * @typedef {object} AnswerAction
+ * @property {string} name
+ * @property {string} label - the label of its button
+ * @property {(text: string) => void} onClick - called with the answer
+ */
+
+/**
  * One button per action of the app under each answer. The app does the
  * action: the scribe only hands it the answer, as a result of the intent.
  *
@@ -282,7 +289,7 @@ export function getScribeConversationTitle(conversation, t) {
  * actions of the app, e.g. insert, replace
  * @param {Function} t - translation function
  * @param {Function} onAction - called with { answerAction, text, format }
- * @returns {import('cozy-search').AnswerAction[]}
+ * @returns {AnswerAction[]}
  */
 export function makeScribeAnswerActions(answerActions, t, onAction) {
   return answerActions.map(({ name, label }) => ({
