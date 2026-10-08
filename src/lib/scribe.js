@@ -280,6 +280,18 @@ export function getScribeConversationTitle(conversation, t) {
 }
 
 /**
+ * @param {object} conversation - a conversation kept by the stack
+ * @returns {string} its last answer: while an answer goes on, the last
+ * message is the query sent to the LLM, with the text of the app
+ */
+export function getScribeConversationDescription(conversation) {
+  const answer = conversation.messages?.findLast(
+    message => message.role === 'assistant'
+  )
+  return removeSourceMarks(answer?.content ?? '')
+}
+
+/**
  * @typedef {object} AnswerAction
  * @property {string} name
  * @property {string} label - the label of its button
