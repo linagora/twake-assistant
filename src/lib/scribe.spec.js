@@ -26,7 +26,7 @@ describe('makeScribeSuggestions', () => {
     ])
     expect(suggestions[0]).toEqual({
       name: 'summarize',
-      label: 'Summarize',
+      label: 'Summary',
       icon: Text,
       request: 'Summarize the text.',
       prompt: 'summarize'
