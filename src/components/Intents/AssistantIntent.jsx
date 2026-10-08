@@ -57,7 +57,6 @@ function PlainAssistant() {
 
 function Scribe({ service, config }) {
   const { t } = useI18n()
-  const [conversationId] = useState(makeConversationId)
   const { content, answerActions, capabilities, suggestions, documents } =
     config
 
@@ -104,7 +103,6 @@ function Scribe({ service, config }) {
 
   return (
     <ScribeView
-      conversationId={conversationId}
       answerActions={scribeActions}
       capabilities={scribeCapabilities}
       suggestions={scribeSuggestions}

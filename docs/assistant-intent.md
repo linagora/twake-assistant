@@ -15,7 +15,7 @@ type = 'io.cozy.ai.chat.conversations'
 
 The service renders the AI assistant in the frame of the calling app, on a new conversation. The frame can be a modal or a side panel: the assistant adapts to the width it is given.
 
-Depending on its configuration, the assistant is opened as it is, the assistant of the Twake Assistant app with its conversations and its assistants, or as a **scribe**: an assistant that works for the calling app. It works on a text of the app and hands its answers back for the app to insert them, and it calls the **capabilities** of the app, what the app can do beside taking an answer, when a request of the user needs one. The scribe is a conversation of its own, made for a side panel: it has no sidebar, no list of the past conversations and no choice of the assistant. Its header closes the scribe.
+Depending on its configuration, the assistant is opened as it is, the assistant of the Twake Assistant app with its conversations and its assistants, or as a **scribe**: an assistant that works for the calling app. It works on a text of the app and hands its answers back for the app to insert them, and it calls the **capabilities** of the app, what the app can do beside taking an answer, when a request of the user needs one. The scribe is made for a side panel: it has no sidebar, no list of the past conversations and no choice of the assistant. Its header starts a new conversation and closes the scribe.
 
 Unlike a picker, this intent does not end with a result. The assistant stays open for as many requests as the user makes, and each answer the user picks is sent to the calling app while the intent goes on. The user closes it from the header of the scribe, or the calling app closes it.
 
