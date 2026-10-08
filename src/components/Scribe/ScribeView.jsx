@@ -1,7 +1,13 @@
 import { ThreadPrimitive, useThread } from '@assistant-ui/react'
 import React, { useState } from 'react'
 
-import { CrossSmall, History, Icon, Note } from '@linagora/twake-icons'
+import {
+  CrossSmall,
+  History,
+  Icon,
+  Note,
+  Previous
+} from '@linagora/twake-icons'
 import { RealTimeQueries } from 'cozy-client'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
 import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
@@ -113,6 +119,7 @@ export function ScribeView({ onClose, ...props }) {
     setIsHistoryOpen(false)
   }
   const handleToggleHistory = () => setIsHistoryOpen(isOpen => !isOpen)
+  const handleCloseHistory = () => setIsHistoryOpen(false)
   const handleOpen = past => {
     if (past._id !== conversation.id) {
       setConversation({
@@ -127,6 +134,11 @@ export function ScribeView({ onClose, ...props }) {
     <div className={styles['scribe']}>
       <RealTimeQueries doctype={DOCTYPE_AI_CHAT_CONVERSATIONS} />
       <header className="u-flex u-flex-items-center u-flex-shrink-0 u-pt-1 u-ph-1">
+        {isHistoryOpen && (
+          <HeaderButton label={t('scribe.back')} onClick={handleCloseHistory}>
+            <Icon icon={Previous} size={16} />
+          </HeaderButton>
+        )}
         <Typography
           variant="h5"
           component="h1"
