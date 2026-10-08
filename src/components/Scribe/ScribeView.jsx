@@ -1,7 +1,7 @@
 import { ThreadPrimitive, useThread } from '@assistant-ui/react'
-import React from 'react'
+import React, { useState } from 'react'
 
-import { CrossSmall, Icon } from '@linagora/twake-icons'
+import { CrossSmall, Icon, Note } from '@linagora/twake-icons'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
 import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
 import Typography from 'cozy-ui/transpiled/react/Typography'
@@ -14,6 +14,7 @@ import { ScribeProvider, useScribe } from '@/components/Scribe/ScribeProvider'
 import { ScribeRequest } from '@/components/Scribe/ScribeRequest'
 import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
 import styles from '@/components/Scribe/styles.styl'
+import { makeConversationId } from '@/lib/conversation'
 
 const MESSAGE_COMPONENTS = {
   UserMessage: ScribeRequest,
@@ -87,6 +88,9 @@ function ScribeConversation() {
  */
 export function ScribeView({ onClose, ...props }) {
   const { t } = useI18n()
+  const [conversationId, setConversationId] = useState(makeConversationId)
+
+  const handleNew = () => setConversationId(makeConversationId())
 
   return (
     <div className={styles['scribe']}>
@@ -98,13 +102,20 @@ export function ScribeView({ onClose, ...props }) {
         >
           {t('scribe.title')}
         </Typography>
+        <HeaderButton label={t('scribe.new')} onClick={handleNew}>
+          <Icon icon={Note} size={20} />
+        </HeaderButton>
         {onClose && (
           <HeaderButton label={t('scribe.close')} onClick={onClose}>
             <Icon icon={CrossSmall} size={20} />
           </HeaderButton>
         )}
       </header>
-      <ScribeProvider {...props}>
+      <ScribeProvider
+        key={conversationId}
+        {...props}
+        conversationId={conversationId}
+      >
         <ScribeConversation />
       </ScribeProvider>
     </div>
