@@ -529,10 +529,17 @@ describe('makeChat', () => {
 describe('removeSourceMarks', () => {
   it.each([
     ['The budget [REF]doc_1[/REF] is voted.', 'The budget is voted.'],
+    ['The budget REFdoc_1/REF is voted.', 'The budget is voted.'],
+    ['A REF.../REF B [REF]...[/REF] C REF.../REF D', 'A B C D'],
     ['The budget [doc_2] is voted.', 'The budget is voted.'],
     ['The budget is voted [Source 1, 3].', 'The budget is voted.'],
     ['The budget is voted [Sources: 1, 3]().', 'The budget is voted.'],
-    ['A list:\n- [ ] to do\n- [x] done', 'A list:\n- [ ] to do\n- [x] done']
+    ['The budget [Source 4, Source 6] is voted.', 'The budget is voted.'],
+    ['A list:\n- [ ] to do\n- [x] done', 'A list:\n- [ ] to do\n- [x] done'],
+    ['See [Sources] and [Source list]', 'See [Sources] and [Source list]'],
+    ['REF not closed [REF]not closed', 'REF not closed [REF]not closed'],
+    ['before refdoc_1/ref after', 'before refdoc_1/ref after'],
+    ['PREFIX: see the page /REFUND', 'PREFIX: see the page /REFUND']
   ])('reads %p as %p', (text, expected) => {
     expect(removeSourceMarks(text)).toBe(expected)
   })

@@ -1,43 +1,18 @@
+import { removeSourceMarks } from '@/lib/chat'
+
 export const makeConversationId = () =>
   `${Date.now()}-${Math.floor(Math.random() * 90000) + 10000}`
 
 /**
- * Removes the source tags the UI does not handle yet, like [REF]...[/REF]
- * or [doc_X].
- * @param {string} content
- * @returns {string}
- */
-export const sanitizeChatContent = content => {
-  if (!content) {
-    return ''
-  }
-  return (
-    content
-      // remove « [REF]doc_1[/REF] »
-      .replace(/\s?\[REF\][\s\S]*?\[\/REF\]/g, '')
-      // remove « REFdoc_1/REF »
-      .replace(/\s?REF[\s\S]*?\/REF/g, '')
-      // remove « [doc_1] »
-      .replace(/\s?\[doc_\d+\]/g, '')
-      // remove « [Source 1] », « [Source 4, 6] » or « [Source 4, Source 6] »
-      .replace(/\s?\[Source\s+\d+(?:\s*,\s*(?:Source\s+)?\d+)*\]/g, '')
-      // remove « [Sources: 1, 3, 6] » citations, with optional empty link parens
-      .replace(/\s?\[Sources?:\s*\d+(?:\s*,\s*\d+)*\s*\](?:\([^)]*\))?/g, '')
-  )
-}
-
-/**
- * Sanitizes the citation markup, and substitutes a translated fallback for
- * an empty assistant answer.
+ * Removes the marks of the sources, and substitutes a translated fallback
+ * for an empty assistant answer.
  * @param {{ role: string, content: string }} message
  * @param {(key: string) => string} t
  * @returns {string}
  */
 export const formatAnswer = (message, t) => {
-  const sanitized = sanitizeChatContent(message.content)
-  return message.role === 'assistant' && !sanitized.trim()
-    ? t('assistant.default_empty_response')
-    : sanitized
+  const text = removeSourceMarks(message.content ?? '')
+  return message.role === 'assistant' && !text.trim() ? t('chat.empty') : text
 }
 
 export const formatConversationDate = (dateString, t, lang) => {
