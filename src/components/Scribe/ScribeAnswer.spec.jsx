@@ -64,6 +64,43 @@ describe('ScribeAnswer', () => {
     expect(screen.queryByRole('button')).toBe(null)
   })
 
+  it('tells that the model thinks, in place of the spinner', () => {
+    renderAnswer({
+      ...answer('', 'running'),
+      content: [
+        { type: 'reasoning', text: '17 x 23' },
+        { type: 'text', text: '' }
+      ]
+    })
+
+    expect(
+      screen.queryByRole('button', { name: 'Thinking…' })
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('status', { name: 'The assistant is writing…' })
+    ).toBe(null)
+    expect(screen.queryByRole('status')).toHaveTextContent('Thinking…')
+  })
+
+  it('folds what the model thought in a line, opened by a click', () => {
+    renderAnswer({
+      ...answer('391', 'complete'),
+      content: [
+        { type: 'reasoning', text: '17 x 20 = 340\n17 x 3 = 51' },
+        { type: 'text', text: '391' }
+      ]
+    })
+    const line = screen.getByRole('button', { name: 'Thought process' })
+
+    expect(line).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByText('17 x 3 = 51')).toBe(null)
+
+    fireEvent.click(line)
+
+    expect(line).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.queryByText('17 x 3 = 51')).toBeInTheDocument()
+  })
+
   it('shows the answer as it comes, without the actions yet', () => {
     renderAnswer(answer('Bonjour', 'running'), actions)
 

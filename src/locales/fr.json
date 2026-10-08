@@ -16,6 +16,10 @@
     "stop": "Arrêter",
     "documents": "Utiliser mes documents",
     "thinking": "L'assistant rédige…",
+    "reasoning": {
+      "running": "Réflexion…",
+      "done": "Processus de réflexion"
+    },
     "error": "Une erreur est survenue pendant la rédaction de la réponse. Veuillez réessayer.",
     "empty": "Je n'ai pas trouvé de réponse à votre demande. Essayez de la reformuler.",
     "sources": "%{smart_count} source |||| %{smart_count} sources",

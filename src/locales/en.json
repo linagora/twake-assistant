@@ -16,6 +16,10 @@
     "stop": "Stop",
     "documents": "Use my documents",
     "thinking": "The assistant is writing…",
+    "reasoning": {
+      "running": "Thinking…",
+      "done": "Thought process"
+    },
     "error": "An error occurred while writing the answer. Please try again.",
     "empty": "I could not find an answer to your request. Please try rephrasing it.",
     "sources": "%{smart_count} source |||| %{smart_count} sources",

@@ -185,6 +185,35 @@ describe('makeScribeChatAdapter', () => {
     ])
   })
 
+  it('gives what a reasoning model thinks apart from its answer', async () => {
+    const { adapter } = setup({
+      events: [
+        { object: 'reasoning', content: ' = 391', position: 1 },
+        { object: 'reasoning', content: '17 x 23', position: 0 },
+        { object: 'delta', content: '391', position: 0 },
+        { object: 'done' }
+      ]
+    })
+
+    const results = await run(adapter, [userMessage('17 x 23?')])
+
+    expect(results.map(result => result.content)).toEqual([
+      [{ type: 'text', text: '' }],
+      [
+        { type: 'reasoning', text: '17 x 23 = 391' },
+        { type: 'text', text: '' }
+      ],
+      [
+        { type: 'reasoning', text: '17 x 23 = 391' },
+        { type: 'text', text: '391' }
+      ],
+      [
+        { type: 'reasoning', text: '17 x 23 = 391' },
+        { type: 'text', text: '391' }
+      ]
+    ])
+  })
+
   it('leaves out the answer to another message', async () => {
     const { adapter, events } = setup({
       events: [{ object: 'delta', content: 'Mine' }, { object: 'done' }]
