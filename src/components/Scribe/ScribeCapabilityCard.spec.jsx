@@ -121,4 +121,18 @@ describe('ScribeCapabilityCard', () => {
     expect(capability.onClick).toHaveBeenCalledTimes(1)
     expect(screen.getByRole('status').textContent).toBe('Done')
   })
+
+  it('waits for the user on a call of a past conversation', () => {
+    const params = { title: 'Risks' }
+    renderCard(params, {
+      capability: { ...capability, confirm: false },
+      isPast: true
+    })
+
+    expect(capability.onClick).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Insert the slide' }))
+
+    expect(capability.onClick).toHaveBeenCalledWith(params, '')
+  })
 })

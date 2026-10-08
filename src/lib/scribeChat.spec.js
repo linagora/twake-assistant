@@ -407,6 +407,36 @@ describe('makeScribeChat', () => {
     ])
   })
 
+  it('joins the text to the first message after a past conversation', async () => {
+    const sent = []
+    const chat = makeScribeChat({
+      client: {
+        stackClient: {
+          fetchJSON: jest.fn(async (method, path, body) => {
+            chat.events.push({ _id: 'q1', object: 'done' })
+            sent.push(body.q)
+            return {
+              data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
+            }
+          })
+        }
+      },
+      conversationId: 'c1',
+      textIndex: 1
+    })
+    chat.setRequest({
+      prepareQuery: (text, { isFirstOnText }) =>
+        isFirstOnText ? `${text} + the text` : text,
+      hasDocuments: true,
+      instructions: null
+    })
+    const past = [userMessage('Fix it'), assistantMessage('Fixed')]
+
+    await run(chat.adapter, [...past, userMessage('Shorter')])
+
+    expect(sent).toEqual(['Shorter + the text'])
+  })
+
   it('gives its adapter the events it receives', async () => {
     const fetchJSON = jest.fn(async () => ({
       data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }

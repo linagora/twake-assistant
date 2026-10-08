@@ -190,6 +190,9 @@ export function makeScribeChatAdapter({
  * @param {object} options
  * @param {import('cozy-client/types/CozyClient').default} options.client
  * @param {string} options.conversationId
+ * @param {number} [options.textIndex] - the index, among the messages of the
+ * user, of the first one about the text of the app: the number of requests
+ * of a past conversation
  * @returns {{
  *   events: ChatEventStream,
  *   adapter: import('@assistant-ui/react').ChatModelAdapter,
@@ -197,7 +200,7 @@ export function makeScribeChatAdapter({
  *   startNewText: () => void
  * }}
  */
-export function makeScribeChat({ client, conversationId }) {
+export function makeScribeChat({ client, conversationId, textIndex = 0 }) {
   const events = new ChatEventStream()
   let request = {
     prepareQuery: text => text,
@@ -205,10 +208,10 @@ export function makeScribeChat({ client, conversationId }) {
     instructions: null,
     actions: []
   }
-  // The first message about the text of the app: the first one, or the
+  // The first message about the text of the app: the first new one, or the
   // next one after the app gives another text. A message sent again keeps
   // its index, and is still about the text.
-  let textIndex = 0
+  let firstOnText = textIndex
 
   return {
     events,
@@ -218,15 +221,15 @@ export function makeScribeChat({ client, conversationId }) {
       events,
       getRequest: () => request,
       getTextIndex: index => {
-        if (textIndex === null) textIndex = index
-        return textIndex
+        if (firstOnText === null) firstOnText = index
+        return firstOnText
       }
     }),
     setRequest: nextRequest => {
       request = nextRequest
     },
     startNewText: () => {
-      textIndex = null
+      firstOnText = null
     }
   }
 }

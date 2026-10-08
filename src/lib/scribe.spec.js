@@ -2,8 +2,11 @@ import { Text } from '@linagora/twake-icons'
 import { initTranslation } from 'twake-i18n'
 
 import {
+  getScribeConversationTitle,
+  getScribeRequest,
   makeScribeAnswerActions,
   makeScribeCapabilities,
+  makeScribeMessages,
   makeScribePreparePrompt,
   makeScribePrepareQuery,
   makeScribeSuggestions
@@ -186,6 +189,110 @@ describe('makeScribePrepareQuery', () => {
 
   it('sends a later message as it is', () => {
     expect(prepareQuery('Shorter', { isFirstOnText: false })).toBe('Shorter')
+  })
+})
+
+describe('getScribeRequest', () => {
+  it('shows the request of a chip for its prompt', () => {
+    const { q } = makeScribePreparePrompt('Bonjour')('correct-grammar')
+
+    expect(getScribeRequest(q, mockT)).toBe(
+      'Correct the grammar and spelling of the text.'
+    )
+  })
+
+  it('shows the request without the text of the app', () => {
+    const query = makeScribePrepareQuery('Bonjour\n\nà tous', mockT)(
+      'Translate',
+      { isFirstOnText: true }
+    )
+
+    expect(getScribeRequest(query, mockT)).toBe('Translate')
+  })
+
+  it('shows a later request as it is', () => {
+    expect(getScribeRequest('Shorter', mockT)).toBe('Shorter')
+  })
+
+  it('shows the instruction of a prompt the catalogue no longer has', () => {
+    const query = 'INSTRUCTION:\nSum it up.\n\nTEXT:\nBonjour\n'
+
+    expect(getScribeRequest(query, mockT)).toBe('Sum it up.')
+  })
+})
+
+describe('makeScribeMessages', () => {
+  it('shows the requests and the answers of a past conversation', () => {
+    const messages = makeScribeMessages(
+      [
+        { id: 'm1', role: 'user', content: 'Hello\n\nText:\n"""\nHi\n"""' },
+        {
+          id: 'm2',
+          role: 'assistant',
+          content: 'Bonjour [doc_1]',
+          sources: [{ id: 'f1' }]
+        },
+        { id: 'm3', role: 'user', content: 'A folder' },
+        {
+          id: 'm4',
+          role: 'assistant',
+          content: '',
+          action: { name: 'create_folder', params: { name: 'X' } }
+        }
+      ],
+      mockT
+    )
+
+    expect(messages).toEqual([
+      { id: 'm1', role: 'user', content: 'Hello' },
+      {
+        id: 'm2',
+        role: 'assistant',
+        content: 'Bonjour',
+        metadata: { custom: { isPast: true, sources: [{ id: 'f1' }] } }
+      },
+      { id: 'm3', role: 'user', content: 'A folder' },
+      {
+        id: 'm4',
+        role: 'assistant',
+        content: '',
+        metadata: {
+          custom: {
+            isPast: true,
+            action: { name: 'create_folder', params: { name: 'X' } }
+          }
+        }
+      }
+    ])
+  })
+
+  it('says an empty answer is empty', () => {
+    const [answer] = makeScribeMessages(
+      [{ id: 'm2', role: 'assistant', content: ' ' }],
+      mockT
+    )
+
+    expect(answer.metadata.custom.isEmpty).toBe(true)
+  })
+})
+
+describe('getScribeConversationTitle', () => {
+  it('names a conversation after its first request', () => {
+    const conversation = {
+      messages: [
+        { role: 'user', content: 'Hello\n\nText:\n"""\nHi\n"""' },
+        { role: 'assistant', content: 'Bonjour' },
+        { role: 'user', content: 'Shorter' }
+      ]
+    }
+
+    expect(getScribeConversationTitle(conversation, mockT)).toBe('Hello')
+  })
+
+  it('keeps the name of a named conversation', () => {
+    expect(
+      getScribeConversationTitle({ name: 'Plan', messages: [] }, mockT)
+    ).toBe('Plan')
   })
 })
 
