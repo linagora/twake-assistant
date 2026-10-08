@@ -1,7 +1,15 @@
-import { FileTypeNote, Globe, getFileTypeIcon } from '@linagora/twake-icons'
+import uniqBy from 'lodash/uniqBy'
+
+import {
+  FileTypeNote,
+  Globe,
+  Mail,
+  getFileTypeIcon
+} from '@linagora/twake-icons'
 import { generateWebLink, models } from 'cozy-client'
 
-import { DOCTYPE_FILES } from '@/doctypes'
+import DocsIcon from '@/components/Search/Icons/DocsIcon'
+import { DOCTYPE_EMAILS, DOCTYPE_FILES } from '@/doctypes'
 
 const WEB_SOURCE_TYPE = 'web'
 
@@ -22,22 +30,60 @@ export function getFileSourceIds(sources) {
   return [...new Set(sources.filter(isFileSource).map(source => source.id))]
 }
 
-function makeFileHref(client, file) {
-  const isNote = models.file.isNote(file)
-
+function makeAppHref(client, slug, hash) {
   return generateWebLink({
-    slug: isNote ? 'notes' : 'drive',
+    slug,
     cozyUrl: client.getStackClient().uri,
     subDomainType: client.getInstanceOptions().subdomain,
-    hash: isNote ? `/n/${file._id}` : `/folder/${file.dir_id}/file/${file._id}`
+    hash
   })
 }
 
+function makeFileHref(client, file) {
+  if (models.file.isNote(file)) {
+    return makeAppHref(client, 'notes', `/n/${file._id}`)
+  }
+  if (models.file.isDocs(file)) {
+    return makeAppHref(
+      client,
+      'docs',
+      `/bridge/docs/${file.metadata.externalId}`
+    )
+  }
+  return makeAppHref(client, 'drive', `/folder/${file.dir_id}/file/${file._id}`)
+}
+
 function getFileIcon(file) {
-  // A note has a mime type of its own, unknown to the icons
-  return models.file.isNote(file)
-    ? FileTypeNote
-    : getFileTypeIcon(file.name, file.mime)
+  // A note and a document of Docs have mime types of their own, unknown to
+  // the icons
+  if (models.file.isNote(file)) return FileTypeNote
+  if (models.file.isDocs(file)) return DocsIcon
+  return getFileTypeIcon(file.name, file.mime)
+}
+
+// The indexing of the mails prefixes their ids, unlike the mail app
+const TMAIL_PREFIX = 'tmail_'
+
+function getEmailDate(email) {
+  const time = Date.parse(email.datetime)
+  return Number.isNaN(time) ? null : new Date(time).toISOString().slice(0, 10)
+}
+
+function makeEmailLink(client, email) {
+  const id = email.id.startsWith(TMAIL_PREFIX)
+    ? email.id.slice(TMAIL_PREFIX.length)
+    : email.id
+
+  return {
+    key: `email:${email.id}`,
+    label:
+      [getEmailDate(email), email['email.subject']]
+        .filter(Boolean)
+        .join(' - ') || null,
+    secondary: email['email.preview'] || null,
+    href: makeAppHref(client, 'mail', `/bridge/dashboard/${id}`),
+    icon: Mail
+  }
 }
 
 // A link of a web source opens only a web page, not a script
@@ -52,14 +98,14 @@ function getFolderPath(file) {
 
 /**
  * The sources of an answer the user can open: the files, by their names
- * and folders, and the web pages
+ * and folders, the mails and the web pages
  *
  * @param {object} options
  * @param {object[]} options.sources - the sources of an answer
  * @param {import('cozy-client/types/types').IOCozyFile[]} options.files -
  * the files among the sources
  * @param {import('cozy-client/types/CozyClient').default} options.client
- * @returns {{ key: string, label: string, secondary: string|null, href: string, icon: Function }[]}
+ * @returns {{ key: string, label: string|null, secondary: string|null, href: string, icon: Function }[]}
  */
 export function makeSourceLinks({ sources, files, client }) {
   const fileLinks = files.map(file => ({
@@ -69,6 +115,14 @@ export function makeSourceLinks({ sources, files, client }) {
     href: makeFileHref(client, file),
     icon: getFileIcon(file)
   }))
+  const emails = uniqBy(
+    sources.filter(
+      source =>
+        source.doctype === DOCTYPE_EMAILS && typeof source.id === 'string'
+    ),
+    'id'
+  )
+  const emailLinks = emails.map(email => makeEmailLink(client, email))
   const urls = [
     ...new Set(
       sources
@@ -87,5 +141,5 @@ export function makeSourceLinks({ sources, files, client }) {
     icon: Globe
   }))
 
-  return [...fileLinks, ...webLinks]
+  return [...fileLinks, ...emailLinks, ...webLinks]
 }

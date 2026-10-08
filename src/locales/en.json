@@ -24,7 +24,6 @@
     "error": "An error occurred while writing the answer. Please try again.",
     "retry": "Try again",
     "empty": "I could not find an answer to your request. Please try rephrasing it.",
-    "sources": "%{smart_count} source |||| %{smart_count} sources",
     "disclaimer": "Twake AI can make mistakes. Please verify important information.",
     "instructions": "You help the user work on a text in their editor. First look at what they ask.\nIf they ask a question about the text or want your opinion, answer normally, in a few sentences, without rewriting the text.\nIf they ask to write or change a text, your answer will be put in their document as it is: answer with that text only, in the language of the text, in a single version, with no introduction, no comment about your answer, no separator line, no emoji and nothing to fill in between brackets. Keep the form of the text, unless asked to change it, and do not make up information.",
     "content": "Text:",
@@ -87,7 +86,6 @@
     },
     "name": "Twake Assistant",
     "default_username": "Anonymous",
-    "sources": "%{smart_count} source |||| %{smart_count} sources",
     "suggestions": {
       "find_file": "Search a file",
       "reimbursements": "Check my repayments",
@@ -298,5 +296,8 @@
       "cancel": "Cancel",
       "confirm": "Delete"
     }
+  },
+  "chat": {
+    "sources": "%{smart_count} source |||| %{smart_count} sources"
   }
 }

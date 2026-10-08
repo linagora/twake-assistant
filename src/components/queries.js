@@ -7,6 +7,7 @@ import {
   DOCTYPE_AI_CHAT_ASSISTANTS,
   DOCTYPE_AI_CHAT_CONVERSATIONS,
   DOCTYPE_AI_CHAT_EVENTS,
+  DOCTYPE_EMAILS,
   DOCTYPE_FILES
 } from '@/doctypes'
 
@@ -15,20 +16,9 @@ export const CHAT_EVENTS_DOCTYPE = DOCTYPE_AI_CHAT_EVENTS
 export const FILES_DOCTYPE = DOCTYPE_FILES
 export const ASSISTANTS_DOCTYPE = DOCTYPE_AI_CHAT_ASSISTANTS
 export const ACCOUNTS_DOCTYPE = DOCTYPE_ACCOUNTS
-export const EMAIL_DOCTYPE = 'com.linagora.email'
+export const EMAIL_DOCTYPE = DOCTYPE_EMAILS
 
 const defaultFetchPolicy = fetchPolicies.olderThan(5 * 60 * 1000)
-
-export const buildFilesByIds = (ids, enabled) => {
-  return {
-    definition: Q(FILES_DOCTYPE).getByIds(ids),
-    options: {
-      as: `${FILES_DOCTYPE}/${ids.join('')}`,
-      fetchPolicy: defaultFetchPolicy,
-      enabled
-    }
-  }
-}
 
 export const buildChatConversationQueryById = id => {
   return {

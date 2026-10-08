@@ -16,9 +16,9 @@ import Spinner from 'cozy-ui/transpiled/react/Spinner'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
+import { Sources } from '@/components/Messages/Sources'
 import { ScribeCapabilityCard } from '@/components/Scribe/ScribeCapabilityCard'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
-import { ScribeSources } from '@/components/Scribe/ScribeSources'
 import styles from '@/components/Scribe/styles.styl'
 
 function getPartText(message, type) {
@@ -182,7 +182,7 @@ export function ScribeAnswer() {
           onClick={handleRetry}
         />
       )}
-      {sources && <ScribeSources sources={sources} />}
+      {sources && <Sources sources={sources} />}
       {canAct && answerActions.length > 0 && (
         <div className="u-flex u-flex-wrap">
           {answerActions.map(action => (

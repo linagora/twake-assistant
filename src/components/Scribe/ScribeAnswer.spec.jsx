@@ -34,10 +34,8 @@ jest.mock('@/components/Scribe/ScribeCapabilityCard', () => ({
     </div>
   )
 }))
-jest.mock('@/components/Scribe/ScribeSources', () => ({
-  ScribeSources: ({ sources }) => (
-    <div data-testid="sources">{sources.length}</div>
-  )
+jest.mock('@/components/Messages/Sources', () => ({
+  Sources: ({ sources }) => <div data-testid="sources">{sources.length}</div>
 }))
 
 const answer = (text, status, custom = {}) => ({
