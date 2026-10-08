@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 
-import { makeConversationId } from '@/lib/conversation'
+import { makeConversationId } from '@/components/helpers'
 
 export function NewConversation() {
   const [conversationId] = useState(makeConversationId)
