@@ -24,6 +24,7 @@ export function AppLayout() {
       <BarComponent
         appIcon={Ai}
         appTextIcon={AiText}
+        searchOptions={{ enabled: false }}
         componentsProps={{
           Wrapper: {
             className: `u-elevation-0 ${styles['topbar-border']}`
