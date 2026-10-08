@@ -26,7 +26,7 @@
     },
     "suggestions": {
       "summarize": {
-        "label": "Summarize",
+        "label": "Summary",
         "request": "Summarize the text."
       },
       "correct": {
