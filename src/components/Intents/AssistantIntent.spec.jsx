@@ -175,6 +175,16 @@ describe('AssistantIntent', () => {
     ])
   })
 
+  it('cancels the intent when the user closes the scribe', async () => {
+    mockService.getData.mockReturnValue({ content: 'Bonjour' })
+    renderIntent()
+
+    const { onClose } = await findScribeProps()
+    onClose()
+
+    expect(mockService.cancel).toHaveBeenCalled()
+  })
+
   it('hands the answer and the action clicked to the app', async () => {
     mockService.getData.mockReturnValue({
       answerActions: [{ name: 'insert' }, { name: 'replace' }]

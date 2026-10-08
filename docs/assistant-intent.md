@@ -15,9 +15,9 @@ type = 'io.cozy.ai.chat.conversations'
 
 The service renders the AI assistant in the frame of the calling app, on a new conversation. The frame can be a modal or a side panel: the assistant adapts to the width it is given.
 
-Depending on its configuration, the assistant is opened as it is, the assistant of the Twake Assistant app with its conversations and its assistants, or as a **scribe**: an assistant that works for the calling app. It works on a text of the app and hands its answers back for the app to insert them, and it calls the **capabilities** of the app, what the app can do beside taking an answer, when a request of the user needs one. The scribe is a conversation of its own, made for a side panel: it has no sidebar, no list of the past conversations and no choice of the assistant.
+Depending on its configuration, the assistant is opened as it is, the assistant of the Twake Assistant app with its conversations and its assistants, or as a **scribe**: an assistant that works for the calling app. It works on a text of the app and hands its answers back for the app to insert them, and it calls the **capabilities** of the app, what the app can do beside taking an answer, when a request of the user needs one. The scribe is a conversation of its own, made for a side panel: it has no sidebar, no list of the past conversations and no choice of the assistant. Its header closes the scribe.
 
-Unlike a picker, this intent does not end with a result. The assistant stays open for as many requests as the user makes, and each answer the user picks is sent to the calling app while the intent goes on. The calling app closes the intent.
+Unlike a picker, this intent does not end with a result. The assistant stays open for as many requests as the user makes, and each answer the user picks is sent to the calling app while the intent goes on. The user closes it from the header of the scribe, or the calling app closes it.
 
 ## Configuration
 
@@ -618,7 +618,9 @@ The app does not report the outcome of a call back to the assistant yet: the car
 
 The assistant never sends a `done` message: the promise of the intent does not resolve with a document.
 
-The calling app ends the intent when the user closes its modal or its panel, by stopping the intent or by removing its iframe. The assistant has no button to close itself.
+The scribe has a close button in its header: it sends the generic `cancel`, and the intent promise resolves with `null` (`onCancel` of `IntentIframe`). The calling app then closes its panel or its modal, and draws no close button of its own over the scribe.
+
+The calling app can still end the intent itself, by stopping it or by removing its iframe, e.g. when the user clicks again the button that opened it.
 
 ## Error handling
 
@@ -630,7 +632,7 @@ When the assistant cannot start, it displays a message in its frame.
 
 There is no Assistant cancellation payload.
 
-The assistant only sends the generic intent `cancel` when its page is unloaded while the intent is still open.
+The assistant sends the generic intent `cancel` when the user closes the scribe, and when its page is unloaded while the intent is still open.
 
 ## `readyToUse` signal
 
@@ -649,9 +651,9 @@ The messages of the assistant intent, in order. They all go through `window.post
 | 3 | Assistant → app | `intent-{id}:readyToUse` | none, once | `onReadyToUse` option of `start()` |
 | 4 | Assistant → app | `intent-{id}:result` | `result: AssistantIntentResult`, an answer or a call, any number of times | `service.sendResult()`, `onResult` option of `start()` |
 | 5 | App → assistant | `intent-{id}:data` | `data: AssistantIntentConfig`, any number of times | `sendData()` of the started intent, `service.onData()` |
-| 6 | Assistant → app | `intent-{id}:cancel` | none, only when the page of the assistant is unloaded | the intent promise resolves with `null` |
+| 6 | Assistant → app | `intent-{id}:cancel` | none, when the user closes the scribe or the page of the assistant is unloaded | `service.cancel()`, the intent promise resolves with `null` |
 
-The calling app ends the exchange itself, by stopping the intent or removing its iframe (see [End of the intent](#end-of-the-intent)). The assistant never sends `done`, `error` or `resize`.
+The user ends the exchange from the scribe, or the calling app ends it itself, by stopping the intent or removing its iframe (see [End of the intent](#end-of-the-intent)). The assistant never sends `done`, `error` or `resize`.
 
 Each side checks where a message comes from: `cozy-interapp` takes the messages of the client from the origin of the assistant only, with the id of its intent, and the assistant takes the messages of the service from the origin of the calling app only (`attributes.client` of the intent document).
 
@@ -685,19 +687,19 @@ That draft is not normative yet: its message catalogue, the shape of its envelop
 | A **consumer** casts an intent, a **provider** serves it | The calling app casts the intent, Twake Assistant serves it |
 | The provider declares its capabilities in a manifest, a platform registry lists them, a chooser picks one | The assistant declares its intent in its manifest (`intents`), the cozy-stack lists the services of an intent (`POST /intents`) |
 | The provider supplies the whole interface, the consumer none | The same |
-| The consumer owns the lifecycle and tears the iframe down | The same: the assistant never closes itself |
+| The consumer owns the lifecycle and tears the iframe down | The same: the scribe asks for it with `cancel` |
 | `intent:ready`, provider → consumer | `intent-{id}:ready` |
 | `intent:init`, consumer → provider, with the parameters | The data, in reply to `ready` |
 | `intent:resize`, optional | `intent-{id}:resize`, not sent by the assistant |
 | `intent:done`, which may be sent several times with `final: false` | `intent-{id}:result`, any number of times: a result that does not end the intent |
-| `intent:cancel`, `intent:error` | `intent-{id}:cancel` on unload, no error |
+| `intent:cancel`, `intent:error` | `intent-{id}:cancel` when the user closes the scribe or on unload, no error |
 | An `intentId` in every message | The id of the intent in the type of every message |
 | Strict origins: no `*` target, the origin of every message checked | The same (see [Protocol](#protocol)) |
 
 ### The differences, and how they are bridged
 
 - **Envelope.** Open Buro leans towards `{ type: "intent:done", intentId, payload }`, where `cozy-interapp` puts the id in the type (`intent-{id}:readyToUse`) and replies to `ready` with the data alone. The mapping is mechanical: an Open Buro binding of `cozy-interapp` can speak both, without a change to the assistant.
-- **Results while the intent goes on.** The assistant hands each chosen answer over without ending the intent. Open Buro reaches the same with `intent:done` and `final: false`, which it plans for streamed documents. A `result` is a non-final `done`; no message of the assistant is final, since the calling app closes it.
+- **Results while the intent goes on.** The assistant hands each chosen answer over without ending the intent. Open Buro reaches the same with `intent:done` and `final: false`, which it plans for streamed documents. A `result` is a non-final `done`; no message of the assistant is final, since it ends with a `cancel`.
 - **New data while the intent is open.** The draft only has `intent:init`: its parameters cannot change once the provider has them. The assistant needs them to change, for another text selected while it is open. The `data` message carries the same payload as the first data; it is the extension Twake would bring to Open Buro, as an `intent:update` from the consumer for instance.
 - **`readyToUse`.** No Open Buro equivalent. Like `intent:resize` there, it is optional: a calling app must not wait for it.
 - **Capability.** Open Buro only defines `PICK` and `SAVE`. The assistant is `OPEN` on `io.cozy.ai.chat.conversations`; as an Open Buro capability it would be a new action, declared in the manifest of the provider, with `content`, `answerActions`, `capabilities` and `suggestions` as its parameters and `{ answerAction, text, format }` or `{ capability, params, text, format }` as its answer.
@@ -746,7 +748,10 @@ const scribe = intents
     }
   })
 
-// When the user closes the panel
+// The user closes the scribe from its header
+scribe.then(() => closePanel())
+
+// The app closes the panel itself
 scribe.stop()
 ```
 
