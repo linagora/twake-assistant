@@ -3,7 +3,7 @@ import Minilog from 'cozy-minilog'
 import { ChatEventStream } from '@/lib/chatEvents'
 import { stopAnswerOnAbort } from '@/lib/stopAnswer'
 
-const log = Minilog('🤖 [Scribe]')
+const log = Minilog('🤖 [Chat]')
 
 // The marks of the sources the LLM leaves in an answer from the documents:
 // [REF]doc_1[/REF], [doc_1], [Source 1, 2], [Sources: 1, 2]
@@ -64,7 +64,7 @@ function makeAnswer() {
 }
 
 /**
- * @typedef {object} ScribeRequest
+ * @typedef {object} ChatRequest
  * @property {(text: string, context: { isFirstOnText: boolean }) => string} prepareQuery -
  * turns the text of a message into the query sent to the stack:
  * `isFirstOnText` for the first message about the text of the app
@@ -77,25 +77,28 @@ function makeAnswer() {
  * sent by a suggestion
  * @property {object[]} actions - the capabilities of the app, as chat actions
  * of cozy-stack
+ * @property {string|null} [assistantId] - the assistant that answers, the one
+ * of the stack without it
+ * @property {boolean} [websearch] - whether the answer may come from the web
  */
 
 /**
- * The link between the conversation of the scribe (assistant-ui) and the
- * chat of the stack: a message is posted to the conversation, and its answer
+ * The link between a conversation of assistant-ui and the chat of the
+ * stack: a message is posted to the conversation, and its answer
  * comes with the realtime events.
  *
  * @param {object} options
  * @param {import('cozy-client/types/CozyClient').default} options.client
  * @param {string} options.conversationId
  * @param {import('./chatEvents').ChatEventStream} options.events
- * @param {() => ScribeRequest} options.getRequest - how to send a message,
+ * @param {() => ChatRequest} options.getRequest - how to send a message,
  * read when it is sent: the user changes it between two messages
  * @param {(index: number) => number} [options.getTextIndex] - the index,
  * among the messages of the user, of the first one about the text of the
  * app, given the index of the message sent
  * @returns {import('@assistant-ui/react').ChatModelAdapter}
  */
-export function makeScribeChatAdapter({
+export function makeChatAdapter({
   client,
   conversationId,
   events,
@@ -112,7 +115,9 @@ export function makeScribeChatAdapter({
         preparePrompt,
         hasDocuments,
         instructions,
-        actions
+        actions,
+        assistantId,
+        websearch
       } = getRequest()
       const index =
         messages.filter(message => message.role === 'user').length - 1
@@ -147,7 +152,9 @@ export function makeScribeChatAdapter({
             // The LLM answers alone, unless the user asks for their documents
             ...(!hasDocuments && { documents: false }),
             ...(system && { instructions: system }),
-            ...(actions?.length > 0 && { actions })
+            ...(actions?.length > 0 && { actions }),
+            ...(assistantId && { assistantID: assistantId }),
+            ...(websearch && { websearch: true })
           }
         )
         stopAnswerOnAbort({ client, conversationId, abortSignal })
@@ -185,7 +192,7 @@ export function makeScribeChatAdapter({
           }
         }
       } catch (error) {
-        log.error('The scribe got no answer', error)
+        log.error('No answer', error)
         yield {
           content: getContent(),
           status: { type: 'incomplete', reason: 'error' },
@@ -196,10 +203,17 @@ export function makeScribeChatAdapter({
   }
 }
 
+const DEFAULT_REQUEST = {
+  prepareQuery: text => text,
+  hasDocuments: false,
+  instructions: null,
+  actions: []
+}
+
 /**
- * The chat of a scribe: the stream of the events of its answers, and the
- * adapter of its conversation, which sends each message as the request of
- * the moment says
+ * The chat of a conversation: the stream of the events of its answers, and
+ * the adapter of the conversation, which sends each message as the request
+ * of the moment says
  *
  * @param {object} options
  * @param {import('cozy-client/types/CozyClient').default} options.client
@@ -210,18 +224,13 @@ export function makeScribeChatAdapter({
  * @returns {{
  *   events: ChatEventStream,
  *   adapter: import('@assistant-ui/react').ChatModelAdapter,
- *   setRequest: (request: ScribeRequest) => void,
+ *   setRequest: (request: Partial<ChatRequest>) => void,
  *   startNewText: () => void
  * }}
  */
-export function makeScribeChat({ client, conversationId, textIndex = 0 }) {
+export function makeChat({ client, conversationId, textIndex = 0 }) {
   const events = new ChatEventStream()
-  let request = {
-    prepareQuery: text => text,
-    hasDocuments: false,
-    instructions: null,
-    actions: []
-  }
+  let request = DEFAULT_REQUEST
   // The first message about the text of the app: the first new one, or the
   // next one after the app gives another text. A message sent again keeps
   // its index, and is still about the text.
@@ -229,7 +238,7 @@ export function makeScribeChat({ client, conversationId, textIndex = 0 }) {
 
   return {
     events,
-    adapter: makeScribeChatAdapter({
+    adapter: makeChatAdapter({
       client,
       conversationId,
       events,
@@ -240,7 +249,7 @@ export function makeScribeChat({ client, conversationId, textIndex = 0 }) {
       }
     }),
     setRequest: nextRequest => {
-      request = nextRequest
+      request = { ...DEFAULT_REQUEST, ...nextRequest }
     },
     startNewText: () => {
       firstOnText = null

@@ -1,23 +1,15 @@
 /**
  * Runs assistant-ui on a conversation of the stack: the history comes from
- * CouchDB, and the realtime events feed the StreamBridge the chat adapter
- * reads the answer from.
+ * CouchDB, the answers from the chat shared with the scribe.
  */
 
-import { AssistantRuntimeProvider, useLocalRuntime } from '@assistant-ui/react'
+import { AssistantRuntimeProvider } from '@assistant-ui/react'
 import type { ThreadMessageLike } from '@assistant-ui/react'
-import React, {
-  useMemo,
-  useRef,
-  useEffect,
-  ReactNode,
-  useCallback
-} from 'react'
+import React, { useMemo, useEffect, ReactNode } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 
-import { useClient, useQuery, isQueryLoading } from 'cozy-client'
+import { useQuery, isQueryLoading } from 'cozy-client'
 import Minilog from 'cozy-minilog'
-import useRealtime from 'cozy-realtime/dist/useRealtime'
 import Button from 'cozy-ui/transpiled/react/Buttons'
 import Spinner from 'cozy-ui/transpiled/react/Spinner'
 import Typography from 'cozy-ui/transpiled/react/Typography'
@@ -26,34 +18,17 @@ import { useI18n } from 'twake-i18n'
 import { useAssistant } from './AssistantProvider'
 import { resolveConversationAssistantId } from './KnowledgeBase/conversationAssistant'
 import { useDefaultAssistantId } from './KnowledgeBase/useDefaultAssistantId'
-import { createCozyRealtimeChatAdapter } from './adapters/CozyRealtimeChatAdapter'
-import { StreamBridge } from './adapters/StreamBridge'
-import { formatAnswer } from './helpers'
-import {
-  CHAT_EVENTS_DOCTYPE,
-  CHAT_CONVERSATIONS_DOCTYPE,
-  buildChatConversationQueryById
-} from './queries'
+import { DEFAULT_ASSISTANT } from './constants'
+import { buildChatConversationQueryById } from './queries'
+
+import { useChatRuntime } from '@/hooks/useChatRuntime'
+import { makeChatMessages } from '@/lib/scribe'
 
 const log = Minilog('🔍 [CozyAssistantRuntimeProvider]')
 
-interface ConversationMessage {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  sources?: Array<{
-    id?: string
-    doctype?: string
-    sourceType?: string
-    url?: string
-    title?: string
-    snippet?: string
-  }>
-}
-
 interface Conversation {
   _id: string
-  messages?: ConversationMessage[]
+  messages?: object[]
   relationships?: {
     assistant?: {
       data: {
@@ -67,22 +42,7 @@ interface CozyAssistantRuntimeProviderProps {
   children: ReactNode
 }
 
-const convertMessagesToThreadMessages = (
-  messages: ConversationMessage[] | undefined,
-  t: (key: string) => string
-): ThreadMessageLike[] => {
-  if (!messages) return []
-
-  return messages.map((msg, idx) => ({
-    id: msg.id || `msg-${idx}`,
-    role: msg.role,
-    content: formatAnswer(msg, t),
-    metadata:
-      msg.role === 'assistant' && msg.sources
-        ? { custom: { sources: msg.sources } }
-        : undefined
-  }))
-}
+const NO_MESSAGES: object[] = []
 
 const ConversationLoader = ({
   children,
@@ -109,7 +69,7 @@ const ConversationLoader = ({
   const requestedId = locationState?.assistantId
 
   const initialMessages = useMemo(
-    () => convertMessagesToThreadMessages(conversation?.messages, t),
+    () => makeChatMessages(conversation?.messages ?? NO_MESSAGES, t),
     [conversation?.messages, t]
   )
 
@@ -157,193 +117,25 @@ const CozyAssistantRuntimeProviderInner = ({
   conversationId: string
   initialMessages: ThreadMessageLike[]
 }): JSX.Element => {
-  const { t } = useI18n()
-  const client = useClient()
-  const streamBridgeRef = useRef(new StreamBridge())
-  const messagesIdRef = useRef<string[]>([])
-  const cancelledMessageIdsRef = useRef<Set<string>>(new Set())
-  const currentStreamingMessageIdRef = useRef<string | null>(null)
   const { selectedAssistantId, websearchEnabled } = useAssistant()
-
-  useEffect(() => {
-    messagesIdRef.current = initialMessages
-      .map(m => m.id)
-      .filter((id): id is string => !!id)
-  }, [initialMessages])
-
-  useEffect(() => {
-    streamBridgeRef.current.setCleanupCallback(() => {
-      try {
-        if (currentStreamingMessageIdRef.current) {
-          cancelledMessageIdsRef.current.add(
-            currentStreamingMessageIdRef.current
-          )
-          currentStreamingMessageIdRef.current = null
-        }
-      } catch (error) {
-        log.error('Error during StreamBridge cleanup callback:', error)
-      }
-    })
-  }, [])
-
-  const handleConversationChange = useCallback(
-    (res: Conversation) => {
-      try {
-        if (res._id === conversationId && res.messages) {
-          const newIds = res.messages.map(m => m.id)
-          const lastAssistantMsg = res.messages
-            .filter(m => m.role === 'assistant')
-            .pop()
-          if (
-            lastAssistantMsg &&
-            !messagesIdRef.current.includes(lastAssistantMsg.id)
-          ) {
-            if (
-              currentStreamingMessageIdRef.current &&
-              currentStreamingMessageIdRef.current !== lastAssistantMsg.id
-            ) {
-              cancelledMessageIdsRef.current.add(
-                currentStreamingMessageIdRef.current
-              )
-            }
-            currentStreamingMessageIdRef.current = lastAssistantMsg.id
-          }
-          messagesIdRef.current = newIds
-        }
-      } catch (error) {
-        log.error('Error handling conversation change:', error)
-      }
-    },
-    [conversationId]
+  const request = useMemo(
+    () => ({
+      hasDocuments: true,
+      // The default assistant is a client-side sentinel with no CouchDB
+      // document behind it: the stack answers with its own
+      assistantId:
+        selectedAssistantId !== DEFAULT_ASSISTANT._id
+          ? selectedAssistantId
+          : null,
+      websearch: websearchEnabled
+    }),
+    [selectedAssistantId, websearchEnabled]
   )
-
-  useRealtime(
-    client,
-    {
-      [CHAT_CONVERSATIONS_DOCTYPE]: {
-        created: handleConversationChange,
-        updated: handleConversationChange
-      }
-    },
-    [conversationId]
-  )
-
-  useRealtime(
-    client,
-    {
-      [CHAT_EVENTS_DOCTYPE]: {
-        created: (
-          res:
-            | {
-                _id: string
-                object: 'delta'
-                position?: number
-                content: string
-              }
-            | { _id: string; object: 'done' }
-            | { _id: string; object: 'generated' }
-            | {
-                _id: string
-                object: 'sources'
-                content: Array<{
-                  id?: string
-                  doctype?: string
-                  sourceType?: string
-                  url?: string
-                  title?: string
-                  snippet?: string
-                }>
-              }
-            | { _id: string; object: 'error'; message: string }
-        ) => {
-          if (cancelledMessageIdsRef.current.has(res._id)) {
-            if (res.object === 'done' || res.object === 'error') {
-              cancelledMessageIdsRef.current.delete(res._id)
-            }
-            return
-          }
-
-          // A delta of another message cancels the one streaming so far:
-          // its later events are ignored
-          if (res.object === 'delta') {
-            if (
-              currentStreamingMessageIdRef.current &&
-              currentStreamingMessageIdRef.current !== res._id
-            ) {
-              cancelledMessageIdsRef.current.add(
-                currentStreamingMessageIdRef.current
-              )
-            }
-            currentStreamingMessageIdRef.current = res._id
-          }
-
-          try {
-            if (res.object === 'delta' && res.content !== undefined) {
-              streamBridgeRef.current.onDelta(
-                conversationId,
-                res.content,
-                res.position
-              )
-            }
-
-            if (res.object === 'sources') {
-              streamBridgeRef.current.onSources(conversationId, res.content)
-            }
-
-            if (res.object === 'done') {
-              streamBridgeRef.current.onDone(conversationId)
-              currentStreamingMessageIdRef.current = null
-            }
-
-            if (res.object === 'error') {
-              log.error('LLM error:', res.message)
-              streamBridgeRef.current.onError(
-                conversationId,
-                new Error('LLM error')
-              )
-              currentStreamingMessageIdRef.current = null
-            }
-          } catch (error) {
-            log.error('Error handling chat real-time event:', error)
-          }
-        }
-      }
-    },
-    [conversationId]
-  )
-
-  const adapter = useMemo(
-    () =>
-      createCozyRealtimeChatAdapter(
-        {
-          client: client as Parameters<
-            typeof createCozyRealtimeChatAdapter
-          >[0]['client'],
-          conversationId,
-          assistantId: selectedAssistantId,
-          websearchEnabled
-        },
-        t,
-        // eslint-disable-next-line react-hooks/refs -- streamBridgeRef is stable and only read inside adapter.run(), not during render
-        streamBridgeRef
-      ),
-    [client, conversationId, selectedAssistantId, websearchEnabled, t]
-  )
-
-  const runtime = useLocalRuntime(adapter, {
-    initialMessages
+  const { runtime } = useChatRuntime({
+    conversationId,
+    messages: initialMessages,
+    request
   })
-
-  useEffect(() => {
-    const streamBridge = streamBridgeRef.current
-    return (): void => {
-      try {
-        streamBridge.cleanup(conversationId)
-      } catch (error) {
-        log.error('Error cleaning up StreamBridge on unmount:', error)
-      }
-    }
-  }, [conversationId])
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>

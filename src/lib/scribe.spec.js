@@ -7,7 +7,7 @@ import {
   getScribeRequest,
   makeScribeAnswerActions,
   makeScribeCapabilities,
-  makeScribeMessages,
+  makeChatMessages,
   makeScribePreparePrompt,
   makeScribePrepareQuery,
   makeScribeSuggestions
@@ -222,9 +222,9 @@ describe('getScribeRequest', () => {
   })
 })
 
-describe('makeScribeMessages', () => {
+describe('makeChatMessages', () => {
   it('shows the requests and the answers of a past conversation', () => {
-    const messages = makeScribeMessages(
+    const messages = makeChatMessages(
       [
         { id: 'm1', role: 'user', content: 'Hello\n\nText:\n"""\nHi\n"""' },
         {
@@ -268,7 +268,7 @@ describe('makeScribeMessages', () => {
   })
 
   it('says an empty answer is empty', () => {
-    const [answer] = makeScribeMessages(
+    const [answer] = makeChatMessages(
       [{ id: 'm2', role: 'assistant', content: ' ' }],
       mockT
     )
@@ -277,7 +277,7 @@ describe('makeScribeMessages', () => {
   })
 
   it('keeps what the model thought before an answer', () => {
-    const [answer] = makeScribeMessages(
+    const [answer] = makeChatMessages(
       [
         {
           id: 'm2',

@@ -24,7 +24,7 @@ import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
 import styles from '@/components/Scribe/styles.styl'
 import { makeConversationId } from '@/components/helpers'
 import { DOCTYPE_AI_CHAT_CONVERSATIONS } from '@/doctypes'
-import { makeScribeMessages } from '@/lib/scribe'
+import { makeChatMessages } from '@/lib/scribe'
 
 const MESSAGE_COMPONENTS = {
   UserMessage: ScribeRequest,
@@ -124,7 +124,7 @@ export function ScribeView({ onClose, ...props }) {
     if (past._id !== conversation.id) {
       setConversation({
         id: past._id,
-        messages: makeScribeMessages(past.messages, t)
+        messages: makeChatMessages(past.messages, t)
       })
     }
     setIsHistoryOpen(false)
