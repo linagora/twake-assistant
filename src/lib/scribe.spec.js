@@ -2,6 +2,7 @@ import { Text } from '@linagora/twake-icons'
 import { initTranslation } from 'twake-i18n'
 
 import {
+  getScribeConversationDescription,
   getScribeConversationTitle,
   getScribeRequest,
   makeScribeAnswerActions,
@@ -312,6 +313,21 @@ describe('getScribeConversationTitle', () => {
     expect(
       getScribeConversationTitle({ name: 'Plan', messages: [] }, mockT)
     ).toBe('Plan')
+  })
+})
+
+describe('getScribeConversationDescription', () => {
+  it('describes a conversation by its last answer, not by a query going on', () => {
+    const conversation = {
+      messages: [
+        { role: 'user', content: 'Hello\n\nText:\n"""\nHi\n"""' },
+        { role: 'assistant', content: 'Bonjour [doc_1]' },
+        { role: 'user', content: 'Shorter\n\nText:\n"""\nHi\n"""' }
+      ]
+    }
+
+    expect(getScribeConversationDescription(conversation)).toBe('Bonjour')
+    expect(getScribeConversationDescription({ messages: [] })).toBe('')
   })
 })
 
