@@ -16,8 +16,8 @@ import { ScribeProvider, useScribe } from '@/components/Scribe/ScribeProvider'
 import { ScribeRequest } from '@/components/Scribe/ScribeRequest'
 import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
 import styles from '@/components/Scribe/styles.styl'
+import { makeConversationId } from '@/components/helpers'
 import { DOCTYPE_AI_CHAT_CONVERSATIONS } from '@/doctypes'
-import { makeConversationId } from '@/lib/conversation'
 import { makeScribeMessages } from '@/lib/scribe'
 
 const MESSAGE_COMPONENTS = {

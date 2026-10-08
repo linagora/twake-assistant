@@ -10,11 +10,12 @@ import { useI18n } from 'twake-i18n'
 import { IntentProviders } from '@/components/IntentProviders'
 import { ScribeView } from '@/components/Scribe/ScribeView'
 import AssistantView from '@/components/Views/AssistantView'
+import { makeConversationId } from '@/components/helpers'
 import {
   DOCTYPE_AI_CHAT_ASSISTANTS,
   DOCTYPE_AI_CHAT_CONVERSATIONS
 } from '@/doctypes'
-import { ASSISTANT_ROUTE_PATH, makeConversationId } from '@/lib/conversation'
+import { ASSISTANT_ROUTE_PATH } from '@/lib/conversation'
 import { getIntentConfig } from '@/lib/intent'
 import {
   makeScribeAnswerActions,
