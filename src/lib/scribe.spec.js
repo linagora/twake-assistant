@@ -274,6 +274,25 @@ describe('makeScribeMessages', () => {
 
     expect(answer.metadata.custom.isEmpty).toBe(true)
   })
+
+  it('keeps what the model thought before an answer', () => {
+    const [answer] = makeScribeMessages(
+      [
+        {
+          id: 'm2',
+          role: 'assistant',
+          content: '391',
+          reasoning: '17 x 23 = 391'
+        }
+      ],
+      mockT
+    )
+
+    expect(answer.content).toEqual([
+      { type: 'reasoning', text: '17 x 23 = 391' },
+      { type: 'text', text: '391' }
+    ])
+  })
 })
 
 describe('getScribeConversationTitle', () => {

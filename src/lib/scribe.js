@@ -247,7 +247,12 @@ export function makeScribeMessages(messages, t) {
       return {
         id: message.id,
         role: 'assistant',
-        content: text,
+        content: message.reasoning
+          ? [
+              { type: 'reasoning', text: removeSourceMarks(message.reasoning) },
+              { type: 'text', text }
+            ]
+          : text,
         metadata: {
           custom: {
             isPast: true,
