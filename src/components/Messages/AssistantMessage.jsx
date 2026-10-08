@@ -8,7 +8,8 @@ import { useI18n } from 'twake-i18n'
 import AssistantMessageActions from './AssistantMessageActions'
 import MarkdownText from './MarkdownText'
 import styles from './styles.styl'
-import Sources from '../Conversations/Sources/Sources'
+
+import { Sources } from '@/components/Messages/Sources'
 
 const useIsErrorMessage = () => {
   return useMessage(s => s.metadata?.custom?.isError === true)
@@ -25,7 +26,6 @@ const AssistantMessage = () => {
   )
   const isEmpty = useMessage(s => s.metadata?.custom?.isEmpty === true)
   const isError = useIsErrorMessage()
-  const messageId = useMessage(s => s.id)
   const sources = useMessage(s => s.metadata?.custom?.sources)
 
   return (
@@ -55,9 +55,7 @@ const AssistantMessage = () => {
           {t('assistant.default_empty_response')}
         </Typography>
       )}
-      {sources?.length > 0 && (
-        <Sources messageId={messageId} sources={sources} />
-      )}
+      {sources?.length > 0 && <Sources sources={sources} />}
       {!isThinking && <AssistantMessageActions canCopy={!isError} />}
     </MessagePrimitive.Root>
   )

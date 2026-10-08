@@ -4,7 +4,7 @@ import React from 'react'
 import { useQuery } from 'cozy-client'
 import { I18n, initTranslation } from 'twake-i18n'
 
-import { ScribeSources } from '@/components/Scribe/ScribeSources'
+import { Sources } from '@/components/Messages/Sources'
 import en from '@/locales/en.json'
 
 jest.mock('cozy-client', () => ({
@@ -21,12 +21,12 @@ function renderSources(sources, files) {
 
   return render(
     <I18n lang="en" polyglot={initTranslation('en', () => en)}>
-      <ScribeSources sources={sources} />
+      <Sources sources={sources} />
     </I18n>
   )
 }
 
-describe('ScribeSources', () => {
+describe('Sources', () => {
   const sources = [
     { id: 'f1', doctype: 'io.cozy.files' },
     { sourceType: 'web', url: 'https://a.example', title: 'Page A' }

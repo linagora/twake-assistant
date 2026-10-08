@@ -16,10 +16,9 @@ import { buildFilesByIdsQuery } from '@/queries'
 const GROW_STYLE = { transformOrigin: '0 0 0' }
 
 /**
- * The documents an answer comes from, when the user asked for their
- * documents: a chip that shows them, as the assistant does in full screen
+ * The documents an answer comes from: a chip that shows them
  */
-export function ScribeSources({ sources }) {
+export function Sources({ sources }) {
   const { t } = useI18n()
   const client = useClient()
   const [isOpen, setIsOpen] = useState(false)
@@ -36,7 +35,7 @@ export function ScribeSources({ sources }) {
     <div className="u-mt-1">
       <Chip
         icon={<Icon icon={MultiFiles} className="u-ml-half" />}
-        label={t('scribe.sources', { smart_count: links.length })}
+        label={t('chat.sources', { smart_count: links.length })}
         aria-expanded={isOpen}
         // The arrow of the chip is its delete icon, which toggles it too
         deleteIcon={
@@ -64,9 +63,9 @@ export function ScribeSources({ sources }) {
                 <ListItemIcon>
                   <Icon icon={link.icon} size={32} />
                 </ListItemIcon>
+                {/* An empty line for null, but nothing for undefined */}
                 <ListItemText
-                  primary={link.label}
-                  // An empty line for null, but nothing for undefined
+                  primary={link.label ?? undefined}
                   secondary={link.secondary ?? undefined}
                 />
               </ListItem>

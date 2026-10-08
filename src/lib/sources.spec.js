@@ -2,9 +2,11 @@ import {
   FileTypeNote,
   FileTypePdf,
   FileTypeText,
-  Globe
+  Globe,
+  Mail
 } from '@linagora/twake-icons'
 
+import DocsIcon from '@/components/Search/Icons/DocsIcon'
 import { getFileSourceIds, makeSourceLinks } from '@/lib/sources'
 
 const mockClient = {
@@ -108,6 +110,57 @@ describe('makeSourceLinks', () => {
         secondary: 'https://b.example',
         href: 'https://b.example',
         icon: Globe
+      }
+    ])
+  })
+
+  it('links a document of Docs to Docs', () => {
+    const [link] = makeSourceLinks({
+      sources: [],
+      files: [
+        {
+          _id: 'f3',
+          name: 'Plan.docs-note',
+          path: '/Plan.docs-note',
+          metadata: { externalId: 'x1' },
+          type: 'file'
+        }
+      ],
+      client: mockClient
+    })
+
+    expect(link.href).toBe('https://docs.alice.cozy.example/#/bridge/docs/x1')
+    expect(link.icon).toBe(DocsIcon)
+  })
+
+  it('links each mail once to the mail app, by its date and subject', () => {
+    const mail = {
+      id: 'tmail_m1',
+      doctype: 'com.linagora.email',
+      datetime: '2026-09-20T08:00:00Z',
+      'email.subject': 'Budget',
+      'email.preview': 'The budget is ready'
+    }
+    const links = makeSourceLinks({
+      sources: [mail, mail, { id: 'm2', doctype: 'com.linagora.email' }],
+      files: [],
+      client: mockClient
+    })
+
+    expect(links).toEqual([
+      {
+        key: 'email:tmail_m1',
+        label: '2026-09-20 - Budget',
+        secondary: 'The budget is ready',
+        href: 'https://mail.alice.cozy.example/#/bridge/dashboard/m1',
+        icon: Mail
+      },
+      {
+        key: 'email:m2',
+        label: null,
+        secondary: null,
+        href: 'https://mail.alice.cozy.example/#/bridge/dashboard/m2',
+        icon: Mail
       }
     ])
   })
