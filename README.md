@@ -1,8 +1,6 @@
 # Twake Assistant
 
-The AI assistant of Twake Workplace as a standalone Cozy app. It renders the
-assistant of [cozy-search](https://github.com/cozy/cozy-libs/tree/master/packages/cozy-search),
-the one embedded in Twake Drive and Home, on its own route.
+The AI assistant of Twake Workplace as a standalone Cozy app.
 
 ## Routes
 

@@ -4,10 +4,11 @@ import { Outlet } from 'react-router-dom'
 import { Ai } from '@linagora/twake-icons'
 import { BarComponent } from 'cozy-bar'
 import { RealTimeQueries } from 'cozy-client'
-import { AiText, useAssistantsSetup } from 'cozy-search'
 import { Layout } from 'cozy-ui/transpiled/react/Layout'
 
 import styles from '@/components/AppLayout.styl'
+import AiText from '@/components/Icons/AiText'
+import { useAssistantsSetup } from '@/components/KnowledgeBase/useAssistantsSetup'
 import {
   DOCTYPE_AI_CHAT_ASSISTANTS,
   DOCTYPE_AI_CHAT_CONVERSATIONS

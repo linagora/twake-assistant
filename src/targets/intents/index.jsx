@@ -6,7 +6,6 @@ import React from 'react'
 import 'cozy-ui/transpiled/react/stylesheet.css'
 import 'cozy-ui/dist/cozy-ui.utils.min.css'
 import 'cozy-ui-plus/dist/stylesheet.css'
-import 'cozy-search/dist/stylesheet.css'
 
 import { AssistantIntent } from '@/components/Intents/AssistantIntent'
 import { setupApp } from '@/targets/browser/setupApp'

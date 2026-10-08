@@ -2,9 +2,9 @@ import React from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 
 import { BarRoutes } from 'cozy-bar'
-import { AssistantView } from 'cozy-search'
 
 import { AppLayout } from '@/components/AppLayout'
+import AssistantView from '@/components/Views/AssistantView'
 import { NewConversation } from '@/components/Views/NewConversation'
 import { ASSISTANT_ROUTE_PATH } from '@/lib/conversation'
 
