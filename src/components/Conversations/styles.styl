@@ -102,6 +102,16 @@
         opacity 1
 
 .conversationViewport
+  // Thin and shown on hover, as the one of the sidebar
+  scrollbar-width thin
+  scrollbar-color transparent transparent
+  // Its room is kept on both sides: the messages do not move when it shows
+  // up, and stay centered above the composer
+  scrollbar-gutter stable both-edges
+
+  &:hover
+    scrollbar-color var(--borderMainColor) transparent
+
   +mobile()
     // Small symmetric gutter so the LLM response uses nearly the full
     // mobile width
