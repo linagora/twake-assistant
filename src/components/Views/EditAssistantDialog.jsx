@@ -60,7 +60,7 @@ const EditAssistantDialog = ({ open, onClose }) => {
         buildAssistantByIdWithProviderQuery(assistantIdInAction)
       const response = await client.query(definition(), { as: options.as })
       const assistant = response.data
-      const provider = response.included[0]
+      const provider = response.included?.[0]
       const providerId =
         assistant?.relationships?.provider?.data?.metadata?.providerId
       // `auth.login` held the model before it moved to `data.model`: kept as a
