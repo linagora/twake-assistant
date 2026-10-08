@@ -122,7 +122,6 @@
     },
     "default_error": "Une erreur est survenue lors de la génération de la réponse. Veuillez réessayer",
     "disclaimer": "Twake AI peut faire des erreurs. Vérifiez les informations importantes.",
-    "default_empty_response": "Je n'ai pas trouvé de réponse à votre demande. Essayez de reformuler votre question",
     "hide": "Masquer",
     "show": "Afficher",
     "search_conversation": {

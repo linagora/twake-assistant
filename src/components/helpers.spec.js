@@ -1,86 +1,10 @@
 import {
-  sanitizeChatContent,
   formatConversationDate,
   getNameOfConversation,
   getDescriptionOfConversation
 } from './helpers'
 
 jest.mock('cozy-flags', () => jest.fn(() => true), { virtual: true })
-
-describe('sanitizeChatContent', () => {
-  it('should return empty string for empty content', () => {
-    expect(sanitizeChatContent('')).toBe('')
-    expect(sanitizeChatContent(null)).toBe('')
-    expect(sanitizeChatContent(undefined)).toBe('')
-  })
-
-  it('should return string if no special tags', () => {
-    const text = 'How you doing, here no ref.'
-    expect(sanitizeChatContent(text)).toBe(text)
-  })
-
-  it('should remove tags REF.../REF', () => {
-    const text = 'Before REFdoc_1/REF after'
-    expect(sanitizeChatContent(text)).toBe('Before after')
-  })
-
-  it('should remove tags [REF]...[/REF]', () => {
-    const text = 'Before [REF]doc_1[/REF] after'
-    expect(sanitizeChatContent(text)).toBe('Before after')
-  })
-
-  it('should remove mixed REF tags ', () => {
-    const text = 'A REF.../REF B [REF]...[/REF] C REF.../REF D'
-    expect(sanitizeChatContent(text)).toBe('A B C D')
-  })
-
-  it('should remove [tags]', () => {
-    const text = 'Here is a doc [doc_42] and some texte'
-    expect(sanitizeChatContent(text)).toBe('Here is a doc and some texte')
-  })
-
-  it('should remove [Source N] markers', () => {
-    const text = 'A fragment about "suite" [Source 1] and a file [Source 3]'
-    expect(sanitizeChatContent(text)).toBe(
-      'A fragment about "suite" and a file'
-    )
-  })
-
-  it('should remove [Source N, M] markers with multiple ids', () => {
-    const text = 'Mentions of "test" [Source 4, 6] in the text'
-    expect(sanitizeChatContent(text)).toBe('Mentions of "test" in the text')
-  })
-
-  it('should remove [Source N, Source M] markers with repeated word', () => {
-    const text = 'Demonstration sections [Source 4, Source 6]'
-    expect(sanitizeChatContent(text)).toBe('Demonstration sections')
-  })
-
-  it('should not remove [Sources] or other bracketed words', () => {
-    const text = 'See [Sources] below and [Source list]'
-    expect(sanitizeChatContent(text)).toBe(text)
-  })
-
-  it('should remove [Sources: N, M] citation markers', () => {
-    const text =
-      'See applications [Sources: 1, 3, 6, 7, 8] and details [Sources: 5].'
-    expect(sanitizeChatContent(text)).toBe('See applications and details.')
-  })
-
-  it('should remove [Sources: N]() citations with empty link parens', () => {
-    const text = 'See applications [Sources: 1, 3]() here'
-    expect(sanitizeChatContent(text)).toBe('See applications here')
-  })
-
-  it('should not remove simple REF or [REF]', () => {
-    const text = 'REF not closed [REF]not closed either'
-    expect(sanitizeChatContent(text)).toBe(text)
-  })
-  it('should not remove lowercase ref', () => {
-    const text = 'before refdoc_1/ref after'
-    expect(sanitizeChatContent(text)).toBe(text)
-  })
-})
 
 describe('formatConversationDate', () => {
   const mockT = jest.fn(key => key)
@@ -188,9 +112,7 @@ describe('getDescriptionOfConversation', () => {
         { role: 'assistant', content: '' }
       ]
     }
-    expect(getDescriptionOfConversation(convo, t)).toBe(
-      'assistant.default_empty_response'
-    )
+    expect(getDescriptionOfConversation(convo, t)).toBe('chat.empty')
   })
 
   it('does not apply the fallback when the last message is from the user', () => {
