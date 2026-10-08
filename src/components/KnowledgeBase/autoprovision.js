@@ -4,7 +4,6 @@ import { AUTOPROVISION_FLAG, ensureProvisionedAssistants } from './provisioning'
 import {
   createRagIndexTriggers,
   fetchAssistants,
-  findRagIndexTriggers,
   migrateAssistantsWithoutFolder
 } from './ragIndexing'
 
@@ -14,11 +13,9 @@ const warn = (...args) => {
 }
 
 let pending = null
-let setupPending = null
 
 export const resetAutoprovisionForTests = () => {
   pending = null
-  setupPending = null
 }
 
 /** The entries of the autoprovision flag, or null when it lists nothing. */
@@ -45,8 +42,8 @@ const run = async client => {
   if (result.skipped.length > 0) {
     warn('skipped entries', result.skipped)
   }
-  // Last: the triggers tell ensureAssistantsSetup that the setup completed,
-  // and the launch of the files one indexes the folders just provisioned.
+  // Last: the launch of the files trigger indexes the folders just
+  // provisioned
   try {
     setup.triggers = await createRagIndexTriggers(client)
   } catch (error) {
@@ -72,29 +69,4 @@ export const autoprovisionAssistants = client => {
     })
   }
   return pending
-}
-
-/**
- * The startup entry point of a host app: one request when the instance is
- * already set up. The rag-index triggers are created last by
- * autoprovisionAssistants, so finding both means an earlier session went
- * through; anything changed since is caught when the assistant opens.
- * Runs once per session, never rejects.
- * @param {import('cozy-client').CozyClient} client
- * @returns {Promise<null|object>} Null when there was nothing to do, the
- * result of autoprovisionAssistants otherwise.
- */
-export const ensureAssistantsSetup = client => {
-  if (!setupPending) {
-    setupPending = (async () => {
-      if (!autoprovisionEntries()) return null
-      const { files, assistants } = await findRagIndexTriggers(client)
-      if (files && assistants) return null
-      return autoprovisionAssistants(client)
-    })().catch(error => {
-      warn('cannot check the rag-index triggers', error)
-      return null
-    })
-  }
-  return setupPending
 }

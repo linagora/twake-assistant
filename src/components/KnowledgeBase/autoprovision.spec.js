@@ -3,14 +3,12 @@ import flag from 'cozy-flags'
 import {
   autoprovisionAssistants,
   autoprovisionEntries,
-  ensureAssistantsSetup,
   resetAutoprovisionForTests
 } from './autoprovision'
 import { ensureProvisionedAssistants } from './provisioning'
 import {
   createRagIndexTriggers,
   fetchAssistants,
-  findRagIndexTriggers,
   migrateAssistantsWithoutFolder
 } from './ragIndexing'
 
@@ -22,7 +20,6 @@ jest.mock('./provisioning', () => ({
 jest.mock('./ragIndexing', () => ({
   createRagIndexTriggers: jest.fn(),
   fetchAssistants: jest.fn(),
-  findRagIndexTriggers: jest.fn(),
   migrateAssistantsWithoutFolder: jest.fn()
 }))
 
@@ -37,9 +34,6 @@ beforeEach(() => {
   warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
   createRagIndexTriggers.mockReset().mockResolvedValue(['io.cozy.files'])
   fetchAssistants.mockReset().mockResolvedValue(assistants)
-  findRagIndexTriggers
-    .mockReset()
-    .mockResolvedValue({ files: null, assistants: null })
   migrateAssistantsWithoutFolder.mockReset().mockResolvedValue([])
   ensureProvisionedAssistants
     .mockReset()
@@ -160,64 +154,6 @@ describe('autoprovisionAssistants', () => {
     expect(warnSpy).toHaveBeenCalledWith(
       'assistant autoprovision:',
       'failed',
-      expect.any(Error)
-    )
-  })
-})
-
-describe('ensureAssistantsSetup', () => {
-  it('does nothing without flag entries', async () => {
-    flag.mockReturnValue(null)
-    await expect(ensureAssistantsSetup(client)).resolves.toBeNull()
-    expect(findRagIndexTriggers).not.toHaveBeenCalled()
-  })
-
-  it('stops at the triggers when both exist', async () => {
-    flag.mockReturnValue(entries)
-    findRagIndexTriggers.mockResolvedValue({
-      files: { _id: 'files' },
-      assistants: { _id: 'assistants' }
-    })
-    await expect(ensureAssistantsSetup(client)).resolves.toBeNull()
-
-    expect(findRagIndexTriggers).toHaveBeenCalledWith(client)
-    expect(fetchAssistants).not.toHaveBeenCalled()
-    expect(ensureProvisionedAssistants).not.toHaveBeenCalled()
-    expect(createRagIndexTriggers).not.toHaveBeenCalled()
-  })
-
-  it.each([
-    ['none', { files: null, assistants: null }],
-    ['only the files one', { files: { _id: 'files' }, assistants: null }],
-    ['only the assistants one', { files: null, assistants: { _id: 'a' } }]
-  ])('runs the whole setup with %s', async (_label, found) => {
-    flag.mockReturnValue(entries)
-    findRagIndexTriggers.mockResolvedValue(found)
-    const result = await ensureAssistantsSetup(client)
-
-    expect(ensureProvisionedAssistants).toHaveBeenCalledTimes(1)
-    expect(createRagIndexTriggers).toHaveBeenCalledTimes(1)
-    expect(result.created).toEqual(['docs'])
-  })
-
-  it('runs once per session and shares the setup with the assistant', async () => {
-    flag.mockReturnValue(entries)
-    const first = ensureAssistantsSetup(client)
-    expect(ensureAssistantsSetup(client)).toBe(first)
-    await first
-    await autoprovisionAssistants(client)
-
-    expect(findRagIndexTriggers).toHaveBeenCalledTimes(1)
-    expect(ensureProvisionedAssistants).toHaveBeenCalledTimes(1)
-  })
-
-  it('never rejects', async () => {
-    flag.mockReturnValue(entries)
-    findRagIndexTriggers.mockRejectedValue(new Error('offline'))
-    await expect(ensureAssistantsSetup(client)).resolves.toBeNull()
-    expect(warnSpy).toHaveBeenCalledWith(
-      'assistant autoprovision:',
-      'cannot check the rag-index triggers',
       expect.any(Error)
     )
   })

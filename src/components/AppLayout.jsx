@@ -8,15 +8,12 @@ import { Layout } from 'cozy-ui/transpiled/react/Layout'
 
 import styles from '@/components/AppLayout.styl'
 import AiText from '@/components/Icons/AiText'
-import { useAssistantsSetup } from '@/components/KnowledgeBase/useAssistantsSetup'
 import {
   DOCTYPE_AI_CHAT_ASSISTANTS,
   DOCTYPE_AI_CHAT_CONVERSATIONS
 } from '@/doctypes'
 
 export function AppLayout() {
-  useAssistantsSetup()
-
   return (
     <Layout monoColumn>
       <RealTimeQueries doctype={DOCTYPE_AI_CHAT_CONVERSATIONS} />
