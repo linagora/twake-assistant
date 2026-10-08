@@ -39,17 +39,17 @@ function ScribeConversation() {
         className={styles['scribe-messages']}
       >
         {isEmpty && (
-          <div className="u-flex u-flex-column u-flex-items-center u-flex-justify-center u-h-100">
+          <div className="u-flex u-flex-column u-flex-items-center u-flex-justify-center u-h-100 u-pt-2">
             <DocumentAssistant aria-hidden="true" />
             <Typography
               variant="body2"
               component="h2"
               color="textSecondary"
-              className="u-ta-center u-mt-1-half u-mb-1"
+              className="u-ta-center u-mt-1-half u-mb-1 u-o-70"
             >
               {t('scribe.welcome')}
             </Typography>
-            <ScribeSuggestions isCentered />
+            <ScribeSuggestions />
           </div>
         )}
         <ThreadPrimitive.Messages components={MESSAGE_COMPONENTS} />
@@ -58,10 +58,10 @@ function ScribeConversation() {
         {!isEmpty && hasNewText && <ScribeSuggestions />}
         <ScribeComposer />
         <Typography
-          variant="caption"
+          variant="overline"
           color="textSecondary"
           component="p"
-          className="u-mt-half u-mb-0 u-ta-center"
+          className="u-mt-1 u-mb-0 u-ta-center"
         >
           {t('scribe.disclaimer')}
         </Typography>
