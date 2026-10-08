@@ -77,10 +77,9 @@ function SuggestionChip({ suggestion, onSend }) {
 
 /**
  * The prompts about the text of the app: under the welcome of an empty
- * conversation, centered, and above the composer when the app gives another
- * text
+ * conversation, and above the composer when the app gives another text
  */
-export function ScribeSuggestions({ isCentered = false }) {
+export function ScribeSuggestions() {
   const { suggestions } = useScribe()
   const threadRuntime = useThreadRuntime()
 
@@ -106,13 +105,7 @@ export function ScribeSuggestions({ isCentered = false }) {
   }
 
   return (
-    <div
-      className={
-        isCentered
-          ? `${styles['scribe-suggestions']} u-flex-justify-center`
-          : styles['scribe-suggestions']
-      }
-    >
+    <div className={styles['scribe-suggestions']}>
       {suggestions.map(suggestion => (
         <SuggestionChip
           key={suggestion.name}

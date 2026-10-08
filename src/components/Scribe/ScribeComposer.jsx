@@ -40,7 +40,7 @@ export function ScribeComposer() {
       className={`${styles['scribe-composer']} u-flex u-flex-items-end`}
     >
       <ComposerPrimitive.Input
-        className={styles['scribe-composer-input']}
+        className={`${styles['scribe-composer-input']} u-fz-small`}
         placeholder={t('scribe.placeholder')}
         aria-label={t('scribe.placeholder')}
         rows={1}
