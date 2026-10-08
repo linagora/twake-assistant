@@ -1,4 +1,4 @@
-import { AssistantRuntimeProvider, useLocalRuntime } from '@assistant-ui/react'
+import { AssistantRuntimeProvider } from '@assistant-ui/react'
 import React, {
   createContext,
   useCallback,
@@ -9,10 +9,7 @@ import React, {
   useState
 } from 'react'
 
-import { useClient } from 'cozy-client'
-
-import { DOCTYPE_AI_CHAT_EVENTS } from '@/doctypes'
-import { makeScribeChat } from '@/lib/scribeChat'
+import { useChatRuntime } from '@/hooks/useChatRuntime'
 
 const ScribeContext = createContext(null)
 
@@ -69,7 +66,6 @@ export function ScribeProvider({
   messages = NO_MESSAGES,
   children
 }) {
-  const client = useClient()
   // The answers come from the LLM alone until the user asks for their
   // documents
   const [hasDocuments, setHasDocuments] = useState(documents)
@@ -85,44 +81,22 @@ export function ScribeProvider({
     messageId => handedCallsRef.current.has(messageId),
     []
   )
-  // The chat lasts as long as the conversation: the runtime keeps its first
-  // adapter, which reads how to send a message when it sends it
-  const [chat] = useState(() =>
-    makeScribeChat({
-      client,
-      conversationId,
-      textIndex: countRequests(messages)
-    })
-  )
-
-  useEffect(() => {
-    chat.setRequest({
+  const request = useMemo(
+    () => ({
       prepareQuery,
       preparePrompt,
       hasDocuments,
       instructions,
       actions: capabilities.map(capability => capability.action)
-    })
-  }, [
-    chat,
-    prepareQuery,
-    preparePrompt,
-    hasDocuments,
-    instructions,
-    capabilities
-  ])
-
-  useEffect(() => {
-    const realtime = client.plugins.realtime
-    const handleEvent = event => chat.events.push(event)
-
-    realtime.subscribe('created', DOCTYPE_AI_CHAT_EVENTS, handleEvent)
-    return () => {
-      realtime.unsubscribe('created', DOCTYPE_AI_CHAT_EVENTS, handleEvent)
-    }
-  }, [client, chat])
-
-  const runtime = useLocalRuntime(chat.adapter, { initialMessages: messages })
+    }),
+    [prepareQuery, preparePrompt, hasDocuments, instructions, capabilities]
+  )
+  const { chat, runtime } = useChatRuntime({
+    conversationId,
+    messages,
+    request,
+    textIndex: countRequests(messages)
+  })
 
   // The text, and the number of requests of the user when it was given: the
   // prompts are offered until the next request. Read while rendering, as

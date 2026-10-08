@@ -1,8 +1,8 @@
 import { CheckList, Globe, Text, TextInfo } from '@linagora/twake-icons'
 
+import { removeSourceMarks } from '@/lib/chat'
 import { findExampleError } from '@/lib/chatActions'
 import { DEFAULT_MENU_SUGGESTION } from '@/lib/intent'
-import { removeSourceMarks } from '@/lib/scribeChat'
 import catalogue from '@/lib/scribePrompts.json'
 
 // The prompts of the scribe are the ones of the catalogue of linagora/ai-prompts
@@ -224,14 +224,14 @@ export function getScribeRequest(query, t) {
 }
 
 /**
- * The messages of a past conversation, as the scribe shows them
+ * The messages of a past conversation, as the assistant shows them
  *
  * @param {object[]} messages - the messages of the conversation kept by the
  * stack
  * @param {Function} t - translation function
  * @returns {import('@assistant-ui/react').ThreadMessageLike[]}
  */
-export function makeScribeMessages(messages, t) {
+export function makeChatMessages(messages, t) {
   return messages
     .filter(message => message.role === 'user' || message.role === 'assistant')
     .map(message => {

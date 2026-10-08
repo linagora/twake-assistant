@@ -2,6 +2,7 @@ import { MessagePrimitive, useMessage } from '@assistant-ui/react'
 import React from 'react'
 
 import Alert from 'cozy-ui/transpiled/react/Alert'
+import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
 import AssistantMessageActions from './AssistantMessageActions'
@@ -16,7 +17,13 @@ const useIsErrorMessage = () => {
 const AssistantMessage = () => {
   const { t } = useI18n()
 
-  const isThinking = useMessage(s => s.status?.type === 'requires-action')
+  // Before the first words of the answer
+  const isThinking = useMessage(
+    s =>
+      s.status?.type === 'running' &&
+      !s.content.some(part => part.type === 'text' && part.text !== '')
+  )
+  const isEmpty = useMessage(s => s.metadata?.custom?.isEmpty === true)
   const isError = useIsErrorMessage()
   const messageId = useMessage(s => s.id)
   const sources = useMessage(s => s.metadata?.custom?.sources)
@@ -42,6 +49,11 @@ const AssistantMessage = () => {
             Text: MarkdownText
           }}
         />
+      )}
+      {isEmpty && (
+        <Typography color="textSecondary">
+          {t('assistant.default_empty_response')}
+        </Typography>
       )}
       {sources?.length > 0 && (
         <Sources messageId={messageId} sources={sources} />

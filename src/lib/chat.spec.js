@@ -1,9 +1,5 @@
+import { makeChat, makeChatAdapter, removeSourceMarks } from '@/lib/chat'
 import { ChatEventStream } from '@/lib/chatEvents'
-import {
-  makeScribeChat,
-  makeScribeChatAdapter,
-  removeSourceMarks
-} from '@/lib/scribeChat'
 
 jest.mock('cozy-minilog', () => () => ({ error: jest.fn() }))
 
@@ -27,7 +23,7 @@ function setup({ events: answerEvents = [], options = {}, messageId = 'q1' }) {
       data: { attributes: { messages: [{ id: messageId, role: 'user' }] } }
     }
   })
-  const adapter = makeScribeChatAdapter({
+  const adapter = makeChatAdapter({
     client: { stackClient: { fetchJSON } },
     conversationId: 'c1',
     events,
@@ -56,7 +52,7 @@ async function run(adapter, messages, abortSignal, runConfig) {
 
 const getText = result => result.content[0].text
 
-describe('makeScribeChatAdapter', () => {
+describe('makeChatAdapter', () => {
   it('asks the LLM alone, and gives its answer as it comes', async () => {
     const { adapter, fetchJSON } = setup({
       events: [
@@ -165,6 +161,21 @@ describe('makeScribeChatAdapter', () => {
     expect(fetchJSON.mock.calls[0][2]).toEqual({ q: 'What is the budget?' })
     expect(getText(results.at(-1))).toBe('The budget is 420 000 €.')
     expect(results.at(-1).metadata.custom).toEqual({ sources })
+  })
+
+  it('asks the assistant chosen by the user, with the web', async () => {
+    const { adapter, fetchJSON } = setup({
+      events: [{ object: 'done' }],
+      options: { hasDocuments: true, assistantId: 'a1', websearch: true }
+    })
+
+    await run(adapter, [userMessage('What is new?')])
+
+    expect(fetchJSON.mock.calls[0][2]).toEqual({
+      q: 'What is new?',
+      assistantID: 'a1',
+      websearch: true
+    })
   })
 
   it('puts back in order the pieces that come out of order', async () => {
@@ -349,6 +360,25 @@ describe('makeScribeChatAdapter', () => {
     )
   })
 
+  it('lets the answer go on when the user leaves the conversation', async () => {
+    const controller = new AbortController()
+    const { adapter, events, fetchJSON } = setup({
+      events: [{ object: 'delta', content: 'Bonjour' }]
+    })
+
+    const running = run(adapter, [userMessage('Fix it')], controller.signal)
+    await new Promise(resolve => setTimeout(resolve, 0))
+    // assistant-ui detaches the run on unmount
+    controller.abort(Object.assign(new Error('AbortError'), { detach: true }))
+    events.push({ _id: 'q1', object: 'delta', content: ' à tous' })
+    await running
+
+    expect(fetchJSON).not.toHaveBeenCalledWith(
+      'POST',
+      '/ai/chat/conversations/c1/cancel'
+    )
+  })
+
   it('does nothing without a message of the user', async () => {
     const { adapter, fetchJSON } = setup({})
 
@@ -357,12 +387,12 @@ describe('makeScribeChatAdapter', () => {
   })
 })
 
-describe('makeScribeChat', () => {
+describe('makeChat', () => {
   it('sends each message as the request of the moment says', async () => {
     const fetchJSON = jest.fn(async () => ({
       data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
     }))
-    const chat = makeScribeChat({
+    const chat = makeChat({
       client: { stackClient: { fetchJSON } },
       conversationId: 'c1'
     })
@@ -396,7 +426,7 @@ describe('makeScribeChat', () => {
   })
 
   it('joins a new text of the app to the next message, sent again or not', async () => {
-    const chat = makeScribeChat({
+    const chat = makeChat({
       client: {
         stackClient: {
           fetchJSON: jest.fn(async (method, path, body) => {
@@ -446,7 +476,7 @@ describe('makeScribeChat', () => {
 
   it('joins the text to the first message after a past conversation', async () => {
     const sent = []
-    const chat = makeScribeChat({
+    const chat = makeChat({
       client: {
         stackClient: {
           fetchJSON: jest.fn(async (method, path, body) => {
@@ -478,7 +508,7 @@ describe('makeScribeChat', () => {
     const fetchJSON = jest.fn(async () => ({
       data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
     }))
-    const chat = makeScribeChat({
+    const chat = makeChat({
       client: { stackClient: { fetchJSON } },
       conversationId: 'c1'
     })
