@@ -2,6 +2,7 @@ import { CheckList, Globe, Pen, Text } from '@linagora/twake-icons'
 
 import { findExampleError } from '@/lib/chatActions'
 import { DEFAULT_MENU_SUGGESTION } from '@/lib/intent'
+import { removeSourceMarks } from '@/lib/scribeChat'
 import catalogue from '@/lib/scribePrompts.json'
 
 // The prompts of the scribe are the ones of the catalogue of linagora/ai-prompts
@@ -176,6 +177,101 @@ export function makeScribePrepareQuery(content, t) {
     isFirstOnText
       ? `${text}\n\n${t('scribe.content')}\n"""\n${content}\n"""`
       : text
+}
+
+// The text of the app as makeScribePrepareQuery joins it, in any language
+const JOINED_TEXT = /\n\n[^\n]*\n"""\n[\s\S]*\n"""$/
+// A prompt of the catalogue, even one written before its current version:
+// its first instruction stands for it
+const CATALOGUE_QUERY = /^INSTRUCTION:\n([^\n]+)\n[\s\S]*\nTEXT:\n/
+
+// Each prompt of the catalogue, with the pattern of the queries it makes
+const PROMPT_PATTERNS = catalogue.prompts.flatMap(prompt => {
+  const template = prompt.messages.find(
+    message => message.role === 'user'
+  )?.content
+  if (!template) return []
+
+  const pattern = template
+    .split(/\{\{\s*input\s*\}\}/)
+    .map(piece => piece.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('[\\s\\S]*')
+  return [{ prompt, pattern: new RegExp(`^${pattern}$`) }]
+})
+
+/**
+ * The request a message of a past conversation shows. The stack keeps the
+ * query sent to the LLM: the prompt of a chip, or the request with the text
+ * of the app.
+ *
+ * @param {string} query - the content of the message kept by the stack
+ * @param {Function} t - translation function
+ * @returns {string}
+ */
+export function getScribeRequest(query, t) {
+  const prompt = PROMPT_PATTERNS.find(({ pattern }) =>
+    pattern.test(query)
+  )?.prompt
+  if (!prompt) {
+    return query.match(CATALOGUE_QUERY)?.[1] ?? query.replace(JOINED_TEXT, '')
+  }
+
+  const known = findSuggestion(
+    makeDefaultMenu(t),
+    item => item.prompt === prompt.name
+  )
+  return known?.request ?? prompt.description
+}
+
+/**
+ * The messages of a past conversation, as the scribe shows them
+ *
+ * @param {object[]} messages - the messages of the conversation kept by the
+ * stack
+ * @param {Function} t - translation function
+ * @returns {import('@assistant-ui/react').ThreadMessageLike[]}
+ */
+export function makeScribeMessages(messages, t) {
+  return messages
+    .filter(message => message.role === 'user' || message.role === 'assistant')
+    .map(message => {
+      if (message.role === 'user') {
+        return {
+          id: message.id,
+          role: 'user',
+          content: getScribeRequest(message.content, t)
+        }
+      }
+
+      const text = removeSourceMarks(message.content ?? '')
+      return {
+        id: message.id,
+        role: 'assistant',
+        content: text,
+        metadata: {
+          custom: {
+            isPast: true,
+            ...(text.trim() === '' && !message.action && { isEmpty: true }),
+            ...(message.sources?.length > 0 && { sources: message.sources }),
+            ...(message.action && { action: message.action })
+          }
+        }
+      }
+    })
+}
+
+/**
+ * @param {object} conversation - a conversation kept by the stack
+ * @param {Function} t - translation function
+ * @returns {string} its name, or its first request
+ */
+export function getScribeConversationTitle(conversation, t) {
+  if (conversation.name) return conversation.name
+
+  const request = conversation.messages?.find(
+    message => message.role === 'user'
+  )
+  return request ? getScribeRequest(request.content, t) : ''
 }
 
 /**

@@ -47,13 +47,17 @@ export function ScribeAnswer() {
   const isError = useMessage(
     message => message.metadata?.custom?.isError === true
   )
-  const isEmpty = useMessage(
-    message => message.metadata?.custom?.isEmpty === true
-  )
   const sources = useMessage(message => message.metadata?.custom?.sources)
   const action = useMessage(message => message.metadata?.custom?.action)
+  const isPast = useMessage(
+    message => message.metadata?.custom?.isPast === true
+  )
   const capability =
     action && capabilities.find(capability => capability.name === action.name)
+  // A past conversation may hold a call of another app: nothing to show then
+  const isEmpty =
+    useMessage(message => message.metadata?.custom?.isEmpty === true) ||
+    (status === 'complete' && text === '' && !!action && !capability)
 
   const isThinking = status === 'running' && text === ''
   // Only a whole answer goes into the document of the app
@@ -88,6 +92,7 @@ export function ScribeAnswer() {
           capability={capability}
           params={action.params ?? {}}
           text={text}
+          isPast={isPast}
         />
       )}
     </MessagePrimitive.Root>

@@ -42,9 +42,16 @@ function ParamValue({ name, value }) {
 
 /**
  * A call of a capability the LLM proposes, handed to the app on the click of
- * the user, or at once when the capability needs no confirmation
+ * the user, or at once when the capability needs no confirmation. A call of a
+ * past conversation waits for the click: it was made on another text.
  */
-export function ScribeCapabilityCard({ messageId, capability, params, text }) {
+export function ScribeCapabilityCard({
+  messageId,
+  capability,
+  params,
+  text,
+  isPast = false
+}) {
   const { t } = useI18n()
   const { handCall, isCallHanded } = useScribe()
   const [isDone, setIsDone] = useState(() => isCallHanded(messageId))
@@ -55,7 +62,7 @@ export function ScribeCapabilityCard({ messageId, capability, params, text }) {
   }
 
   useEffect(() => {
-    if (!capability.confirm) hand()
+    if (!capability.confirm && !isPast) hand()
     // Once, when the card mounts: handCall keeps a card that mounts again from
     // handing the call twice
     // eslint-disable-next-line react-hooks/exhaustive-deps

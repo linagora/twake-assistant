@@ -5,6 +5,10 @@
   "scribe": {
     "title": "Hỏi Twake AI",
     "new": "Cuộc trò chuyện mới",
+    "history": {
+      "title": "Lịch sử",
+      "empty": "Chưa có cuộc trò chuyện nào"
+    },
     "close": "Đóng",
     "welcome": "Hãy đặt câu hỏi cho tôi về tài liệu của bạn",
     "placeholder": "Giúp tôi viết",

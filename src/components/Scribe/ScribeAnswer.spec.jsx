@@ -151,6 +151,7 @@ describe('ScribeAnswer', () => {
       renderAnswer(answer('', 'complete', { action }), [], [])
 
       expect(screen.queryByTestId('capability')).toBe(null)
+      expect(screen.queryByText(en.scribe.empty)).toBeInTheDocument()
     })
   })
 })

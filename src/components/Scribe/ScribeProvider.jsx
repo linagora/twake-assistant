@@ -20,6 +20,12 @@ export function useScribe() {
   return useContext(ScribeContext)
 }
 
+const NO_MESSAGES = []
+
+function countRequests(messages) {
+  return messages.filter(message => message.role === 'user').length
+}
+
 function sendAsItIs(text) {
   return text
 }
@@ -47,6 +53,8 @@ function sendAsItIs(text) {
  * system message with each message
  * @param {string} [props.text] - the text of the app the requests are about.
  * When the app gives another one, the next request is about it.
+ * @param {import('@assistant-ui/react').ThreadMessageLike[]} [props.messages] -
+ * the messages of a past conversation: the next request is about the text
  */
 export function ScribeProvider({
   conversationId,
@@ -58,6 +66,7 @@ export function ScribeProvider({
   preparePrompt = null,
   instructions = null,
   text = '',
+  messages = NO_MESSAGES,
   children
 }) {
   const client = useClient()
@@ -76,9 +85,15 @@ export function ScribeProvider({
     messageId => handedCallsRef.current.has(messageId),
     []
   )
-  // The chat lasts as long as the scribe: the runtime keeps its first
+  // The chat lasts as long as the conversation: the runtime keeps its first
   // adapter, which reads how to send a message when it sends it
-  const [chat] = useState(() => makeScribeChat({ client, conversationId }))
+  const [chat] = useState(() =>
+    makeScribeChat({
+      client,
+      conversationId,
+      textIndex: countRequests(messages)
+    })
+  )
 
   useEffect(() => {
     chat.setRequest({
@@ -107,15 +122,17 @@ export function ScribeProvider({
     }
   }, [client, chat])
 
-  const runtime = useLocalRuntime(chat.adapter)
+  const runtime = useLocalRuntime(chat.adapter, { initialMessages: messages })
 
   // The text, and the number of requests of the user when it was given: the
   // prompts are offered until the next request. Read while rendering, as
   // React advises for a state derived from a prop.
-  const [given, setGiven] = useState({ text, start: 0 })
+  const [given, setGiven] = useState(() => ({
+    text,
+    start: countRequests(messages)
+  }))
   if (given.text !== text) {
-    const { messages } = runtime.thread.getState()
-    const start = messages.filter(message => message.role === 'user').length
+    const start = countRequests(runtime.thread.getState().messages)
     setGiven({ text, start })
   }
   const textStart = given.start

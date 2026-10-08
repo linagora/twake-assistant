@@ -1,7 +1,8 @@
 import { ThreadPrimitive, useThread } from '@assistant-ui/react'
 import React, { useState } from 'react'
 
-import { CrossSmall, Icon, Note } from '@linagora/twake-icons'
+import { CrossSmall, History, Icon, Note } from '@linagora/twake-icons'
+import { RealTimeQueries } from 'cozy-client'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
 import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
 import Typography from 'cozy-ui/transpiled/react/Typography'
@@ -10,28 +11,41 @@ import { useI18n } from 'twake-i18n'
 import DocumentAssistant from '@/assets/illu-document-assistant.svg'
 import { ScribeAnswer } from '@/components/Scribe/ScribeAnswer'
 import { ScribeComposer } from '@/components/Scribe/ScribeComposer'
+import { ScribeHistory } from '@/components/Scribe/ScribeHistory'
 import { ScribeProvider, useScribe } from '@/components/Scribe/ScribeProvider'
 import { ScribeRequest } from '@/components/Scribe/ScribeRequest'
 import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
 import styles from '@/components/Scribe/styles.styl'
+import { DOCTYPE_AI_CHAT_CONVERSATIONS } from '@/doctypes'
 import { makeConversationId } from '@/lib/conversation'
+import { makeScribeMessages } from '@/lib/scribe'
 
 const MESSAGE_COMPONENTS = {
   UserMessage: ScribeRequest,
   AssistantMessage: ScribeAnswer
 }
 
-function HeaderButton({ label, onClick, children }) {
+function makeNewConversation() {
+  return { id: makeConversationId(), messages: [] }
+}
+
+function HeaderButton({ label, isPressed, onClick, children }) {
   return (
     <Tooltip title={label}>
-      <IconButton size="small" aria-label={label} onClick={onClick}>
+      <IconButton
+        size="small"
+        aria-label={label}
+        aria-pressed={isPressed}
+        onClick={onClick}
+      >
         {children}
       </IconButton>
     </Tooltip>
   )
 }
 
-function ScribeConversation() {
+// Hidden, not unmounted, under the history: an answer goes on
+function ScribeConversation({ isHidden }) {
   const { t } = useI18n()
   const isEmpty = useThread(state => state.messages.length === 0)
   const requestCount = useThread(
@@ -42,7 +56,9 @@ function ScribeConversation() {
   const hasNewText = requestCount === textStart
 
   return (
-    <ThreadPrimitive.Root className="u-flex u-flex-column u-flex-auto u-ov-hidden">
+    <ThreadPrimitive.Root
+      className={`u-flex u-flex-column u-flex-auto u-ov-hidden${isHidden ? ' u-hide' : ''}`}
+    >
       <ThreadPrimitive.Viewport
         autoScroll
         className={styles['scribe-messages']}
@@ -88,12 +104,27 @@ function ScribeConversation() {
  */
 export function ScribeView({ onClose, ...props }) {
   const { t } = useI18n()
-  const [conversationId, setConversationId] = useState(makeConversationId)
+  const [conversation, setConversation] = useState(makeNewConversation)
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
 
-  const handleNew = () => setConversationId(makeConversationId())
+  const handleNew = () => {
+    setConversation(makeNewConversation())
+    setIsHistoryOpen(false)
+  }
+  const handleToggleHistory = () => setIsHistoryOpen(isOpen => !isOpen)
+  const handleOpen = past => {
+    if (past._id !== conversation.id) {
+      setConversation({
+        id: past._id,
+        messages: makeScribeMessages(past.messages, t)
+      })
+    }
+    setIsHistoryOpen(false)
+  }
 
   return (
     <div className={styles['scribe']}>
+      <RealTimeQueries doctype={DOCTYPE_AI_CHAT_CONVERSATIONS} />
       <header className="u-flex u-flex-items-center u-flex-shrink-0 u-pt-half u-ph-1">
         <Typography
           variant="h5"
@@ -105,18 +136,29 @@ export function ScribeView({ onClose, ...props }) {
         <HeaderButton label={t('scribe.new')} onClick={handleNew}>
           <Icon icon={Note} size={20} />
         </HeaderButton>
+        <HeaderButton
+          label={t('scribe.history.title')}
+          isPressed={isHistoryOpen}
+          onClick={handleToggleHistory}
+        >
+          <Icon icon={History} size={20} />
+        </HeaderButton>
         {onClose && (
           <HeaderButton label={t('scribe.close')} onClick={onClose}>
             <Icon icon={CrossSmall} size={20} />
           </HeaderButton>
         )}
       </header>
+      {isHistoryOpen && (
+        <ScribeHistory conversationId={conversation.id} onOpen={handleOpen} />
+      )}
       <ScribeProvider
-        key={conversationId}
+        key={conversation.id}
         {...props}
-        conversationId={conversationId}
+        conversationId={conversation.id}
+        messages={conversation.messages}
       >
-        <ScribeConversation />
+        <ScribeConversation isHidden={isHistoryOpen} />
       </ScribeProvider>
     </div>
   )

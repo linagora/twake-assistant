@@ -5,6 +5,10 @@
   "scribe": {
     "title": "Ask Twake AI",
     "new": "New chat",
+    "history": {
+      "title": "History",
+      "empty": "No conversation yet"
+    },
     "close": "Close",
     "welcome": "Ask me a question about your document",
     "placeholder": "Help me write",
