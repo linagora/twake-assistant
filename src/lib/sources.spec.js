@@ -111,4 +111,18 @@ describe('makeSourceLinks', () => {
       }
     ])
   })
+
+  it('links only the web pages', () => {
+    const links = makeSourceLinks({
+      sources: [
+        { sourceType: 'web', url: 'javascript:alert(1)', title: 'Script' },
+        { sourceType: 'web', url: 'ftp://files.example' },
+        { sourceType: 'web', url: 'HTTP://page.example' }
+      ],
+      files: [],
+      client: mockClient
+    })
+
+    expect(links.map(link => link.href)).toEqual(['HTTP://page.example'])
+  })
 })
