@@ -75,7 +75,13 @@ function AnswerReasoning({ reasoning, isRunning }) {
           </Typography>
         </ButtonBase>
       </div>
-      <Collapse in={isOpen} mountOnEnter unmountOnExit>
+      {/* Set apart so that a table drafted here is not taken for the answer */}
+      <Collapse
+        in={isOpen}
+        mountOnEnter
+        unmountOnExit
+        className="u-pl-1 u-fs-italic"
+      >
         {lines.map((line, index) => (
           <Typography
             key={index}
