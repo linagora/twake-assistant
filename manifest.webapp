@@ -60,6 +60,13 @@
       "href": "/intents"
     }
   ],
+  "services": {
+    "autoprovision": {
+      "type": "node",
+      "file": "services/autoprovision.js",
+      "trigger": "@in 1s"
+    }
+  },
   "permissions": {
     "apps": {
       "description": "Required by the cozy-bar to display the icons of the apps",
