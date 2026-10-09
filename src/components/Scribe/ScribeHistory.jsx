@@ -8,6 +8,7 @@ import Spinner from 'cozy-ui/transpiled/react/Spinner'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
+import styles from '@/components/Scribe/styles.styl'
 import { getScribeConversationTitle } from '@/lib/scribe'
 import { buildConversationsQuery } from '@/queries'
 
@@ -45,7 +46,7 @@ export function ScribeHistory({ conversationId, onOpen }) {
 
   return (
     <List
-      className="u-flex-auto u-ov-auto"
+      className={`u-flex-auto u-ov-auto ${styles['scribe-history']}`}
       aria-label={t('scribe.history.title')}
     >
       {conversations.map(conversation => (

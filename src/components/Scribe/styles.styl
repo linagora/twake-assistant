@@ -13,6 +13,17 @@ $gutter = 1rem
     box-sizing border-box
     padding 0 $gutter $gutter
     overflow-y auto
+    // The text does not move when an answer grows past the panel
+    scrollbar-gutter stable
+
+// As the scrollbar of the sidebar: cozy-ui has no utility for it
+.scribe-messages
+.scribe-history
+    scrollbar-width thin
+    scrollbar-color transparent transparent
+
+    &:hover
+        scrollbar-color var(--borderMainColor) transparent
 
 .scribe-footer
     flex-shrink 0
