@@ -135,18 +135,22 @@ export function ScribeView({ onClose, ...props }) {
           {t('scribe.title')}
         </Typography>
         <HeaderButton label={t('scribe.new')} onClick={handleNew}>
-          <Icon icon={Note} size={16} />
+          <Icon icon={Note} size={16} color="var(--secondaryTextColor)" />
         </HeaderButton>
         <HeaderButton
           label={t('scribe.history.title')}
           isPressed={isHistoryOpen}
           onClick={handleToggleHistory}
         >
-          <Icon icon={History} size={16} />
+          <Icon icon={History} size={16} color="var(--secondaryTextColor)" />
         </HeaderButton>
         {onClose && (
           <HeaderButton label={t('scribe.close')} onClick={onClose}>
-            <Icon icon={CrossSmall} size={16} />
+            <Icon
+              icon={CrossSmall}
+              size={16}
+              color="var(--secondaryTextColor)"
+            />
           </HeaderButton>
         )}
       </header>
