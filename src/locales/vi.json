@@ -21,6 +21,7 @@
       "done": "Quá trình suy nghĩ"
     },
     "error": "Đã xảy ra lỗi khi viết câu trả lời. Vui lòng thử lại.",
+    "retry": "Thử lại",
     "empty": "Tôi không tìm thấy câu trả lời cho yêu cầu của bạn. Vui lòng thử diễn đạt lại.",
     "sources": "%{smart_count} nguồn |||| %{smart_count} nguồn",
     "disclaimer": "Twake AI có thể mắc lỗi. Vui lòng kiểm tra lại các thông tin quan trọng.",

@@ -1,4 +1,9 @@
-import { MessagePrimitive, useMessage } from '@assistant-ui/react'
+import {
+  MessagePrimitive,
+  useMessage,
+  useMessageRuntime,
+  useThreadRuntime
+} from '@assistant-ui/react'
 import React, { useState } from 'react'
 
 import { Icon, Right } from '@linagora/twake-icons'
@@ -118,10 +123,30 @@ export function ScribeAnswer() {
   )
   const capability =
     action && capabilities.find(capability => capability.name === action.name)
+  // The model gave no text, as when its reasoning took all its tokens: it
+  // may answer if asked again
+  const hasNoAnswer = useMessage(
+    message => message.metadata?.custom?.isEmpty === true
+  )
   // A past conversation may hold a call of another app: nothing to show then
   const isEmpty =
-    useMessage(message => message.metadata?.custom?.isEmpty === true) ||
+    hasNoAnswer ||
     (status === 'complete' && text === '' && !!action && !capability)
+  // Only the last answer of the current conversation: asking an earlier one
+  // again would hide what follows it, and a past request has lost its prompt
+  const isLast = useMessage(message => message.isLast)
+  const canRetry = (isError || hasNoAnswer) && isLast && !isPast
+  const threadRuntime = useThreadRuntime()
+  const messageRuntime = useMessageRuntime()
+  const handleRetry = () => {
+    const { parentId } = messageRuntime.getState()
+    const request = threadRuntime
+      .getState()
+      .messages.find(message => message.id === parentId)
+    messageRuntime.reload({
+      runConfig: { custom: request?.metadata?.custom ?? {} }
+    })
+  }
 
   const isWaiting = status === 'running' && text === ''
   // A model may think only blanks: nothing to show then
@@ -147,6 +172,15 @@ export function ScribeAnswer() {
       {isError && <Alert severity="error">{t('scribe.error')}</Alert>}
       {isEmpty && (
         <Typography color="textSecondary">{t('scribe.empty')}</Typography>
+      )}
+      {canRetry && (
+        <Button
+          size="small"
+          variant="secondary"
+          className="u-mt-half"
+          label={t('scribe.retry')}
+          onClick={handleRetry}
+        />
       )}
       {sources && <ScribeSources sources={sources} />}
       {canAct && answerActions.length > 0 && (

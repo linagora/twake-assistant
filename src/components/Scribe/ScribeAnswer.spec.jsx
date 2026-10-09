@@ -8,6 +8,8 @@ import { useScribe } from '@/components/Scribe/ScribeProvider'
 import en from '@/locales/en.json'
 
 let mockMessage = null
+let mockThread = { messages: [] }
+const mockReload = jest.fn()
 
 jest.mock('@assistant-ui/react', () => ({
   MessagePrimitive: {
@@ -15,7 +17,12 @@ jest.mock('@assistant-ui/react', () => ({
       <div className={className}>{children}</div>
     )
   },
-  useMessage: selector => selector(mockMessage)
+  useMessage: selector => selector(mockMessage),
+  useMessageRuntime: () => ({
+    reload: mockReload,
+    getState: () => mockMessage
+  }),
+  useThreadRuntime: () => ({ getState: () => mockThread })
 }))
 jest.mock('@/components/Scribe/ScribeProvider', () => ({
   useScribe: jest.fn()
@@ -35,6 +42,7 @@ jest.mock('@/components/Scribe/ScribeSources', () => ({
 
 const answer = (text, status, custom = {}) => ({
   id: 'a1',
+  isLast: true,
   content: [{ type: 'text', text }],
   status: { type: status },
   metadata: { custom }
@@ -52,6 +60,11 @@ function renderAnswer(message, answerActions = [], capabilities = []) {
 }
 
 describe('ScribeAnswer', () => {
+  beforeEach(() => {
+    mockThread = { messages: [] }
+    mockReload.mockClear()
+  })
+
   const actions = [
     { name: 'insert', label: 'Insert', onClick: jest.fn() },
     { name: 'replace', label: 'Replace', onClick: jest.fn() }
@@ -124,19 +137,60 @@ describe('ScribeAnswer', () => {
     expect(screen.queryByText('tous').tagName).toBe('STRONG')
   })
 
-  it('tells when the answer failed, with what came', () => {
+  it('tells when the answer failed, with what came, and lets the user try again', () => {
     renderAnswer(answer('Bonj', 'incomplete', { isError: true }), actions)
 
     expect(screen.queryByRole('alert')).toHaveTextContent('An error occurred')
     expect(screen.queryByText('Bonj')).toBeInTheDocument()
-    expect(screen.queryByRole('button')).toBe(null)
+    expect(screen.queryByRole('button', { name: 'Insert' })).toBe(null)
+    expect(
+      screen.queryByRole('button', { name: 'Try again' })
+    ).toBeInTheDocument()
   })
 
-  it('tells when the answer is empty', () => {
+  it('asks the answer again with the prompt of the request', () => {
+    mockThread = {
+      messages: [
+        { id: 'q1', role: 'user', metadata: { custom: { prompt: 'fix' } } }
+      ]
+    }
+    renderAnswer(
+      { ...answer('', 'incomplete', { isError: true }), parentId: 'q1' },
+      actions
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
+
+    expect(mockReload).toHaveBeenCalledWith({
+      runConfig: { custom: { prompt: 'fix' } }
+    })
+  })
+
+  it('tells when the answer is empty, and lets the user try again', () => {
     renderAnswer(answer('', 'complete', { isEmpty: true }), actions)
 
     expect(screen.queryByText(/could not find an answer/)).toBeInTheDocument()
-    expect(screen.queryByRole('button')).toBe(null)
+    expect(screen.queryByRole('button', { name: 'Insert' })).toBe(null)
+    expect(
+      screen.queryByRole('button', { name: 'Try again' })
+    ).toBeInTheDocument()
+  })
+
+  it('lets the user try again only the last answer of the conversation', () => {
+    renderAnswer(
+      { ...answer('', 'complete', { isEmpty: true }), isLast: false },
+      actions
+    )
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
+  })
+
+  it('does not ask again an answer of a past conversation', () => {
+    renderAnswer(
+      answer('', 'complete', { isEmpty: true, isPast: true }),
+      actions
+    )
+    expect(screen.queryByText(/could not find an answer/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
   })
 
   it('shows the sources of an answer from the documents', () => {
@@ -189,6 +243,7 @@ describe('ScribeAnswer', () => {
 
       expect(screen.queryByTestId('capability')).toBe(null)
       expect(screen.queryByText(en.scribe.empty)).toBeInTheDocument()
+      expect(screen.queryByRole('button')).toBe(null)
     })
   })
 })
