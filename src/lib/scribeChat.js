@@ -1,6 +1,7 @@
 import Minilog from 'cozy-minilog'
 
 import { ChatEventStream } from '@/lib/chatEvents'
+import { stopAnswerOnAbort } from '@/lib/stopAnswer'
 
 const log = Minilog('🤖 [Scribe]')
 
@@ -149,6 +150,7 @@ export function makeScribeChatAdapter({
             ...(actions?.length > 0 && { actions })
           }
         )
+        stopAnswerOnAbort({ client, conversationId, abortSignal })
 
         for await (const event of events.read(
           getMessageId(response),
