@@ -10,6 +10,11 @@ import {
   withRootFolderIfMissing,
   saveKnowledgeBase
 } from './knowledgeBase'
+import { createRagIndexTriggers } from './ragIndexing'
+
+jest.mock('./ragIndexing', () => ({
+  createRagIndexTriggers: jest.fn().mockResolvedValue([])
+}))
 
 describe('makeKnowledgeBaseEntry', () => {
   it('builds an io.cozy.files entry from a picked folder', () => {
@@ -255,6 +260,34 @@ describe('saveKnowledgeBase', () => {
       ...assistantDoc,
       knowledgeBase: [{ doctype: 'io.cozy.files', dirId: ROOT_DIR_ID }]
     })
+  })
+
+  it('creates the rag-index triggers once the assistant is saved', async () => {
+    const client = {
+      query: jest.fn().mockResolvedValue({ data: { _id: 'assistant-1' } }),
+      save: jest.fn().mockResolvedValue({})
+    }
+
+    await saveKnowledgeBase(client, 'assistant-1', [])
+
+    expect(createRagIndexTriggers).toHaveBeenCalledWith(client)
+    expect(
+      createRagIndexTriggers.mock.invocationCallOrder.at(-1)
+    ).toBeGreaterThan(client.save.mock.invocationCallOrder[0])
+  })
+
+  it('saves the knowledge base even when the triggers cannot be created', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {})
+    createRagIndexTriggers.mockRejectedValueOnce(new Error('forbidden'))
+    const client = {
+      query: jest.fn().mockResolvedValue({ data: { _id: 'assistant-1' } }),
+      save: jest.fn().mockResolvedValue({})
+    }
+
+    await expect(
+      saveKnowledgeBase(client, 'assistant-1', [])
+    ).resolves.toBeUndefined()
+    expect(client.save).toHaveBeenCalled()
   })
 
   it('propagates a save failure', async () => {
