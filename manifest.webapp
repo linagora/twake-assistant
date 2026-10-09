@@ -64,11 +64,6 @@
     "autoprovision": {
       "type": "node",
       "file": "services/autoprovision.js",
-      "trigger": "@in 1s"
-    },
-    "autoprovisionDaily": {
-      "type": "node",
-      "file": "services/autoprovision.js",
       "trigger": "@daily"
     }
   },
