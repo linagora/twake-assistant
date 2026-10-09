@@ -3,6 +3,7 @@ import {
   EMAIL_DOCTYPE,
   FILES_DOCTYPE
 } from '../queries'
+import { createRagIndexTriggers } from './ragIndexing'
 
 /** The root folder of the instance: the assistant covers the whole Drive. */
 export const ROOT_DIR_ID = 'io.cozy.files.root-dir'
@@ -59,7 +60,9 @@ export const getKnowledgeBaseDirId = assistant =>
  * `knowledgeBaseOrUpdater` is the new knowledge base, or a function applied
  * to the one of the freshly fetched assistant, so that concurrent changes
  * are not lost. The saved one always has a folder entry (the root when none
- * was chosen); the stack's rag-index worker picks the change up from there.
+ * was chosen); the stack's rag-index worker picks the change up from there,
+ * through the rag-index triggers created here when the instance lacks them.
+ * A failure to create them is logged: the knowledge base is saved anyway.
  */
 export const saveKnowledgeBase = async (
   client,
@@ -77,5 +80,9 @@ export const saveKnowledgeBase = async (
   await client.save({
     ...assistant,
     knowledgeBase: withRootFolderIfMissing(knowledgeBase)
+  })
+  await createRagIndexTriggers(client).catch(error => {
+    // eslint-disable-next-line no-console
+    console.warn('cannot set up the rag-index triggers', error)
   })
 }
