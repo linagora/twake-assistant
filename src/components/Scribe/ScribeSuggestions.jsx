@@ -88,19 +88,19 @@ export function ScribeSuggestions() {
   // The conversation shows the request, the chat sends the prompt of the
   // catalogue that goes with it. The message is added to the thread with its
   // run config, not through the composer, which would keep it for the next
-  // message typed.
+  // message typed. Its metadata keeps it too, for an answer asked again.
   const handleSend = suggestion => {
+    const custom = {
+      ...(suggestion.prompt && { prompt: suggestion.prompt }),
+      ...(suggestion.instructions && {
+        instructions: suggestion.instructions
+      })
+    }
     threadRuntime.append({
       role: 'user',
       content: [{ type: 'text', text: suggestion.request }],
-      runConfig: {
-        custom: {
-          ...(suggestion.prompt && { prompt: suggestion.prompt }),
-          ...(suggestion.instructions && {
-            instructions: suggestion.instructions
-          })
-        }
-      }
+      metadata: { custom },
+      runConfig: { custom }
     })
   }
 

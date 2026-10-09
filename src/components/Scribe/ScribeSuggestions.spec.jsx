@@ -48,6 +48,7 @@ describe('ScribeSuggestions', () => {
     expect(mockThread.append).toHaveBeenCalledWith({
       role: 'user',
       content: [{ type: 'text', text: 'Correct the text.' }],
+      metadata: { custom: { prompt: 'correct-grammar' } },
       runConfig: { custom: { prompt: 'correct-grammar' } }
     })
   })
@@ -81,6 +82,7 @@ describe('ScribeSuggestions', () => {
     expect(mockThread.append).toHaveBeenCalledWith({
       role: 'user',
       content: [{ type: 'text', text: 'Translate into French.' }],
+      metadata: { custom: { prompt: 'translate-french' } },
       runConfig: { custom: { prompt: 'translate-french' } }
     })
   })

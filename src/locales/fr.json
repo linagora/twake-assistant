@@ -21,6 +21,7 @@
       "done": "Processus de réflexion"
     },
     "error": "Une erreur est survenue pendant la rédaction de la réponse. Veuillez réessayer.",
+    "retry": "Réessayer",
     "empty": "Je n'ai pas trouvé de réponse à votre demande. Essayez de la reformuler.",
     "sources": "%{smart_count} source |||| %{smart_count} sources",
     "disclaimer": "Twake AI peut faire des erreurs. Vérifiez les informations importantes.",
