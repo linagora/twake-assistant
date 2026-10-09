@@ -4,8 +4,8 @@ import log from 'cozy-logger'
 
 import { autoprovisionAssistants } from '@/components/KnowledgeBase/autoprovision'
 
-// Runs once after the install, so the folders are indexed before the
-// assistant is first opened
+// Runs after the install, so the folders are indexed before the assistant
+// is first opened, then daily: a change of the flag emits no event
 const run = async () => {
   const client = CozyClient.fromEnv(process.env)
   await flag.initialize(client)

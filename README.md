@@ -27,9 +27,9 @@ can do beside taking an answer, when a request needs one. See
 - For the answers of the scribe, `cozy-interapp` 0.20.0 or later in the app
   that opens it.
 - Optional: `cozy.assistant.autoprovision` lists the assistants to create. A
-  service of the app sets them up once after the install, with the
-  `rag-index` triggers that index their folders; the app checks them again
-  when it opens.
+  service of the app sets them up after the install, then once a day to
+  follow the changes of the flag, with the `rag-index` triggers that index
+  their folders; the app checks them again when it opens.
 
 ## Develop
 
