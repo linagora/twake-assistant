@@ -26,9 +26,10 @@ can do beside taking an answer, when a request needs one. See
   capabilities.
 - For the answers of the scribe, `cozy-interapp` 0.20.0 or later in the app
   that opens it.
-- Optional: `cozy.assistant.autoprovision` lists the assistants to create. The
-  app sets them up at startup, with the `rag-index` triggers that index their
-  folders.
+- Optional: `cozy.assistant.autoprovision` lists the assistants to create. A
+  service of the app sets them up once after the install, with the
+  `rag-index` triggers that index their folders; the app checks them again
+  when it opens.
 
 ## Develop
 

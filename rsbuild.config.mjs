@@ -7,7 +7,8 @@ import { Ai } from '@linagora/twake-icons'
 
 const config = getRsbuildConfig({
   title: 'Twake Assistant',
-  hasIntents: true
+  hasIntents: true,
+  hasServices: true
 })
 
 // The icon of the manifest is rendered from twake-icons, like the one of the bar
