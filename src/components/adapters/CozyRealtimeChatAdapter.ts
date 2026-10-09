@@ -7,6 +7,7 @@ import type {
 import Minilog from 'cozy-minilog'
 
 import { StreamBridge } from './StreamBridge'
+import { stopAnswerOnAbort } from '../../lib/stopAnswer'
 import { DEFAULT_ASSISTANT } from '../constants'
 import { sanitizeChatContent, formatAnswer } from '../helpers'
 
@@ -91,6 +92,7 @@ export const createCozyRealtimeChatAdapter = (
           ...(websearchEnabled && { websearch: true })
         }
       )
+      stopAnswerOnAbort({ client, conversationId, abortSignal })
 
       let fullText = ''
       let wasAborted = false

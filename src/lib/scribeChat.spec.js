@@ -20,7 +20,8 @@ const assistantMessage = text => ({
 // come: here as soon as the message is posted
 function setup({ events: answerEvents = [], options = {}, messageId = 'q1' }) {
   const events = new ChatEventStream()
-  const fetchJSON = jest.fn(async () => {
+  const fetchJSON = jest.fn(async (method, path) => {
+    if (path.endsWith('/cancel')) return null
     answerEvents.forEach(event => events.push({ _id: messageId, ...event }))
     return {
       data: { attributes: { messages: [{ id: messageId, role: 'user' }] } }
@@ -330,7 +331,7 @@ describe('makeScribeChatAdapter', () => {
 
   it('leaves the answer as it is when the user stops it', async () => {
     const controller = new AbortController()
-    const { adapter, events } = setup({
+    const { adapter, events, fetchJSON } = setup({
       events: [{ object: 'delta', content: 'Bonjour' }]
     })
 
@@ -342,6 +343,10 @@ describe('makeScribeChatAdapter', () => {
 
     expect(results.map(getText)).toEqual(['Bonjour'])
     expect(results.at(-1).status).toBe(undefined)
+    expect(fetchJSON).toHaveBeenLastCalledWith(
+      'POST',
+      '/ai/chat/conversations/c1/cancel'
+    )
   })
 
   it('does nothing without a message of the user', async () => {
@@ -381,7 +386,10 @@ describe('makeScribeChat', () => {
     })
     await sendAndStop()
 
-    expect(fetchJSON.mock.calls.map(call => call[2])).toEqual([
+    const messageCalls = fetchJSON.mock.calls.filter(
+      ([, path]) => !path.endsWith('/cancel')
+    )
+    expect(messageCalls.map(call => call[2])).toEqual([
       { q: 'Hello', documents: false },
       { q: 'Hello!', instructions: 'Shout' }
     ])
