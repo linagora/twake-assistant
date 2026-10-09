@@ -62,6 +62,25 @@ const runAdapterAndCollectResults = async (
   return results
 }
 
+const drainAdapter = async (
+  fetchJSON: jest.Mock,
+  abortSignal: AbortSignal
+): Promise<void> => {
+  const adapter = createCozyRealtimeChatAdapter(
+    { client: { stackClient: { fetchJSON } }, conversationId: 'conv-1' },
+    key => key,
+    { current: makeStreamBridge() }
+  )
+  const generator = adapter.run({
+    ...makeRunOptions(),
+    abortSignal
+  }) as AsyncGenerator<unknown>
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  for await (const _ of generator) {
+    // drain the generator
+  }
+}
+
 describe('CozyRealtimeChatAdapter', () => {
   it('sends the assistantID for a real assistant', async () => {
     const fetchJSON = await runAdapter('real-assistant-id')
@@ -114,5 +133,32 @@ describe('CozyRealtimeChatAdapter', () => {
     const results = await runAdapterAndCollectResults(streamBridge)
     const finalResult = results[results.length - 1]
     expect(finalResult.content).toEqual([{ type: 'text', text: 'Hello world' }])
+  })
+
+  it('tells the stack to stop the answer when the user stops it', async () => {
+    const controller = new AbortController()
+    // The user stops the answer while the message is posted
+    const fetchJSON = jest.fn(() => {
+      controller.abort()
+      return Promise.resolve()
+    })
+    await drainAdapter(fetchJSON, controller.signal)
+
+    expect(fetchJSON.mock.calls).toEqual([
+      ['POST', '/ai/chat/conversations/conv-1', { q: 'hello' }],
+      ['POST', '/ai/chat/conversations/conv-1/cancel']
+    ])
+  })
+
+  it('lets the answer go on when the user leaves the conversation', async () => {
+    const controller = new AbortController()
+    const fetchJSON = jest.fn(() => {
+      // assistant-ui detaches the run on unmount
+      controller.abort(Object.assign(new Error('AbortError'), { detach: true }))
+      return Promise.resolve()
+    })
+    await drainAdapter(fetchJSON, controller.signal)
+
+    expect(fetchJSON).toHaveBeenCalledTimes(1)
   })
 })
