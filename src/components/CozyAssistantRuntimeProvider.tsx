@@ -124,9 +124,11 @@ const ConversationLoader = ({
     requestedId
   })
 
+  // Again on every conversation: the user may have left the knowledge base
+  // of the assistant in the previous one, which selected the sentinel
   useEffect(() => {
     if (resolvedAssistantId) setSelectedAssistantId(resolvedAssistantId)
-  }, [resolvedAssistantId, setSelectedAssistantId])
+  }, [conversationId, resolvedAssistantId, setSelectedAssistantId])
 
   if (resolvedAssistantId === undefined) {
     return (

@@ -1,0 +1,116 @@
+import { useComposerRuntime } from '@assistant-ui/react'
+import cx from 'classnames'
+import React from 'react'
+
+import {
+  CheckList,
+  FileTypeFolder,
+  Globe,
+  Icon,
+  Text,
+  TextInfo
+} from '@linagora/twake-icons'
+import Button from 'cozy-ui/transpiled/react/Buttons'
+import Typography from 'cozy-ui/transpiled/react/Typography'
+import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
+import { useCozyTheme } from 'cozy-ui/transpiled/react/providers/CozyTheme'
+import { useI18n } from 'twake-i18n'
+
+import styles from './styles.styl'
+import { useSelectedAssistant } from '../Assistant/AssistantMenu'
+import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedAssistantKnowledgeBase'
+
+// The short actions on the folder: each one starts a prompt the user
+// completes. The icons are those of the same prompts in the scribe.
+const ACTIONS = [
+  { name: 'summarize', icon: Text },
+  { name: 'find_decision', icon: TextInfo },
+  { name: 'translate', icon: Globe },
+  { name: 'key_points', icon: CheckList }
+]
+
+/**
+ * The welcome of an empty conversation: the assistant and its folder, with
+ * short actions on it, or the plain assistant without a folder.
+ * `inputRef` is the prompt input, focused once an action fills it.
+ */
+export const ConversationWelcome = ({ inputRef }) => {
+  const { t } = useI18n()
+  const { isLight } = useCozyTheme()
+  const { isMobile } = useBreakpoints()
+  const composerRuntime = useComposerRuntime()
+  const { selectedAssistant } = useSelectedAssistant()
+  const { hasFolder, folderName } = useSelectedAssistantKnowledgeBase()
+
+  const handleAction = action => {
+    composerRuntime.setText(
+      t(`assistant.welcome.actions.${action.name}.prompt`)
+    )
+    inputRef?.current?.focus()
+  }
+
+  return (
+    <div
+      className={cx(
+        'u-pos-relative u-w-100 u-maw-7 u-mh-auto u-mb-3 u-flex u-flex-auto u-flex-column u-flex-items-center u-flex-justify-center',
+        styles['welcome']
+      )}
+    >
+      <div
+        aria-hidden="true"
+        className={cx(styles['welcome-halo'], {
+          [styles['welcome-halo--dark']]: !isLight
+        })}
+      />
+      <Typography
+        variant={isMobile ? 'h3' : 'h2'}
+        className={cx('u-pos-relative u-fw-normal u-ta-center', {
+          [styles['welcome-title']]: !isMobile
+        })}
+      >
+        {hasFolder
+          ? t('assistant.welcome.title', { name: selectedAssistant.name })
+          : t('assistant.welcome.default_title')}
+      </Typography>
+      <Typography
+        variant="body1"
+        component="p"
+        className={cx(
+          'u-pos-relative u-mt-1 u-ta-center u-flex u-flex-wrap u-flex-items-center u-flex-justify-center',
+          isMobile ? 'u-fz-small' : 'u-fz-large'
+        )}
+      >
+        {hasFolder ? (
+          <>
+            {t('assistant.welcome.subtitle')}
+            <Icon
+              icon={FileTypeFolder}
+              size={16}
+              preserveColor
+              aria-hidden="true"
+              className="u-mh-half"
+            />
+            {folderName}
+          </>
+        ) : (
+          t('assistant.welcome.default_subtitle')
+        )}
+      </Typography>
+      {hasFolder && (
+        <div className="u-pos-relative u-mt-2 u-flex u-flex-wrap u-flex-justify-center u-g-half">
+          {ACTIONS.map(action => (
+            <Button
+              key={action.name}
+              variant="ghost"
+              size="small"
+              className="u-fz-small"
+              startIcon={<Icon icon={action.icon} size={16} />}
+              label={t(`assistant.welcome.actions.${action.name}.label`)}
+              onClick={() => handleAction(action)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}

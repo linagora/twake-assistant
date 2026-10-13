@@ -75,7 +75,9 @@
       "placeholder": "Décrivez une tâche",
       "send": "Envoyer",
       "noItem": "Aucun résultat",
-      "notEnough": "Votre recherche doit contenir au moins 3 caractères"
+      "notEnough": "Votre recherche doit contenir au moins 3 caractères",
+      "placeholder_folder": "Que souhaitez-vous savoir de %{folder} ?",
+      "stop": "Arrêter"
     },
     "websearch": {
       "label": "Recherche web"
@@ -96,7 +98,8 @@
       "copied": "Copié dans le presse-papiers",
       "reload": "Régénérer la réponse",
       "edit": "Modifier",
-      "edited": "Message enregistré"
+      "edited": "Message enregistré",
+      "retry": "Réessayer"
     },
     "sidebar": {
       "create_new": "Nouveau chat",
@@ -151,6 +154,37 @@
       "remove_emails": "Retirer les emails",
       "select_folder": "Sélectionner ce dossier",
       "unavailable": "Dossier indisponible"
+    },
+    "welcome": {
+      "title": "Votre %{name}",
+      "default_title": "Votre assistant Twake",
+      "subtitle": "Les réponses s'appuient sur les transcriptions de",
+      "default_subtitle": "Sur quoi souhaitez-vous travailler aujourd'hui ?",
+      "actions": {
+        "summarize": {
+          "label": "Résumer",
+          "prompt": "Résume "
+        },
+        "find_decision": {
+          "label": "Trouver une décision",
+          "prompt": "Trouve la décision concernant "
+        },
+        "translate": {
+          "label": "Traduire",
+          "prompt": "Traduis en "
+        },
+        "key_points": {
+          "label": "Points clés de la semaine dernière",
+          "prompt": "Quels sont les points clés de la semaine dernière concernant "
+        }
+      }
+    },
+    "sources_panel": {
+      "title": "Sources",
+      "connected": "%{smart_count} dossier connecté |||| %{smart_count} dossiers connectés",
+      "only_folder": "Uniquement le contenu de ce dossier",
+      "close": "Masquer les sources",
+      "show": "Afficher les sources"
     }
   },
   "assistant_create": {

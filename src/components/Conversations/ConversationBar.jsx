@@ -4,30 +4,33 @@ import {
   useComposerRuntime
 } from '@assistant-ui/react'
 import cx from 'classnames'
-import React, { useRef } from 'react'
+import React, { forwardRef } from 'react'
 
 import SearchBar from 'cozy-ui/transpiled/react/SearchBar'
-import useEventListener from 'cozy-ui/transpiled/react/hooks/useEventListener'
 import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
 import { useI18n } from 'twake-i18n'
 
 import styles from './styles.styl'
 
-const ConversationBar = ({ onHeightChange, ...props }) => {
+// Material UI hands a custom input its ref as `inputRef`: the textarea of
+// assistant-ui takes a plain ref
+const ComposerInput = forwardRef(({ inputRef, ...props }, ref) => (
+  <ComposerPrimitive.Input ref={inputRef ?? ref} {...props} />
+))
+ComposerInput.displayName = 'ComposerInput'
+
+/** `inputRef` gets the textarea: the welcome focuses it after a short action */
+const ConversationBar = ({
+  placeholder,
+  inputRef,
+  onHeightChange,
+  ...props
+}) => {
   const { t } = useI18n()
   const { isMobile } = useBreakpoints()
   const composerRuntime = useComposerRuntime()
   const value = useComposer(state => state.text)
   const isEmpty = useComposer(state => state.isEmpty)
-  const inputRef = useRef()
-
-  // eslint-disable-next-line react-hooks/refs
-  useEventListener(inputRef.current, 'input', () => {
-    if (inputRef.current) {
-      inputRef.current.style.height = 'auto'
-      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`
-    }
-  })
 
   const handleKeyDown = ev => {
     if (isEmpty || isMobile) return
@@ -47,7 +50,7 @@ const ConversationBar = ({ onHeightChange, ...props }) => {
       })}
       icon={null}
       size="auto"
-      placeholder={t('assistant.search.placeholder')}
+      placeholder={placeholder ?? t('assistant.search.placeholder')}
       value={value}
       disabledClear
       disabledHover
@@ -62,7 +65,7 @@ const ConversationBar = ({ onHeightChange, ...props }) => {
             onHeightChange
           },
           autoFocus: !isMobile,
-          inputComponent: ComposerPrimitive.Input,
+          inputComponent: ComposerInput,
           onKeyDown: handleKeyDown
         }
       }}

@@ -26,3 +26,17 @@
 
 .folder-tooltip-arrow.folder-tooltip-arrow
     color var(--greyA400)
+
+// The chip of the design is filled with the default background, without a
+// border: cozy-ui only has outlined chips. Doubled to outweigh the border
+// of the chip of cozy-ui
+.folder-chip.folder-chip
+    border 0
+    background-color var(--defaultBackgroundColor)
+
+// The cross of the design: 16px, 4px after the label, where cozy-ui draws a
+// 22px icon with its own margins
+.folder-chip-remove.folder-chip-remove
+    width 16px
+    height 16px
+    margin 0 0 0 4px

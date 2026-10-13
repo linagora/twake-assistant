@@ -1,111 +1,168 @@
 import { ThreadPrimitive, useThread } from '@assistant-ui/react'
 import cx from 'classnames'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 
+import { Filter, Icon } from '@linagora/twake-icons'
+import IconButton from 'cozy-ui/transpiled/react/IconButton'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
-import { useCozyTheme } from 'cozy-ui/transpiled/react/providers/CozyTheme'
 import { useI18n } from 'twake-i18n'
 
 import ConversationComposer from './ConversationComposer'
-import { ConversationComposerCompact } from './ConversationComposerCompact'
+import { ConversationWelcome } from './ConversationWelcome'
 import styles from './styles.styl'
 import { useAssistant } from '../AssistantProvider'
+import KnowledgeBaseChip from '../KnowledgeBase/KnowledgeBaseChip'
+import { SourcesPanel } from '../KnowledgeBase/SourcesPanel'
+import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedAssistantKnowledgeBase'
 import AssistantMessage from '../Messages/AssistantMessage'
 import UserMessage from '../Messages/UserMessage'
 
 const Conversation = ({ className }) => {
   const { t } = useI18n()
-  const { isLight } = useCozyTheme()
   const { isMobile } = useBreakpoints()
-  const { hasCompactPrompt } = useAssistant()
+  const { isOpenSources, setIsOpenSources } = useAssistant()
+  const {
+    dirId,
+    folderName,
+    hasFolder,
+    isUnavailable,
+    setKnowledgeBaseFolder
+  } = useSelectedAssistantKnowledgeBase()
 
   const isThreadEmpty = useThread(state => state.messages.length === 0)
   // On mobile the conversation scrolls under the sidebar bar: once it has,
   // a fade below the bar dissolves the text instead of cutting it (at the
   // top of the scroll, the first message sits clear of the bar).
   const [isScrolled, setIsScrolled] = useState(false)
+  // The prompt input, focused by the short actions of the welcome
+  const inputRef = useRef(null)
+
+  // A started conversation keeps its folder at its top, and details it in
+  // the sources panel: beside the conversation on desktop, over it on
+  // mobile, where its button stays to open and close it
+  const hasSources = !isThreadEmpty && hasFolder
+  const placeholder = hasFolder
+    ? t('assistant.search.placeholder_folder', { folder: folderName })
+    : t('assistant.search.placeholder')
 
   return (
-    <ThreadPrimitive.Root
-      // The gutters: the messages and the composer are centered up to a max
-      // width, and keep a margin from the edges when the screen is narrower
-      className={cx(
-        'u-flex u-flex-column u-flex-items-center u-flex-justify-between u-h-100 u-bxz u-pos-relative',
-        isMobile ? 'u-ph-1' : 'u-ph-2',
-        className
-      )}
-    >
-      <ThreadPrimitive.Empty>
-        <div
-          className={cx(
-            'u-pos-relative u-w-100 u-maw-7 u-mh-auto u-mb-3 u-flex u-flex-auto u-flex-items-center u-flex-justify-center',
-            styles['welcome']
-          )}
-        >
+    <div className="u-flex u-h-100">
+      <ThreadPrimitive.Root
+        // The gutters: the messages and the composer are centered up to a max
+        // width, and keep a margin from the edges when the screen is narrower
+        className={cx(
+          'u-flex-auto u-miw-0 u-flex u-flex-column u-flex-items-center u-flex-justify-between u-h-100 u-bxz u-pos-relative',
+          isMobile ? 'u-ph-1' : 'u-ph-2',
+          className
+        )}
+      >
+        <ThreadPrimitive.Empty>
+          <ConversationWelcome inputRef={inputRef} />
+        </ThreadPrimitive.Empty>
+        {isMobile && !isThreadEmpty && (
           <div
             aria-hidden="true"
-            className={cx(styles['welcome-halo'], {
-              [styles['welcome-halo--dark']]: !isLight
+            className={cx(styles['viewport-fade-top'], {
+              [styles['viewport-fade-top--visible']]: isScrolled
             })}
           />
-          <Typography
-            variant="h2"
-            className={cx(
-              'u-pos-relative u-fw-normal u-ta-center',
-              styles['welcome-title']
+        )}
+        <ThreadPrimitive.Viewport
+          autoScroll
+          onScroll={event => setIsScrolled(event.currentTarget.scrollTop > 0)}
+          className={cx(
+            'u-w-100 u-bxz u-ov-auto',
+            styles.conversationViewport,
+            {
+              'u-flex-auto': !isThreadEmpty,
+              [styles['conversationViewport--filled']]: !isThreadEmpty,
+              'u-mb-1': isThreadEmpty
+            }
+          )}
+        >
+          <div className="u-maw-7 u-mh-auto">
+            {hasSources && (
+              <div
+                className={cx(
+                  'u-flex u-flex-justify-end',
+                  isMobile ? 'u-mt-1' : 'u-mt-2'
+                )}
+              >
+                <KnowledgeBaseChip
+                  dirId={dirId}
+                  folderName={folderName}
+                  isUnavailable={isUnavailable}
+                  onChangeFolder={setKnowledgeBaseFolder}
+                />
+              </div>
             )}
+            <ThreadPrimitive.Messages
+              components={{
+                UserMessage: UserMessage,
+                AssistantMessage: AssistantMessage
+              }}
+            />
+          </div>
+        </ThreadPrimitive.Viewport>
+        <div
+          className={cx('u-w-100', {
+            [styles['composer-dock']]: !isThreadEmpty
+          })}
+        >
+          <ConversationComposer placeholder={placeholder} inputRef={inputRef} />
+          <Typography
+            variant="caption"
+            color="textSecondary"
+            component="p"
+            className="u-w-100 u-maw-5-t u-maw-7 u-mh-auto u-mt-1-half  u-mb-0 u-ta-center"
           >
-            {t('assistant.message.welcome')}
+            {t('assistant.disclaimer')}
           </Typography>
         </div>
-      </ThreadPrimitive.Empty>
-      {isMobile && !isThreadEmpty && (
-        <div
-          aria-hidden="true"
-          className={cx(styles['viewport-fade-top'], {
-            [styles['viewport-fade-top--visible']]: isScrolled
-          })}
-        />
-      )}
-      <ThreadPrimitive.Viewport
-        autoScroll
-        onScroll={event => setIsScrolled(event.currentTarget.scrollTop > 0)}
-        className={cx('u-w-100 u-bxz u-ov-auto', styles.conversationViewport, {
-          'u-flex-auto': !isThreadEmpty,
-          [styles['conversationViewport--filled']]: !isThreadEmpty,
-          'u-mb-1': isThreadEmpty
-        })}
-      >
-        <div className="u-maw-7 u-mh-auto">
-          <ThreadPrimitive.Messages
-            components={{
-              UserMessage: UserMessage,
-              AssistantMessage: AssistantMessage
-            }}
+        {hasSources && (isMobile || !isOpenSources) && (
+          <IconButton
+            size="small"
+            className={cx(
+              'u-mr-1',
+              isMobile ? 'u-mt-half' : 'u-mt-2',
+              styles['sources-toggle']
+            )}
+            aria-label={t(
+              isOpenSources
+                ? 'assistant.sources_panel.close'
+                : 'assistant.sources_panel.show'
+            )}
+            aria-pressed={isOpenSources}
+            onClick={() => setIsOpenSources(open => !open)}
+          >
+            <Icon icon={Filter} size={20} aria-hidden="true" />
+          </IconButton>
+        )}
+        {hasSources && isOpenSources && isMobile && (
+          <SourcesPanel
+            className={cx(
+              'u-mt-2-half u-mh-1',
+              styles['sources-panel'],
+              styles['sources-panel--mobile']
+            )}
+            dirId={dirId}
+            folderName={folderName}
+            onClose={() => setIsOpenSources(false)}
+          />
+        )}
+      </ThreadPrimitive.Root>
+      {hasSources && isOpenSources && !isMobile && (
+        <div className="u-flex-shrink-0 u-pt-1 u-pr-half">
+          <SourcesPanel
+            className={styles['sources-panel']}
+            dirId={dirId}
+            folderName={folderName}
+            onClose={() => setIsOpenSources(false)}
           />
         </div>
-      </ThreadPrimitive.Viewport>
-      <div
-        className={cx('u-w-100', {
-          [styles['composer-dock']]: !isThreadEmpty
-        })}
-      >
-        {hasCompactPrompt ? (
-          <ConversationComposerCompact />
-        ) : (
-          <ConversationComposer />
-        )}
-        <Typography
-          variant="caption"
-          color="textSecondary"
-          component="p"
-          className="u-w-100 u-maw-5-t u-maw-7 u-mh-auto u-mt-1-half  u-mb-0 u-ta-center"
-        >
-          {t('assistant.disclaimer')}
-        </Typography>
-      </div>
-    </ThreadPrimitive.Root>
+      )}
+    </div>
   )
 }
 
