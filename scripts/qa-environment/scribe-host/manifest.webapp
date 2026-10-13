@@ -1,0 +1,22 @@
+{
+  "name": "Scribe host",
+  "slug": "scribe-host",
+  "icon": "icon.svg",
+  "type": "webapp",
+  "version": "1.0.0",
+  "licence": "AGPL-3.0",
+  "editor": "QA",
+  "locales": {
+    "en": {
+      "short_description": "Opens the scribe of the assistant, for the QA environment"
+    }
+  },
+  "routes": {
+    "/": {
+      "folder": "/",
+      "index": "index.html",
+      "public": false
+    }
+  },
+  "permissions": {}
+}

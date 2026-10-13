@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Scribe host</title>
+    <link rel="icon" href="icon.svg" />
+    <link rel="stylesheet" href="host.css" />
+    <script src="host.js" defer></script>
+  </head>
+  <body>
+    <div id="app" data-cozy="{{.CozyData}}">
+      <main>
+        <h1>Scribe host</h1>
+        <p>
+          A stand-in for an app that opens the assistant with the <code>OPEN</code> intent on
+          <code>io.cozy.ai.chat.conversations</code> (see docs/assistant-intent.md of
+          twake-assistant). Pick a preset or write the configuration, then open the assistant.
+        </p>
+        <label for="preset">Preset</label>
+        <select id="preset"></select>
+        <label for="config">Configuration (JSON, the data of the intent)</label>
+        <textarea id="config" rows="16" spellcheck="false"></textarea>
+        <p id="config-error" role="alert"></p>
+        <div class="buttons">
+          <button id="open" type="button">Open the assistant</button>
+          <button id="send" type="button" disabled>Send the configuration again</button>
+          <button id="close" type="button" disabled>Close the assistant</button>
+        </div>
+        <h2>Messages from the assistant</h2>
+        <ol id="messages" aria-live="polite"></ol>
+        <button id="clear" type="button">Clear the messages</button>
+      </main>
+      <aside id="panel" aria-label="Assistant"></aside>
+    </div>
+  </body>
+</html>
