@@ -75,7 +75,9 @@
       "placeholder": "Describe a task",
       "send": "Send",
       "noItem": "No results",
-      "notEnough": "Your query must contain at least 3 characters"
+      "notEnough": "Your query must contain at least 3 characters",
+      "placeholder_folder": "What would you like to know from %{folder}?",
+      "stop": "Stop"
     },
     "websearch": {
       "label": "Web search"
@@ -96,7 +98,8 @@
       "copied": "Copied to clipboard",
       "reload": "Regenerate response",
       "edit": "Edit",
-      "edited": "Message saved"
+      "edited": "Message saved",
+      "retry": "Retry"
     },
     "sidebar": {
       "create_new": "New chat",
@@ -151,6 +154,37 @@
       "remove_emails": "Remove emails",
       "select_folder": "Select this folder",
       "unavailable": "Folder unavailable"
+    },
+    "welcome": {
+      "title": "Your %{name}",
+      "default_title": "Your Twake assistant",
+      "subtitle": "Answers are based on transcripts from",
+      "default_subtitle": "What would you like to work on today?",
+      "actions": {
+        "summarize": {
+          "label": "Summarize",
+          "prompt": "Summarize "
+        },
+        "find_decision": {
+          "label": "Find a decision",
+          "prompt": "Find the decision about "
+        },
+        "translate": {
+          "label": "Translate",
+          "prompt": "Translate into "
+        },
+        "key_points": {
+          "label": "Key points from last week",
+          "prompt": "What were the key points from last week about "
+        }
+      }
+    },
+    "sources_panel": {
+      "title": "Sources",
+      "connected": "%{smart_count} folder connected |||| %{smart_count} folders connected",
+      "only_folder": "Only content from this folder",
+      "close": "Hide the sources",
+      "show": "Show the sources"
     }
   },
   "assistant_create": {

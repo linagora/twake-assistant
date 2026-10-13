@@ -15,7 +15,8 @@ export interface AssistantContextValue {
   setIsOpenSearchConversation: (isOpen: boolean) => void
   websearchEnabled: boolean
   setWebsearchEnabled: React.Dispatch<React.SetStateAction<boolean>>
-  hasCompactPrompt: boolean
+  isOpenSources: boolean
+  setIsOpenSources: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export function useAssistant(): AssistantContextValue

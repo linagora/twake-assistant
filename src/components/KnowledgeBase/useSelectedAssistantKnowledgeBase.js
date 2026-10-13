@@ -25,7 +25,7 @@ export const useSelectedAssistantKnowledgeBase = () => {
   const client = useClient()
   const { t } = useI18n()
   const { showAlert } = useAlert()
-  const { selectedAssistantId } = useAssistant()
+  const { selectedAssistantId, setSelectedAssistantId } = useAssistant()
   const realAssistantId =
     selectedAssistantId !== DEFAULT_ASSISTANT._id ? selectedAssistantId : null
 
@@ -65,14 +65,30 @@ export const useSelectedAssistantKnowledgeBase = () => {
     [client, realAssistantId, showAlert, t]
   )
 
+  // The conversation goes on without the knowledge base: on the sentinel
+  // assistant, until the next conversation selects its assistant again
+  const removeKnowledgeBase = useCallback(
+    () => setSelectedAssistantId(DEFAULT_ASSISTANT._id),
+    [setSelectedAssistantId]
+  )
+
   const isRoot = isRootDirId(dirId)
+  const folderName = isUnavailable
+    ? t('assistant.knowledge_base.unavailable')
+    : isRoot
+      ? t('assistant.twake_knowledges.drive')
+      : (folder?.name ?? '…')
 
   return {
     dirId,
     folder: folder ?? null,
+    folderName,
+    // A folder the assistant answers from: the whole Drive counts as one
+    hasFolder: !!dirId && !isUnavailable,
     isRoot,
     isUnavailable,
     setKnowledgeBaseFolder,
+    removeKnowledgeBase,
     isRealAssistant: !!realAssistantId,
     hasEmail
   }

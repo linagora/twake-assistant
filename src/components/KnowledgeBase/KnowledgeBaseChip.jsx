@@ -1,6 +1,13 @@
+import cx from 'classnames'
 import React, { useRef, useState } from 'react'
 
-import { Drive, Icon, LinkOut, Pen } from '@linagora/twake-icons'
+import {
+  Cross,
+  FileTypeFolder,
+  Icon,
+  LinkOut,
+  Pen
+} from '@linagora/twake-icons'
 import { useClient, generateWebLink } from 'cozy-client'
 import flag from 'cozy-flags'
 import ActionsMenu from 'cozy-ui/transpiled/react/ActionsMenu'
@@ -12,22 +19,23 @@ import { useI18n } from 'twake-i18n'
 
 import FolderPickerDialog from './FolderPickerDialog'
 import styles from './styles.styl'
-import SourceButton, { CHIP_CLASSES } from '../TwakeKnowledges/SourceButton'
+import { CHIP_CLASSES } from '../TwakeKnowledges/SourceButton'
 import sourceStyles from '../TwakeKnowledges/styles.styl'
 
 /**
- * Clicking opens a menu rather than Drive: open the folder in a new tab, or
- * change it with the folder picker, saved on the assistant at once. Changing
- * it follows the flag of editing assistants. The icon variant, without a
- * label, names the folder at the top of the menu.
+ * The folder the assistant answers from. Clicking opens a menu rather than
+ * Drive: open the folder in a new tab, or change it with the folder picker,
+ * saved on the assistant at once. Changing it follows the flag of editing
+ * assistants. With `onRemove`, a cross leaves the folder out of the
+ * conversation.
  */
 const KnowledgeBaseChip = ({
+  className,
   dirId,
-  folder,
-  isRoot,
+  folderName,
   isUnavailable,
   onChangeFolder,
-  variant = 'chip'
+  onRemove
 }) => {
   const { t } = useI18n()
   const client = useClient()
@@ -51,49 +59,43 @@ const KnowledgeBaseChip = ({
     hash: `/folder/${dirId}`
   })
 
-  const label = isUnavailable
-    ? t('assistant.knowledge_base.unavailable')
-    : isRoot
-      ? t('assistant.twake_knowledges.drive')
-      : (folder?.name ?? '…')
-
   return (
     <>
-      {variant === 'icon' ? (
-        <SourceButton
-          ref={chipRef}
-          icon={Drive}
-          preserveColor
-          label={label}
-          isActive={!isUnavailable}
-          aria-haspopup="menu"
-          aria-expanded={isMenuOpen}
-          onClick={() => setIsMenuOpen(true)}
-        />
-      ) : (
-        // No hint on a folder that is gone
-        <Tooltip
-          title={isUnavailable ? '' : t('assistant.knowledge_base.folder_hint')}
-          placement="top"
-          classes={{
-            tooltip: styles['folder-tooltip'],
-            arrow: styles['folder-tooltip-arrow']
-          }}
-        >
-          <div ref={chipRef}>
-            <Chip
-              icon={<Icon icon={Drive} size={16} preserveColor />}
-              label={label}
-              clickable={hasActions}
-              aria-haspopup={hasActions ? 'menu' : undefined}
-              aria-expanded={hasActions ? isMenuOpen : undefined}
-              onClick={hasActions ? () => setIsMenuOpen(true) : undefined}
-              className={sourceStyles['source-chip']}
-              classes={CHIP_CLASSES}
-            />
-          </div>
-        </Tooltip>
-      )}
+      {/* No hint on a folder that is gone */}
+      <Tooltip
+        title={isUnavailable ? '' : t('assistant.knowledge_base.folder_hint')}
+        placement="top"
+        classes={{
+          tooltip: styles['folder-tooltip'],
+          arrow: styles['folder-tooltip-arrow']
+        }}
+      >
+        <div ref={chipRef} className={className}>
+          <Chip
+            icon={<Icon icon={FileTypeFolder} size={16} preserveColor />}
+            label={folderName}
+            clickable={hasActions}
+            aria-haspopup={hasActions ? 'menu' : undefined}
+            aria-expanded={hasActions ? isMenuOpen : undefined}
+            onClick={hasActions ? () => setIsMenuOpen(true) : undefined}
+            {...(onRemove && {
+              onDelete: onRemove,
+              deleteIcon: (
+                <Icon
+                  icon={Cross}
+                  size={16}
+                  aria-label={t('assistant.knowledge_base.remove')}
+                />
+              )
+            })}
+            className={cx(sourceStyles['source-chip'], styles['folder-chip'])}
+            classes={{
+              ...CHIP_CLASSES,
+              deleteIcon: styles['folder-chip-remove']
+            }}
+          />
+        </div>
+      </Tooltip>
       {isMenuOpen && (
         <ActionsMenu
           open
@@ -102,15 +104,6 @@ const KnowledgeBaseChip = ({
           actions={[]}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         >
-          {variant === 'icon' && (
-            <Typography
-              variant="body2"
-              className="u-ph-1 u-pb-half u-ellipsis"
-              component="div"
-            >
-              {label}
-            </Typography>
-          )}
           {!isUnavailable && (
             <ActionsMenuItem
               component="a"

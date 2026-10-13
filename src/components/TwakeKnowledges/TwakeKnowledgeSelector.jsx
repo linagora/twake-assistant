@@ -1,45 +1,36 @@
 import cx from 'classnames'
 import React from 'react'
 
-import { Drive, Globe, Icon, Mail } from '@linagora/twake-icons'
-import flag from 'cozy-flags'
-import Chip from 'cozy-ui/transpiled/react/Chips'
-import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
+import { Globe, Mail } from '@linagora/twake-icons'
 import { useI18n } from 'twake-i18n'
 
-import SourceButton, { CHIP_CLASSES } from './SourceButton'
-import styles from './styles.styl'
+import SourceButton from './SourceButton'
 import KnowledgeBaseChip from '../KnowledgeBase/KnowledgeBaseChip'
 import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedAssistantKnowledgeBase'
 
 /**
- * The Drive source is always on, the whole Drive without a knowledge base
- * folder. Emails show on the default assistant always, on a custom one once
- * enabled in the wizard: sources are switched from the wizard, never from
- * the composer.
+ * The sources of the answers, in the composer of a new conversation: the
+ * knowledge base folder of the assistant, which the user can leave out of
+ * the conversation, and the flagged web and email sources. Emails show on
+ * the default assistant always, on a custom one once enabled in the wizard:
+ * sources are switched from the wizard, never from the composer.
  */
 const TwakeKnowledgeSelector = ({
   className,
+  showWebsearch,
+  showMail,
   websearchEnabled,
   onToggleWebsearch
 }) => {
   const { t } = useI18n()
-  const { isMobile } = useBreakpoints()
   const {
     dirId,
-    folder,
-    isRoot,
+    folderName,
+    hasFolder,
     isUnavailable,
     setKnowledgeBaseFolder,
-    isRealAssistant,
-    hasEmail
+    removeKnowledgeBase
   } = useSelectedAssistantKnowledgeBase()
-
-  const websearchEnabledFlag = flag('cozy.assistant.websearch.enabled')
-  const mailSourceEnabledFlag = flag(
-    'cozy.assistant.source-knowledge.mail.enabled'
-  )
-  const showMail = mailSourceEnabledFlag && (!isRealAssistant || hasEmail)
 
   // Pointer activation leaves the focus on the button, whose focus style
   // would then differ from the sibling sources until something else takes
@@ -52,38 +43,22 @@ const TwakeKnowledgeSelector = ({
     onToggleWebsearch(event)
   }
 
-  const driveSource = dirId ? (
-    <KnowledgeBaseChip
-      variant={isMobile ? 'icon' : 'chip'}
-      dirId={dirId}
-      folder={folder}
-      isRoot={isRoot}
-      isUnavailable={isUnavailable}
-      onChangeFolder={setKnowledgeBaseFolder}
-    />
-  ) : isMobile ? (
-    <SourceButton
-      icon={Drive}
-      preserveColor
-      label={t('assistant.twake_knowledges.drive')}
-    />
-  ) : (
-    <Chip
-      icon={<Icon icon={Drive} size={16} preserveColor />}
-      label={t('assistant.twake_knowledges.drive')}
-      className={styles['source-chip']}
-      classes={CHIP_CLASSES}
-    />
-  )
-
   return (
     <div
       role="group"
       aria-label={t('assistant.twake_knowledges.search_in')}
       className={cx('u-flex u-flex-items-center', className)}
     >
-      {driveSource}
-      {websearchEnabledFlag && (
+      {hasFolder && (
+        <KnowledgeBaseChip
+          dirId={dirId}
+          folderName={folderName}
+          isUnavailable={isUnavailable}
+          onChangeFolder={setKnowledgeBaseFolder}
+          onRemove={removeKnowledgeBase}
+        />
+      )}
+      {showWebsearch && (
         <SourceButton
           icon={Globe}
           label={t('assistant.websearch.label')}

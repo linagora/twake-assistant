@@ -34,8 +34,11 @@ const setup = props =>
   render(
     <KnowledgeBaseChip
       dirId="folder-id"
-      folder={{ _id: 'folder-id', name: 'Meetings' }}
-      isRoot={false}
+      folderName={
+        props?.isUnavailable
+          ? 'assistant.knowledge_base.unavailable'
+          : 'Meetings'
+      }
       isUnavailable={false}
       onChangeFolder={jest.fn()}
       {...props}
@@ -100,12 +103,13 @@ describe('KnowledgeBaseChip', () => {
       expect(screen.queryByTestId('folder-picker')).toBe(null)
     })
 
-    it('only offers to open the folder from the icon button', () => {
-      setup({ variant: 'icon' })
-      fireEvent.click(screen.getByRole('button', { name: 'Meetings' }))
+    it('leaves the folder out of the conversation from its cross', () => {
+      const onRemove = jest.fn()
+      setup({ onRemove })
+      fireEvent.click(screen.getByLabelText('assistant.knowledge_base.remove'))
 
-      expect(screen.queryByText(OPEN_FOLDER)).not.toBe(null)
-      expect(screen.queryByText(CHANGE_FOLDER)).toBe(null)
+      expect(onRemove).toHaveBeenCalled()
+      expect(screen.queryByRole('menu')).toBe(null)
     })
 
     it('does not open an empty menu for an unavailable folder', () => {
