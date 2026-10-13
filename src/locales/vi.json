@@ -112,6 +112,14 @@
           "share": "Chia sẻ",
           "load_more": "Tải thêm"
         }
+      },
+      "app": "AI",
+      "new_discussion": "Cuộc trò chuyện mới",
+      "search_discussions": "Tìm trong các cuộc trò chuyện",
+      "coming_soon": {
+        "title": "Sắp ra mắt",
+        "folders": "Các thư mục Drive khác",
+        "apps": "Mail · Chat · Notes · Calendar"
       }
     },
     "time": {

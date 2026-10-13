@@ -1,5 +1,7 @@
+// A flex item with a z-index is a stacking context: above the bar of the
+// app, so that the mobile menu, which has its own header, covers the bar
 .assistant-container
-  z-index 1
+  z-index calc(var(--zIndex-bar) + 1)
 
 .trigger-button
   border-radius 20px
