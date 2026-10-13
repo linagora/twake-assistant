@@ -115,6 +115,14 @@
           "share": "Share",
           "load_more": "Load more"
         }
+      },
+      "app": "AI",
+      "new_discussion": "New discussion",
+      "search_discussions": "Search the discussions",
+      "coming_soon": {
+        "title": "Coming soon",
+        "folders": "Other Drive folders",
+        "apps": "Mail · Chat · Notes · Calendar"
       }
     },
     "time": {

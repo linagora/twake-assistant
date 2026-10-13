@@ -104,6 +104,14 @@
           "share": "Поделиться",
           "load_more": "Загрузить еще"
         }
+      },
+      "app": "AI",
+      "new_discussion": "Новая беседа",
+      "search_discussions": "Поиск по беседам",
+      "coming_soon": {
+        "title": "Скоро",
+        "folders": "Другие папки Drive",
+        "apps": "Mail · Chat · Notes · Calendar"
       }
     },
     "time": {

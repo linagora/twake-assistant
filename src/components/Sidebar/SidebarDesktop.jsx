@@ -3,6 +3,7 @@ import React from 'react'
 
 import Drawer from 'cozy-ui/transpiled/react/Drawer'
 
+import { SidebarComingSoon } from './SidebarComingSoon'
 import { SidebarConversations } from './SidebarConversations'
 import { SidebarHeader } from './SidebarHeader'
 import { SidebarNewChatButton } from './SidebarNewChatButton'
@@ -37,7 +38,12 @@ export const SidebarDesktop = ({
         isExpanded={open}
         onClick={onCreateNewConversation}
       />
-      {open && <SidebarConversations />}
+      {open && (
+        <>
+          <SidebarConversations />
+          <SidebarComingSoon className="u-mh-1 u-mt-half" />
+        </>
+      )}
     </Drawer>
   )
 }
