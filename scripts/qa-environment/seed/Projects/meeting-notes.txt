@@ -1,0 +1,7 @@
+Meeting notes - 2 October 2026
+
+Attendees: Alice, Bob, Charlie.
+
+- The release of the Phoenix beta is delayed by two weeks because of a bug in the login page.
+- Bob will contact the hosting provider about the invoice of September.
+- Next meeting: Thursday 9 October at 2 pm.

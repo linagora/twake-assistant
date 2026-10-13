@@ -1,0 +1,54 @@
+# QA stack started by start.sh: a Cozy Stack serving the build of build.sh as the assistant app,
+# with CouchDB, Mailpit catching the emails it sends, and a fake openRAG answering the chat.
+services:
+  couchdb:
+    image: couchdb:3
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5984/ || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "127.0.0.1:${QA_MAIL_PORT:?}:8025"
+
+  openrag:
+    image: node:24-alpine
+    command: ["node", "/fake-openrag/server.mjs"]
+    environment:
+      PORT: "8000"
+      FAKE_RAG_DELAY_MS: "${QA_FAKE_RAG_DELAY_MS:-40}"
+    volumes:
+      - ./fake-openrag:/fake-openrag:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8000/health_check || exit 1"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
+  cozystack:
+    image: ${QA_STACK_IMAGE:-cozy/cozy-stack:latest}
+    pull_policy: always
+    depends_on:
+      couchdb:
+        condition: service_healthy
+      openrag:
+        condition: service_healthy
+    environment:
+      COZY_ADMIN_PASSPHRASE: cozy
+      # The instances are <uid>.cozy.localhost:<port>: the stack listens on the published port so
+      # that the URLs it builds work from the host and from the network alike
+      COZY_PORT: "${QA_STACK_PORT:?}"
+    command: ["cozy-stack", "serve", "--dev"]
+    volumes:
+      - ../../build:/app/assistant:ro
+      - ./scribe-host:/app/scribe-host:ro
+      - ./seed:/app/seed:ro
+      - ./cozy.yml:/etc/cozy/cozy.yml:ro
+    ports:
+      - "127.0.0.1:${QA_STACK_PORT:?}:${QA_STACK_PORT:?}"
