@@ -13,7 +13,12 @@ const Sidebar = ({ className }) => {
   const { isOpenSearchConversation, setIsOpenSearchConversation } =
     useAssistant()
   const { isMobile } = useBreakpoints()
-  const [sidebarOpen, setSidebarOpen] = useState(!isMobile)
+  // The desktop sidebar stays open until folded; the mobile menu covers the
+  // conversation and is closed until opened, whatever the window was before
+  const [isOpenDesktop, setIsOpenDesktop] = useState(true)
+  const [isOpenMobile, setIsOpenMobile] = useState(false)
+  const sidebarOpen = isMobile ? isOpenMobile : isOpenDesktop
+  const setSidebarOpen = isMobile ? setIsOpenMobile : setIsOpenDesktop
   const { key } = useLocation()
   const [locationKey, setLocationKey] = useState(key)
 
