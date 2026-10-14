@@ -136,7 +136,12 @@ const SearchConversation = () => {
           />
         </div>
 
-        <div className="u-ov-auto u-flex-auto u-w-100 u-pos-relative">
+        <div
+          className={cx(
+            'u-ov-auto u-flex-auto u-w-100 u-pos-relative',
+            styles['search-results']
+          )}
+        >
           {isLoading ? (
             <div className="u-flex u-flex-items-center u-flex-justify-center u-p-2">
               <Spinner size="xxlarge" />
