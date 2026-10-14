@@ -21,7 +21,17 @@ import UserMessage from '../Messages/UserMessage'
 const Conversation = ({ className }) => {
   const { t } = useI18n()
   const { isMobile } = useBreakpoints()
-  const { isOpenSources, setIsOpenSources } = useAssistant()
+  const {
+    isOpenSources: isOpenSourcesDesktop,
+    setIsOpenSources: setIsOpenSourcesDesktop
+  } = useAssistant()
+  // Over the conversation on mobile: only on its button, and closed again
+  // with the next conversation
+  const [isOpenSourcesMobile, setIsOpenSourcesMobile] = useState(false)
+  const isOpenSources = isMobile ? isOpenSourcesMobile : isOpenSourcesDesktop
+  const setIsOpenSources = isMobile
+    ? setIsOpenSourcesMobile
+    : setIsOpenSourcesDesktop
   const {
     dirId,
     folderName,
