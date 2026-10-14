@@ -43,7 +43,7 @@ export const SidebarDesktop = ({
       {open && (
         <>
           <SidebarConversations />
-          <SidebarComingSoon className="u-mh-1 u-mt-half u-mb-1" />
+          <SidebarComingSoon className="u-mh-1 u-mt-half" />
         </>
       )}
     </Drawer>
