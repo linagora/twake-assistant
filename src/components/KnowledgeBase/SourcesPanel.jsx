@@ -12,6 +12,8 @@ import Paper from 'cozy-ui/transpiled/react/Paper'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
+import styles from './styles.styl'
+
 /**
  * The sources of the answers of a conversation: the knowledge base folder
  * of its assistant, as a card beside the conversation
@@ -52,7 +54,9 @@ export const SourcesPanel = ({ className, dirId, folderName, onClose }) => {
           <Icon icon={Cross} size={16} aria-hidden="true" />
         </IconButton>
       </div>
-      <ListItem className="u-bdrs-8 u-mt-half u-g-half u-bg-primaryBackgroundLight">
+      <ListItem
+        className={cx('u-bdrs-8 u-mt-half u-g-half', styles['sources-item'])}
+      >
         <ListItemIcon>
           <Icon icon={Drive} size={20} preserveColor aria-hidden="true" />
         </ListItemIcon>
