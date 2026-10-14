@@ -4,7 +4,7 @@ import { AUTOPROVISION_FLAG, ensureProvisionedAssistants } from './provisioning'
 import {
   createRagIndexTriggers,
   fetchAssistants,
-  migrateAssistantsWithoutFolder
+  migrateKnowledgeBases
 } from './ragIndexing'
 
 const warn = (...args) => {
@@ -25,17 +25,17 @@ export const autoprovisionEntries = () => {
 }
 
 const run = async client => {
-  const entries = autoprovisionEntries()
-  if (!entries) return null
   const setup = { triggers: [], migrated: [], errors: [] }
   let assistants = null
   try {
     assistants = await fetchAssistants(client)
-    setup.migrated = await migrateAssistantsWithoutFolder(client, assistants)
+    setup.migrated = await migrateKnowledgeBases(client, assistants)
   } catch (error) {
-    warn('cannot migrate the assistants without folder', error)
+    warn('cannot migrate the knowledge bases', error)
     setup.errors.push(error)
   }
+  const entries = autoprovisionEntries()
+  if (!entries) return null
   const result = await ensureProvisionedAssistants(client, entries, {
     assistants
   })
@@ -54,10 +54,10 @@ const run = async client => {
 }
 
 /**
- * Gives a folder to the assistants that lack one, provisions the
- * assistants listed in the autoprovision flag, then sets up the rag-index
- * triggers. Runs once per session: every call shares the first one's
- * promise. Never rejects.
+ * Migrates the knowledge bases of the assistants, on every instance, then
+ * provisions the assistants listed in the autoprovision flag and sets up
+ * the rag-index triggers. Runs once per session: every call shares the
+ * first one's promise. Never rejects.
  * @param {import('cozy-client').CozyClient} client
  * @returns {Promise<null|{setup: object, created: string[], ensured: string[], skipped: {id: string, reason: string}[]}>} Null when the flag lists nothing.
  */

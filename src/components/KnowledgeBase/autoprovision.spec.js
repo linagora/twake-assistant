@@ -9,7 +9,7 @@ import { ensureProvisionedAssistants } from './provisioning'
 import {
   createRagIndexTriggers,
   fetchAssistants,
-  migrateAssistantsWithoutFolder
+  migrateKnowledgeBases
 } from './ragIndexing'
 
 jest.mock('cozy-flags', () => jest.fn())
@@ -20,7 +20,7 @@ jest.mock('./provisioning', () => ({
 jest.mock('./ragIndexing', () => ({
   createRagIndexTriggers: jest.fn(),
   fetchAssistants: jest.fn(),
-  migrateAssistantsWithoutFolder: jest.fn()
+  migrateKnowledgeBases: jest.fn()
 }))
 
 const client = { id: 'client' }
@@ -34,7 +34,7 @@ beforeEach(() => {
   warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
   createRagIndexTriggers.mockReset().mockResolvedValue(['io.cozy.files'])
   fetchAssistants.mockReset().mockResolvedValue(assistants)
-  migrateAssistantsWithoutFolder.mockReset().mockResolvedValue([])
+  migrateKnowledgeBases.mockReset().mockResolvedValue([])
   ensureProvisionedAssistants
     .mockReset()
     .mockResolvedValue({ created: ['docs'], ensured: [], skipped: [] })
@@ -58,12 +58,11 @@ describe('autoprovisionEntries', () => {
 })
 
 describe('autoprovisionAssistants', () => {
-  it('does nothing without flag entries', async () => {
+  it('only migrates the knowledge bases without flag entries', async () => {
     flag.mockReturnValue(null)
     await expect(autoprovisionAssistants(client)).resolves.toBeNull()
+    expect(migrateKnowledgeBases).toHaveBeenCalledWith(client, assistants)
     expect(createRagIndexTriggers).not.toHaveBeenCalled()
-    expect(fetchAssistants).not.toHaveBeenCalled()
-    expect(migrateAssistantsWithoutFolder).not.toHaveBeenCalled()
     expect(ensureProvisionedAssistants).not.toHaveBeenCalled()
   })
 
@@ -72,7 +71,7 @@ describe('autoprovisionAssistants', () => {
     fetchAssistants.mockRejectedValue(new Error('nope'))
     const result = await autoprovisionAssistants(client)
 
-    expect(migrateAssistantsWithoutFolder).not.toHaveBeenCalled()
+    expect(migrateKnowledgeBases).not.toHaveBeenCalled()
     expect(ensureProvisionedAssistants).toHaveBeenCalledWith(client, entries, {
       assistants: null
     })
@@ -81,20 +80,17 @@ describe('autoprovisionAssistants', () => {
 
   it('migrates, provisions the flag entries, then ensures the triggers', async () => {
     flag.mockReturnValue(entries)
-    migrateAssistantsWithoutFolder.mockResolvedValue(['legacy'])
+    migrateKnowledgeBases.mockResolvedValue(['legacy'])
     const result = await autoprovisionAssistants(client)
 
     expect(createRagIndexTriggers).toHaveBeenCalledWith(client)
     expect(fetchAssistants).toHaveBeenCalledTimes(1)
-    expect(migrateAssistantsWithoutFolder).toHaveBeenCalledWith(
-      client,
-      assistants
-    )
+    expect(migrateKnowledgeBases).toHaveBeenCalledWith(client, assistants)
     expect(ensureProvisionedAssistants).toHaveBeenCalledWith(client, entries, {
       assistants
     })
     const order = [
-      migrateAssistantsWithoutFolder,
+      migrateKnowledgeBases,
       ensureProvisionedAssistants,
       createRagIndexTriggers
     ].map(fn => fn.mock.invocationCallOrder[0])
@@ -121,7 +117,7 @@ describe('autoprovisionAssistants', () => {
   it('still provisions when the setup steps failed', async () => {
     flag.mockReturnValue(entries)
     createRagIndexTriggers.mockRejectedValue(new Error('forbidden'))
-    migrateAssistantsWithoutFolder.mockRejectedValue(new Error('nope'))
+    migrateKnowledgeBases.mockRejectedValue(new Error('nope'))
     const result = await autoprovisionAssistants(client)
 
     expect(ensureProvisionedAssistants).toHaveBeenCalledTimes(1)
