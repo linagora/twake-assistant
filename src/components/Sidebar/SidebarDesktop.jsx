@@ -21,7 +21,9 @@ export const SidebarDesktop = ({
       variant="permanent"
       className="u-h-100"
       classes={{
+        // No border: the sidebar of the design is a plain background
         paper: cx(
+          'u-bdw-0',
           styles['sidebar-paper'],
           styles['sidebar-paper--docked'],
           { [styles['sidebar-paper--rail']]: !open },
