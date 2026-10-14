@@ -76,7 +76,7 @@
       "send": "Отправить",
       "noItem": "Нет результатов",
       "notEnough": "Ваш запрос должен содержать не менее 3 символов",
-      "placeholder_folder": "Что вы хотите узнать из %{folder}?",
+      "placeholder_folder": "Что вы хотите узнать из файлов %{folder}?",
       "stop": "Остановить"
     },
     "dialog": {
@@ -183,7 +183,7 @@
     "welcome": {
       "title": "Ваш %{name}",
       "default_title": "Ваш ассистент Twake",
-      "subtitle": "Ответы основаны на расшифровках из",
+      "subtitle": "Ответы основаны на файлах из",
       "default_subtitle": "Над чем вы хотите поработать сегодня?",
       "actions": {
         "summarize": {

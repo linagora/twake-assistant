@@ -76,7 +76,7 @@
       "send": "Gửi",
       "noItem": "Không có kết quả",
       "notEnough": "Truy vấn của bạn phải chứa ít nhất 3 ký tự",
-      "placeholder_folder": "Bạn muốn biết gì từ %{folder}?",
+      "placeholder_folder": "Bạn muốn biết gì từ các tệp trong %{folder}?",
       "stop": "Dừng"
     },
     "dialog": {
@@ -183,7 +183,7 @@
     "welcome": {
       "title": "%{name} của bạn",
       "default_title": "Trợ lý Twake của bạn",
-      "subtitle": "Câu trả lời dựa trên bản ghi từ",
+      "subtitle": "Câu trả lời dựa trên các tệp từ",
       "default_subtitle": "Hôm nay bạn muốn làm gì?",
       "actions": {
         "summarize": {
