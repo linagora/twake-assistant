@@ -15,8 +15,11 @@
   &--mobile
     width 100vw
     // The visible height: the toolbar of a mobile browser hides the bottom
-    // of the layout viewport the modal of Material UI fills
+    // of the layout viewport the modal of Material UI fills; the home bar
+    // of a phone is left out too
+    box-sizing border-box
     height 100dvh
+    padding-bottom env(safe-area-inset-bottom)
 
 .sidebar-drawer--mobile
   z-index calc(var(--zIndex-modal) + 30) !important
