@@ -192,7 +192,8 @@
       "connected": "%{smart_count} folder connected |||| %{smart_count} folders connected",
       "only_folder": "Only content from this folder",
       "close": "Hide the sources",
-      "show": "Show the sources"
+      "show": "Show the sources",
+      "any_content": "Any content from Drive"
     }
   },
   "assistant_create": {

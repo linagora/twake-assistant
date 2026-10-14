@@ -209,7 +209,8 @@
       "connected": "%{smart_count} thư mục được kết nối",
       "only_folder": "Chỉ nội dung của thư mục này",
       "close": "Ẩn nguồn",
-      "show": "Hiện nguồn"
+      "show": "Hiện nguồn",
+      "any_content": "Mọi nội dung trong Drive"
     }
   },
   "assistant_create": {

@@ -192,7 +192,8 @@
       "connected": "%{smart_count} dossier connecté |||| %{smart_count} dossiers connectés",
       "only_folder": "Uniquement le contenu de ce dossier",
       "close": "Masquer les sources",
-      "show": "Afficher les sources"
+      "show": "Afficher les sources",
+      "any_content": "Tout le contenu de Drive"
     }
   },
   "assistant_create": {
