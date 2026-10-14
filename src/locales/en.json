@@ -190,7 +190,7 @@
     "sources_panel": {
       "title": "Sources",
       "connected": "%{smart_count} folder connected |||| %{smart_count} folders connected",
-      "only_folder": "Only content from this folder",
+      "any_content_folder": "Any content from this folder",
       "close": "Hide the sources",
       "show": "Show the sources",
       "any_content": "Any content from Drive"

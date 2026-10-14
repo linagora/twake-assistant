@@ -207,7 +207,7 @@
     "sources_panel": {
       "title": "Источники",
       "connected": "%{smart_count} папка подключена |||| %{smart_count} папки подключены |||| %{smart_count} папок подключено",
-      "only_folder": "Только содержимое этой папки",
+      "any_content_folder": "Всё содержимое этой папки",
       "close": "Скрыть источники",
       "show": "Показать источники",
       "any_content": "Всё содержимое Drive"
