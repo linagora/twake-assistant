@@ -108,7 +108,7 @@ export const SidebarMobile = ({
             )}
           </List>
           <SidebarConversations />
-          <SidebarComingSoon className="u-m-1 u-mt-half" />
+          <SidebarComingSoon className="u-mh-1 u-mt-half u-mb-2" />
         </Drawer>
       </div>
     </>

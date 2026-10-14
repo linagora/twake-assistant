@@ -14,6 +14,9 @@
 
   &--mobile
     width 100vw
+    // The visible height: the toolbar of a mobile browser hides the bottom
+    // of the layout viewport the modal of Material UI fills
+    height 100dvh
 
 .sidebar-drawer--mobile
   z-index calc(var(--zIndex-modal) + 30) !important
