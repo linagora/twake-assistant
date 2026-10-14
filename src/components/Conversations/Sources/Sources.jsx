@@ -67,7 +67,6 @@ const Sources = ({ messageId, files, emails, urls }) => {
   return (
     <Box ref={ref} className="u-mt-1-half">
       <Chip
-        className="u-mb-1"
         icon={<Icon icon={MultiFiles} className="u-ml-half" />}
         label={t(
           'assistant.sources',
@@ -86,7 +85,7 @@ const Sources = ({ messageId, files, emails, urls }) => {
         mountOnEnter={true}
         unmountOnExit={true}
       >
-        <div>
+        <div className="u-mt-1">
           {files.map(file => (
             <FileSourcesItem key={`${messageId}-${file._id}`} file={file} />
           ))}
