@@ -1,7 +1,5 @@
 import React, { useMemo, useContext, useState } from 'react'
 
-import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
-
 import { DEFAULT_ASSISTANT } from './constants'
 
 export const AssistantContext = React.createContext()
@@ -19,7 +17,6 @@ export const useAssistant = () => {
 }
 
 const AssistantProvider = ({ children }) => {
-  const { isMobile } = useBreakpoints()
   const [isOpenCreateAssistant, setIsOpenCreateAssistant] = useState(false)
   const [isOpenDeleteAssistant, setIsOpenDeleteAssistant] = useState(false)
   const [isOpenEditAssistant, setIsOpenEditAssistant] = useState(false)
@@ -30,9 +27,10 @@ const AssistantProvider = ({ children }) => {
   const [isOpenSearchConversation, setIsOpenSearchConversation] =
     useState(false)
   const [websearchEnabled, setWebsearchEnabled] = useState(false)
-  // The sources panel of a conversation: open beside it on desktop, over it
-  // on mobile where it is closed until asked for
-  const [isOpenSources, setIsOpenSources] = useState(!isMobile)
+  // The sources panel beside the conversations of desktop, open until the
+  // user closes it. The mobile one covers the conversation: each
+  // conversation keeps its own, closed until asked for.
+  const [isOpenSources, setIsOpenSources] = useState(true)
 
   const value = useMemo(
     () => ({
