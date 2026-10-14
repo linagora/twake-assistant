@@ -83,7 +83,7 @@ export const SourcesPanel = ({
           secondary={t(
             isRoot
               ? 'assistant.sources_panel.any_content'
-              : 'assistant.sources_panel.only_folder'
+              : 'assistant.sources_panel.any_content_folder'
           )}
           secondaryTypographyProps={{ variant: 'caption' }}
           className="u-m-0 u-miw-0"
