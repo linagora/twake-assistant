@@ -22,7 +22,8 @@ const AssistantContainer = () => {
         styles['assistant-container']
       )}
     >
-      <Sidebar className="u-pb-0-t u-pb-1" />
+      {/* Border box: the bottom padding of the sidebar stays in the view */}
+      <Sidebar className="u-pb-0-t u-pb-1 u-bxz" />
 
       <div className="u-flex-auto u-flex u-flex-column u-pb-0-t u-pb-1 u-ov-hidden">
         {isOpenSearchConversation &&
