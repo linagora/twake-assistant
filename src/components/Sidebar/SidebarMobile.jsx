@@ -51,11 +51,6 @@ export const SidebarMobile = ({
     onClose()
   }
 
-  const handleCreateNewConversation = () => {
-    onCreateNewConversation()
-    onClose()
-  }
-
   // The menu of the design covers the whole screen, bar included: its
   // header names the app, as the bar does, and closes it
   return (
@@ -102,7 +97,7 @@ export const SidebarMobile = ({
             <MenuItem
               icon={Note}
               label={t('assistant.sidebar.new_discussion')}
-              onClick={handleCreateNewConversation}
+              onClick={onCreateNewConversation}
             />
             {flag('cozy.assistant.search-conversation.enabled') && (
               <MenuItem

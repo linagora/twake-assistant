@@ -2,7 +2,7 @@ import cx from 'classnames'
 import React, { useRef, useState } from 'react'
 
 import {
-  Cross,
+  CrossSmall,
   FileTypeFolder,
   Icon,
   LinkOut,
@@ -82,8 +82,8 @@ const KnowledgeBaseChip = ({
               onDelete: onRemove,
               deleteIcon: (
                 <Icon
-                  icon={Cross}
-                  size={16}
+                  icon={CrossSmall}
+                  size={12}
                   aria-label={t('assistant.knowledge_base.remove')}
                 />
               )

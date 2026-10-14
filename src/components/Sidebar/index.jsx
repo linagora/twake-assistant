@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
 
@@ -13,6 +14,15 @@ const Sidebar = ({ className }) => {
     useAssistant()
   const { isMobile } = useBreakpoints()
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile)
+  const { key } = useLocation()
+  const [locationKey, setLocationKey] = useState(key)
+
+  // The mobile menu covers the conversation: whatever it opens, a
+  // conversation or a new one, closes it
+  if (key !== locationKey) {
+    setLocationKey(key)
+    if (isMobile) setSidebarOpen(false)
+  }
 
   const onToggleSidebar = () => {
     setSidebarOpen(!sidebarOpen)
