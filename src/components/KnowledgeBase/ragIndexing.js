@@ -1,4 +1,9 @@
-import { withRootFolderIfMissing } from './knowledgeBase'
+import {
+  getKnowledgeBase,
+  hasKnowledgeBaseRelationship,
+  withKnowledgeBase,
+  withRootFolderIfMissing
+} from './knowledgeBase'
 import {
   ASSISTANTS_DOCTYPE,
   buildAllAssistantsQuery,
@@ -48,20 +53,27 @@ export const fetchAssistants = client => {
 }
 
 /**
- * Gives the root folder to every assistant without a knowledge base
- * folder (the rule is permanent: an assistant always has one). A conflict
- * on one assistant means another session did it: skipped.
+ * Moves the knowledge base of every assistant still saved in the deprecated
+ * attribute to its relationship, and gives the root folder to every
+ * assistant without a knowledge base folder (the rule is permanent: an
+ * assistant always has one). A conflict on one assistant means another
+ * session did it: skipped.
  * @param {import('cozy-client').CozyClient} client
  * @param {Array<object>} [assistants] - The assistants, when already fetched.
  * @returns {Promise<string[]>} The ids of the migrated assistants.
  */
-export const migrateAssistantsWithoutFolder = async (client, assistants) => {
+export const migrateKnowledgeBases = async (client, assistants) => {
   const migrated = []
   for (const assistant of assistants || (await fetchAssistants(client))) {
-    const knowledgeBase = withRootFolderIfMissing(assistant.knowledgeBase)
-    if (knowledgeBase === assistant.knowledgeBase) continue
+    const knowledgeBase = getKnowledgeBase(assistant)
+    if (
+      hasKnowledgeBaseRelationship(assistant) &&
+      withRootFolderIfMissing(knowledgeBase) === knowledgeBase
+    ) {
+      continue
+    }
     try {
-      await client.save({ ...assistant, knowledgeBase })
+      await client.save(withKnowledgeBase(assistant, knowledgeBase))
       migrated.push(assistant._id)
     } catch (error) {
       if (error?.status !== 409) throw error

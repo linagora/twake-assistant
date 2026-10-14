@@ -7,7 +7,7 @@ import {
   fetchAssistants,
   findRagIndexTriggers,
   makeRagIndexTriggerAttributes,
-  migrateAssistantsWithoutFolder
+  migrateKnowledgeBases
 } from './ragIndexing'
 
 const FILES = 'io.cozy.files'
@@ -107,42 +107,80 @@ describe('findRagIndexTriggers', () => {
   })
 })
 
-describe('migrateAssistantsWithoutFolder', () => {
-  it('appends the root entry to assistants without folder, keeping other entries', async () => {
+const relationship = (...data) => ({ knowledgeBase: { data } })
+
+describe('migrateKnowledgeBases', () => {
+  it('moves the knowledge bases to the relationship, with a folder', async () => {
     const { client } = makeClient({
       assistants: [
         {
           _id: 'a1',
           _type: ASSISTANTS,
-          knowledgeBase: [{ doctype: 'io.cozy.email' }]
+          knowledgeBase: [{ doctype: 'com.linagora.email' }]
         },
         {
           _id: 'a2',
           _type: ASSISTANTS,
-          knowledgeBase: [{ doctype: FILES, dirId: 'd' }]
+          relationships: {
+            provider: { data: { _id: 'p' } },
+            ...relationship({ _id: 'd', _type: FILES })
+          }
         },
-        { _id: 'a3', _type: ASSISTANTS }
+        {
+          _id: 'a3',
+          _type: ASSISTANTS,
+          knowledgeBase: [{ doctype: FILES, dirId: 'd' }],
+          relationships: { provider: { data: { _id: 'p' } } }
+        },
+        { _id: 'a4', _type: ASSISTANTS }
       ]
     })
-    const migrated = await migrateAssistantsWithoutFolder(client)
-    expect(migrated).toEqual(['a1', 'a3'])
+    const migrated = await migrateKnowledgeBases(client)
+    expect(migrated).toEqual(['a1', 'a3', 'a4'])
     expect(client.queryAll).toHaveBeenCalledWith(Q(ASSISTANTS).limitBy(1000), {
       as: `${ASSISTANTS}/all`
     })
-    expect(client.save).toHaveBeenCalledTimes(2)
+    expect(client.save).toHaveBeenCalledTimes(3)
     expect(client.save).toHaveBeenCalledWith({
       _id: 'a1',
       _type: ASSISTANTS,
       knowledgeBase: [
-        { doctype: 'io.cozy.email' },
+        { doctype: 'com.linagora.email' },
         { doctype: FILES, dirId: ROOT_DIR_ID }
-      ]
+      ],
+      relationships: relationship(
+        { _type: 'com.linagora.email' },
+        { _id: ROOT_DIR_ID, _type: FILES }
+      )
     })
     expect(client.save).toHaveBeenCalledWith({
       _id: 'a3',
       _type: ASSISTANTS,
-      knowledgeBase: [{ doctype: FILES, dirId: ROOT_DIR_ID }]
+      knowledgeBase: [{ doctype: FILES, dirId: 'd' }],
+      relationships: {
+        provider: { data: { _id: 'p' } },
+        ...relationship({ _id: 'd', _type: FILES })
+      }
     })
+    expect(client.save).toHaveBeenCalledWith({
+      _id: 'a4',
+      _type: ASSISTANTS,
+      knowledgeBase: [{ doctype: FILES, dirId: ROOT_DIR_ID }],
+      relationships: relationship({ _id: ROOT_DIR_ID, _type: FILES })
+    })
+  })
+
+  it('gives the root folder to a relationship without folder', async () => {
+    const { client } = makeClient({
+      assistants: [
+        {
+          _id: 'a1',
+          _type: ASSISTANTS,
+          relationships: relationship({ _type: 'com.linagora.email' })
+        }
+      ]
+    })
+    expect(await migrateKnowledgeBases(client)).toEqual(['a1'])
   })
 
   it('ignores a conflict on one assistant and goes on', async () => {
@@ -155,7 +193,7 @@ describe('migrateAssistantsWithoutFolder', () => {
     client.save.mockImplementationOnce(async () => {
       throw Object.assign(new Error('conflict'), { status: 409 })
     })
-    expect(await migrateAssistantsWithoutFolder(client)).toEqual(['a2'])
+    expect(await migrateKnowledgeBases(client)).toEqual(['a2'])
   })
 })
 
@@ -219,7 +257,7 @@ describe('fetchAssistants', () => {
   })
 })
 
-describe('migrateAssistantsWithoutFolder with the assistants given', () => {
+describe('migrateKnowledgeBases with the assistants given', () => {
   it('does not query them again', async () => {
     const { client } = makeClient()
     const assistants = [
@@ -227,12 +265,12 @@ describe('migrateAssistantsWithoutFolder with the assistants given', () => {
       {
         _id: 'ok',
         _type: ASSISTANTS,
-        knowledgeBase: [{ doctype: FILES, dirId: 'dir-1' }]
+        relationships: relationship({ _id: 'dir-1', _type: FILES })
       }
     ]
-    await expect(
-      migrateAssistantsWithoutFolder(client, assistants)
-    ).resolves.toEqual(['bare'])
+    await expect(migrateKnowledgeBases(client, assistants)).resolves.toEqual([
+      'bare'
+    ])
     expect(client.queryAll).not.toHaveBeenCalled()
     expect(client.save).toHaveBeenCalledTimes(1)
   })
