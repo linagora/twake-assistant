@@ -41,4 +41,22 @@ describe('SourcesPanel', () => {
 
     expect(onClose).toHaveBeenCalled()
   })
+
+  it('names the whole Drive without a folder', () => {
+    render(
+      <SourcesPanel
+        dirId="io.cozy.files.root-dir"
+        folderName="assistant.twake_knowledges.drive"
+        isRoot
+        onClose={jest.fn()}
+      />
+    )
+
+    expect(
+      screen.getAllByText('assistant.twake_knowledges.drive')
+    ).toHaveLength(1)
+    expect(
+      screen.queryByText('assistant.sources_panel.any_content')
+    ).toBeInTheDocument()
+  })
 })

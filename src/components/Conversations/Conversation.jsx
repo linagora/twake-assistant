@@ -36,6 +36,7 @@ const Conversation = ({ className }) => {
     dirId,
     folderName,
     hasFolder,
+    isRoot,
     isUnavailable,
     setKnowledgeBaseFolder
   } = useSelectedAssistantKnowledgeBase()
@@ -160,6 +161,7 @@ const Conversation = ({ className }) => {
             )}
             dirId={dirId}
             folderName={folderName}
+            isRoot={isRoot}
             onClose={() => setIsOpenSources(false)}
           />
         )}
@@ -170,6 +172,7 @@ const Conversation = ({ className }) => {
             className={styles['sources-panel']}
             dirId={dirId}
             folderName={folderName}
+            isRoot={isRoot}
             onClose={() => setIsOpenSources(false)}
           />
         </div>
