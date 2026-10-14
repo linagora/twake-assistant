@@ -12,7 +12,7 @@ const ActionButton = ({ icon, label }) => (
     variant="text"
     color="inherit"
     size="small"
-    className="u-fz-tiny u-miw-auto"
+    className="u-fz-tiny u-miw-auto u-ph-half"
     startIcon={<Icon icon={icon} size={ICON_SIZE} />}
     label={label}
   />
@@ -29,7 +29,7 @@ const AssistantMessageActions = ({ canCopy }) => {
   return (
     <ActionBarPrimitive.Root
       hideWhenRunning
-      className="u-flex u-flex-items-center u-mt-half"
+      className="u-flex u-flex-items-center"
     >
       {canCopy && (
         <ActionBarPrimitive.Copy asChild>
