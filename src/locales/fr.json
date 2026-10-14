@@ -76,7 +76,7 @@
       "send": "Envoyer",
       "noItem": "Aucun résultat",
       "notEnough": "Votre recherche doit contenir au moins 3 caractères",
-      "placeholder_folder": "Que souhaitez-vous savoir de %{folder} ?",
+      "placeholder_folder": "Que souhaitez-vous savoir des fichiers de %{folder} ?",
       "stop": "Arrêter"
     },
     "websearch": {
@@ -166,7 +166,7 @@
     "welcome": {
       "title": "Votre %{name}",
       "default_title": "Votre assistant Twake",
-      "subtitle": "Les réponses s'appuient sur les transcriptions de",
+      "subtitle": "Les réponses s'appuient sur les fichiers de",
       "default_subtitle": "Sur quoi souhaitez-vous travailler aujourd'hui ?",
       "actions": {
         "summarize": {

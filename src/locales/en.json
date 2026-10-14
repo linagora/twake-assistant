@@ -76,7 +76,7 @@
       "send": "Send",
       "noItem": "No results",
       "notEnough": "Your query must contain at least 3 characters",
-      "placeholder_folder": "What would you like to know from %{folder}?",
+      "placeholder_folder": "What would you like to know from %{folder} files?",
       "stop": "Stop"
     },
     "websearch": {
@@ -166,7 +166,7 @@
     "welcome": {
       "title": "Your %{name}",
       "default_title": "Your Twake assistant",
-      "subtitle": "Answers are based on transcripts from",
+      "subtitle": "Answers are based on files from",
       "default_subtitle": "What would you like to work on today?",
       "actions": {
         "summarize": {
