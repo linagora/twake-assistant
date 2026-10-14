@@ -26,7 +26,10 @@ import {
   useAssistantDialog,
   STEPS
 } from '../CreateAssistantSteps/useAssistantDialog'
-import { saveKnowledgeBase } from '../KnowledgeBase/knowledgeBase'
+import {
+  getKnowledgeBase,
+  saveKnowledgeBase
+} from '../KnowledgeBase/knowledgeBase'
 import { buildAssistantByIdWithProviderQuery } from '../queries'
 
 const EditAssistantDialog = ({ open, onClose }) => {
@@ -75,7 +78,7 @@ const EditAssistantDialog = ({ open, onClose }) => {
         apiKey: provider?.auth?.apiKey || '',
         encryptedApiKey: provider?.auth?.credentials_encrypted || '',
         providerId,
-        knowledgeBase: assistant.knowledgeBase || []
+        knowledgeBase: getKnowledgeBase(assistant)
       })
 
       const selectProviderDefault = getSelectedProviderById(providerId)

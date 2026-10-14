@@ -1,6 +1,7 @@
 import { models } from 'cozy-client'
 import flag from 'cozy-flags'
 
+import { getKnowledgeBase } from './knowledgeBase'
 import {
   assistantIdFromName,
   ensureProvisionedAssistants,
@@ -211,10 +212,10 @@ describe('ensureProvisionedAssistants', () => {
         }
       }
     })
-    expect(saved[2]).toMatchObject({
-      _id: 'mes-documents',
-      knowledgeBase: [{ doctype: 'io.cozy.files', dirId: 'docs-dir' }]
-    })
+    expect(saved[2]._id).toBe('mes-documents')
+    expect(getKnowledgeBase(saved[2])).toEqual([
+      { doctype: 'io.cozy.files', dirId: 'docs-dir' }
+    ])
   })
 
   it('provisions a whole-Drive assistant from the root dirId', async () => {
@@ -227,7 +228,7 @@ describe('ensureProvisionedAssistants', () => {
     expect(result.created).toEqual(['everything'])
     expect(filesCollection.statById).not.toHaveBeenCalled()
     const saved = client.save.mock.calls.map(([doc]) => doc)
-    expect(saved[2].knowledgeBase).toEqual([
+    expect(getKnowledgeBase(saved[2])).toEqual([
       { doctype: 'io.cozy.files', dirId: 'io.cozy.files.root-dir' }
     ])
   })
@@ -246,7 +247,9 @@ describe('ensureProvisionedAssistants', () => {
     )
     // The knowledge base re-save spreads the created doc: count creations.
     const assistants = saved.filter(
-      doc => doc._type === 'io.cozy.ai.chat.assistants' && !doc.knowledgeBase
+      doc =>
+        doc._type === 'io.cozy.ai.chat.assistants' &&
+        !doc.relationships.knowledgeBase
     )
     expect(assistants.map(doc => doc.relationships.provider.data._id)).toEqual([
       'acc-new',
@@ -268,7 +271,7 @@ describe('ensureProvisionedAssistants', () => {
       skipped: [{ id: 'reunions', reason: 'duplicate assistant id' }]
     })
     const saved = client.save.mock.calls.map(([doc]) => doc)
-    expect(saved[2].knowledgeBase).toEqual([
+    expect(getKnowledgeBase(saved[2])).toEqual([
       { doctype: 'io.cozy.files', dirId: 'created-dir' }
     ])
   })
@@ -311,7 +314,9 @@ describe('ensureProvisionedAssistants', () => {
     expect(client.save).toHaveBeenCalledWith(
       expect.objectContaining({
         _id: 'docs',
-        knowledgeBase: [{ doctype: 'io.cozy.files', dirId: 'docs-dir' }]
+        relationships: {
+          knowledgeBase: { data: [{ _id: 'docs-dir', _type: 'io.cozy.files' }] }
+        }
       })
     )
   })
@@ -338,7 +343,9 @@ describe('ensureProvisionedAssistants', () => {
     expect(client.save).toHaveBeenCalledWith(
       expect.objectContaining({
         _id: 'docs',
-        knowledgeBase: [{ doctype: 'io.cozy.files', dirId: 'docs-dir' }]
+        relationships: {
+          knowledgeBase: { data: [{ _id: 'docs-dir', _type: 'io.cozy.files' }] }
+        }
       })
     )
   })
