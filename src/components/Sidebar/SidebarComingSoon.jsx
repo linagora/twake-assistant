@@ -15,7 +15,8 @@ export const SidebarComingSoon = ({ className }) => {
 
   return (
     <div className={cx('u-p-half u-bdrs-8', styles['coming-soon'], className)}>
-      <Typography variant="caption" component="p">
+      {/* The caption of cozy-ui is secondary by default: the title is not */}
+      <Typography variant="caption" color="textPrimary" component="p">
         {t('assistant.sidebar.coming_soon.title')}
       </Typography>
       <Typography variant="caption" color="textSecondary" component="p">
