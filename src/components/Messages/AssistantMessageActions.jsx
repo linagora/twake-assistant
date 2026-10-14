@@ -2,21 +2,11 @@ import { ActionBarPrimitive, useAuiState } from '@assistant-ui/react'
 import React from 'react'
 
 import { Check, Copy, Icon, Restore } from '@linagora/twake-icons'
-import Button from 'cozy-ui/transpiled/react/Buttons'
+import IconButton from 'cozy-ui/transpiled/react/IconButton'
+import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
 import { useI18n } from 'twake-i18n'
 
 const ICON_SIZE = 16
-
-const ActionButton = ({ icon, label }) => (
-  <Button
-    variant="text"
-    color="inherit"
-    size="small"
-    className="u-fz-tiny u-miw-auto u-ph-half"
-    startIcon={<Icon icon={icon} size={ICON_SIZE} />}
-    label={label}
-  />
-)
 
 const AssistantMessageActions = ({ canCopy }) => {
   const { t } = useI18n()
@@ -25,6 +15,10 @@ const AssistantMessageActions = ({ canCopy }) => {
   // The stack keeps a single thread per conversation: regenerating an
   // older answer would drop the following messages on screen only.
   const isLast = useAuiState(({ message }) => message.isLast)
+  const copyLabel = t(
+    isCopied ? 'assistant.actions.copied' : 'assistant.actions.copy'
+  )
+  const retryLabel = t('assistant.actions.retry')
 
   return (
     <ActionBarPrimitive.Root
@@ -32,19 +26,22 @@ const AssistantMessageActions = ({ canCopy }) => {
       className="u-flex u-flex-items-center u-mt-half"
     >
       {canCopy && (
-        <ActionBarPrimitive.Copy asChild>
-          <ActionButton
-            icon={isCopied ? Check : Copy}
-            label={t(
-              isCopied ? 'assistant.actions.copied' : 'assistant.actions.copy'
-            )}
-          />
-        </ActionBarPrimitive.Copy>
+        <Tooltip title={copyLabel}>
+          <ActionBarPrimitive.Copy asChild>
+            <IconButton size="small" aria-label={copyLabel}>
+              <Icon icon={isCopied ? Check : Copy} size={ICON_SIZE} />
+            </IconButton>
+          </ActionBarPrimitive.Copy>
+        </Tooltip>
       )}
       {isLast && (
-        <ActionBarPrimitive.Reload asChild>
-          <ActionButton icon={Restore} label={t('assistant.actions.retry')} />
-        </ActionBarPrimitive.Reload>
+        <Tooltip title={retryLabel}>
+          <ActionBarPrimitive.Reload asChild>
+            <IconButton size="small" aria-label={retryLabel}>
+              <Icon icon={Restore} size={ICON_SIZE} />
+            </IconButton>
+          </ActionBarPrimitive.Reload>
+        </Tooltip>
       )}
     </ActionBarPrimitive.Root>
   )
