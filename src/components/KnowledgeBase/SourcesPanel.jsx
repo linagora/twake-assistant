@@ -1,7 +1,7 @@
 import cx from 'classnames'
 import React from 'react'
 
-import { Cross, Drive, Icon, LinkOut, Next } from '@linagora/twake-icons'
+import { Cross, Drive, Icon, LinkOut } from '@linagora/twake-icons'
 import { useClient, generateWebLink } from 'cozy-client'
 import Button from 'cozy-ui/transpiled/react/Buttons'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
@@ -67,19 +67,8 @@ export const SourcesPanel = ({
           <Icon icon={Drive} size={20} preserveColor aria-hidden="true" />
         </ListItemIcon>
         <ListItemText
-          // The whole Drive is not a folder of Drive
-          primary={
-            isRoot ? (
-              t('assistant.twake_knowledges.drive')
-            ) : (
-              <span className="u-flex u-flex-items-center">
-                {t('assistant.twake_knowledges.drive')}
-                <Icon icon={Next} size={16} className="u-mh-half" />
-                <span className="u-ellipsis">{folderName}</span>
-              </span>
-            )
-          }
-          primaryTypographyProps={{ variant: 'body2' }}
+          primary={folderName}
+          primaryTypographyProps={{ variant: 'body2', className: 'u-ellipsis' }}
           secondary={t(
             isRoot
               ? 'assistant.sources_panel.any_content'
