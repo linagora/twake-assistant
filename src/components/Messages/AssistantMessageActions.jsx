@@ -29,7 +29,7 @@ const AssistantMessageActions = ({ canCopy }) => {
   return (
     <ActionBarPrimitive.Root
       hideWhenRunning
-      className="u-flex u-flex-items-center"
+      className="u-flex u-flex-items-center u-mt-half"
     >
       {canCopy && (
         <ActionBarPrimitive.Copy asChild>
