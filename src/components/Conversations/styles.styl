@@ -120,20 +120,14 @@
         opacity 1
 
 .conversationViewport
-  // Thin and shown on hover, as the one of the sidebar
+  // Thin and shown on hover, as the one of the sidebar. No room kept for
+  // it: the design runs the messages to the margins, and the 8px it takes
+  // when it shows up barely move them
   scrollbar-width thin
   scrollbar-color transparent transparent
-  // Its room is kept on both sides: the messages do not move when it shows
-  // up, and stay centered above the composer
-  scrollbar-gutter stable both-edges
 
   &:hover
     scrollbar-color var(--borderMainColor) transparent
-
-  +mobile()
-    // No gutter on mobile: the design runs the text to the margins, and the
-    // scrollbar of a phone is an overlay that takes no room
-    scrollbar-gutter auto
 
   // With messages only, so the welcome screen keeps its spacing
   &--filled
