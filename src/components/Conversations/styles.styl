@@ -131,10 +131,9 @@
     scrollbar-color var(--borderMainColor) transparent
 
   +mobile()
-    // Small symmetric gutter so the LLM response uses nearly the full
-    // mobile width
-    padding-left 8px
-    padding-right 8px
+    // No gutter on mobile: the design runs the text to the margins, and the
+    // scrollbar of a phone is an overlay that takes no room
+    scrollbar-gutter auto
 
   // With messages only, so the welcome screen keeps its spacing
   &--filled
