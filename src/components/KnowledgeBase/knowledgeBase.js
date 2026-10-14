@@ -1,3 +1,5 @@
+import { HasMany } from 'cozy-client'
+
 import {
   buildAssistantByIdQuery,
   EMAIL_DOCTYPE,
@@ -41,8 +43,13 @@ export const makeKnowledgeBaseEntry = pickedFolder => ({
 
 export const makeEmailKnowledgeBaseEntry = () => ({ doctype: EMAIL_DOCTYPE })
 
+// Not declared in the schema: cozy-client would hydrate it over the
+// deprecated attribute of the same name, and handle it as a referenced_by of
+// the files (HasManyFiles).
+const KNOWLEDGE_BASE = 'knowledgeBase'
+
 export const hasKnowledgeBaseRelationship = assistant =>
-  Array.isArray(assistant?.relationships?.knowledgeBase?.data)
+  Array.isArray(assistant?.relationships?.[KNOWLEDGE_BASE]?.data)
 
 /**
  * Reads the relationship, else the deprecated attribute of older assistants.
@@ -53,10 +60,11 @@ export const getKnowledgeBase = assistant => {
   if (!hasKnowledgeBaseRelationship(assistant)) {
     return assistant?.knowledgeBase || []
   }
-  return assistant.relationships.knowledgeBase.data.map(({ _id, _type }) =>
-    _type === FILES_DOCTYPE
-      ? { doctype: _type, dirId: _id }
-      : { doctype: _type }
+  return HasMany.getHasManyItems(assistant, KNOWLEDGE_BASE).map(
+    ({ _id, _type }) =>
+      _type === FILES_DOCTYPE
+        ? { doctype: _type, dirId: _id }
+        : { doctype: _type }
   )
 }
 
@@ -68,20 +76,17 @@ export const getKnowledgeBase = assistant => {
  */
 export const withKnowledgeBase = (assistant, knowledgeBase) => {
   const entries = withRootFolderIfMissing(knowledgeBase)
-  return {
-    ...assistant,
-    knowledgeBase: entries,
-    relationships: {
-      ...assistant.relationships,
-      knowledgeBase: {
-        data: entries.map(entry =>
-          entry.dirId
-            ? { _id: entry.dirId, _type: entry.doctype }
-            : { _type: entry.doctype }
-        )
-      }
-    }
-  }
+  return HasMany.updateRelationship(
+    { ...assistant, knowledgeBase: entries },
+    KNOWLEDGE_BASE,
+    () => ({
+      data: entries.map(entry =>
+        entry.dirId
+          ? { _id: entry.dirId, _type: entry.doctype }
+          : { _type: entry.doctype }
+      )
+    })
+  )
 }
 
 export const hasEmailKnowledgeBase = assistant =>
