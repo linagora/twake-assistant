@@ -8,7 +8,8 @@ import {
   ROOT_DIR_ID,
   isRootDirId,
   withRootFolderIfMissing,
-  saveKnowledgeBase
+  saveKnowledgeBase,
+  getKnowledgeBase
 } from './knowledgeBase'
 import { createRagIndexTriggers } from './ragIndexing'
 
@@ -170,6 +171,33 @@ describe('isRootDirId', () => {
   })
 })
 
+describe('getKnowledgeBase', () => {
+  it('reads the entries from the relationship', () => {
+    expect(
+      getKnowledgeBase({
+        relationships: {
+          knowledgeBase: {
+            data: [
+              { _id: 'folder-1', _type: 'io.cozy.files' },
+              { _type: 'com.linagora.email' }
+            ]
+          }
+        },
+        knowledgeBase: [{ doctype: 'io.cozy.files', dirId: 'old' }]
+      })
+    ).toEqual([
+      { doctype: 'io.cozy.files', dirId: 'folder-1' },
+      { doctype: 'com.linagora.email' }
+    ])
+  })
+
+  it('falls back to the deprecated attribute without relationship', () => {
+    const knowledgeBase = [{ doctype: 'io.cozy.files', dirId: 'old' }]
+    expect(getKnowledgeBase({ knowledgeBase })).toBe(knowledgeBase)
+    expect(getKnowledgeBase(undefined)).toEqual([])
+  })
+})
+
 describe('saveKnowledgeBase', () => {
   it('refetches the assistant and saves it with the new knowledgeBase', async () => {
     const assistantDoc = {
@@ -188,7 +216,10 @@ describe('saveKnowledgeBase', () => {
     expect(client.query).toHaveBeenCalledTimes(1)
     expect(client.save).toHaveBeenCalledWith({
       ...assistantDoc,
-      knowledgeBase
+      knowledgeBase,
+      relationships: {
+        knowledgeBase: { data: [{ _id: 'folder-1', _type: 'io.cozy.files' }] }
+      }
     })
   })
 
@@ -212,11 +243,21 @@ describe('saveKnowledgeBase', () => {
     expect(client.query).toHaveBeenCalledTimes(1)
     expect(updater).toHaveBeenCalledWith(assistantDoc.knowledgeBase)
     expect(client.save).toHaveBeenCalledWith({
-      ...assistantDoc,
+      _id: 'assistant-1',
+      _type: 'io.cozy.ai.chat.assistants',
+      name: 'My assistant',
       knowledgeBase: [
         { doctype: 'io.cozy.files', dirId: 'fresh-folder' },
         { doctype: 'com.linagora.email' }
-      ]
+      ],
+      relationships: {
+        knowledgeBase: {
+          data: [
+            { _id: 'fresh-folder', _type: 'io.cozy.files' },
+            { _type: 'com.linagora.email' }
+          ]
+        }
+      }
     })
   })
 
@@ -239,7 +280,15 @@ describe('saveKnowledgeBase', () => {
       knowledgeBase: [
         { doctype: 'io.cozy.email' },
         { doctype: 'io.cozy.files', dirId: ROOT_DIR_ID }
-      ]
+      ],
+      relationships: {
+        knowledgeBase: {
+          data: [
+            { _type: 'io.cozy.email' },
+            { _id: ROOT_DIR_ID, _type: 'io.cozy.files' }
+          ]
+        }
+      }
     })
   })
 
@@ -247,7 +296,10 @@ describe('saveKnowledgeBase', () => {
     const assistantDoc = {
       _id: 'assistant-1',
       _type: 'io.cozy.ai.chat.assistants',
-      knowledgeBase: [{ doctype: 'io.cozy.files', dirId: 'folder-1' }]
+      relationships: {
+        provider: { data: { _id: 'account-1' } },
+        knowledgeBase: { data: [{ _id: 'folder-1', _type: 'io.cozy.files' }] }
+      }
     }
     const client = {
       query: jest.fn().mockResolvedValue({ data: assistantDoc }),
@@ -258,7 +310,11 @@ describe('saveKnowledgeBase', () => {
 
     expect(client.save).toHaveBeenCalledWith({
       ...assistantDoc,
-      knowledgeBase: [{ doctype: 'io.cozy.files', dirId: ROOT_DIR_ID }]
+      knowledgeBase: [{ doctype: 'io.cozy.files', dirId: ROOT_DIR_ID }],
+      relationships: {
+        provider: { data: { _id: 'account-1' } },
+        knowledgeBase: { data: [{ _id: ROOT_DIR_ID, _type: 'io.cozy.files' }] }
+      }
     })
   })
 

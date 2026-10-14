@@ -41,8 +41,51 @@ export const makeKnowledgeBaseEntry = pickedFolder => ({
 
 export const makeEmailKnowledgeBaseEntry = () => ({ doctype: EMAIL_DOCTYPE })
 
+export const hasKnowledgeBaseRelationship = assistant =>
+  Array.isArray(assistant?.relationships?.knowledgeBase?.data)
+
+/**
+ * Reads the relationship, else the deprecated attribute of older assistants.
+ * The stack falls back to the attribute only when the relationship has no
+ * folder; the relationships saved here always have one.
+ */
+export const getKnowledgeBase = assistant => {
+  if (!hasKnowledgeBaseRelationship(assistant)) {
+    return assistant?.knowledgeBase || []
+  }
+  return assistant.relationships.knowledgeBase.data.map(({ _id, _type }) =>
+    _type === FILES_DOCTYPE
+      ? { doctype: _type, dirId: _id }
+      : { doctype: _type }
+  )
+}
+
+/**
+ * Also writes the deprecated attribute, for the transition: cozy-client's
+ * editAssistant saves the provider relationship only (the stack then falls
+ * back to the attribute), and older cozy-search reads only the attribute.
+ * The email entry has no id: it stands for every email.
+ */
+export const withKnowledgeBase = (assistant, knowledgeBase) => {
+  const entries = withRootFolderIfMissing(knowledgeBase)
+  return {
+    ...assistant,
+    knowledgeBase: entries,
+    relationships: {
+      ...assistant.relationships,
+      knowledgeBase: {
+        data: entries.map(entry =>
+          entry.dirId
+            ? { _id: entry.dirId, _type: entry.doctype }
+            : { _type: entry.doctype }
+        )
+      }
+    }
+  }
+}
+
 export const hasEmailKnowledgeBase = assistant =>
-  !!assistant?.knowledgeBase?.some(entry => entry.doctype === EMAIL_DOCTYPE)
+  getKnowledgeBase(assistant).some(entry => entry.doctype === EMAIL_DOCTYPE)
 
 export const withKnowledgeBaseEntry = (knowledgeBase = [], entry) => [
   ...knowledgeBase.filter(e => e.doctype !== entry.doctype),
@@ -53,7 +96,7 @@ export const withoutKnowledgeBaseDoctype = (knowledgeBase = [], doctype) =>
   knowledgeBase.filter(e => e.doctype !== doctype)
 
 export const getKnowledgeBaseDirId = assistant =>
-  assistant?.knowledgeBase?.find(entry => entry.doctype === FILES_DOCTYPE)
+  getKnowledgeBase(assistant).find(entry => entry.doctype === FILES_DOCTYPE)
     ?.dirId ?? null
 
 /**
@@ -75,12 +118,9 @@ export const saveKnowledgeBase = async (
   })
   const knowledgeBase =
     typeof knowledgeBaseOrUpdater === 'function'
-      ? knowledgeBaseOrUpdater(assistant?.knowledgeBase)
+      ? knowledgeBaseOrUpdater(getKnowledgeBase(assistant))
       : knowledgeBaseOrUpdater
-  await client.save({
-    ...assistant,
-    knowledgeBase: withRootFolderIfMissing(knowledgeBase)
-  })
+  await client.save(withKnowledgeBase(assistant, knowledgeBase))
   await createRagIndexTriggers(client).catch(error => {
     // eslint-disable-next-line no-console
     console.warn('cannot set up the rag-index triggers', error)
