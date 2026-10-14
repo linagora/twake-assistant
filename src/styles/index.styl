@@ -1,3 +1,5 @@
 body
     display flex
-    height 100vh
+    // The visible height (see useVisualViewportHeight): nothing to scroll
+    // when the keyboard of a phone shows up
+    height var(--visual-viewport-height, 100dvh)

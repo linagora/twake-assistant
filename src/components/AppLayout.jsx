@@ -12,8 +12,11 @@ import {
   DOCTYPE_AI_CHAT_ASSISTANTS,
   DOCTYPE_AI_CHAT_CONVERSATIONS
 } from '@/doctypes'
+import { useVisualViewportHeight } from '@/hooks/useVisualViewportHeight'
 
 export function AppLayout() {
+  useVisualViewportHeight()
+
   return (
     <Layout monoColumn>
       <RealTimeQueries doctype={DOCTYPE_AI_CHAT_CONVERSATIONS} />

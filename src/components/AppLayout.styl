@@ -4,7 +4,9 @@ $coz-bar-size = 3rem
 
 .assistant-view
     padding 0
-    height 'calc(100vh - %s - 1px)' % $coz-bar-size
+    // The visible height (see useVisualViewportHeight), the bar and its
+    // border
+    height 'calc(var(--visual-viewport-height, 100dvh) - %s - 1px)' % $coz-bar-size
     display flex
     flex-direction column
     flex 1
