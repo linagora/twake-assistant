@@ -59,11 +59,8 @@ const Conversation = ({ className }) => {
   return (
     <div className="u-flex u-h-100">
       <ThreadPrimitive.Root
-        // The gutters: the messages and the composer are centered up to a max
-        // width, and keep a margin from the edges when the screen is narrower
         className={cx(
           'u-flex-auto u-miw-0 u-flex u-flex-column u-flex-items-center u-flex-justify-between u-h-100 u-bxz u-pos-relative',
-          isMobile ? 'u-ph-1' : 'u-ph-2',
           className
         )}
       >
@@ -78,11 +75,16 @@ const Conversation = ({ className }) => {
             })}
           />
         )}
+        {/* The gutters: the messages, the welcome and the composer are
+            centered up to a max width, and keep a margin from the edges when
+            the screen is narrower. Inside the viewport, so that its scrollbar
+            runs along the edge. */}
         <ThreadPrimitive.Viewport
           autoScroll
           onScroll={event => setIsScrolled(event.currentTarget.scrollTop > 0)}
           className={cx(
             'u-w-100 u-bxz u-ov-auto',
+            isMobile ? 'u-ph-1' : 'u-ph-2',
             styles.conversationViewport,
             {
               'u-flex-auto': !isThreadEmpty,
@@ -116,7 +118,7 @@ const Conversation = ({ className }) => {
           </div>
         </ThreadPrimitive.Viewport>
         <div
-          className={cx('u-w-100', {
+          className={cx('u-w-100 u-bxz', isMobile ? 'u-ph-1' : 'u-ph-2', {
             [styles['composer-dock']]: !isThreadEmpty
           })}
         >

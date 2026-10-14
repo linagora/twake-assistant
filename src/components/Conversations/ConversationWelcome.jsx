@@ -52,7 +52,8 @@ export const ConversationWelcome = ({ inputRef }) => {
   return (
     <div
       className={cx(
-        'u-pos-relative u-w-100 u-maw-7 u-mh-auto u-mb-3 u-flex u-flex-auto u-flex-column u-flex-items-center u-flex-justify-center',
+        'u-pos-relative u-w-100 u-maw-7 u-mh-auto u-mb-3 u-bxz u-flex u-flex-auto u-flex-column u-flex-items-center u-flex-justify-center',
+        isMobile ? 'u-ph-1' : 'u-ph-2',
         styles['welcome']
       )}
     >
