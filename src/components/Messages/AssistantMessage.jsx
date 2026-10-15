@@ -3,14 +3,15 @@ import React from 'react'
 
 import AssistantMessageActions from './AssistantMessageActions'
 
-import { Answer } from '@/components/Messages/Answer'
+import { Answer, getText } from '@/components/Messages/Answer'
 
 const AssistantMessage = () => {
   const isError = useMessage(s => s.metadata?.custom?.isError === true)
+  const hasText = useMessage(message => getText(message) !== '')
 
   return (
     <Answer>
-      <AssistantMessageActions canCopy={!isError} />
+      <AssistantMessageActions canCopy={!isError && hasText} />
     </Answer>
   )
 }
