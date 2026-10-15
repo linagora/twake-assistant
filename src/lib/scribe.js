@@ -1,6 +1,6 @@
 import { CheckList, Globe, Text, TextInfo } from '@linagora/twake-icons'
 
-import { removeSourceMarks } from '@/lib/chat'
+import { removeSourceMarks, toPlainText } from '@/lib/chat'
 import { findExampleError } from '@/lib/chatActions'
 import { DEFAULT_MENU_SUGGESTION } from '@/lib/intent'
 import catalogue from '@/lib/scribePrompts.json'
@@ -274,7 +274,7 @@ export function getScribeConversationDescription(conversation) {
   const answer = conversation.messages?.findLast(
     message => message.role === 'assistant'
   )
-  return removeSourceMarks(answer?.content ?? '')
+  return toPlainText(answer?.content ?? '')
 }
 
 /**

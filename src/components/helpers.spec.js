@@ -179,6 +179,19 @@ describe('getDescriptionOfConversation', () => {
     expect(getDescriptionOfConversation(convo)).toBe('It is 4')
   })
 
+  it('describes an answer in Markdown by its words', () => {
+    const convo = {
+      messages: [
+        { role: 'user', content: 'sum?' },
+        {
+          role: 'assistant',
+          content: '**It is 4**, see [the sums](https://x.org/sums_(table))'
+        }
+      ]
+    }
+    expect(getDescriptionOfConversation(convo)).toBe('It is 4, see the sums')
+  })
+
   it('returns the translated fallback when the last assistant message has no content', () => {
     const t = key => key
     const convo = {
@@ -188,6 +201,18 @@ describe('getDescriptionOfConversation', () => {
       ]
     }
     expect(getDescriptionOfConversation(convo, t)).toBe('chat.empty')
+  })
+
+  it('does not apply the fallback to an answer of Markdown only', () => {
+    const t = key => key
+    const answer = content => ({
+      messages: [
+        { role: 'user', content: 'A chart?' },
+        { role: 'assistant', content }
+      ]
+    })
+    expect(getDescriptionOfConversation(answer('![](chart.png)'), t)).toBe('')
+    expect(getDescriptionOfConversation(answer('---'), t)).toBe('')
   })
 
   it('has no description, not the fallback, before the first answer', () => {
