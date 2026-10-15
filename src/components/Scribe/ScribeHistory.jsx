@@ -3,11 +3,15 @@ import React, { useId } from 'react'
 import { isQueryLoading, useQuery } from 'cozy-client'
 import List from 'cozy-ui/transpiled/react/List'
 import ListItem from 'cozy-ui/transpiled/react/ListItem'
+import ListItemSecondaryAction from 'cozy-ui/transpiled/react/ListItemSecondaryAction'
 import ListItemText from 'cozy-ui/transpiled/react/ListItemText'
 import Spinner from 'cozy-ui/transpiled/react/Spinner'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
+import { remove } from '@/actions/delete'
+import ConversationActions from '@/components/Conversations/ConversationActions'
+import listStyles from '@/components/Conversations/styles.styl'
 import styles from '@/components/Scribe/styles.styl'
 import {
   formatConversationDate,
@@ -17,8 +21,9 @@ import { getScribeConversationDescription } from '@/lib/scribe'
 import { buildConversationsQuery } from '@/queries'
 
 const conversationsQuery = buildConversationsQuery()
+const historyActions = [remove]
 
-function HistoryItem({ conversation, isSelected, onOpen }) {
+function HistoryItem({ conversation, isSelected, onOpen, onDelete }) {
   const { t, lang } = useI18n()
 
   return (
@@ -29,8 +34,12 @@ function HistoryItem({ conversation, isSelected, onOpen }) {
       className="u-ph-half u-bdrs-4"
       selected={isSelected}
       onClick={() => onOpen(conversation)}
+      ContainerProps={{
+        className: listStyles['conversation-list-item-container']
+      }}
     >
       <ListItemText
+        className={listStyles['conversation-list-item-text']}
         primary={getNameOfConversation(conversation, t)}
         primaryTypographyProps={{ variant: 'body2', noWrap: true }}
         secondary={
@@ -60,11 +69,21 @@ function HistoryItem({ conversation, isSelected, onOpen }) {
         }
         secondaryTypographyProps={{ component: 'div' }}
       />
+      <ListItemSecondaryAction
+        className={listStyles['conversation-list-item-secondary-action']}
+      >
+        <ConversationActions
+          actions={historyActions}
+          buttonClassName={listStyles['conversation-list-item-menu-button']}
+          conversation={conversation}
+          onDelete={onDelete}
+        />
+      </ListItemSecondaryAction>
     </ListItem>
   )
 }
 
-function HistoryContent({ conversationId, labelId, onOpen }) {
+function HistoryContent({ conversationId, labelId, onOpen, onDelete }) {
   const { t } = useI18n()
   const result = useQuery(
     conversationsQuery.definition,
@@ -101,6 +120,7 @@ function HistoryContent({ conversationId, labelId, onOpen }) {
           conversation={conversation}
           isSelected={conversation._id === conversationId}
           onOpen={onOpen}
+          onDelete={onDelete}
         />
       ))}
     </List>
@@ -109,7 +129,7 @@ function HistoryContent({ conversationId, labelId, onOpen }) {
 
 /**
  * The past conversations, the last one first: a click opens one in the
- * scribe
+ * scribe, its menu deletes it
  */
 export function ScribeHistory(props) {
   const { t } = useI18n()
