@@ -9,11 +9,11 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
 import styles from '@/components/Scribe/styles.styl'
-import { formatConversationDate } from '@/components/helpers'
 import {
-  getScribeConversationDescription,
-  getScribeConversationTitle
-} from '@/lib/scribe'
+  formatConversationDate,
+  getNameOfConversation
+} from '@/components/helpers'
+import { getScribeConversationDescription } from '@/lib/scribe'
 import { buildConversationsQuery } from '@/queries'
 
 const conversationsQuery = buildConversationsQuery()
@@ -31,7 +31,7 @@ function HistoryItem({ conversation, isSelected, onOpen }) {
       onClick={() => onOpen(conversation)}
     >
       <ListItemText
-        primary={getScribeConversationTitle(conversation, t)}
+        primary={getNameOfConversation(conversation, t)}
         primaryTypographyProps={{ variant: 'body2', noWrap: true }}
         secondary={
           <>

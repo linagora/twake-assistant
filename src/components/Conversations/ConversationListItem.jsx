@@ -4,6 +4,7 @@ import React from 'react'
 import ListItem from 'cozy-ui/transpiled/react/ListItem'
 import ListItemSecondaryAction from 'cozy-ui/transpiled/react/ListItemSecondaryAction'
 import ListItemText from 'cozy-ui/transpiled/react/ListItemText'
+import { useI18n } from 'twake-i18n'
 
 import ConversationActions from './ConversationActions'
 import styles from './styles.styl'
@@ -15,6 +16,8 @@ const ConversationListItem = ({
   onOpenConversation,
   onDelete
 }) => {
+  const { t } = useI18n()
+
   return (
     <ListItem
       button
@@ -40,7 +43,7 @@ const ConversationListItem = ({
               styles['conversation-list-item-title']
             )}
           >
-            {getNameOfConversation(conversation)}
+            {getNameOfConversation(conversation, t)}
           </span>
         }
       />
