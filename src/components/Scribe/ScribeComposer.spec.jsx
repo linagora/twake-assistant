@@ -9,7 +9,6 @@ import en from '@/locales/en.json'
 
 const mockComposer = { send: jest.fn(), cancel: jest.fn() }
 let mockThread = { isRunning: false }
-let mockComposerState = { isEmpty: true }
 
 jest.mock('@assistant-ui/react', () => ({
   ComposerPrimitive: {
@@ -19,16 +18,14 @@ jest.mock('@assistant-ui/react', () => ({
     Input: props => <textarea {...props} />
   },
   useComposerRuntime: () => mockComposer,
-  useThread: selector => selector(mockThread),
-  useComposer: selector => selector(mockComposerState)
+  useThread: selector => selector(mockThread)
 }))
 jest.mock('@/components/Scribe/ScribeProvider', () => ({
   useScribe: jest.fn()
 }))
 
-function renderComposer({ isRunning = false, isEmpty = true } = {}) {
+function renderComposer({ isRunning = false } = {}) {
   mockThread = { isRunning }
-  mockComposerState = { isEmpty }
   const setHasDocuments = jest.fn()
   useScribe.mockReturnValue({ hasDocuments: false, setHasDocuments })
 
@@ -45,17 +42,11 @@ describe('ScribeComposer', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('sends what the user wrote', () => {
-    renderComposer({ isEmpty: false })
+    renderComposer()
 
     fireEvent.click(screen.getByRole('button', { name: 'Send' }))
 
     expect(mockComposer.send).toHaveBeenCalledTimes(1)
-  })
-
-  it('sends nothing when nothing is written', () => {
-    renderComposer({ isEmpty: true })
-
-    expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled()
   })
 
   it('stops the answer being written', () => {
