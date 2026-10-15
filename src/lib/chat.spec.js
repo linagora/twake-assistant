@@ -345,6 +345,19 @@ describe('makeChatAdapter', () => {
     expect(results.at(-1).metadata.custom).toEqual({ isError: true })
   })
 
+  it('tells when the assistant of the conversation was deleted', async () => {
+    const { adapter } = setup({
+      events: [{ object: 'error', message: 'assistant not found' }]
+    })
+
+    const results = await run(adapter, [userMessage('Fix it')])
+
+    expect(results.at(-1).metadata.custom).toEqual({
+      isError: true,
+      isAssistantGone: true
+    })
+  })
+
   it('tells when the answer is empty', async () => {
     const { adapter } = setup({ events: [{ object: 'done' }] })
 
