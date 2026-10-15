@@ -67,7 +67,7 @@ describe('getNameOfConversation', () => {
     ).toBeUndefined()
   })
 
-  it('returns the content of the second to last message', () => {
+  it('returns the first question of the user', () => {
     const convo = {
       messages: [
         { role: 'user', content: 'What is the sum?' },
@@ -75,6 +75,26 @@ describe('getNameOfConversation', () => {
       ]
     }
     expect(getNameOfConversation(convo)).toBe('What is the sum?')
+  })
+
+  it('returns the first question even when it has no answer', () => {
+    expect(
+      getNameOfConversation({
+        messages: [{ role: 'user', content: 'What failed?' }]
+      })
+    ).toBe('What failed?')
+  })
+
+  it('keeps the first question when the user asks another', () => {
+    expect(
+      getNameOfConversation({
+        messages: [
+          { role: 'user', content: 'What is the sum?' },
+          { role: 'assistant', content: 'It is 4 [Sources: 1]' },
+          { role: 'user', content: 'And the product?' }
+        ]
+      })
+    ).toBe('What is the sum?')
   })
 })
 
