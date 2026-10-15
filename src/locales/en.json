@@ -292,6 +292,7 @@
       "running": "Thinking…",
       "done": "Thought process"
     },
+    "assistant_gone": "The agent of this conversation was deleted: start a new conversation to go on.",
     "error": "An error occurred while writing the answer. Please try again.",
     "empty": "I could not find an answer to your request. Please try rephrasing it.",
     "sources": "%{smart_count} source |||| %{smart_count} sources"
