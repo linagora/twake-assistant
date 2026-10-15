@@ -97,10 +97,16 @@ describe('Answer', () => {
     expect(screen.queryByText('Bonj')).toBeInTheDocument()
   })
 
-  it('tells when the answer is empty', () => {
-    renderAnswer(answer('', 'complete', { isEmpty: true }))
+  it('tells when the answer is empty, and hides its sources', () => {
+    renderAnswer(
+      answer('', 'complete', {
+        isEmpty: true,
+        sources: [{ id: 'f1' }, { id: 'f2' }]
+      })
+    )
 
     expect(screen.queryByText(en.chat.empty)).toBeInTheDocument()
+    expect(screen.queryByTestId('sources')).toBe(null)
   })
 
   it('tells that an answer with only a call is empty, unless the view shows the call', () => {
