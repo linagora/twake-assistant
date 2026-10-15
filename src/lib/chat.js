@@ -1,5 +1,7 @@
 import Minilog from 'cozy-minilog'
 
+import { buildChatConversationQueryById } from '@/components/queries'
+import { DOCTYPE_AI_CHAT_CONVERSATIONS } from '@/doctypes'
 import { ChatEventStream } from '@/lib/chatEvents'
 import { stopAnswerOnAbort } from '@/lib/stopAnswer'
 
@@ -23,11 +25,42 @@ export function removeSourceMarks(text) {
   return SOURCE_MARKS.reduce((result, mark) => result.replace(mark, ''), text)
 }
 
-function findLastUserText(messages) {
-  const message = messages.findLast(message => message.role === 'user')
+function getText(message) {
   const part = message?.content.find(part => part.type === 'text')
 
   return part?.text ?? null
+}
+
+/**
+ * Takes a message of the user, and what follows it, out of the
+ * conversation: sent again to regenerate its answer, the stack would keep it
+ * twice, with both answers
+ *
+ * @returns {Promise<(() => Promise<unknown>)|null>} puts them back, for a
+ * message that could not be sent again
+ */
+async function forgetMessage(client, conversationId, messageId) {
+  const { definition, options } = buildChatConversationQueryById(conversationId)
+  // In the background: the conversation shown waits while its query loads
+  const { data: conversation } = await client.query(definition, {
+    as: options.as,
+    backgroundFetching: true
+  })
+  const index =
+    conversation?.messages?.findIndex(message => message.id === messageId) ?? -1
+  if (index === -1) return null
+
+  const { data: saved } = await client.save({
+    ...conversation,
+    _type: DOCTYPE_AI_CHAT_CONVERSATIONS,
+    messages: conversation.messages.slice(0, index)
+  })
+  return () =>
+    client.save({
+      ...saved,
+      _type: DOCTYPE_AI_CHAT_CONVERSATIONS,
+      messages: conversation.messages
+    })
 }
 
 // The stack answers with the conversation: its last message is the one just
@@ -97,6 +130,9 @@ function makeAnswer() {
  * @param {(index: number) => number} [options.getTextIndex] - the index,
  * among the messages of the user, of the first one about the text of the
  * app, given the index of the message sent
+ * @param {Map<string, string>} [options.storedIds] - the id in the
+ * conversation of each message of the user it already holds, by its id in
+ * assistant-ui: filled as messages are sent
  * @returns {import('@assistant-ui/react').ChatModelAdapter}
  */
 export function makeChatAdapter({
@@ -104,11 +140,13 @@ export function makeChatAdapter({
   conversationId,
   events,
   getRequest,
-  getTextIndex = () => 0
+  getTextIndex = () => 0,
+  storedIds = new Map()
 }) {
   return {
     async *run({ messages, abortSignal, runConfig }) {
-      const text = findLastUserText(messages)
+      const message = messages.findLast(message => message.role === 'user')
+      const text = getText(message)
       if (text === null) return
 
       const {
@@ -145,10 +183,15 @@ export function makeChatAdapter({
 
       try {
         events.clear()
-        const response = await client.stackClient.fetchJSON(
-          'POST',
-          `/ai/chat/conversations/${conversationId}`,
-          {
+        const restore = storedIds.has(message.id)
+          ? await forgetMessage(
+              client,
+              conversationId,
+              storedIds.get(message.id)
+            )
+          : null
+        const response = await client.stackClient
+          .fetchJSON('POST', `/ai/chat/conversations/${conversationId}`, {
             q: query,
             // The LLM answers alone, unless the user asks for their documents
             ...(!hasDocuments && { documents: false }),
@@ -156,14 +199,16 @@ export function makeChatAdapter({
             ...(actions?.length > 0 && { actions }),
             ...(assistantId && { assistantID: assistantId }),
             ...(websearch && { websearch: true })
-          }
-        )
+          })
+          .catch(async error => {
+            await restore?.()
+            throw error
+          })
+        const messageId = getMessageId(response)
+        storedIds.set(message.id, messageId)
         stopAnswerOnAbort({ client, conversationId, abortSignal })
 
-        for await (const event of events.read(
-          getMessageId(response),
-          abortSignal
-        )) {
+        for await (const event of events.read(messageId, abortSignal)) {
           if (event.object === 'error') throw new Error(event.message)
           if (event.object === 'sources') sources = event.content
           if (event.object === 'action') action = event.action ?? null
@@ -222,6 +267,8 @@ const DEFAULT_REQUEST = {
  * @param {number} [options.textIndex] - the index, among the messages of the
  * user, of the first one about the text of the app: the number of requests
  * of a past conversation
+ * @param {{ id: string, role: string }[]} [options.messages] - the messages
+ * of a past conversation, with their ids in it
  * @returns {{
  *   events: ChatEventStream,
  *   adapter: import('@assistant-ui/react').ChatModelAdapter,
@@ -229,7 +276,12 @@ const DEFAULT_REQUEST = {
  *   startNewText: () => void
  * }}
  */
-export function makeChat({ client, conversationId, textIndex = 0 }) {
+export function makeChat({
+  client,
+  conversationId,
+  textIndex = 0,
+  messages = []
+}) {
   const events = new ChatEventStream()
   let request = DEFAULT_REQUEST
   // The first message about the text of the app: the first new one, or the
@@ -247,7 +299,12 @@ export function makeChat({ client, conversationId, textIndex = 0 }) {
       getTextIndex: index => {
         if (firstOnText === null) firstOnText = index
         return firstOnText
-      }
+      },
+      storedIds: new Map(
+        messages
+          .filter(message => message.role === 'user')
+          .map(message => [message.id, message.id])
+      )
     }),
     setRequest: nextRequest => {
       request = { ...DEFAULT_REQUEST, ...nextRequest }
