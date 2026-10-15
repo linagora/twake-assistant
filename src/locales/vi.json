@@ -172,7 +172,7 @@
     "welcome": {
       "title": "%{name} của bạn",
       "default_title": "Trợ lý Twake của bạn",
-      "subtitle": "Câu trả lời dựa trên các tệp từ",
+      "subtitle": "Câu trả lời dựa trên mọi tệp từ",
       "default_subtitle": "Hôm nay bạn muốn làm gì?",
       "actions": {
         "summarize": {

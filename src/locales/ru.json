@@ -172,7 +172,7 @@
     "welcome": {
       "title": "Ваш %{name}",
       "default_title": "Ваш ассистент Twake",
-      "subtitle": "Ответы основаны на файлах из",
+      "subtitle": "Ответы основаны на любых файлах из",
       "default_subtitle": "Над чем вы хотите поработать сегодня?",
       "actions": {
         "summarize": {

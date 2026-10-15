@@ -155,7 +155,7 @@
     "welcome": {
       "title": "Your %{name}",
       "default_title": "Your Twake assistant",
-      "subtitle": "Answers are based on files from",
+      "subtitle": "Answers are based on any files from",
       "default_subtitle": "What would you like to work on today?",
       "actions": {
         "summarize": {
