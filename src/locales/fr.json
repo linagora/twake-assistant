@@ -294,6 +294,7 @@
       "running": "Réflexion…",
       "done": "Processus de réflexion"
     },
+    "assistant_gone": "L'agent de cette conversation a été supprimé : commencez une nouvelle conversation pour continuer.",
     "error": "Une erreur est survenue pendant la rédaction de la réponse. Veuillez réessayer.",
     "empty": "Je n'ai pas trouvé de réponse à votre demande. Essayez de la reformuler.",
     "sources": "%{smart_count} source |||| %{smart_count} sources"
