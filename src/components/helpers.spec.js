@@ -1,10 +1,18 @@
+import { initTranslation } from 'twake-i18n'
+
 import {
   formatConversationDate,
   getNameOfConversation,
   getDescriptionOfConversation
 } from './helpers'
 
+import { makeScribePreparePrompt } from '@/lib/scribe'
+import en from '@/locales/en.json'
+
 jest.mock('cozy-flags', () => jest.fn(() => true), { virtual: true })
+
+const polyglot = initTranslation('en', () => en)
+const t = polyglot.t.bind(polyglot)
 
 describe('formatConversationDate', () => {
   const mockT = jest.fn(key => key)
@@ -60,10 +68,10 @@ describe('formatConversationDate', () => {
 
 describe('getNameOfConversation', () => {
   it('returns undefined if messages array is empty or missing', () => {
-    expect(getNameOfConversation({})).toBeUndefined()
-    expect(getNameOfConversation({ messages: [] })).toBeUndefined()
+    expect(getNameOfConversation({}, t)).toBeUndefined()
+    expect(getNameOfConversation({ messages: [] }, t)).toBeUndefined()
     expect(
-      getNameOfConversation({ messages: [{ content: 'Hi' }] })
+      getNameOfConversation({ messages: [{ content: 'Hi' }] }, t)
     ).toBeUndefined()
   })
 
@@ -74,27 +82,63 @@ describe('getNameOfConversation', () => {
         { role: 'assistant', content: 'It is 4' }
       ]
     }
-    expect(getNameOfConversation(convo)).toBe('What is the sum?')
+    expect(getNameOfConversation(convo, t)).toBe('What is the sum?')
   })
 
   it('returns the first question even when it has no answer', () => {
     expect(
-      getNameOfConversation({
-        messages: [{ role: 'user', content: 'What failed?' }]
-      })
+      getNameOfConversation(
+        {
+          messages: [{ role: 'user', content: 'What failed?' }]
+        },
+        t
+      )
     ).toBe('What failed?')
   })
 
   it('keeps the first question when the user asks another', () => {
     expect(
-      getNameOfConversation({
-        messages: [
-          { role: 'user', content: 'What is the sum?' },
-          { role: 'assistant', content: 'It is 4 [Sources: 1]' },
-          { role: 'user', content: 'And the product?' }
-        ]
-      })
+      getNameOfConversation(
+        {
+          messages: [
+            { role: 'user', content: 'What is the sum?' },
+            { role: 'assistant', content: 'It is 4 [Sources: 1]' },
+            { role: 'user', content: 'And the product?' }
+          ]
+        },
+        t
+      )
     ).toBe('What is the sum?')
+  })
+
+  it('keeps the name the user gave', () => {
+    expect(
+      getNameOfConversation(
+        {
+          name: 'Plan',
+          messages: [{ role: 'user', content: 'What is the sum?' }]
+        },
+        t
+      )
+    ).toBe('Plan')
+  })
+})
+
+describe('getNameOfConversation of a conversation of the scribe', () => {
+  it('shows the request of a chip, not its prompt', () => {
+    const { q } = makeScribePreparePrompt('Bonjour')('correct-grammar')
+
+    expect(
+      getNameOfConversation({ messages: [{ role: 'user', content: q }] }, t)
+    ).toBe('Correct the grammar and spelling of the text.')
+  })
+
+  it('shows a request without the text of the app', () => {
+    const content = 'Add a slide\n\nText:\n"""\nBonjour\n"""'
+
+    expect(
+      getNameOfConversation({ messages: [{ role: 'user', content }] }, t)
+    ).toBe('Add a slide')
   })
 })
 

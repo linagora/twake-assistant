@@ -3,7 +3,6 @@ import { initTranslation } from 'twake-i18n'
 
 import {
   getScribeConversationDescription,
-  getScribeConversationTitle,
   getScribeRequest,
   makeScribeAnswerActions,
   makeScribeCapabilities,
@@ -293,26 +292,6 @@ describe('makeChatMessages', () => {
       { type: 'reasoning', text: '17 x 23 = 391' },
       { type: 'text', text: '391' }
     ])
-  })
-})
-
-describe('getScribeConversationTitle', () => {
-  it('names a conversation after its first request', () => {
-    const conversation = {
-      messages: [
-        { role: 'user', content: 'Hello\n\nText:\n"""\nHi\n"""' },
-        { role: 'assistant', content: 'Bonjour' },
-        { role: 'user', content: 'Shorter' }
-      ]
-    }
-
-    expect(getScribeConversationTitle(conversation, mockT)).toBe('Hello')
-  })
-
-  it('keeps the name of a named conversation', () => {
-    expect(
-      getScribeConversationTitle({ name: 'Plan', messages: [] }, mockT)
-    ).toBe('Plan')
   })
 })
 

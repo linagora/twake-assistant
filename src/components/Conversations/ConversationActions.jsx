@@ -34,7 +34,7 @@ const ConversationActions = ({ buttonClassName, conversation }) => {
   }
 
   const handleOpenRename = () => {
-    setNewName(getNameOfConversation(conversation) || '')
+    setNewName(getNameOfConversation(conversation, t) || '')
     setShowRenameDialog(true)
   }
 

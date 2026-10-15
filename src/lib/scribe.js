@@ -267,20 +267,6 @@ export function makeChatMessages(messages, t) {
 
 /**
  * @param {object} conversation - a conversation kept by the stack
- * @param {Function} t - translation function
- * @returns {string} its name, or its first request
- */
-export function getScribeConversationTitle(conversation, t) {
-  if (conversation.name) return conversation.name
-
-  const request = conversation.messages?.find(
-    message => message.role === 'user'
-  )
-  return request ? getScribeRequest(request.content, t) : ''
-}
-
-/**
- * @param {object} conversation - a conversation kept by the stack
  * @returns {string} its last answer: while an answer goes on, the last
  * message is the query sent to the LLM, with the text of the app
  */

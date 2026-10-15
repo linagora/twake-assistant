@@ -1,4 +1,5 @@
 import { removeSourceMarks } from '@/lib/chat'
+import { getScribeRequest } from '@/lib/scribe'
 
 export const makeConversationId = () =>
   `${Date.now()}-${Math.floor(Math.random() * 90000) + 10000}`
@@ -52,10 +53,15 @@ export const formatConversationDate = (dateString, t, lang) => {
   })
 }
 
-// No rule names a conversation yet: the first question of the user does
-export const getNameOfConversation = conversation =>
-  conversation.name ||
-  conversation.messages?.find(message => message.role === 'user')?.content
+// No rule names a conversation yet: the first question of the user does, as
+// the user asked it (the stack keeps the query sent to the LLM)
+export const getNameOfConversation = (conversation, t) => {
+  if (conversation.name) return conversation.name
+  const question = conversation.messages?.find(
+    message => message.role === 'user'
+  )
+  return question && getScribeRequest(question.content, t)
+}
 
 // No rule describes a conversation yet: the last answer does
 export const getDescriptionOfConversation = (conversation, t) => {
