@@ -5,6 +5,9 @@ import { stopAnswerOnAbort } from '@/lib/stopAnswer'
 
 const log = Minilog('🤖 [Chat]')
 
+// The error of the stack on a conversation whose assistant was deleted
+const ASSISTANT_NOT_FOUND = 'assistant not found'
+
 // The marks of the sources the LLM leaves in an answer from the documents:
 // [REF]doc_1[/REF], REFdoc_1/REF, [doc_1], [Source 1, 2], [Sources: 1, 2]
 const SOURCE_MARKS = [
@@ -207,7 +210,14 @@ export function makeChatAdapter({
         yield {
           content: getContent(),
           status: { type: 'incomplete', reason: 'error' },
-          metadata: { custom: { isError: true } }
+          metadata: {
+            custom: {
+              isError: true,
+              ...(error.message === ASSISTANT_NOT_FOUND && {
+                isAssistantGone: true
+              })
+            }
+          }
         }
       }
     }
