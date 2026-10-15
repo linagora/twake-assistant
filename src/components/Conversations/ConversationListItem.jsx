@@ -12,7 +12,8 @@ import { getNameOfConversation } from '../helpers'
 const ConversationListItem = ({
   conversation,
   selected,
-  onOpenConversation
+  onOpenConversation,
+  onDelete
 }) => {
   return (
     <ListItem
@@ -49,6 +50,7 @@ const ConversationListItem = ({
         <ConversationActions
           buttonClassName={styles['conversation-list-item-menu-button']}
           conversation={conversation}
+          onDelete={onDelete}
         />
       </ListItemSecondaryAction>
     </ListItem>

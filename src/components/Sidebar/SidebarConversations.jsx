@@ -1,5 +1,5 @@
 import cx from 'classnames'
-import React from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
 import flag from 'cozy-flags'
@@ -13,6 +13,7 @@ import useFetchConversations from '../../hooks/useFetchConversations'
 import AssistantSidebarItem from '../Assistant/AssistantSidebarItem'
 import { useAssistant } from '../AssistantProvider'
 import ConversationList from '../Conversations/ConversationList'
+import { makeConversationId } from '../helpers'
 
 export const SidebarConversations = () => {
   const { t } = useI18n()
@@ -20,6 +21,24 @@ export const SidebarConversations = () => {
   const { isOpenSearchConversation } = useAssistant()
   const { goToConversation } = useConversation()
   const { conversations, hasMore, fetchMore } = useFetchConversations()
+
+  // Read on a delete rather than a dependency of `handleDelete`: a stable
+  // `handleDelete` lets the memoized list items skip a conversation switch
+  const conversationIdRef = useRef(conversationId)
+  useEffect(() => {
+    conversationIdRef.current = conversationId
+  }, [conversationId])
+
+  // The open conversation is deleted: a new one takes its place in the
+  // history, so that Back does not return to the deleted one
+  const handleDelete = useCallback(
+    conversation => {
+      if (conversation._id === conversationIdRef.current) {
+        goToConversation(makeConversationId(), { replace: true })
+      }
+    },
+    [goToConversation]
+  )
 
   return (
     <>
@@ -48,6 +67,7 @@ export const SidebarConversations = () => {
             isOpenSearchConversation ? null : conversationId
           }
           onOpenConversation={goToConversation}
+          onDelete={handleDelete}
         />
         {hasMore && (
           <div className="u-flex u-flex-items-center u-flex-justify-center u-mt-1">

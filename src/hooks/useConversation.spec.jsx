@@ -47,11 +47,14 @@ describe('useConversation', () => {
       })
 
       expect(mockSetIsOpenSearchConversation).toHaveBeenCalledWith(false)
-      expect(mockNavigate).toHaveBeenCalledWith({
-        pathname: '/drive/folders/123/assistant/convo-456',
-        search: '',
-        hash: ''
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        {
+          pathname: '/drive/folders/123/assistant/convo-456',
+          search: '',
+          hash: ''
+        },
+        { state: null }
+      )
     })
 
     it('replaces existing /assistant/... path intelligently', () => {
@@ -63,11 +66,14 @@ describe('useConversation', () => {
         result.current.goToConversation('new-convo-000')
       })
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        pathname: '/drive/folders/123/assistant/new-convo-000',
-        search: '',
-        hash: ''
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        {
+          pathname: '/drive/folders/123/assistant/new-convo-000',
+          search: '',
+          hash: ''
+        },
+        { state: null }
+      )
     })
 
     it('handles trailing slashes on base path correctly', () => {
@@ -79,11 +85,14 @@ describe('useConversation', () => {
         result.current.goToConversation('convo-456')
       })
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        pathname: '/drive/folders/123/assistant/convo-456',
-        search: '',
-        hash: ''
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        {
+          pathname: '/drive/folders/123/assistant/convo-456',
+          search: '',
+          hash: ''
+        },
+        { state: null }
+      )
     })
 
     it('navigates correctly when assistant route is at the root', () => {
@@ -95,11 +104,14 @@ describe('useConversation', () => {
         result.current.goToConversation('new-convo-456')
       })
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        pathname: '/assistant/new-convo-456',
-        search: '',
-        hash: ''
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        {
+          pathname: '/assistant/new-convo-456',
+          search: '',
+          hash: ''
+        },
+        { state: null }
+      )
     })
 
     it('preserves search query and hash fragments', () => {
@@ -115,11 +127,14 @@ describe('useConversation', () => {
         result.current.goToConversation('convo-1')
       })
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        pathname: '/base/assistant/convo-1',
-        search: '?foo=bar',
-        hash: '#section1'
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        {
+          pathname: '/base/assistant/convo-1',
+          search: '?foo=bar',
+          hash: '#section1'
+        },
+        { state: null }
+      )
     })
   })
 
@@ -133,11 +148,14 @@ describe('useConversation', () => {
         result.current.createNewConversation()
       })
 
-      expect(mockNavigate).toHaveBeenCalledWith({
-        pathname: '/docs/assistant/mock-id-123',
-        search: '',
-        hash: ''
-      })
+      expect(mockNavigate).toHaveBeenCalledWith(
+        {
+          pathname: '/docs/assistant/mock-id-123',
+          search: '',
+          hash: ''
+        },
+        { state: null }
+      )
     })
 
     it('carries the picked assistant in the history state', () => {
