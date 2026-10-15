@@ -7108,11 +7108,14 @@ __metadata:
     react: "npm:18.2.0"
     react-dom: "npm:18.2.0"
     react-router-dom: "npm:6.30.6"
+    remark-gfm: "npm:^1.0.0"
+    remark-parse: "npm:^9.0.0"
     rsbuild-config-cozy-app: "npm:^0.9.0"
     stylint: "npm:1.5.9"
     stylus-config-cozy-app: "npm:^0.1.0"
     twake-i18n: "npm:^0.5.0"
     typescript: "npm:5.9.3"
+    unified: "npm:^9.0.0"
   languageName: unknown
   linkType: soft
 

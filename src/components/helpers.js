@@ -1,19 +1,22 @@
-import { removeSourceMarks } from '@/lib/chat'
+import { removeSourceMarks, toPlainText } from '@/lib/chat'
 import { getScribeRequest } from '@/lib/scribe'
 
 export const makeConversationId = () =>
   `${Date.now()}-${Math.floor(Math.random() * 90000) + 10000}`
 
 /**
- * Removes the marks of the sources, and substitutes a translated fallback
- * for an empty assistant answer.
+ * The text of a message for a one-line preview, without Markdown nor the
+ * marks of the sources, and a translated fallback for an empty assistant
+ * answer.
  * @param {{ role: string, content: string }} message
  * @param {(key: string) => string} t
  * @returns {string}
  */
 export const formatAnswer = (message, t) => {
-  const text = removeSourceMarks(message.content ?? '')
-  return message.role === 'assistant' && !text.trim() ? t('chat.empty') : text
+  const content = message.content ?? ''
+  return message.role === 'assistant' && !removeSourceMarks(content).trim()
+    ? t('chat.empty')
+    : toPlainText(content)
 }
 
 export const formatConversationDate = (dateString, t, lang) => {

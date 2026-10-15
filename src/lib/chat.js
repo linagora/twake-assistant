@@ -1,3 +1,7 @@
+import remarkGfm from 'remark-gfm'
+import remarkParse from 'remark-parse'
+import unified from 'unified'
+
 import Minilog from 'cozy-minilog'
 
 import { ChatEventStream } from '@/lib/chatEvents'
@@ -21,6 +25,33 @@ const SOURCE_MARKS = [
  */
 export function removeSourceMarks(text) {
   return SOURCE_MARKS.reduce((result, mark) => result.replace(mark, ''), text)
+}
+
+// The parser of the Markdown component of cozy-ui, which shows the answers
+const markdown = unified().use(remarkParse).use(remarkGfm)
+
+// The nodes whose children are blocks or cells, words apart
+const BLOCKS = ['root', 'blockquote', 'list', 'listItem', 'table', 'tableRow']
+
+function getWords(node) {
+  if (node.type === 'image') return node.alt ?? ''
+  if (node.type === 'break') return ' '
+  if (typeof node.value === 'string') return node.value
+
+  return (node.children ?? [])
+    .map(getWords)
+    .join(BLOCKS.includes(node.type) ? ' ' : '')
+}
+
+/**
+ * @param {string} text - the answer of the LLM, in Markdown
+ * @returns {string} its words on one line, for a preview: without the marks
+ * of its sources nor the syntax of Markdown
+ */
+export function toPlainText(text) {
+  return getWords(markdown.parse(removeSourceMarks(text)))
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 // The start of a mark at the end of an answer still written: an open
