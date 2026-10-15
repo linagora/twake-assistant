@@ -84,6 +84,8 @@ const ConversationActions = ({ buttonClassName, conversation }) => {
         className={buttonClassName}
         size="small"
         ref={anchorRef}
+        aria-label={t('assistant.sidebar.conversation.actions.more')}
+        aria-haspopup="menu"
         aria-expanded={isMenuOpen}
         onClick={toggleMenu}
       >

@@ -101,7 +101,8 @@
           "delete": "Delete",
           "rename": "Rename",
           "share": "Share",
-          "load_more": "Load more"
+          "load_more": "Load more",
+          "more": "More actions"
         }
       },
       "app": "AI",
