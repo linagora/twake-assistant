@@ -59,7 +59,9 @@ export const getNameOfConversation = conversation =>
 
 // No rule describes a conversation yet: the last answer does
 export const getDescriptionOfConversation = (conversation, t) => {
-  const lastMessage = conversation?.messages?.[conversation.messages.length - 1]
-  if (!lastMessage) return undefined
-  return formatAnswer(lastMessage, t)
+  const answer = conversation?.messages?.findLast(
+    message => message.role === 'assistant'
+  )
+  if (!answer) return undefined
+  return formatAnswer(answer, t)
 }
