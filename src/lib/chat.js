@@ -23,6 +23,13 @@ export function removeSourceMarks(text) {
   return SOURCE_MARKS.reduce((result, mark) => result.replace(mark, ''), text)
 }
 
+// The start of a mark at the end of an answer still written: an open
+// [REF]…, the first letters of [REF], [doc_1], [Source 1] or [Sources: 1]
+// (a word at most, when it is not one), an open (…) after [Sources: 1],
+// an open REF…/REF (not the REF of a whole [REF]…[/REF])
+const PARTIAL_MARK =
+  /\s?(?:\[REF\](?:(?!\[\/REF\])[\s\S])*|\[(?:R[A-Z]*\]?|d[a-z]*_?\d*|S[a-z]*:?(?:[\s\d,]|S[a-z]*)*)?|\[Sources?:?[\s\d,]*\]\([^)]*|(?<![[/])\bREF\S*)$/
+
 function findLastUserText(messages) {
   const message = messages.findLast(message => message.role === 'user')
   const part = message?.content.find(part => part.type === 'text')
@@ -55,11 +62,14 @@ function makeAnswer() {
         chunks.push(content)
       }
     },
-    // What can be shown: the pieces before the first one still awaited
-    getText: () => {
+    // What can be shown: the pieces before the first one still awaited. Until
+    // the answer is whole, the start of a mark is held back: it would show
+    // until its end comes.
+    getText: ({ isWhole = false } = {}) => {
       const missing = Array.from(chunks).findIndex(chunk => chunk === undefined)
       const known = missing === -1 ? chunks : chunks.slice(0, missing)
-      return removeSourceMarks(known.join(''))
+      const text = known.join('')
+      return removeSourceMarks(isWhole ? text : text.replace(PARTIAL_MARK, ''))
     }
   }
 }
@@ -133,11 +143,11 @@ export function makeChatAdapter({
         : (custom.instructions ?? instructions)
       const answer = makeAnswer()
       const reasoning = makeAnswer()
-      const getContent = () => {
-        const thought = reasoning.getText()
+      const getContent = ({ isWhole = false } = {}) => {
+        const thought = reasoning.getText({ isWhole })
         return [
           ...(thought !== '' ? [{ type: 'reasoning', text: thought }] : []),
-          { type: 'text', text: answer.getText() }
+          { type: 'text', text: answer.getText({ isWhole }) }
         ]
       }
       let sources = null
@@ -180,9 +190,9 @@ export function makeChatAdapter({
         // The user has stopped the answer: what came stays as it is
         if (abortSignal?.aborted) return
 
-        const answerText = answer.getText()
+        const answerText = answer.getText({ isWhole: true })
         yield {
-          content: getContent(),
+          content: getContent({ isWhole: true }),
           status: { type: 'complete', reason: 'stop' },
           metadata: {
             custom: {
