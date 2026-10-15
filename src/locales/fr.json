@@ -104,7 +104,8 @@
           "delete": "Supprimer",
           "rename": "Renommer",
           "share": "Partager",
-          "load_more": "Charger plus"
+          "load_more": "Charger plus",
+          "more": "Plus d'actions"
         }
       },
       "app": "AI",
