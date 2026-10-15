@@ -18,7 +18,16 @@ import { share } from '../../actions/share'
 import { getNameOfConversation } from '../helpers'
 import { CHAT_CONVERSATIONS_DOCTYPE } from '../queries'
 
-const ConversationActions = ({ buttonClassName, conversation, onDelete }) => {
+const ConversationActions = ({
+  actions = [
+    rename,
+    flag('cozy.assistant.conversation-sharing.enabled') && share,
+    remove
+  ],
+  buttonClassName,
+  conversation,
+  onDelete
+}) => {
   const { t } = useI18n()
   const client = useClient()
   const { showAlert } = useAlert()
@@ -70,14 +79,11 @@ const ConversationActions = ({ buttonClassName, conversation, onDelete }) => {
     }
   }
 
-  const actions = makeActions(
-    [
-      rename,
-      flag('cozy.assistant.conversation-sharing.enabled') && share,
-      remove
-    ].filter(Boolean),
-    { t, onRename: handleOpenRename, onDelete: () => setShowDeleteDialog(true) }
-  )
+  const menuActions = makeActions(actions.filter(Boolean), {
+    t,
+    onRename: handleOpenRename,
+    onDelete: () => setShowDeleteDialog(true)
+  })
 
   return (
     <>
@@ -94,7 +100,7 @@ const ConversationActions = ({ buttonClassName, conversation, onDelete }) => {
         <ActionsMenu
           ref={anchorRef}
           open
-          actions={actions}
+          actions={menuActions}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'left'
