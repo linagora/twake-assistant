@@ -1,3 +1,4 @@
+@require '../../styles/scrollbar.styl'
 @require 'settings/breakpoints.styl'
 
 .composerContainer
@@ -120,14 +121,9 @@
         opacity 1
 
 .conversationViewport
-  // Thin and shown on hover, as the one of the sidebar. No room kept for
-  // it: the design runs the messages to the margins, and the 8px it takes
-  // when it shows up barely move them
-  scrollbar-width thin
-  scrollbar-color transparent transparent
-
-  &:hover
-    scrollbar-color var(--borderMainColor) transparent
+  // No room kept for the scrollbar: the design runs the messages to the
+  // margins, and the 8px it takes when it shows up barely move them
+  thin-scrollbar()
 
   // With messages only, so the welcome screen keeps its spacing
   &--filled

@@ -1,0 +1,8 @@
+// Thin, and shown on hover only: cozy-ui has no utility for it. Stylint does
+// not know these properties.
+thin-scrollbar()
+    scrollbar-width thin // @stylint ignore
+    scrollbar-color transparent transparent // @stylint ignore
+
+    &:hover
+        scrollbar-color var(--borderMainColor) transparent
