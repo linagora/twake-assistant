@@ -9,8 +9,8 @@ import { useI18n } from 'twake-i18n'
 import styles from './styles.styl'
 
 /**
- * Hosts the Drive `PICK io.cozy.files` intent (folder `reference` mode)
- * in an iframe dialog, so the surrounding wizard keeps its state.
+ * Hosts the Drive `PICK io.cozy.files` intent (folder-only `documents`
+ * action) in an iframe dialog, so the surrounding wizard keeps its state.
  */
 const FolderPickerDialog = ({ open, onClose, onSelect }) => {
   const client = useClient()
@@ -29,13 +29,16 @@ const FolderPickerDialog = ({ open, onClose, onSelect }) => {
     const startPromise = intents
       .create('PICK', 'io.cozy.files', {
         // Drive's FilePickerConfig: null hides an action, so only the
-        // side-effect-free folder `reference` action remains visible
+        // side-effect-free `documents` action remains visible. The folders
+        // of the other tabs are not on this instance: the stack cannot
+        // index them.
+        multiple: false,
+        tabs: ['drive'],
         sharingLink: null,
         downloadLink: null,
-        reference: {
+        documents: {
           label: t('assistant.knowledge_base.select_folder'),
-          allowFolder: true,
-          onlyFolder: true
+          accept: ['folder']
         }
       })
       .start(intentHost)
@@ -44,7 +47,7 @@ const FolderPickerDialog = ({ open, onClose, onSelect }) => {
       .then(result => {
         if (cancelled) return undefined
         const folder = Array.isArray(result) ? result[0] : result
-        if (folder) {
+        if (folder?.type === 'directory') {
           onSelect(folder)
         }
         onClose()

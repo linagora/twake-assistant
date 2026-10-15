@@ -38,7 +38,7 @@ export const withRootFolderIfMissing = (knowledgeBase = []) =>
 
 export const makeKnowledgeBaseEntry = pickedFolder => ({
   doctype: FILES_DOCTYPE,
-  dirId: pickedFolder.id
+  dirId: pickedFolder._id ?? pickedFolder.id
 })
 
 export const makeEmailKnowledgeBaseEntry = () => ({ doctype: EMAIL_DOCTYPE })
