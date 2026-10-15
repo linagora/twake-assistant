@@ -110,6 +110,9 @@ export function Answer({ isCallShown = false, children, ...props }) {
   const isError = useMessage(
     message => message.metadata?.custom?.isError === true
   )
+  const isAssistantGone = useMessage(
+    message => message.metadata?.custom?.isAssistantGone === true
+  )
   const sources = useMessage(message => message.metadata?.custom?.sources)
   const hasCall = useMessage(message => !!message.metadata?.custom?.action)
   const isEmpty =
@@ -130,7 +133,11 @@ export function Answer({ isCallShown = false, children, ...props }) {
         <AnswerReasoning reasoning={reasoning} isRunning={isWaiting} />
       )}
       {text !== '' && <Markdown content={text} />}
-      {isError && <Alert severity="error">{t('chat.error')}</Alert>}
+      {isError && (
+        <Alert severity="error">
+          {t(isAssistantGone ? 'chat.assistant_gone' : 'chat.error')}
+        </Alert>
+      )}
       {isEmpty && (
         <Typography color="textSecondary">{t('chat.empty')}</Typography>
       )}

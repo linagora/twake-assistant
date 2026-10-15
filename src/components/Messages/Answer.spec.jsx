@@ -97,6 +97,16 @@ describe('Answer', () => {
     expect(screen.queryByText('Bonj')).toBeInTheDocument()
   })
 
+  it('tells when the assistant of the conversation was deleted', () => {
+    renderAnswer(
+      answer('', 'incomplete', { isError: true, isAssistantGone: true })
+    )
+
+    expect(screen.queryByRole('alert')).toHaveTextContent(
+      'The agent of this conversation was deleted'
+    )
+  })
+
   it('tells when the answer is empty', () => {
     renderAnswer(answer('', 'complete', { isEmpty: true }))
 

@@ -28,7 +28,13 @@ const Conversation = ({ className }) => {
   const { isMobile } = useBreakpoints()
   const { conversationId } = useParams()
   const { createNewConversation } = useConversation()
-  const isAssistantGone = useIsConversationAssistantGone(conversationId)
+  // Also when the stack says so: deleted elsewhere, the cached assistant
+  // still looks alive
+  const isLastAnswerAssistantGone = useThread(
+    state => state.messages.at(-1)?.metadata?.custom?.isAssistantGone === true
+  )
+  const isAssistantGone =
+    useIsConversationAssistantGone(conversationId) || isLastAnswerAssistantGone
   const {
     isOpenSources: isOpenSourcesDesktop,
     setIsOpenSources: setIsOpenSourcesDesktop

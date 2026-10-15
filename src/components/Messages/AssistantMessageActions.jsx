@@ -8,7 +8,7 @@ import { useI18n } from 'twake-i18n'
 
 const ICON_SIZE = 16
 
-const AssistantMessageActions = ({ canCopy }) => {
+const AssistantMessageActions = ({ canCopy, canRetry = true }) => {
   const { t } = useI18n()
 
   const isCopied = useAuiState(({ message }) => message.isCopied)
@@ -34,7 +34,7 @@ const AssistantMessageActions = ({ canCopy }) => {
           </ActionBarPrimitive.Copy>
         </Tooltip>
       )}
-      {isLast && (
+      {isLast && canRetry && (
         <Tooltip title={retryLabel}>
           <ActionBarPrimitive.Reload asChild>
             <IconButton size="small" aria-label={retryLabel}>
