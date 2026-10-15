@@ -103,6 +103,15 @@ describe('ScribeAnswer', () => {
     ).toBeInTheDocument()
   })
 
+  it('does not offer to try again when the agent of the conversation is gone', () => {
+    renderAnswer(
+      answer('', 'incomplete', { isError: true, isAssistantGone: true }),
+      actions
+    )
+
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
+  })
+
   it('asks the answer again with the prompt of the request', () => {
     mockThread = {
       messages: [
