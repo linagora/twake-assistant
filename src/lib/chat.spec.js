@@ -1,4 +1,9 @@
-import { makeChat, makeChatAdapter, removeSourceMarks } from '@/lib/chat'
+import {
+  makeChat,
+  makeChatAdapter,
+  removeSourceMarks,
+  toPlainText
+} from '@/lib/chat'
 import { ChatEventStream } from '@/lib/chatEvents'
 
 jest.mock('cozy-minilog', () => () => ({ error: jest.fn() }))
@@ -542,5 +547,59 @@ describe('removeSourceMarks', () => {
     ['PREFIX: see the page /REFUND', 'PREFIX: see the page /REFUND']
   ])('reads %p as %p', (text, expected) => {
     expect(removeSourceMarks(text)).toBe(expected)
+  })
+})
+
+describe('toPlainText', () => {
+  it('gives the words of a Markdown answer on one line', () => {
+    const answer = [
+      '# Fake answer',
+      '',
+      'This is a **fake** answer, with _Markdown_: [Sources: 1]',
+      '',
+      '- a first item',
+      '1. a second item, with `inline code`',
+      '',
+      '| Name  | Role      |',
+      '|-------|:---------:|',
+      '| Alice | Developer |',
+      '',
+      '> A quote, a link: [Twake](https://twake.app) and ![a logo](logo.png).',
+      '',
+      '```js',
+      "console.log('hello')",
+      '```'
+    ].join('\n')
+
+    expect(toPlainText(answer)).toBe(
+      "Fake answer This is a fake answer, with Markdown: a first item a second item, with inline code Name Role Alice Developer A quote, a link: Twake and a logo. console.log('hello')"
+    )
+  })
+
+  it('keeps the characters that are no Markdown', () => {
+    expect(toPlainText('my_file_name is 2 * 3 = 6, a*b*c')).toBe(
+      'my_file_name is 2 * 3 = 6, a*b*c'
+    )
+    expect(toPlainText('2 ** 10 bytes in my__file')).toBe(
+      '2 ** 10 bytes in my__file'
+    )
+  })
+
+  it('removes bold, struck and italic by pairs', () => {
+    expect(toPlainText('**a** and **b**, ~~c~~, *d* and _e_')).toBe(
+      'a and b, c, d and e'
+    )
+  })
+
+  it('gives the text of a link with parentheses in its URL', () => {
+    expect(
+      toPlainText(
+        '[Foo](https://en.wikipedia.org/wiki/Foo_(bar)) and ![a chart](chart_(1).png)'
+      )
+    ).toBe('Foo and a chart')
+  })
+
+  it('removes the fences of code with tildes', () => {
+    expect(toPlainText('~~~python\nprint(1)\n~~~')).toBe('print(1)')
   })
 })
