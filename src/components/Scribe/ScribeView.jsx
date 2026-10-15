@@ -95,7 +95,7 @@ function ScribeConversation({ isHidden }) {
           component="p"
           className="u-mt-1 u-mb-0 u-ta-center"
         >
-          {t('scribe.disclaimer')}
+          {t('assistant.disclaimer')}
         </Typography>
       </div>
     </ThreadPrimitive.Root>
