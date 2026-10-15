@@ -15,7 +15,7 @@ import { useAlert } from 'cozy-ui/transpiled/react/providers/Alert'
 import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
 import { useI18n } from 'twake-i18n'
 
-import { useAssistant } from '../AssistantProvider'
+import useConversation from '../../hooks/useConversation'
 import AssistantDialogContent from '../CreateAssistantSteps/AssistantDialogContent'
 import {
   getProviderNameById,
@@ -35,7 +35,7 @@ const CreateAssistantDialog = ({ open, onClose }) => {
   const client = useClient()
   const { showAlert } = useAlert()
   const { isMobile } = useBreakpoints()
-  const { setSelectedAssistantId } = useAssistant()
+  const { createNewConversation } = useConversation()
 
   const {
     step,
@@ -81,7 +81,8 @@ const CreateAssistantDialog = ({ open, onClose }) => {
         savedAssistant._id,
         formData.knowledgeBase || []
       )
-      setSelectedAssistantId(savedAssistant._id)
+      // A conversation keeps the assistant it started with
+      createNewConversation(savedAssistant._id)
     }
     showAlert({ message: t('assistant_create.success'), severity: 'success' })
   }
