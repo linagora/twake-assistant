@@ -1,11 +1,8 @@
-import {
-  ComposerPrimitive,
-  useComposer,
-  useComposerRuntime
-} from '@assistant-ui/react'
+import { ComposerPrimitive, useComposer } from '@assistant-ui/react'
 import cx from 'classnames'
 import React, { forwardRef } from 'react'
 
+import { isMobile as isMobileDevice } from 'cozy-device-helper'
 import SearchBar from 'cozy-ui/transpiled/react/SearchBar'
 import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
 import { useI18n } from 'twake-i18n'
@@ -19,7 +16,11 @@ const ComposerInput = forwardRef(({ inputRef, ...props }, ref) => (
 ))
 ComposerInput.displayName = 'ComposerInput'
 
-/** `inputRef` gets the textarea: the welcome focuses it after a short action */
+/**
+ * `inputRef` gets the textarea: the welcome focuses it after a short action.
+ * Enter sends the question, except on a phone or a tablet, where it is a new
+ * line.
+ */
 const ConversationBar = ({
   placeholder,
   inputRef,
@@ -28,22 +29,14 @@ const ConversationBar = ({
 }) => {
   const { t } = useI18n()
   const { isMobile } = useBreakpoints()
-  const composerRuntime = useComposerRuntime()
   const value = useComposer(state => state.text)
-  const isEmpty = useComposer(state => state.isEmpty)
-
-  const handleKeyDown = ev => {
-    if (isEmpty || isMobile) return
-
-    if (ev.key === 'Enter' && !ev.shiftKey) {
-      ev.preventDefault()
-      composerRuntime.send()
-    }
-  }
 
   return (
     <SearchBar
       {...props}
+      // Not a form: Enter submits the closest one, which must be the
+      // composer's
+      component="div"
       elevation={0}
       className={cx(styles['conversationBar'], {
         [styles['conversationBar--mobile']]: isMobile
@@ -62,11 +55,11 @@ const ConversationBar = ({
           multiline: true,
           inputProps: {
             className: styles['conversationBar-input'],
-            onHeightChange
+            onHeightChange,
+            submitOnEnter: !isMobileDevice()
           },
           autoFocus: !isMobile,
-          inputComponent: ComposerInput,
-          onKeyDown: handleKeyDown
+          inputComponent: ComposerInput
         }
       }}
     />
