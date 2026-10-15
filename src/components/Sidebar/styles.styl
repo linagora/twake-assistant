@@ -1,3 +1,5 @@
+@require '../../styles/scrollbar.styl'
+
 .sidebar-paper
   overflow-x hidden
   background-color var(--defaultBackgroundColor) !important
@@ -27,11 +29,7 @@
   // A flex item shrinks no further than its content unless told so: the
   // list scrolls instead of pushing the card under it out of the sidebar
   min-height 0
-  scrollbar-width thin
-  scrollbar-color transparent transparent
-
-  &:hover
-    scrollbar-color var(--borderMainColor) transparent
+  thin-scrollbar()
 
 .sidebar-mobile-toolbar
   background-color var(--paperBackgroundColor)

@@ -1,3 +1,5 @@
+@require '../../styles/scrollbar.styl'
+
 .searchBarDesktop--result
   border-radius 28px 28px 0 0 !important
 
@@ -13,10 +15,5 @@
   border-radius 24px !important
   height 48px
 
-// As the scrollbar of the sidebar: cozy-ui has no utility for it
 .search-results
-  scrollbar-width thin
-  scrollbar-color transparent transparent
-
-  &:hover
-    scrollbar-color var(--borderMainColor) transparent
+  thin-scrollbar()
