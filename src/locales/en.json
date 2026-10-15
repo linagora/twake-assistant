@@ -225,7 +225,7 @@
         "external_warning": "Your data will be processed on external servers. This mode does not provide enhanced security protections."
       },
       "configuration": {
-        "description": "Enter provider URL, model and your API key to configure the new agent. Your key will be stored securely.",
+        "description": "Enter the model of the provider and your API key. Your key will be stored securely.",
         "custom_provider_description": "Configure your custom AI provider settings",
         "model": {
           "label": "Model",
@@ -252,7 +252,6 @@
       "create": "Create"
     },
     "configure_api_key_title": "Configure a new agent",
-    "configure_api_key_description": "Enter provider URL, model and your API key to configure the new agent. Your key will be stored securely.",
     "from_drive": {
       "actions": {
         "cancel": "Cancel",
