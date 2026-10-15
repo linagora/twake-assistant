@@ -104,11 +104,22 @@ describe('getDescriptionOfConversation', () => {
     expect(getDescriptionOfConversation({ messages: [] })).toBeUndefined()
   })
 
-  it('returns the content of the last message', () => {
+  it('returns the last answer', () => {
     const convo = {
       messages: [
         { role: 'user', content: 'What is the sum?' },
         { role: 'assistant', content: 'It is 4' }
+      ]
+    }
+    expect(getDescriptionOfConversation(convo)).toBe('It is 4')
+  })
+
+  it('returns the last answer when the last question has none', () => {
+    const convo = {
+      messages: [
+        { role: 'user', content: 'What is the sum?' },
+        { role: 'assistant', content: 'It is 4' },
+        { role: 'user', content: 'And the product?' }
       ]
     }
     expect(getDescriptionOfConversation(convo)).toBe('It is 4')
@@ -135,11 +146,11 @@ describe('getDescriptionOfConversation', () => {
     expect(getDescriptionOfConversation(convo, t)).toBe('chat.empty')
   })
 
-  it('does not apply the fallback when the last message is from the user', () => {
+  it('has no description, not the fallback, before the first answer', () => {
     const t = key => key
     const convo = {
       messages: [{ role: 'user', content: '[Source 1]' }]
     }
-    expect(getDescriptionOfConversation(convo, t)).toBe('')
+    expect(getDescriptionOfConversation(convo, t)).toBeUndefined()
   })
 })
