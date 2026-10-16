@@ -77,6 +77,18 @@
           "label": "Tiếng Anh",
           "request": "Dịch văn bản sang tiếng Anh."
         },
+        "german": {
+          "label": "Tiếng Đức",
+          "request": "Dịch văn bản sang tiếng Đức."
+        },
+        "spanish": {
+          "label": "Tiếng Tây Ban Nha",
+          "request": "Dịch văn bản sang tiếng Tây Ban Nha."
+        },
+        "italian": {
+          "label": "Tiếng Ý",
+          "request": "Dịch văn bản sang tiếng Ý."
+        },
         "russian": {
           "label": "Tiếng Nga",
           "request": "Dịch văn bản sang tiếng Nga."

@@ -50,6 +50,27 @@ describe('makeScribeSuggestions', () => {
     expect(suggestions[5].label).toBe('Translate')
   })
 
+  it('leaves out the prompts the catalogue does not have yet, and a menu left empty', () => {
+    let suggestions
+    jest.isolateModules(() => {
+      jest.doMock('@/lib/scribePrompts.json', () => ({
+        prompts: ['summarize', 'translate-german'].map(name => ({
+          name,
+          messages: [{ role: 'user', content: `${name}: {{input}}` }]
+        }))
+      }))
+      suggestions = require('@/lib/scribe').makeScribeSuggestions(mockT)
+    })
+
+    expect(suggestions.map(suggestion => suggestion.name)).toEqual([
+      'summarize',
+      'translate'
+    ])
+    expect(suggestions[1].options.map(option => option.prompt)).toEqual([
+      'translate-german'
+    ])
+  })
+
   it('only offers prompts the catalogue has', () => {
     const names = catalogue.prompts.map(prompt => prompt.name)
     const prompts = makeScribeSuggestions(mockT).flatMap(
