@@ -311,6 +311,7 @@
       "running": "Đang suy nghĩ…",
       "done": "Quá trình suy nghĩ"
     },
+    "assistant_gone": "Tác tử của cuộc trò chuyện này đã bị xóa: hãy bắt đầu cuộc trò chuyện mới để tiếp tục.",
     "error": "Đã xảy ra lỗi khi viết câu trả lời. Vui lòng thử lại.",
     "empty": "Tôi không tìm thấy câu trả lời cho yêu cầu của bạn. Vui lòng thử diễn đạt lại.",
     "sources": "%{smart_count} nguồn |||| %{smart_count} nguồn"

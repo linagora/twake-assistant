@@ -46,6 +46,10 @@ export function ScribeAnswer() {
   const isError = useMessage(
     message => message.metadata?.custom?.isError === true
   )
+  // Asking again fails again: the agent of the conversation is gone
+  const isAssistantGone = useMessage(
+    message => message.metadata?.custom?.isAssistantGone === true
+  )
   // The model gave no text, as when its reasoning took all its tokens: it
   // may answer if asked again
   const hasNoAnswer = useMessage(
@@ -54,7 +58,8 @@ export function ScribeAnswer() {
   // Only the last answer of the current conversation: asking an earlier one
   // again would hide what follows it, and a past request has lost its prompt
   const isLast = useMessage(message => message.isLast)
-  const canRetry = (isError || hasNoAnswer) && isLast && !isPast
+  const canRetry =
+    ((isError && !isAssistantGone) || hasNoAnswer) && isLast && !isPast
   const threadRuntime = useThreadRuntime()
   const messageRuntime = useMessageRuntime()
   const handleRetry = () => {

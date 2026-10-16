@@ -1,8 +1,11 @@
 import { ThreadPrimitive, useThread } from '@assistant-ui/react'
 import cx from 'classnames'
 import React, { useRef, useState } from 'react'
+import { useParams } from 'react-router-dom'
 
 import { Filter, Icon } from '@linagora/twake-icons'
+import Alert from 'cozy-ui/transpiled/react/Alert'
+import Button from 'cozy-ui/transpiled/react/Buttons'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
@@ -11,9 +14,11 @@ import { useI18n } from 'twake-i18n'
 import ConversationComposer from './ConversationComposer'
 import { ConversationWelcome } from './ConversationWelcome'
 import styles from './styles.styl'
+import useConversation from '../../hooks/useConversation'
 import { useAssistant } from '../AssistantProvider'
 import KnowledgeBaseChip from '../KnowledgeBase/KnowledgeBaseChip'
 import { SourcesPanel } from '../KnowledgeBase/SourcesPanel'
+import { useIsConversationAssistantGone } from '../KnowledgeBase/useIsConversationAssistantGone'
 import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedAssistantKnowledgeBase'
 import AssistantMessage from '../Messages/AssistantMessage'
 import UserMessage from '../Messages/UserMessage'
@@ -21,6 +26,15 @@ import UserMessage from '../Messages/UserMessage'
 const Conversation = ({ className }) => {
   const { t } = useI18n()
   const { isMobile } = useBreakpoints()
+  const { conversationId } = useParams()
+  const { createNewConversation } = useConversation()
+  // Also when the stack says so: deleted elsewhere, the cached assistant
+  // still looks alive
+  const isLastAnswerAssistantGone = useThread(
+    state => state.messages.at(-1)?.metadata?.custom?.isAssistantGone === true
+  )
+  const isAssistantGone =
+    useIsConversationAssistantGone(conversationId) || isLastAnswerAssistantGone
   const {
     isOpenSources: isOpenSourcesDesktop,
     setIsOpenSources: setIsOpenSourcesDesktop
@@ -123,7 +137,27 @@ const Conversation = ({ className }) => {
             [styles['composer-dock']]: !isThreadEmpty
           })}
         >
-          <ConversationComposer placeholder={placeholder} inputRef={inputRef} />
+          {isAssistantGone ? (
+            <Alert
+              severity="info"
+              className="u-w-100 u-maw-7 u-mh-auto u-bxz"
+              action={
+                <Button
+                  variant="text"
+                  size="small"
+                  label={t('assistant.sidebar.create_new')}
+                  onClick={() => createNewConversation()}
+                />
+              }
+            >
+              {t('chat.assistant_gone')}
+            </Alert>
+          ) : (
+            <ConversationComposer
+              placeholder={placeholder}
+              inputRef={inputRef}
+            />
+          )}
           <Typography
             variant="caption"
             color="textSecondary"
