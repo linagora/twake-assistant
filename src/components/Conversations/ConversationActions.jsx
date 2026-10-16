@@ -18,7 +18,7 @@ import { share } from '../../actions/share'
 import { getNameOfConversation } from '../helpers'
 import { CHAT_CONVERSATIONS_DOCTYPE } from '../queries'
 
-const ConversationActions = ({ buttonClassName, conversation }) => {
+const ConversationActions = ({ buttonClassName, conversation, onDelete }) => {
   const { t } = useI18n()
   const client = useClient()
   const { showAlert } = useAlert()
@@ -61,6 +61,7 @@ const ConversationActions = ({ buttonClassName, conversation }) => {
         _type: CHAT_CONVERSATIONS_DOCTYPE
       })
       setShowDeleteDialog(false)
+      onDelete?.(conversation)
     } catch {
       showAlert({
         message: t('assistant.default_error'),
