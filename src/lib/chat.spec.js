@@ -3,7 +3,8 @@ import { ChatEventStream } from '@/lib/chatEvents'
 
 jest.mock('cozy-minilog', () => () => ({ error: jest.fn() }))
 
-const userMessage = text => ({
+const userMessage = (text, id = text) => ({
+  id,
   role: 'user',
   content: [{ type: 'text', text }]
 })
@@ -14,7 +15,12 @@ const assistantMessage = text => ({
 
 // The stack answers with the conversation, then the events of the answer
 // come: here as soon as the message is posted
-function setup({ events: answerEvents = [], options = {}, messageId = 'q1' }) {
+function setup({
+  events: answerEvents = [],
+  options = {},
+  messageId = 'q1',
+  conversation = null
+}) {
   const events = new ChatEventStream()
   const fetchJSON = jest.fn(async (method, path) => {
     if (path.endsWith('/cancel')) return null
@@ -23,8 +29,13 @@ function setup({ events: answerEvents = [], options = {}, messageId = 'q1' }) {
       data: { attributes: { messages: [{ id: messageId, role: 'user' }] } }
     }
   })
+  const client = {
+    stackClient: { fetchJSON },
+    query: jest.fn(async () => ({ data: conversation })),
+    save: jest.fn(async doc => ({ data: doc }))
+  }
   const adapter = makeChatAdapter({
-    client: { stackClient: { fetchJSON } },
+    client,
     conversationId: 'c1',
     events,
     getRequest: () => ({
@@ -35,7 +46,7 @@ function setup({ events: answerEvents = [], options = {}, messageId = 'q1' }) {
     })
   })
 
-  return { adapter, events, fetchJSON }
+  return { adapter, client, events, fetchJSON }
 }
 
 async function run(adapter, messages, abortSignal, runConfig) {
@@ -385,6 +396,62 @@ describe('makeChatAdapter', () => {
     expect(await run(adapter, [])).toEqual([])
     expect(fetchJSON).not.toHaveBeenCalled()
   })
+
+  it('takes a message sent again out of the conversation, with its answer, before sending it', async () => {
+    const { adapter, client, fetchJSON } = setup({
+      events: [{ object: 'done' }],
+      conversation: {
+        _id: 'c1',
+        messages: [
+          { id: 'q0', role: 'user' },
+          { id: 'a0', role: 'assistant' },
+          { id: 'q1', role: 'user' },
+          { id: 'a1', role: 'assistant' }
+        ]
+      }
+    })
+    const first = [userMessage('Hello'), assistantMessage('Hi')]
+
+    await run(adapter, [...first, userMessage('Again')])
+    expect(client.query).not.toHaveBeenCalled()
+    await run(adapter, [...first, userMessage('Again')])
+
+    expect(client.save).toHaveBeenCalledWith({
+      _id: 'c1',
+      _type: 'io.cozy.ai.chat.conversations',
+      messages: [
+        { id: 'q0', role: 'user' },
+        { id: 'a0', role: 'assistant' }
+      ]
+    })
+    expect(client.save.mock.invocationCallOrder[0]).toBeLessThan(
+      fetchJSON.mock.invocationCallOrder[1]
+    )
+    expect(fetchJSON.mock.calls.map(call => call[2].q)).toEqual([
+      'Again',
+      'Again'
+    ])
+  })
+
+  it('puts a message sent again back in the conversation when it cannot be sent', async () => {
+    const past = [
+      { id: 'q1', role: 'user' },
+      { id: 'a1', role: 'assistant' }
+    ]
+    const { adapter, client, fetchJSON } = setup({
+      events: [{ object: 'done' }],
+      conversation: { _id: 'c1', _rev: '1', messages: past }
+    })
+    const messages = [userMessage('Again')]
+
+    await run(adapter, messages)
+    fetchJSON.mockRejectedValueOnce(new Error('offline'))
+    await run(adapter, messages)
+
+    expect(client.save).toHaveBeenLastCalledWith(
+      expect.objectContaining({ messages: past })
+    )
+  })
 })
 
 describe('makeChat', () => {
@@ -397,10 +464,10 @@ describe('makeChat', () => {
       conversationId: 'c1'
     })
     const controller = new AbortController()
-    const sendAndStop = async () => {
+    const sendAndStop = async id => {
       const running = run(
         chat.adapter,
-        [userMessage('Hello')],
+        [userMessage('Hello', id)],
         controller.signal
       )
       await new Promise(resolve => setTimeout(resolve, 0))
@@ -408,13 +475,13 @@ describe('makeChat', () => {
       await running
     }
 
-    await sendAndStop()
+    await sendAndStop('m1')
     chat.setRequest({
       prepareQuery: text => `${text}!`,
       hasDocuments: true,
       instructions: 'Shout'
     })
-    await sendAndStop()
+    await sendAndStop('m2')
 
     const messageCalls = fetchJSON.mock.calls.filter(
       ([, path]) => !path.endsWith('/cancel')
@@ -428,6 +495,7 @@ describe('makeChat', () => {
   it('joins a new text of the app to the next message, sent again or not', async () => {
     const chat = makeChat({
       client: {
+        query: jest.fn(async () => ({ data: { messages: [] } })),
         stackClient: {
           fetchJSON: jest.fn(async (method, path, body) => {
             chat.events.push({ _id: 'q1', object: 'done' })
@@ -523,6 +591,33 @@ describe('makeChat', () => {
     const results = await run(chat.adapter, [userMessage('Hello')])
 
     expect(getText(results.at(-1))).toBe('Hi')
+  })
+  it('takes a message of a past conversation sent again out of it', async () => {
+    const fetchJSON = jest.fn(async () => {
+      chat.events.push({ _id: 'q2', object: 'done' })
+      return {
+        data: { attributes: { messages: [{ id: 'q2', role: 'user' }] } }
+      }
+    })
+    const save = jest.fn(async doc => ({ data: doc }))
+    const past = [
+      { id: 'p1', role: 'user' },
+      { id: 'p2', role: 'assistant' }
+    ]
+    const chat = makeChat({
+      client: {
+        stackClient: { fetchJSON },
+        query: jest.fn(async () => ({ data: { _id: 'c1', messages: past } })),
+        save
+      },
+      conversationId: 'c1',
+      messages: past
+    })
+
+    await run(chat.adapter, [userMessage('Past question', 'p1')])
+
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ messages: [] }))
+    expect(fetchJSON).toHaveBeenCalledTimes(1)
   })
 })
 

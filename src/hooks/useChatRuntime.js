@@ -26,7 +26,9 @@ export function useChatRuntime({
   textIndex = 0
 }) {
   const client = useClient()
-  const [chat] = useState(() => makeChat({ client, conversationId, textIndex }))
+  const [chat] = useState(() =>
+    makeChat({ client, conversationId, textIndex, messages })
+  )
 
   useEffect(() => {
     chat.setRequest(request)
