@@ -74,6 +74,18 @@
           "label": "Anglais",
           "request": "Traduis le texte en anglais."
         },
+        "german": {
+          "label": "Allemand",
+          "request": "Traduis le texte en allemand."
+        },
+        "spanish": {
+          "label": "Espagnol",
+          "request": "Traduis le texte en espagnol."
+        },
+        "italian": {
+          "label": "Italien",
+          "request": "Traduis le texte en italien."
+        },
         "russian": {
           "label": "Russe",
           "request": "Traduis le texte en russe."
