@@ -39,9 +39,12 @@ const ConversationActions = ({ buttonClassName, conversation }) => {
   }
 
   const handleRename = async () => {
+    // `assistant` is the assistant for display, not an attribute: its link
+    // is in `relationships`
+    const { assistant, ...attributes } = conversation
     try {
       await client.save({
-        ...conversation,
+        ...attributes,
         _type: CHAT_CONVERSATIONS_DOCTYPE,
         name: newName.trim()
       })
