@@ -25,6 +25,8 @@ describe('makeScribeSuggestions', () => {
       'summarize',
       'correct',
       'keypoints',
+      'rewrite',
+      'tone',
       'translate'
     ])
     expect(suggestions[0]).toEqual({
@@ -34,13 +36,17 @@ describe('makeScribeSuggestions', () => {
       request: 'Summarize the text.',
       prompt: 'summarize'
     })
-    expect(suggestions[3].label).toBe('Translate')
     expect(suggestions[3].options.map(option => option.prompt)).toEqual([
-      'translate-french',
-      'translate-english',
-      'translate-russian',
-      'translate-vietnamese'
+      'make-shorter',
+      'expand-context'
     ])
+    expect(suggestions[4].label).toBe('Tone')
+    expect(suggestions[4].options.map(option => option.prompt)).toEqual([
+      'change-tone-professional',
+      'change-tone-casual',
+      'change-tone-polite'
+    ])
+    expect(suggestions[5].label).toBe('Translate')
   })
 
   it('only offers prompts the catalogue has', () => {

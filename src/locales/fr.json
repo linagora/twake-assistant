@@ -38,6 +38,32 @@
         "label": "Points clés",
         "request": "Liste les points clés du texte."
       },
+      "rewrite": {
+        "label": "Réécrire",
+        "shorter": {
+          "label": "Plus court",
+          "request": "Raccourcis le texte."
+        },
+        "longer": {
+          "label": "Plus long",
+          "request": "Développe le texte."
+        }
+      },
+      "tone": {
+        "label": "Ton",
+        "professional": {
+          "label": "Professionnel",
+          "request": "Réécris le texte sur un ton professionnel."
+        },
+        "casual": {
+          "label": "Décontracté",
+          "request": "Réécris le texte sur un ton décontracté."
+        },
+        "polite": {
+          "label": "Poli",
+          "request": "Réécris le texte sur un ton poli."
+        }
+      },
       "translate": {
         "label": "Traduire",
         "french": {
