@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 
 import { Icon, Dots } from '@linagora/twake-icons'
-import { useClient } from 'cozy-client'
+import { Mutations, useClient } from 'cozy-client'
 import flag from 'cozy-flags'
 import ActionsMenu from 'cozy-ui/transpiled/react/ActionsMenu'
 import { makeActions } from 'cozy-ui/transpiled/react/ActionsMenu/Actions'
@@ -15,10 +15,19 @@ import { useI18n } from 'twake-i18n'
 import { remove } from '../../actions/delete'
 import { rename } from '../../actions/rename'
 import { share } from '../../actions/share'
-import { getNameOfConversation } from '../helpers'
+import { getNameOfConversation, isPinned } from '../helpers'
 import { CHAT_CONVERSATIONS_DOCTYPE } from '../queries'
 
-const ConversationActions = ({ buttonClassName, conversation }) => {
+const ConversationActions = ({
+  actions = [
+    rename,
+    flag('cozy.assistant.conversation-sharing.enabled') && share,
+    remove
+  ],
+  buttonClassName,
+  conversation,
+  onDelete
+}) => {
   const { t } = useI18n()
   const client = useClient()
   const { showAlert } = useAlert()
@@ -61,6 +70,7 @@ const ConversationActions = ({ buttonClassName, conversation }) => {
         _type: CHAT_CONVERSATIONS_DOCTYPE
       })
       setShowDeleteDialog(false)
+      onDelete?.(conversation)
     } catch {
       showAlert({
         message: t('assistant.default_error'),
@@ -69,14 +79,38 @@ const ConversationActions = ({ buttonClassName, conversation }) => {
     }
   }
 
-  const actions = makeActions(
-    [
-      rename,
-      flag('cozy.assistant.conversation-sharing.enabled') && share,
-      remove
-    ].filter(Boolean),
-    { t, onRename: handleOpenRename, onDelete: () => setShowDeleteDialog(true) }
-  )
+  const handleTogglePin = async () => {
+    // `assistant` is the assistant for display, not an attribute: its link
+    // is in `relationships`
+    const { assistant, ...attributes } = conversation
+    try {
+      // Not client.save, which would date the conversation of now and move
+      // it in the history: its date is the one of its last message
+      await client.mutate(
+        Mutations.updateDocument({
+          ...attributes,
+          _type: CHAT_CONVERSATIONS_DOCTYPE,
+          cozyMetadata: {
+            ...conversation.cozyMetadata,
+            favorite: !isPinned(conversation)
+          }
+        })
+      )
+    } catch {
+      showAlert({
+        message: t('assistant.default_error'),
+        severity: 'error'
+      })
+    }
+  }
+
+  const menuActions = makeActions(actions.filter(Boolean), {
+    t,
+    isPinned: isPinned(conversation),
+    onRename: handleOpenRename,
+    onTogglePin: handleTogglePin,
+    onDelete: () => setShowDeleteDialog(true)
+  })
 
   return (
     <>
@@ -93,7 +127,7 @@ const ConversationActions = ({ buttonClassName, conversation }) => {
         <ActionsMenu
           ref={anchorRef}
           open
-          actions={actions}
+          actions={menuActions}
           anchorOrigin={{
             vertical: 'bottom',
             horizontal: 'left'

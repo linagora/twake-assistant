@@ -22,10 +22,11 @@ const useConversation = () => {
   /**
    * Opens a conversation. `assistantId` is the assistant a new conversation
    * starts on, carried in the history state: without it, a new conversation
-   * starts on the configured default.
+   * starts on the configured default. `replace` takes the place of the
+   * current entry of the history.
    */
   const goToConversation = useCallback(
-    (conversationId, { assistantId } = {}) => {
+    (conversationId, { assistantId, replace } = {}) => {
       const loc = locationRef.current
       // The path before '/assistant', if any
       const match = loc.pathname.match(/^(.*?)(\/assistant(\/|$).*|$)/)
@@ -39,11 +40,10 @@ const useConversation = () => {
         search: loc.search,
         hash: loc.hash
       }
-      if (assistantId) {
-        navigateRef.current(to, { state: { assistantId } })
-      } else {
-        navigateRef.current(to)
-      }
+      navigateRef.current(to, {
+        replace,
+        state: assistantId ? { assistantId } : null
+      })
     },
     [setIsOpenSearchConversation]
   )

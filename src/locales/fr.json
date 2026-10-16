@@ -7,7 +7,8 @@
     "new": "Nouvelle conversation",
     "history": {
       "title": "Historique",
-      "empty": "Aucune conversation pour le moment"
+      "empty": "Aucune conversation pour le moment",
+      "pinned": "Épinglée"
     },
     "close": "Fermer",
     "back": "Retour",
@@ -103,6 +104,8 @@
         "actions": {
           "delete": "Supprimer",
           "rename": "Renommer",
+          "pin": "Épingler",
+          "unpin": "Désépingler",
           "share": "Partager",
           "load_more": "Charger plus"
         }

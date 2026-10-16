@@ -10,6 +10,7 @@ const ConversationList = ({
   disableAction,
   divider,
   onOpenConversation,
+  onDelete,
   ItemComponent = ConversationListItem
 }) => {
   return (
@@ -21,6 +22,7 @@ const ConversationList = ({
           conversation={conversation}
           selected={conversation._id === currentConversationId}
           onOpenConversation={onOpenConversation}
+          onDelete={onDelete}
           divider={divider}
         />
       ))}
