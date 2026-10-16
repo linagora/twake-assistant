@@ -15,7 +15,7 @@ type = 'io.cozy.ai.chat.conversations'
 
 The service renders the AI assistant in the frame of the calling app, on a new conversation. The frame can be a modal or a side panel: the assistant adapts to the width it is given.
 
-Depending on its configuration, the assistant is opened as it is, the assistant of the Twake Assistant app with its conversations and its assistants, or as a **scribe**: an assistant that works for the calling app. It works on a text of the app and hands its answers back for the app to insert them, and it calls the **capabilities** of the app, what the app can do beside taking an answer, when a request of the user needs one. The scribe is made for a side panel: it has no sidebar and no choice of the assistant. Its header starts a new conversation, lists the past conversations to open one of them again, and closes the scribe.
+The assistant opens as a **scribe**, whatever its configuration: an assistant that works for the calling app. It works on a text of the app and hands its answers back for the app to insert them, and it calls the **capabilities** of the app, what the app can do beside taking an answer, when a request of the user needs one. The scribe is made for a side panel: it has no sidebar and no choice of the assistant. Its header starts a new conversation, lists the past conversations to open one of them again, and closes the scribe.
 
 Unlike a picker, this intent does not end with a result. The assistant stays open for as many requests as the user makes, and each answer the user picks is sent to the calling app while the intent goes on. The user closes it from the header of the scribe, or the calling app closes it.
 
@@ -348,11 +348,11 @@ The default labels exist in English, French, Russian and Vietnamese, like the re
 
 ## Modes
 
-The configuration picks the mode. There is no mode option.
+The configuration picks what the scribe offers. There is no mode option.
 
 | Configuration | What the assistant shows | User's documents |
 | --- | --- | --- |
-| None of `content`, `answerActions`, `capabilities`, `suggestions` | The assistant as in the Twake Assistant app | Always used |
+| None of `content`, `answerActions`, `capabilities`, `suggestions` | The scribe alone, without prompts, actions nor cards | Optional, on by default |
 | `content` only | The prompts about the text | Optional, off by default |
 | `answerActions` only | The action buttons under each answer | Optional, on by default |
 | `content` and `answerActions` | The full scribe: prompts and action buttons | Optional, off by default |
