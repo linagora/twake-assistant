@@ -237,6 +237,80 @@ describe('makeChatAdapter', () => {
     expect(getText(results.at(-1))).toBe('Mine')
   })
 
+  it('holds back the start of a mark of the sources until it is whole', async () => {
+    const { adapter } = setup({
+      events: [
+        { object: 'delta', content: 'Based on a.', position: 0 },
+        { object: 'delta', content: ' [Sources:', position: 1 },
+        { object: 'delta', content: ' 1,', position: 2 },
+        { object: 'delta', content: ' 2]', position: 3 },
+        { object: 'delta', content: ' See [REF]doc_1', position: 4 },
+        { object: 'delta', content: '[/REF] too', position: 5 },
+        { object: 'done' }
+      ]
+    })
+
+    const results = await run(adapter, [userMessage('Fix it')])
+
+    expect(results.map(getText)).toEqual([
+      'Based on a.',
+      'Based on a.',
+      'Based on a.',
+      'Based on a.',
+      'Based on a. See',
+      'Based on a. See too',
+      'Based on a. See too'
+    ])
+  })
+
+  it.each([
+    ['[', 'Based on a.'],
+    ['[Sources: 1, 2', 'Based on a.'],
+    ['[Source 4, Source', 'Based on a.'],
+    ['[Source 4, Sou', 'Based on a.'],
+    ['[doc_1', 'Based on a.'],
+    ['[REF]doc_1[/RE', 'Based on a.'],
+    ['[REF]doc_1[/REF]', 'Based on a.'],
+    ['[Sources: 1](doc_1.p', 'Based on a.'],
+    ['REFdoc_1/RE', 'Based on a.'],
+    ['An interval [0, 1', 'Based on a. An interval [0, 1'],
+    ['See [the guide', 'Based on a. See [the guide'],
+    ['A [x', 'Based on a. A [x']
+  ])(
+    'shows an answer still written that ends with %p as %p',
+    async (end, shown) => {
+      const { adapter } = setup({
+        events: [
+          { object: 'delta', content: 'Based on a.', position: 0 },
+          { object: 'delta', content: ` ${end}`, position: 1 },
+          { object: 'done' }
+        ]
+      })
+
+      const results = await run(adapter, [userMessage('Fix it')])
+
+      expect(getText(results[1])).toBe(shown)
+    }
+  )
+
+  it('gives back what it held when the answer ends', async () => {
+    const { adapter } = setup({
+      events: [
+        { object: 'delta', content: 'Based on a.', position: 0 },
+        { object: 'delta', content: ' A [', position: 1 },
+        { object: 'done' }
+      ]
+    })
+
+    const results = await run(adapter, [userMessage('Fix it')])
+
+    expect(results.map(getText)).toEqual([
+      'Based on a.',
+      'Based on a. A',
+      'Based on a. A ['
+    ])
+  })
+
   it('tells when the stack refuses the message', async () => {
     const { adapter, fetchJSON } = setup({})
     fetchJSON.mockRejectedValue(new Error('Bad Request'))
