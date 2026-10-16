@@ -98,7 +98,8 @@
           "delete": "Xóa",
           "rename": "Đổi tên",
           "share": "Chia sẻ",
-          "load_more": "Tải thêm"
+          "load_more": "Tải thêm",
+          "more": "Thêm thao tác"
         }
       },
       "app": "AI",
