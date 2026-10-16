@@ -51,7 +51,7 @@ const ConversationListItemWider = ({
         primary={
           <div className="u-flex u-flex-items-center">
             <Typography variant="h6" className="u-ellipsis u-mb-half">
-              {getNameOfConversation(conversation)}
+              {getNameOfConversation(conversation, t)}
             </Typography>
             {!disableAction && (
               <ConversationActions
