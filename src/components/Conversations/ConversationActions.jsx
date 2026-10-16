@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 
 import { Icon, Dots } from '@linagora/twake-icons'
-import { useClient } from 'cozy-client'
+import { Mutations, useClient } from 'cozy-client'
 import flag from 'cozy-flags'
 import ActionsMenu from 'cozy-ui/transpiled/react/ActionsMenu'
 import { makeActions } from 'cozy-ui/transpiled/react/ActionsMenu/Actions'
@@ -15,7 +15,7 @@ import { useI18n } from 'twake-i18n'
 import { remove } from '../../actions/delete'
 import { rename } from '../../actions/rename'
 import { share } from '../../actions/share'
-import { getNameOfConversation } from '../helpers'
+import { getNameOfConversation, isPinned } from '../helpers'
 import { CHAT_CONVERSATIONS_DOCTYPE } from '../queries'
 
 const ConversationActions = ({
@@ -79,9 +79,36 @@ const ConversationActions = ({
     }
   }
 
+  const handleTogglePin = async () => {
+    // `assistant` is the assistant for display, not an attribute: its link
+    // is in `relationships`
+    const { assistant, ...attributes } = conversation
+    try {
+      // Not client.save, which would date the conversation of now and move
+      // it in the history: its date is the one of its last message
+      await client.mutate(
+        Mutations.updateDocument({
+          ...attributes,
+          _type: CHAT_CONVERSATIONS_DOCTYPE,
+          cozyMetadata: {
+            ...conversation.cozyMetadata,
+            favorite: !isPinned(conversation)
+          }
+        })
+      )
+    } catch {
+      showAlert({
+        message: t('assistant.default_error'),
+        severity: 'error'
+      })
+    }
+  }
+
   const menuActions = makeActions(actions.filter(Boolean), {
     t,
+    isPinned: isPinned(conversation),
     onRename: handleOpenRename,
+    onTogglePin: handleTogglePin,
     onDelete: () => setShowDeleteDialog(true)
   })
 

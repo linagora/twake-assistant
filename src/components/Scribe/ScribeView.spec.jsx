@@ -16,7 +16,10 @@ import { I18n, initTranslation } from 'twake-i18n'
 import { ScribeView } from '@/components/Scribe/ScribeView'
 import { DOCTYPE_AI_CHAT_CONVERSATIONS } from '@/doctypes'
 import en from '@/locales/en.json'
-import { buildConversationsQuery } from '@/queries'
+import {
+  buildConversationsQuery,
+  buildPinnedConversationsQuery
+} from '@/queries'
 
 jest.mock('@assistant-ui/react', () => ({}))
 jest.mock('cozy-client', () => ({
@@ -30,6 +33,7 @@ jest.mock('@/components/Scribe/ScribeProvider', () => ({
 }))
 
 const conversationsQuery = buildConversationsQuery()
+const pinnedConversationsQuery = buildPinnedConversationsQuery()
 
 const makeConversation = (id, request) => ({
   _id: id,
@@ -47,10 +51,16 @@ function setup() {
           makeConversation('c1', 'Open request'),
           makeConversation('c2', 'Other request')
         ]
+      },
+      [pinnedConversationsQuery.options.as]: {
+        doctype: DOCTYPE_AI_CHAT_CONVERSATIONS,
+        definition: pinnedConversationsQuery.definition(),
+        data: []
       }
     }
   })
   client.destroy = jest.fn().mockResolvedValue({})
+  client.mutate = jest.fn().mockResolvedValue({})
   render(
     <CozyProvider client={client}>
       <I18n lang="en" polyglot={initTranslation('en', () => en)}>
@@ -132,5 +142,21 @@ describe('ScribeView', () => {
       expect.objectContaining({ _id: 'c2' })
     )
     expect(screen.getByTestId('conversation')).toHaveTextContent('c1')
+  })
+
+  it('pins a conversation as a favorite, without changing its date', async () => {
+    const client = setup()
+    openHistory()
+
+    openMenuOf('Other request')
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Pin' }))
+
+    await waitFor(() => expect(client.mutate).toHaveBeenCalled())
+    const { document } = client.mutate.mock.calls[0][0]
+    expect(document._id).toBe('c2')
+    expect(document.cozyMetadata).toEqual({
+      updatedAt: '2026-10-15T10:00:00.000Z',
+      favorite: true
+    })
   })
 })

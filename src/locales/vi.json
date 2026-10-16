@@ -7,7 +7,8 @@
     "new": "Cuộc trò chuyện mới",
     "history": {
       "title": "Lịch sử",
-      "empty": "Chưa có cuộc trò chuyện nào"
+      "empty": "Chưa có cuộc trò chuyện nào",
+      "pinned": "Đã ghim"
     },
     "close": "Đóng",
     "back": "Quay lại",
@@ -100,6 +101,8 @@
         "actions": {
           "delete": "Xóa",
           "rename": "Đổi tên",
+          "pin": "Ghim",
+          "unpin": "Bỏ ghim",
           "share": "Chia sẻ",
           "load_more": "Tải thêm"
         }

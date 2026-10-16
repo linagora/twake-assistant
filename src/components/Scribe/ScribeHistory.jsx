@@ -1,5 +1,6 @@
 import React, { useId } from 'react'
 
+import { Icon, Pin } from '@linagora/twake-icons'
 import { isQueryLoading, useQuery } from 'cozy-client'
 import List from 'cozy-ui/transpiled/react/List'
 import ListItem from 'cozy-ui/transpiled/react/ListItem'
@@ -10,18 +11,50 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
 import { remove } from '@/actions/delete'
+import { pin } from '@/actions/pin'
 import ConversationActions from '@/components/Conversations/ConversationActions'
 import listStyles from '@/components/Conversations/styles.styl'
 import styles from '@/components/Scribe/styles.styl'
-import { formatConversationDate } from '@/components/helpers'
+import { formatConversationDate, isPinned } from '@/components/helpers'
 import {
   getScribeConversationDescription,
   getScribeConversationTitle
 } from '@/lib/scribe'
-import { buildConversationsQuery } from '@/queries'
+import {
+  buildConversationsQuery,
+  buildPinnedConversationsQuery
+} from '@/queries'
 
 const conversationsQuery = buildConversationsQuery()
-const historyActions = [remove]
+const pinnedConversationsQuery = buildPinnedConversationsQuery()
+const historyActions = [pin, remove]
+
+const byLastUpdate = (a, b) =>
+  (b.cozyMetadata?.updatedAt ?? '').localeCompare(
+    a.cozyMetadata?.updatedAt ?? ''
+  )
+
+/**
+ * The pinned conversations first, then the others, the last updated first
+ * in each: the pinned ones come with their own query, as the other one
+ * stops at the last conversations
+ */
+export function orderHistory(pinned, recent) {
+  const conversations = [
+    ...new Map(
+      [...recent, ...pinned].map(conversation => [
+        conversation._id,
+        conversation
+      ])
+    ).values()
+  ]
+  return [
+    ...conversations.filter(isPinned).sort(byLastUpdate),
+    ...conversations
+      .filter(conversation => !isPinned(conversation))
+      .sort(byLastUpdate)
+  ]
+}
 
 function HistoryItem({ conversation, isSelected, onOpen, onDelete }) {
   const { t, lang } = useI18n()
@@ -59,6 +92,15 @@ function HistoryItem({ conversation, isSelected, onOpen, onDelete }) {
               component="span"
               display="block"
             >
+              {isPinned(conversation) && (
+                <Icon
+                  icon={Pin}
+                  size={10}
+                  className="u-mr-half"
+                  role="img"
+                  aria-label={t('scribe.history.pinned')}
+                />
+              )}
               {formatConversationDate(
                 conversation.cozyMetadata?.updatedAt,
                 t,
@@ -89,9 +131,13 @@ function HistoryContent({ conversationId, labelId, onOpen, onDelete }) {
     conversationsQuery.definition,
     conversationsQuery.options
   )
-  const conversations = result.data ?? []
+  const pinnedResult = useQuery(
+    pinnedConversationsQuery.definition,
+    pinnedConversationsQuery.options
+  )
+  const conversations = orderHistory(pinnedResult.data ?? [], result.data ?? [])
 
-  if (isQueryLoading(result)) {
+  if (isQueryLoading(result) || isQueryLoading(pinnedResult)) {
     return (
       <div className="u-flex-auto">
         <Spinner size="large" className="u-flex u-flex-justify-center" />
@@ -128,8 +174,8 @@ function HistoryContent({ conversationId, labelId, onOpen, onDelete }) {
 }
 
 /**
- * The past conversations, the last one first: a click opens one in the
- * scribe, its menu deletes it
+ * The past conversations, the pinned ones then the last one first: a click
+ * opens one in the scribe, its menu pins or deletes it
  */
 export function ScribeHistory(props) {
   const { t } = useI18n()
