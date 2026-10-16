@@ -7,7 +7,6 @@ import { initTranslation } from 'twake-i18n'
 
 import { AssistantIntent } from '@/components/Intents/AssistantIntent'
 import { ScribeView } from '@/components/Scribe/ScribeView'
-import AssistantView from '@/components/Views/AssistantView'
 import en from '@/locales/en.json'
 
 const mockService = {
@@ -32,9 +31,6 @@ jest.mock('cozy-interapp', () =>
   jest.fn().mockImplementation(() => ({
     createService: mockCreateService
   }))
-)
-jest.mock('@/components/Views/AssistantView', () =>
-  jest.fn(() => <div data-testid="assistant-view" />)
 )
 jest.mock('@/components/Scribe/ScribeView', () => ({
   ScribeView: jest.fn(() => <div data-testid="scribe-view" />)
@@ -72,17 +68,21 @@ describe('AssistantIntent', () => {
     mockCreateService.mockResolvedValue(mockService)
   })
 
-  it('opens the assistant as it is without data', async () => {
+  it('opens a scribe on the documents of the user without data', async () => {
     mockService.getData.mockReturnValue(null)
     renderIntent()
 
-    await waitFor(() => screen.getByTestId('assistant-view'))
-    expect(AssistantView.mock.calls.at(-1)[0]).toEqual({})
-    expect(screen.queryByTestId('scribe-view')).toBe(null)
+    const { text, documents, suggestions, answerActions, capabilities } =
+      await findScribeProps()
+    expect(text).toBe('')
+    expect(documents).toBe(true)
+    expect(suggestions).toEqual([])
+    expect(answerActions).toEqual([])
+    expect(capabilities).toEqual([])
     expect(mockCreateService).toHaveBeenCalledWith('intent-1', window)
   })
 
-  it('opens the assistant as it is with data it cannot read', async () => {
+  it('opens a scribe with data it cannot read', async () => {
     mockService.getData.mockReturnValue({
       content: null,
       answerActions: null,
@@ -90,8 +90,9 @@ describe('AssistantIntent', () => {
     })
     renderIntent()
 
-    await waitFor(() => screen.getByTestId('assistant-view'))
-    expect(screen.queryByTestId('scribe-view')).toBe(null)
+    const { text, documents } = await findScribeProps()
+    expect(text).toBe('')
+    expect(documents).toBe(true)
   })
 
   it('opens a scribe on the text of the app', async () => {
@@ -112,7 +113,6 @@ describe('AssistantIntent', () => {
     expect(prepareQuery('Fix', { isFirstOnText: true })).toContain('Bonjour')
     expect(instructions).toBe(en.scribe.instructions)
     expect(answerActions).toEqual([])
-    expect(screen.queryByTestId('assistant-view')).toBe(null)
   })
 
   it('works on the new text the app gives while it is open', async () => {
@@ -291,7 +291,7 @@ describe('AssistantIntent', () => {
     mockService.getData.mockReturnValue({ theme: { type: 'dark' } })
     renderIntent()
 
-    await waitFor(() => screen.getByTestId('assistant-view'))
+    await findScribeProps()
     expect(CozyTheme.mock.calls.at(-1)[0]).toMatchObject({
       type: 'dark',
       ignoreCozySettings: true
@@ -302,7 +302,7 @@ describe('AssistantIntent', () => {
     mockService.getData.mockReturnValue(null)
     renderIntent()
 
-    await waitFor(() => screen.getByTestId('assistant-view'))
+    await findScribeProps()
     expect(CozyTheme.mock.calls.at(-1)[0]).toMatchObject({
       type: null,
       ignoreCozySettings: false
@@ -338,7 +338,6 @@ describe('AssistantIntent', () => {
     renderIntent()
 
     await waitFor(() => screen.getByRole('alert'))
-    expect(screen.queryByTestId('assistant-view')).toBe(null)
     expect(screen.queryByTestId('scribe-view')).toBe(null)
   })
 })

@@ -10,11 +10,11 @@ The AI assistant of Twake Workplace as a standalone Cozy app.
 ## Intent
 
 Another app opens the assistant with the `OPEN` intent on
-`io.cozy.ai.chat.conversations`, in a modal or in a side panel. With a text,
-answer actions, capabilities or suggestions in its data, the assistant is a
-scribe: it offers prompts about the text of the app, hands its answers back
-for the app to insert them, and calls the capabilities of the app, what it
-can do beside taking an answer, when a request needs one. See
+`io.cozy.ai.chat.conversations`, in a modal or in a side panel. The
+assistant opens as a scribe, whatever its data: it offers prompts about the
+text of the app, hands its answers back for the app to insert them, and calls
+the capabilities of the app, what it can do beside taking an answer, when a
+request needs one. See
 [the Assistant intent](docs/assistant-intent.md).
 
 ## Requirements on the instance
