@@ -11,6 +11,7 @@ const UserMessage = () => {
   return (
     <MessagePrimitive.Root className="u-mt-1">
       <Box
+        whiteSpace="pre-wrap"
         className={cx(
           'u-ml-auto u-pv-1 u-ph-1-half',
           styles['cozyThread-user-messages']
