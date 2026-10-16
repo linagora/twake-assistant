@@ -329,6 +329,19 @@ describe('getScribeConversationDescription', () => {
     expect(getScribeConversationDescription(conversation)).toBe('Bonjour')
     expect(getScribeConversationDescription({ messages: [] })).toBe('')
   })
+
+  it('describes a conversation by the words of its answer, without Markdown', () => {
+    const conversation = {
+      messages: [
+        { role: 'user', content: 'Sum it up' },
+        { role: 'assistant', content: '## Summary\n\n- **Bonjour** [doc_1]' }
+      ]
+    }
+
+    expect(getScribeConversationDescription(conversation)).toBe(
+      'Summary Bonjour'
+    )
+  })
 })
 
 describe('makeScribeAnswerActions', () => {

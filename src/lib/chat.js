@@ -23,6 +23,25 @@ export function removeSourceMarks(text) {
   return SOURCE_MARKS.reduce((result, mark) => result.replace(mark, ''), text)
 }
 
+/**
+ * @param {string} text - the answer of the LLM, in Markdown
+ * @returns {string} its words on one line, for a preview: without the marks
+ * of its sources nor the syntax of Markdown
+ */
+export function toPlainText(text) {
+  return removeSourceMarks(text)
+    .replace(/^\s*(?:```|~~~).*$/gm, '') // fences of code
+    .replace(/^[\s|:-]*-[\s|:-]*$/gm, '') // rule under the head of a table
+    .replace(/!?\[([^\]]*)\]\((?:[^()]|\([^)]*\))*\)/g, '$1') // links and images: their text
+    .replace(/^\s*(?:#{1,6}|>|[-*+]|\d+[.)])\s+/gm, '') // titles, quotes, lists
+    .replace(/(\*\*|__|~~)(\S(?:.*?\S)??)\1/g, '$2') // bold, struck
+    .replace(/`/g, '') // code
+    .replace(/(^|[\s(])[*_](\S(?:.*?\S)??)[*_](?=[\s).,:;!?]|$)/gm, '$1$2') // italic
+    .replace(/\|/g, ' ') // cells of a table
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 function findLastUserText(messages) {
   const message = messages.findLast(message => message.role === 'user')
   const part = message?.content.find(part => part.type === 'text')
