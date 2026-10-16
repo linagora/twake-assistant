@@ -52,17 +52,16 @@ export const formatConversationDate = (dateString, t, lang) => {
   })
 }
 
-// No rule names a conversation yet: the last question of the user does
-export const getNameOfConversation = conversation => {
-  return (
-    conversation.name ||
-    conversation.messages?.[conversation.messages?.length - 2]?.content
-  )
-}
+// No rule names a conversation yet: the first question of the user does
+export const getNameOfConversation = conversation =>
+  conversation.name ||
+  conversation.messages?.find(message => message.role === 'user')?.content
 
 // No rule describes a conversation yet: the last answer does
 export const getDescriptionOfConversation = (conversation, t) => {
-  const lastMessage = conversation?.messages?.[conversation.messages.length - 1]
-  if (!lastMessage) return undefined
-  return formatAnswer(lastMessage, t)
+  const answer = conversation?.messages?.findLast(
+    message => message.role === 'assistant'
+  )
+  if (!answer) return undefined
+  return formatAnswer(answer, t)
 }
