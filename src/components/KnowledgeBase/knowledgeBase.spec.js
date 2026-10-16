@@ -24,6 +24,13 @@ describe('makeKnowledgeBaseEntry', () => {
       dirId: 'folder-1'
     })
   })
+
+  it('reads the _id of a document returned by the Drive picker', () => {
+    expect(makeKnowledgeBaseEntry({ _id: 'folder-2', name: 'HR' })).toEqual({
+      doctype: 'io.cozy.files',
+      dirId: 'folder-2'
+    })
+  })
 })
 
 describe('makeEmailKnowledgeBaseEntry', () => {
