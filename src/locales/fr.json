@@ -41,6 +41,32 @@
         "label": "Points clés",
         "request": "Liste les points clés du texte."
       },
+      "rewrite": {
+        "label": "Réécrire",
+        "shorter": {
+          "label": "Plus court",
+          "request": "Raccourcis le texte."
+        },
+        "longer": {
+          "label": "Plus long",
+          "request": "Développe le texte."
+        }
+      },
+      "tone": {
+        "label": "Ton",
+        "professional": {
+          "label": "Professionnel",
+          "request": "Réécris le texte sur un ton professionnel."
+        },
+        "casual": {
+          "label": "Décontracté",
+          "request": "Réécris le texte sur un ton décontracté."
+        },
+        "polite": {
+          "label": "Poli",
+          "request": "Réécris le texte sur un ton poli."
+        }
+      },
       "translate": {
         "label": "Traduire",
         "french": {
@@ -50,6 +76,18 @@
         "english": {
           "label": "Anglais",
           "request": "Traduis le texte en anglais."
+        },
+        "german": {
+          "label": "Allemand",
+          "request": "Traduis le texte en allemand."
+        },
+        "spanish": {
+          "label": "Espagnol",
+          "request": "Traduis le texte en espagnol."
+        },
+        "italian": {
+          "label": "Italien",
+          "request": "Traduis le texte en italien."
         },
         "russian": {
           "label": "Russe",

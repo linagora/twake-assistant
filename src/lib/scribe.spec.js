@@ -26,6 +26,8 @@ describe('makeScribeSuggestions', () => {
       'summarize',
       'correct',
       'keypoints',
+      'rewrite',
+      'tone',
       'translate'
     ])
     expect(suggestions[0]).toEqual({
@@ -35,12 +37,37 @@ describe('makeScribeSuggestions', () => {
       request: 'Summarize the text.',
       prompt: 'summarize'
     })
-    expect(suggestions[3].label).toBe('Translate')
     expect(suggestions[3].options.map(option => option.prompt)).toEqual([
-      'translate-french',
-      'translate-english',
-      'translate-russian',
-      'translate-vietnamese'
+      'make-shorter',
+      'expand-context'
+    ])
+    expect(suggestions[4].label).toBe('Tone')
+    expect(suggestions[4].options.map(option => option.prompt)).toEqual([
+      'change-tone-professional',
+      'change-tone-casual',
+      'change-tone-polite'
+    ])
+    expect(suggestions[5].label).toBe('Translate')
+  })
+
+  it('leaves out the prompts the catalogue does not have yet, and a menu left empty', () => {
+    let suggestions
+    jest.isolateModules(() => {
+      jest.doMock('@/lib/scribePrompts.json', () => ({
+        prompts: ['summarize', 'translate-german'].map(name => ({
+          name,
+          messages: [{ role: 'user', content: `${name}: {{input}}` }]
+        }))
+      }))
+      suggestions = require('@/lib/scribe').makeScribeSuggestions(mockT)
+    })
+
+    expect(suggestions.map(suggestion => suggestion.name)).toEqual([
+      'summarize',
+      'translate'
+    ])
+    expect(suggestions[1].options.map(option => option.prompt)).toEqual([
+      'translate-german'
     ])
   })
 

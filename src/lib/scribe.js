@@ -1,4 +1,11 @@
-import { CheckList, Globe, Text, TextInfo } from '@linagora/twake-icons'
+import {
+  CheckList,
+  Comment,
+  Globe,
+  Pen,
+  Text,
+  TextInfo
+} from '@linagora/twake-icons'
 
 import { removeSourceMarks } from '@/lib/chat'
 import { findExampleError } from '@/lib/chatActions'
@@ -7,22 +14,56 @@ import catalogue from '@/lib/scribePrompts.json'
 
 // The prompts of the scribe are the ones of the catalogue of linagora/ai-prompts
 // (https://files.twake.app/prompts/scribe/latest.json), shared with the scribe
-// of Twake Mail, arranged as in the design of the side panel
+// of Twake Mail, arranged as in the design of the side panel. A prompt the
+// catalogue does not have yet is left out, until `yarn prompts:update` brings it.
 const SUGGESTIONS = [
   { name: 'summarize', icon: Text, prompt: 'summarize' },
   { name: 'correct', icon: TextInfo, prompt: 'correct-grammar' },
   { name: 'keypoints', icon: CheckList, prompt: 'transform-to-bullets' },
+  {
+    name: 'rewrite',
+    icon: Pen,
+    options: [
+      { name: 'shorter', prompt: 'make-shorter' },
+      { name: 'longer', prompt: 'expand-context' }
+    ]
+  },
+  {
+    name: 'tone',
+    icon: Comment,
+    options: [
+      { name: 'professional', prompt: 'change-tone-professional' },
+      { name: 'casual', prompt: 'change-tone-casual' },
+      { name: 'polite', prompt: 'change-tone-polite' }
+    ]
+  },
   {
     name: 'translate',
     icon: Globe,
     options: [
       { name: 'french', prompt: 'translate-french' },
       { name: 'english', prompt: 'translate-english' },
+      { name: 'german', prompt: 'translate-german' },
+      { name: 'spanish', prompt: 'translate-spanish' },
+      { name: 'italian', prompt: 'translate-italian' },
       { name: 'russian', prompt: 'translate-russian' },
       { name: 'vietnamese', prompt: 'translate-vietnamese' }
     ]
   }
 ]
+
+const isInCatalogue = name =>
+  catalogue.prompts.some(prompt => prompt.name === name)
+
+function keepCatalogued(suggestions) {
+  return suggestions.flatMap(suggestion => {
+    if (!suggestion.options) {
+      return isInCatalogue(suggestion.prompt) ? [suggestion] : []
+    }
+    const options = keepCatalogued(suggestion.options)
+    return options.length > 0 ? [{ ...suggestion, options }] : []
+  })
+}
 
 /**
  * @typedef {object} Suggestion
@@ -58,7 +99,9 @@ function makeDefaultMenu(t) {
     }
   }
 
-  return SUGGESTIONS.map(suggestion => makeSuggestion(suggestion, []))
+  return keepCatalogued(SUGGESTIONS).map(suggestion =>
+    makeSuggestion(suggestion, [])
+  )
 }
 
 function findSuggestion(suggestions, predicate) {
