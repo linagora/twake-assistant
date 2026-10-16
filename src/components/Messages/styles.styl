@@ -7,6 +7,35 @@
 .answer
   overflow-wrap anywhere
 
+  // The Markdown of cozy-ui gives a table and a block of code no look and
+  // takes no component for them: drawn here, in the colors of the theme
+  table
+    // The words of the answer break anywhere: in a cell, the table would
+    // shrink and break them instead of scrolling
+    overflow-wrap break-word
+    display block
+    width max-content
+    max-width 100%
+    overflow-x auto
+    margin-bottom 1rem
+    border-collapse collapse
+
+  th,
+  td
+    padding .25rem .75rem
+    border 1px solid var(--dividerColor)
+    text-align left
+
+  th
+    background-color var(--defaultBackgroundColor)
+
+  pre
+    margin 0 0 1rem
+    padding .75rem 1rem
+    overflow-x auto
+    border-radius 8px
+    background-color var(--defaultBackgroundColor)
+
 // The 24px "icon animation" of the design: three 3.8px dots, 6.09px apart,
 // each rising 2.855px and growing to 115% over 250ms then falling back,
 // 150ms after the previous one, on a 1.2s loop.
