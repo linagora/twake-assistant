@@ -134,7 +134,7 @@ export function Answer({ isCallShown = false, children, ...props }) {
       {isEmpty && (
         <Typography color="textSecondary">{t('chat.empty')}</Typography>
       )}
-      {sources?.length > 0 && <Sources sources={sources} />}
+      {!isEmpty && sources?.length > 0 && <Sources sources={sources} />}
       {children}
     </MessagePrimitive.Root>
   )
