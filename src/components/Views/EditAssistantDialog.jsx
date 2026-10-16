@@ -35,7 +35,7 @@ import { buildAssistantByIdWithProviderQuery } from '../queries'
 const EditAssistantDialog = ({ open, onClose }) => {
   const { t } = useI18n()
   const client = useClient()
-  const { assistantIdInAction, setSelectedAssistantId } = useAssistant()
+  const { assistantIdInAction } = useAssistant()
   const { showAlert } = useAlert()
   const { isMobile } = useBreakpoints()
 
@@ -118,7 +118,6 @@ const EditAssistantDialog = ({ open, onClose }) => {
       assistantIdInAction,
       formData.knowledgeBase || []
     )
-    setSelectedAssistantId(assistantIdInAction)
     showAlert({ message: t('assistant_edit.success'), severity: 'success' })
   }
 
