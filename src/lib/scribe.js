@@ -1,4 +1,11 @@
-import { CheckList, Globe, Text, TextInfo } from '@linagora/twake-icons'
+import {
+  CheckList,
+  Comment,
+  Globe,
+  Pen,
+  Text,
+  TextInfo
+} from '@linagora/twake-icons'
 
 import { removeSourceMarks } from '@/lib/chat'
 import { findExampleError } from '@/lib/chatActions'
@@ -12,6 +19,23 @@ const SUGGESTIONS = [
   { name: 'summarize', icon: Text, prompt: 'summarize' },
   { name: 'correct', icon: TextInfo, prompt: 'correct-grammar' },
   { name: 'keypoints', icon: CheckList, prompt: 'transform-to-bullets' },
+  {
+    name: 'rewrite',
+    icon: Pen,
+    options: [
+      { name: 'shorter', prompt: 'make-shorter' },
+      { name: 'longer', prompt: 'expand-context' }
+    ]
+  },
+  {
+    name: 'tone',
+    icon: Comment,
+    options: [
+      { name: 'professional', prompt: 'change-tone-professional' },
+      { name: 'casual', prompt: 'change-tone-casual' },
+      { name: 'polite', prompt: 'change-tone-polite' }
+    ]
+  },
   {
     name: 'translate',
     icon: Globe,

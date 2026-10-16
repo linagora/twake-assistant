@@ -41,6 +41,32 @@
         "label": "Key points",
         "request": "List the key points of the text."
       },
+      "rewrite": {
+        "label": "Rewrite",
+        "shorter": {
+          "label": "Shorter",
+          "request": "Make the text shorter."
+        },
+        "longer": {
+          "label": "Longer",
+          "request": "Make the text longer."
+        }
+      },
+      "tone": {
+        "label": "Tone",
+        "professional": {
+          "label": "Professional",
+          "request": "Rewrite the text in a professional tone."
+        },
+        "casual": {
+          "label": "Casual",
+          "request": "Rewrite the text in a casual tone."
+        },
+        "polite": {
+          "label": "Polite",
+          "request": "Rewrite the text in a polite tone."
+        }
+      },
       "translate": {
         "label": "Translate",
         "french": {

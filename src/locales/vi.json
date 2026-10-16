@@ -41,6 +41,32 @@
         "label": "Điểm chính",
         "request": "Liệt kê các điểm chính của văn bản."
       },
+      "rewrite": {
+        "label": "Viết lại",
+        "shorter": {
+          "label": "Ngắn hơn",
+          "request": "Rút ngắn văn bản."
+        },
+        "longer": {
+          "label": "Dài hơn",
+          "request": "Mở rộng văn bản."
+        }
+      },
+      "tone": {
+        "label": "Giọng điệu",
+        "professional": {
+          "label": "Chuyên nghiệp",
+          "request": "Viết lại văn bản với giọng điệu chuyên nghiệp."
+        },
+        "casual": {
+          "label": "Thân mật",
+          "request": "Viết lại văn bản với giọng điệu thân mật."
+        },
+        "polite": {
+          "label": "Lịch sự",
+          "request": "Viết lại văn bản với giọng điệu lịch sự."
+        }
+      },
       "translate": {
         "label": "Dịch",
         "french": {
