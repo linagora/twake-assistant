@@ -118,19 +118,16 @@ const CozyAssistantRuntimeProviderInner = ({
   initialMessages: ThreadMessageLike[]
 }): JSX.Element => {
   const { selectedAssistantId, websearchEnabled } = useAssistant()
-  const request = useMemo(
-    () => ({
-      hasDocuments: true,
-      // The default assistant is a client-side sentinel with no CouchDB
-      // document behind it: the stack answers with its own
-      assistantId:
-        selectedAssistantId !== DEFAULT_ASSISTANT._id
-          ? selectedAssistantId
-          : null,
+  const request = useMemo(() => {
+    // The default assistant is a client-side sentinel with no CouchDB
+    // document behind it, so no folder: the LLM answers alone
+    const isDefault = selectedAssistantId === DEFAULT_ASSISTANT._id
+    return {
+      hasDocuments: !isDefault,
+      assistantId: isDefault ? null : selectedAssistantId,
       websearch: websearchEnabled
-    }),
-    [selectedAssistantId, websearchEnabled]
-  )
+    }
+  }, [selectedAssistantId, websearchEnabled])
   const { runtime } = useChatRuntime({
     conversationId,
     messages: initialMessages,
