@@ -170,6 +170,7 @@
       "title": "%{name} của bạn",
       "default_title": "Trợ lý Twake của bạn",
       "subtitle": "Câu trả lời dựa trên mọi tệp từ",
+      "folder_subtitle": "Câu trả lời chỉ dựa trên các tệp từ",
       "default_subtitle": "Hôm nay bạn muốn làm gì?",
       "actions": {
         "summarize": {
