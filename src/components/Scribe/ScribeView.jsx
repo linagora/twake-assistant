@@ -71,7 +71,7 @@ function ScribeConversation({ isHidden }) {
         className={styles['scribe-messages']}
       >
         {isEmpty && (
-          <div className="u-flex u-flex-column u-flex-items-center u-flex-justify-center u-h-100 u-pt-2">
+          <div className="u-flex u-flex-column u-flex-items-center u-flex-justify-center u-h-100 u-pt-2 u-bxz">
             <DocumentAssistant aria-hidden="true" />
             <Typography
               variant="body2"
