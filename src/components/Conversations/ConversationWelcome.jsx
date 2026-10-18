@@ -40,7 +40,7 @@ export const ConversationWelcome = ({ inputRef }) => {
   const { isMobile } = useBreakpoints()
   const composerRuntime = useComposerRuntime()
   const { selectedAssistant } = useSelectedAssistant()
-  const { hasFolder, folderName } = useSelectedAssistantKnowledgeBase()
+  const { hasFolder, folderName, isRoot } = useSelectedAssistantKnowledgeBase()
 
   const handleAction = action => {
     composerRuntime.setText(
@@ -83,7 +83,11 @@ export const ConversationWelcome = ({ inputRef }) => {
       >
         {hasFolder ? (
           <>
-            {t('assistant.welcome.subtitle')}
+            {t(
+              isRoot
+                ? 'assistant.welcome.subtitle'
+                : 'assistant.welcome.folder_subtitle'
+            )}
             <Icon
               icon={FileTypeFolder}
               size={16}

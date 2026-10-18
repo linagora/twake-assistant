@@ -47,6 +47,9 @@ describe('ConversationWelcome', () => {
       'assistant.welcome.title:Meeting assistant'
     )
     expect(screen.queryByText(/Meeting recordings/)).toBeInTheDocument()
+    expect(
+      screen.queryByText(/assistant.welcome.folder_subtitle/)
+    ).toBeInTheDocument()
 
     fireEvent.click(
       screen.getByRole('button', {
@@ -58,6 +61,18 @@ describe('ConversationWelcome', () => {
       'assistant.welcome.actions.summarize.prompt'
     )
     expect(inputRef.current.focus).toHaveBeenCalled()
+  })
+
+  it('says the answers come from any file of the whole Drive', () => {
+    mockKnowledgeBase.mockReturnValue({
+      hasFolder: true,
+      isRoot: true,
+      folderName: 'Drive'
+    })
+    render(<ConversationWelcome />)
+
+    expect(screen.queryByText(/assistant.welcome.subtitle/)).toBeInTheDocument()
+    expect(screen.queryByText(/assistant.welcome.folder_subtitle/)).toBe(null)
   })
 
   it('welcomes to the plain assistant without a folder, with no short action', () => {
