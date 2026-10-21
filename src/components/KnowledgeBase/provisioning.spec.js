@@ -23,12 +23,7 @@ jest.mock('cozy-flags', () => jest.fn())
 const notFound = () => Object.assign(new Error('not_found'), { status: 404 })
 const conflict = () => Object.assign(new Error('conflict'), { status: 409 })
 
-const makeClient = ({
-  assistants = {},
-  files = {},
-  paths = {},
-  ensuredDirId = 'created-dir'
-} = {}) => {
+const makeClient = ({ assistants = {}, files = {}, paths = {} } = {}) => {
   const filesCollection = {
     statById: jest.fn(async id => {
       if (!files[id]) throw notFound()
@@ -37,8 +32,7 @@ const makeClient = ({
     statByPath: jest.fn(async path => {
       if (!paths[path]) throw notFound()
       return { data: paths[path] }
-    }),
-    ensureDirectoryExists: jest.fn().mockResolvedValue(ensuredDirId)
+    })
   }
   const client = {
     collection: jest.fn(doctype => {
@@ -107,7 +101,7 @@ describe('resolveProvisionedFolder', () => {
   })
 
   it('refuses a trashed folder, a file, or a missing id when dirName does not exist', async () => {
-    const { client, filesCollection } = makeClient({
+    const { client } = makeClient({
       files: {
         // A real DirDoc has no `trashed` field: only its path says so.
         trashed: {
@@ -131,7 +125,6 @@ describe('resolveProvisionedFolder', () => {
     expect(
       await resolveProvisionedFolder(client, { dirId: 'nope', dirName: 'X' })
     ).toBeNull()
-    expect(filesCollection.ensureDirectoryExists).not.toHaveBeenCalled()
   })
 
   it('resolves a magic folder through getReferencedFolder', async () => {
@@ -168,7 +161,6 @@ describe('resolveProvisionedFolder', () => {
       })
     ).toBe('reunions-dir')
     expect(filesCollection.statByPath).toHaveBeenCalledWith('/_Reunions')
-    expect(filesCollection.ensureDirectoryExists).not.toHaveBeenCalled()
   })
 
   it('does not fall back to a file named like dirName', async () => {
@@ -200,14 +192,20 @@ describe('resolveProvisionedFolder', () => {
     expect(filesCollection.statByPath).not.toHaveBeenCalled()
   })
 
-  it('finds or creates the folder by name at the root', async () => {
-    const { client, filesCollection } = makeClient({
-      ensuredDirId: 'docs-dir'
+  it('finds the folder by name at the root', async () => {
+    const { client } = makeClient({
+      paths: { '/Docs': { _id: 'docs-dir', type: 'directory' } }
     })
     expect(await resolveProvisionedFolder(client, { dirName: 'Docs' })).toBe(
       'docs-dir'
     )
-    expect(filesCollection.ensureDirectoryExists).toHaveBeenCalledWith('/Docs')
+  })
+
+  it('does not create a missing dirName folder', async () => {
+    const { client } = makeClient()
+    expect(
+      await resolveProvisionedFolder(client, { dirName: 'Docs' })
+    ).toBeNull()
   })
 
   it('accepts the root folder without looking it up', async () => {
@@ -226,8 +224,10 @@ describe('ensureProvisionedAssistants', () => {
     models.folder.getReferencedFolder.mockReset()
   })
 
-  it('creates the folder, the account, the assistant and its knowledge base', async () => {
-    const { client } = makeClient({ ensuredDirId: 'docs-dir' })
+  it('creates the account, the assistant and its knowledge base', async () => {
+    const { client } = makeClient({
+      paths: { '/Docs': { _id: 'docs-dir', type: 'directory' } }
+    })
 
     const result = await ensureProvisionedAssistants(client, [
       { name: 'Mes documents', dirName: 'Docs', prompt: 'Hello' }
@@ -284,7 +284,12 @@ describe('ensureProvisionedAssistants', () => {
   })
 
   it('creates one openrag account per assistant', async () => {
-    const { client } = makeClient()
+    const { client } = makeClient({
+      paths: {
+        '/Docs': { _id: 'docs-dir', type: 'directory' },
+        '/Photos': { _id: 'photos-dir', type: 'directory' }
+      }
+    })
 
     await ensureProvisionedAssistants(client, [
       { name: 'Docs', dirName: 'Docs' },
@@ -308,7 +313,12 @@ describe('ensureProvisionedAssistants', () => {
   })
 
   it('skips a second entry whose name derives to the same id', async () => {
-    const { client } = makeClient()
+    const { client } = makeClient({
+      paths: {
+        '/Réunions': { _id: 'reunions-dir', type: 'directory' },
+        '/Autre': { _id: 'autre-dir', type: 'directory' }
+      }
+    })
 
     const result = await ensureProvisionedAssistants(client, [
       { name: 'Réunions', dirName: 'Réunions' },
@@ -322,7 +332,7 @@ describe('ensureProvisionedAssistants', () => {
     })
     const saved = client.save.mock.calls.map(([doc]) => doc)
     expect(getKnowledgeBase(saved[2])).toEqual([
-      { doctype: 'io.cozy.files', dirId: 'created-dir' }
+      { doctype: 'io.cozy.files', dirId: 'reunions-dir' }
     ])
   })
 
@@ -335,7 +345,8 @@ describe('ensureProvisionedAssistants', () => {
           knowledgeBase: [{ doctype: 'io.cozy.files', dirId: 'dir-1' }]
         }
       },
-      files: { 'dir-1': { _id: 'dir-1', type: 'directory', trashed: false } }
+      files: { 'dir-1': { _id: 'dir-1', type: 'directory', trashed: false } },
+      paths: { '/Docs': { _id: 'docs-dir', type: 'directory' } }
     })
 
     const result = await ensureProvisionedAssistants(client, [
@@ -351,7 +362,7 @@ describe('ensureProvisionedAssistants', () => {
       assistants: {
         docs: { _id: 'docs', _type: 'io.cozy.ai.chat.assistants' }
       },
-      ensuredDirId: 'docs-dir'
+      paths: { '/Docs': { _id: 'docs-dir', type: 'directory' } }
     })
 
     const result = await ensureProvisionedAssistants(client, [
@@ -359,7 +370,7 @@ describe('ensureProvisionedAssistants', () => {
     ])
 
     expect(result).toEqual({ created: [], ensured: ['docs'], skipped: [] })
-    expect(filesCollection.ensureDirectoryExists).toHaveBeenCalledWith('/Docs')
+    expect(filesCollection.statByPath).toHaveBeenCalledWith('/Docs')
     // saveKnowledgeBase re-attached the folder.
     expect(client.save).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -382,7 +393,7 @@ describe('ensureProvisionedAssistants', () => {
           ]
         }
       },
-      ensuredDirId: 'docs-dir'
+      paths: { '/Docs': { _id: 'docs-dir', type: 'directory' } }
     })
 
     const result = await ensureProvisionedAssistants(client, [
@@ -474,7 +485,7 @@ describe('ensureProvisionedAssistants', () => {
   })
 
   it('creates the assistant on the dirName folder while dirId does not resolve', async () => {
-    const { client, filesCollection } = makeClient({
+    const { client } = makeClient({
       paths: { '/_Reunions': { _id: 'reunions-dir', type: 'directory' } }
     })
     models.folder.getReferencedFolder.mockResolvedValue(null)
@@ -484,7 +495,6 @@ describe('ensureProvisionedAssistants', () => {
     ])
 
     expect(result).toEqual({ created: ['reunions'], ensured: [], skipped: [] })
-    expect(filesCollection.ensureDirectoryExists).not.toHaveBeenCalled()
     expect(client.save).toHaveBeenCalledWith(
       expect.objectContaining({
         _id: 'reunions',
@@ -520,7 +530,7 @@ describe('ensureProvisionedAssistants', () => {
   })
 
   it('creates nothing when neither dirId nor dirName exists', async () => {
-    const { client, filesCollection } = makeClient()
+    const { client } = makeClient()
     models.folder.getReferencedFolder.mockResolvedValue(null)
 
     const result = await ensureProvisionedAssistants(client, [
@@ -530,7 +540,6 @@ describe('ensureProvisionedAssistants', () => {
     expect(result.skipped).toEqual([
       { id: 'reunions', reason: 'folder could not be resolved' }
     ])
-    expect(filesCollection.ensureDirectoryExists).not.toHaveBeenCalled()
     expect(client.save).not.toHaveBeenCalled()
   })
 
@@ -549,7 +558,8 @@ describe('ensureProvisionedAssistants', () => {
           type: 'directory',
           path: '/.cozy_trash/Docs'
         }
-      }
+      },
+      paths: { '/Docs': { _id: 'docs-dir', type: 'directory' } }
     })
 
     const result = await ensureProvisionedAssistants(client, [
@@ -563,7 +573,9 @@ describe('ensureProvisionedAssistants', () => {
   })
 
   it('treats a save conflict as an existing assistant', async () => {
-    const { client } = makeClient({ ensuredDirId: 'docs-dir' })
+    const { client } = makeClient({
+      paths: { '/Docs': { _id: 'docs-dir', type: 'directory' } }
+    })
     let queries = 0
     const original = client.query.getMockImplementation()
     client.query.mockImplementation(async definition => {
@@ -600,11 +612,11 @@ describe('ensureProvisionedAssistants', () => {
   })
 
   it('skips invalid entries and keeps going after a failure', async () => {
-    const { client } = makeClient({ ensuredDirId: 'docs-dir' })
+    const { client } = makeClient()
     client
       .collection('io.cozy.files')
-      .ensureDirectoryExists.mockRejectedValueOnce(new Error('boom'))
-      .mockResolvedValue('docs-dir')
+      .statByPath.mockRejectedValueOnce(new Error('boom'))
+      .mockResolvedValue({ data: { _id: 'docs-dir', type: 'directory' } })
 
     const result = await ensureProvisionedAssistants(client, [
       { name: '***', dirName: 'X' },
