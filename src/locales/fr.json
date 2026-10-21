@@ -223,14 +223,14 @@
     }
   },
   "assistant_create": {
-    "title": "Créer un agent",
+    "title": "Créer un assistant",
     "steps": {
       "basic_info": {
-        "description": "Personnalisez votre agent. Choisissez la base de connaissances, puis son modèle d'IA.",
+        "description": "Personnalisez votre assistant. Choisissez la base de connaissances, puis son modèle d'IA.",
         "avatar": "Avatar (optionnel)",
         "upload_photo": "Importer une photo",
         "name": "Nom",
-        "name_placeholder": "Nommez votre agent",
+        "name_placeholder": "Nommez votre assistant",
         "prompt_label": "Instructions",
         "prompt_placeholder": "Définir le contexte et personnaliser les réponses de l'assistant",
         "knowledge_base": "Base de connaissances (optionnel)",
@@ -289,24 +289,24 @@
       "next": "Suivant",
       "create": "Créer"
     },
-    "configure_api_key_title": "Configurer un nouvel agent",
+    "configure_api_key_title": "Configurer un nouvel assistant",
     "from_drive": {
       "actions": {
         "cancel": "Annuler",
         "add": "Ajouter"
       }
     },
-    "success": "Agent créé avec succès"
+    "success": "Assistant créé avec succès"
   },
   "assistant_edit": {
-    "title": "Modifier l'agent",
+    "title": "Modifier l'assistant",
     "buttons": {
       "cancel": "Annuler",
       "next": "Suivant",
       "edit": "Modifier"
     },
-    "configure_api_key_title": "Configurer votre agent",
-    "success": "Agent modifié avec succès"
+    "configure_api_key_title": "Configurer votre assistant",
+    "success": "Assistant modifié avec succès"
   },
   "conversation_delete": {
     "title": "Supprimer la conversation",
@@ -317,8 +317,8 @@
     }
   },
   "assistant_delete": {
-    "title": "Supprimer l'agent",
-    "content": "Êtes-vous sûr de vouloir supprimer %{name} ? Cette action ne peut pas être annulée et supprimera définitivement cet agent de votre Twake.",
+    "title": "Supprimer l'assistant",
+    "content": "Êtes-vous sûr de vouloir supprimer %{name} ? Cette action ne peut pas être annulée et supprimera définitivement cet assistant de votre Twake.",
     "buttons": {
       "cancel": "Annuler",
       "confirm": "Supprimer"
