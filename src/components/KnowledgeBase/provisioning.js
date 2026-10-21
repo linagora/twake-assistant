@@ -98,16 +98,15 @@ const resolveFolderById = async (client, dirId) => {
 
 /**
  * Resolves the knowledge base folder of a flag entry. dirId wins; when it
- * does not resolve, like a magic folder its app has not created yet, an
- * existing dirName folder is used instead, never created. Alone, dirName
- * is created when missing. Returns the dir id, or null.
+ * does not resolve, like a magic folder its app has not created yet, the
+ * dirName folder is used. Nothing is ever created. Returns the dir id, or
+ * null.
  */
 export const resolveProvisionedFolder = async (client, { dirId, dirName }) => {
-  if (!dirId) {
-    return client.collection(FILES_DOCTYPE).ensureDirectoryExists(`/${dirName}`)
+  if (dirId) {
+    const id = await resolveFolderById(client, dirId)
+    if (id || !dirName) return id
   }
-  const id = await resolveFolderById(client, dirId)
-  if (id || !dirName) return id
   const path = `/${dirName}`
   return statLiveDirectory(
     () => client.collection(FILES_DOCTYPE).statByPath(path),

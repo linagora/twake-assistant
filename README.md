@@ -29,11 +29,11 @@ request needs one. See
 - Optional: `cozy.assistant.autoprovision` lists the assistants to create. The
   app sets them up when it opens, and a service once a day to follow the
   changes of the flag, with the `rag-index` triggers that index their
-  folders. An entry names its folder by `dirId` (a folder id or a magic
-  folder like `io.cozy.apps/meet`) or `dirName` (a path from the root,
-  created when missing). With both, `dirName` is only a fallback: an
-  existing folder the assistant is created on when `dirId` does not
-  resolve, never created. The assistant stays on it afterwards.
+  folders. An entry names an existing folder by `dirId` (a folder id or a
+  magic folder like `io.cozy.apps/meet`), by `dirName` (a path from the
+  root), or both: `dirName` is then used when `dirId` does not resolve, and
+  the assistant stays on it afterwards. No folder is ever created: an entry
+  whose folder does not exist is retried later.
 
 ## Develop
 
