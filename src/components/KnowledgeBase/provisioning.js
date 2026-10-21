@@ -65,37 +65,54 @@ const warn = (...args) => {
   console.warn('assistant provisioning:', ...args)
 }
 
+const statLiveDirectory = async (stat, label) => {
+  try {
+    const { data: file } = await stat()
+    if (isLiveDirectory(file)) return file._id
+    warn(`folder ${label} is not a live directory`)
+    return null
+  } catch (error) {
+    if (isNotFound(error)) {
+      warn(`folder ${label} does not exist`)
+      return null
+    }
+    throw error
+  }
+}
+
+const resolveFolderById = async (client, dirId) => {
+  if (isRootDirId(dirId)) return dirId
+  if (isMagicFolderId(dirId)) {
+    const folder = await models.folder.getReferencedFolder(client, {
+      _type: APPS_DOCTYPE,
+      _id: dirId
+    })
+    if (!folder) warn(`magic folder ${dirId} has no directory yet`)
+    return folder ? folder._id : null
+  }
+  return statLiveDirectory(
+    () => client.collection(FILES_DOCTYPE).statById(dirId),
+    dirId
+  )
+}
+
 /**
- * Resolves the knowledge base folder of a flag entry. dirId wins over
- * dirName and never falls back to it. Returns the dir id, or null.
+ * Resolves the knowledge base folder of a flag entry. dirId wins; when it
+ * does not resolve, like a magic folder its app has not created yet, an
+ * existing dirName folder is used instead, never created. Alone, dirName
+ * is created when missing. Returns the dir id, or null.
  */
 export const resolveProvisionedFolder = async (client, { dirId, dirName }) => {
-  if (dirId) {
-    if (isRootDirId(dirId)) return dirId
-    if (isMagicFolderId(dirId)) {
-      const folder = await models.folder.getReferencedFolder(client, {
-        _type: APPS_DOCTYPE,
-        _id: dirId
-      })
-      if (!folder) warn(`magic folder ${dirId} has no directory yet`)
-      return folder ? folder._id : null
-    }
-    try {
-      const { data: file } = await client
-        .collection(FILES_DOCTYPE)
-        .statById(dirId)
-      if (isLiveDirectory(file)) return file._id
-      warn(`folder ${dirId} is not a live directory`)
-      return null
-    } catch (error) {
-      if (isNotFound(error)) {
-        warn(`folder ${dirId} does not exist`)
-        return null
-      }
-      throw error
-    }
+  if (!dirId) {
+    return client.collection(FILES_DOCTYPE).ensureDirectoryExists(`/${dirName}`)
   }
-  return client.collection(FILES_DOCTYPE).ensureDirectoryExists(`/${dirName}`)
+  const id = await resolveFolderById(client, dirId)
+  if (id || !dirName) return id
+  const path = `/${dirName}`
+  return statLiveDirectory(
+    () => client.collection(FILES_DOCTYPE).statByPath(path),
+    path
+  )
 }
 
 /**

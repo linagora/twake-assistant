@@ -26,12 +26,17 @@ const conflict = () => Object.assign(new Error('conflict'), { status: 409 })
 const makeClient = ({
   assistants = {},
   files = {},
+  paths = {},
   ensuredDirId = 'created-dir'
 } = {}) => {
   const filesCollection = {
     statById: jest.fn(async id => {
       if (!files[id]) throw notFound()
       return { data: files[id] }
+    }),
+    statByPath: jest.fn(async path => {
+      if (!paths[path]) throw notFound()
+      return { data: paths[path] }
     }),
     ensureDirectoryExists: jest.fn().mockResolvedValue(ensuredDirId)
   }
@@ -101,7 +106,7 @@ describe('resolveProvisionedFolder', () => {
     )
   })
 
-  it('refuses a trashed folder, a file, or a missing id without fallback', async () => {
+  it('refuses a trashed folder, a file, or a missing id when dirName does not exist', async () => {
     const { client, filesCollection } = makeClient({
       files: {
         // A real DirDoc has no `trashed` field: only its path says so.
@@ -148,6 +153,51 @@ describe('resolveProvisionedFolder', () => {
     expect(
       await resolveProvisionedFolder(client, { dirId: 'io.cozy.apps/meet' })
     ).toBeNull()
+  })
+
+  it('falls back to an existing dirName folder when dirId does not resolve', async () => {
+    const { client, filesCollection } = makeClient({
+      paths: { '/_Reunions': { _id: 'reunions-dir', type: 'directory' } }
+    })
+    models.folder.getReferencedFolder.mockResolvedValue(null)
+
+    expect(
+      await resolveProvisionedFolder(client, {
+        dirId: 'io.cozy.apps/meet',
+        dirName: '_Reunions'
+      })
+    ).toBe('reunions-dir')
+    expect(filesCollection.statByPath).toHaveBeenCalledWith('/_Reunions')
+    expect(filesCollection.ensureDirectoryExists).not.toHaveBeenCalled()
+  })
+
+  it('does not fall back to a file named like dirName', async () => {
+    const { client } = makeClient({
+      paths: { '/_Reunions': { _id: 'a-file', type: 'file' } }
+    })
+    models.folder.getReferencedFolder.mockResolvedValue(null)
+
+    expect(
+      await resolveProvisionedFolder(client, {
+        dirId: 'io.cozy.apps/meet',
+        dirName: '_Reunions'
+      })
+    ).toBeNull()
+  })
+
+  it('prefers dirId over an existing dirName folder', async () => {
+    const { client, filesCollection } = makeClient({
+      paths: { '/_Reunions': { _id: 'reunions-dir', type: 'directory' } }
+    })
+    models.folder.getReferencedFolder.mockResolvedValue({ _id: 'meet-dir' })
+
+    expect(
+      await resolveProvisionedFolder(client, {
+        dirId: 'io.cozy.apps/meet',
+        dirName: '_Reunions'
+      })
+    ).toBe('meet-dir')
+    expect(filesCollection.statByPath).not.toHaveBeenCalled()
   })
 
   it('finds or creates the folder by name at the root', async () => {
@@ -421,6 +471,67 @@ describe('ensureProvisionedAssistants', () => {
     )
 
     expect(result.created).toEqual(['docs'])
+  })
+
+  it('creates the assistant on the dirName folder while dirId does not resolve', async () => {
+    const { client, filesCollection } = makeClient({
+      paths: { '/_Reunions': { _id: 'reunions-dir', type: 'directory' } }
+    })
+    models.folder.getReferencedFolder.mockResolvedValue(null)
+
+    const result = await ensureProvisionedAssistants(client, [
+      { name: 'Réunions', dirId: 'io.cozy.apps/meet', dirName: '_Reunions' }
+    ])
+
+    expect(result).toEqual({ created: ['reunions'], ensured: [], skipped: [] })
+    expect(filesCollection.ensureDirectoryExists).not.toHaveBeenCalled()
+    expect(client.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        _id: 'reunions',
+        relationships: expect.objectContaining({
+          knowledgeBase: {
+            data: [{ _id: 'reunions-dir', _type: 'io.cozy.files' }]
+          }
+        })
+      })
+    )
+  })
+
+  it('keeps an assistant on its dirName folder once dirId resolves to it', async () => {
+    const { client } = makeClient({
+      assistants: {
+        reunions: {
+          _id: 'reunions',
+          _type: 'io.cozy.ai.chat.assistants',
+          knowledgeBase: [{ doctype: 'io.cozy.files', dirId: 'reunions-dir' }]
+        }
+      },
+      files: { 'reunions-dir': { _id: 'reunions-dir', type: 'directory' } }
+    })
+    // Meet adopted /_Reunions as its magic folder.
+    models.folder.getReferencedFolder.mockResolvedValue({ _id: 'reunions-dir' })
+
+    const result = await ensureProvisionedAssistants(client, [
+      { name: 'Réunions', dirId: 'io.cozy.apps/meet', dirName: '_Reunions' }
+    ])
+
+    expect(result).toEqual({ created: [], ensured: ['reunions'], skipped: [] })
+    expect(client.save).not.toHaveBeenCalled()
+  })
+
+  it('creates nothing when neither dirId nor dirName exists', async () => {
+    const { client, filesCollection } = makeClient()
+    models.folder.getReferencedFolder.mockResolvedValue(null)
+
+    const result = await ensureProvisionedAssistants(client, [
+      { name: 'Réunions', dirId: 'io.cozy.apps/meet', dirName: '_Reunions' }
+    ])
+
+    expect(result.skipped).toEqual([
+      { id: 'reunions', reason: 'folder could not be resolved' }
+    ])
+    expect(filesCollection.ensureDirectoryExists).not.toHaveBeenCalled()
+    expect(client.save).not.toHaveBeenCalled()
   })
 
   it('skips an existing assistant whose folder is trashed', async () => {
