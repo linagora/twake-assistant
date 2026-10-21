@@ -30,9 +30,8 @@ export const useSelectedAssistant = () => {
 }
 
 /**
- * The menu picking the assistant: one item per assistant, the default
- * one, then "Create Agent". Anchored on `anchorRef`; `onSelect` is called
- * with the id of the picked assistant, after it has been selected.
+ * The menu picking the assistant. `onSelect` is called with the id of the
+ * picked assistant, after it has been selected.
  */
 const AssistantMenu = ({ anchorRef, open, onClose, onSelect }) => {
   const { t } = useI18n()

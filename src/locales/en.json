@@ -223,14 +223,14 @@
     }
   },
   "assistant_create": {
-    "title": "Create Agent",
+    "title": "Create Assistant",
     "steps": {
       "basic_info": {
-        "description": "Customize your agent. Choose its knowledge base, then its AI model.",
+        "description": "Customize your assistant. Choose its knowledge base, then its AI model.",
         "avatar": "Avatar (optional)",
         "upload_photo": "Upload a photo",
         "name": "Name",
-        "name_placeholder": "Name your agent",
+        "name_placeholder": "Name your assistant",
         "prompt_label": "Instructions",
         "prompt_placeholder": "Set the context and customize the assistant's responses",
         "knowledge_base": "Knowledge Base (optional)",
@@ -289,24 +289,24 @@
       "next": "Next",
       "create": "Create"
     },
-    "configure_api_key_title": "Configure a new agent",
+    "configure_api_key_title": "Configure a new assistant",
     "from_drive": {
       "actions": {
         "cancel": "Cancel",
         "add": "Add"
       }
     },
-    "success": "Agent created successfully"
+    "success": "Assistant created successfully"
   },
   "assistant_edit": {
-    "title": "Edit Agent",
+    "title": "Edit Assistant",
     "buttons": {
       "cancel": "Cancel",
       "next": "Next",
       "edit": "Edit"
     },
-    "configure_api_key_title": "Configure your agent",
-    "success": "Agent updated successfully"
+    "configure_api_key_title": "Configure your assistant",
+    "success": "Assistant updated successfully"
   },
   "conversation_delete": {
     "title": "Delete conversation",
@@ -317,8 +317,8 @@
     }
   },
   "assistant_delete": {
-    "title": "Delete Agent",
-    "content": "Are you sure you want to delete %{name}? This action cannot be undone and will permanently remove this agent from your Twake.",
+    "title": "Delete Assistant",
+    "content": "Are you sure you want to delete %{name}? This action cannot be undone and will permanently remove this assistant from your Twake.",
     "buttons": {
       "cancel": "Cancel",
       "confirm": "Delete"

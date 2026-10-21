@@ -240,14 +240,14 @@
     }
   },
   "assistant_create": {
-    "title": "Tạo tác nhân",
+    "title": "Tạo trợ lý",
     "steps": {
       "basic_info": {
-        "description": "Tùy chỉnh tác nhân của bạn. Chọn cơ sở tri thức, sau đó là mô hình AI.",
+        "description": "Tùy chỉnh trợ lý của bạn. Chọn cơ sở tri thức, sau đó là mô hình AI.",
         "avatar": "Ảnh đại diện (tùy chọn)",
         "upload_photo": "Tải ảnh lên",
         "name": "Tên",
-        "name_placeholder": "Đặt tên cho tác nhân của bạn",
+        "name_placeholder": "Đặt tên cho trợ lý của bạn",
         "prompt_label": "Hướng dẫn",
         "prompt_placeholder": "Xác định ngữ cảnh và tùy chỉnh câu trả lời của trợ lý",
         "knowledge_base": "Cơ sở tri thức (tùy chọn)",
@@ -306,24 +306,24 @@
       "next": "Tiếp",
       "create": "Tạo"
     },
-    "configure_api_key_title": "Cấu hình tác nhân mới",
+    "configure_api_key_title": "Cấu hình trợ lý mới",
     "from_drive": {
       "actions": {
         "cancel": "Hủy",
         "add": "Thêm"
       }
     },
-    "success": "Tạo tác nhân thành công"
+    "success": "Tạo trợ lý thành công"
   },
   "assistant_edit": {
-    "title": "Chỉnh sửa tác nhân",
+    "title": "Chỉnh sửa trợ lý",
     "buttons": {
       "cancel": "Hủy",
       "next": "Tiếp",
       "edit": "Lưu"
     },
-    "configure_api_key_title": "Cấu hình tác nhân của bạn",
-    "success": "Chỉnh sửa tác nhân thành công"
+    "configure_api_key_title": "Cấu hình trợ lý của bạn",
+    "success": "Chỉnh sửa trợ lý thành công"
   },
   "conversation_delete": {
     "title": "Xóa cuộc trò chuyện",
@@ -334,8 +334,8 @@
     }
   },
   "assistant_delete": {
-    "title": "Xóa tác nhân",
-    "content": "Bạn có chắc chắn muốn xóa %{name}? Hành động này không thể hoàn tác và sẽ xóa vĩnh viễn tác nhân này khỏi Twake của bạn.",
+    "title": "Xóa trợ lý",
+    "content": "Bạn có chắc chắn muốn xóa %{name}? Hành động này không thể hoàn tác và sẽ xóa vĩnh viễn trợ lý này khỏi Twake của bạn.",
     "buttons": {
       "cancel": "Hủy",
       "confirm": "Xóa"
