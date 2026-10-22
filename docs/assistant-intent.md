@@ -17,7 +17,7 @@ The service renders the AI assistant in the frame of the calling app, on a new c
 
 The assistant opens as a **scribe**, whatever its configuration: an assistant that works for the calling app. It works on a text of the app and hands its answers back for the app to insert them, and it calls the **capabilities** of the app, what the app can do beside taking an answer, when a request of the user needs one. The scribe is made for a side panel: it has no sidebar and no choice of the assistant. Its header starts a new conversation, lists the past conversations to open, rename or delete one of them, and closes the scribe. Its compact layout, without the header, fits a popover (see `layout` in [AssistantIntentConfig](#assistantintentconfig)).
 
-Unlike a picker, this intent does not end with a result. The assistant stays open for as many requests as the user makes, and each answer the user picks is sent to the calling app while the intent goes on. The user closes it from the header of the scribe, or the calling app closes it.
+Unlike a picker, this intent does not end with a result. The assistant stays open for as many requests as the user makes, and each answer the user picks is sent to the calling app while the intent goes on. The user closes it from the header of the scribe or, in the compact layout, which has no header, with Escape in the composer; or the calling app closes it.
 
 ## Configuration
 
@@ -462,7 +462,7 @@ Set `content` to the text the user wants to work on:
 }
 ```
 
-- Prompts about the text are offered above the composer of the empty conversation: correct, improve (make it shorter, expand context, emojify, transform to bullets), change tone (more professional, more casual, more polite), translate (into French, English, Russian or Vietnamese), and summarize.
+- Prompts about the text are offered above the composer of the empty conversation: correct, improve (make it shorter, expand context, emojify, transform to bullets), change tone (more professional, more casual, more polite), translate (into French, English, German, Spanish, Italian, Russian or Vietnamese, each language once the bundled catalogue has its prompt: German, Spanish and Italian do not have one yet), and summarize.
 - The user can also type any request about the text.
 - The text is joined to the first message of the conversation only. The next messages are sent as they are: the conversation already holds the text and the previous answers, so a follow-up such as "shorter" works on the last answer. The user changes what a request includes above the composer (see [What a request includes](#what-a-request-includes)).
 
