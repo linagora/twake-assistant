@@ -11,9 +11,9 @@ const getButton = name =>
 
 const getComposer = () => document.querySelector('textarea')
 
-function press(key) {
+function press(key, modifiers = {}) {
   return handleCardKey(
-    { key, target: document.activeElement },
+    { key, ...modifiers, target: document.activeElement },
     document.body,
     getComposer()
   )
@@ -113,6 +113,17 @@ describe('scribeKeyboard', () => {
     expect(press('ArrowUp')).toBe(false)
     expect(press('Escape')).toBe(false)
     expect(document.activeElement).toBe(getComposer())
+  })
+
+  it('leaves a key with a modifier to the browser', () => {
+    getButton('Insert 2').focus()
+
+    for (const modifier of ['altKey', 'ctrlKey', 'metaKey', 'shiftKey']) {
+      for (const key of ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']) {
+        expect(press(key, { [modifier]: true })).toBe(false)
+      }
+    }
+    expect(document.activeElement).toBe(getButton('Insert 2'))
   })
 
   it('focuses the insert button of the latest card', () => {
