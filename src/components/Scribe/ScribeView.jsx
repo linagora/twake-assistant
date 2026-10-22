@@ -51,8 +51,10 @@ function HeaderButton({ label, isPressed, onClick, children }) {
   )
 }
 
-// Hidden, not unmounted, under the history: an answer goes on
-function ScribeConversation({ isHidden }) {
+// Hidden, not unmounted, under the history: an answer goes on. Without a
+// text, the app opened it on the user's documents, like the file list of
+// Drive: the answers come from the whole Drive.
+function ScribeConversation({ isHidden, hasText }) {
   const { t } = useI18n()
   const isEmpty = useThread(state => state.messages.length === 0)
   const requestCount = useThread(
@@ -79,7 +81,7 @@ function ScribeConversation({ isHidden }) {
               color="textSecondary"
               className="u-ta-center u-mt-1-half u-mb-1 u-o-70"
             >
-              {t('scribe.welcome')}
+              {t(hasText ? 'scribe.welcome' : 'scribe.welcome_documents')}
             </Typography>
             <ScribeSuggestions />
           </div>
@@ -88,7 +90,15 @@ function ScribeConversation({ isHidden }) {
       </ThreadPrimitive.Viewport>
       <div className={styles['scribe-footer']}>
         {!isEmpty && hasNewText && <ScribeSuggestions />}
-        <ScribeComposer />
+        <ScribeComposer
+          placeholder={
+            hasText
+              ? t('scribe.placeholder')
+              : t('scribe.placeholder_documents', {
+                  folder: t('assistant.twake_knowledges.drive')
+                })
+          }
+        />
         <Typography
           variant="overline"
           color="textSecondary"
@@ -175,7 +185,10 @@ export function ScribeView({ onClose, ...props }) {
         conversationId={conversation.id}
         messages={conversation.messages}
       >
-        <ScribeConversation isHidden={isHistoryOpen} />
+        <ScribeConversation
+          isHidden={isHistoryOpen}
+          hasText={Boolean(props.text)}
+        />
       </ScribeProvider>
     </div>
   )
