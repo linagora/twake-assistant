@@ -611,21 +611,21 @@ describe('makeChatAdapter', () => {
       })
     })
 
-    it('sends nothing when the user stops while the app reads its document', async () => {
+    it('stops at once, and sends nothing, when the user stops while the app reads its document', async () => {
       const controller = new AbortController()
       const { adapter, fetchJSON } = setup({
         options: {
           hasDocument: true,
-          requestDocument: async () => {
-            controller.abort()
-            return { document: 'The note', isTruncated: false }
-          }
+          // The app does not answer
+          requestDocument: () => new Promise(() => {})
         }
       })
 
-      expect(
-        await run(adapter, [userMessage('Fix it')], controller.signal)
-      ).toEqual([])
+      const running = run(adapter, [userMessage('Fix it')], controller.signal)
+      await new Promise(resolve => setTimeout(resolve, 0))
+      controller.abort()
+
+      expect(await running).toEqual([])
       expect(fetchJSON).not.toHaveBeenCalled()
     })
 
@@ -858,6 +858,97 @@ describe('makeChat', () => {
       ['/ai/chat/conversations/c1', 'Translate + the text'],
       ['/ai/chat/conversations/c1', 'Again']
     ])
+  })
+
+  describe('the first message that sends the text', () => {
+    function makeSendingChat() {
+      const sent = []
+      const chat = makeChat({
+        client: {
+          stackClient: {
+            fetchJSON: jest.fn(async (method, path, body) => {
+              if (path.endsWith('/cancel')) return null
+              chat.events.push({ _id: 'q1', object: 'done' })
+              sent.push(body.q)
+              return {
+                data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
+              }
+            })
+          }
+        },
+        conversationId: 'c1'
+      })
+      return { chat, sent }
+    }
+
+    const prepareQuery = (text, { isFirstOnText, hasSelection = true }) =>
+      isFirstOnText && hasSelection ? `${text} + the text` : text
+    const first = [userMessage('Fix it'), assistantMessage('Fixed')]
+
+    it('sends the selection with the next request once it is checked again', async () => {
+      const { chat, sent } = makeSendingChat()
+      chat.setRequest({ prepareQuery, hasSelection: false })
+
+      await run(chat.adapter, [userMessage('Fix it')])
+      chat.setRequest({ prepareQuery })
+      await run(chat.adapter, [...first, userMessage('Shorter')])
+      await run(chat.adapter, [
+        ...first,
+        userMessage('Shorter'),
+        assistantMessage('Short'),
+        userMessage('Again')
+      ])
+
+      expect(sent).toEqual(['Fix it', 'Shorter + the text', 'Again'])
+    })
+
+    it('counts a chip, which holds the text, even without the selection', async () => {
+      const { chat, sent } = makeSendingChat()
+      chat.setRequest({
+        prepareQuery,
+        preparePrompt: name => ({ q: `${name}: the text`, instructions: null }),
+        hasSelection: false
+      })
+
+      await run(chat.adapter, [userMessage('Summarize')], undefined, {
+        custom: { prompt: 'summarize' }
+      })
+      chat.setRequest({ prepareQuery })
+      await run(chat.adapter, [
+        userMessage('Summarize'),
+        assistantMessage('Summary'),
+        userMessage('Shorter')
+      ])
+
+      expect(sent).toEqual(['summarize: the text', 'Shorter'])
+    })
+
+    it('sends the text with the next request after one stopped before it was sent', async () => {
+      const { chat, sent } = makeSendingChat()
+      chat.setRequest({
+        prepareQuery,
+        hasDocument: true,
+        requestDocument: () => new Promise(() => {})
+      })
+      const controller = new AbortController()
+
+      const stopped = run(
+        chat.adapter,
+        [userMessage('Fix it')],
+        controller.signal
+      )
+      await new Promise(resolve => setTimeout(resolve, 0))
+      controller.abort()
+      await stopped
+      chat.setRequest({ prepareQuery })
+      await run(chat.adapter, [
+        userMessage('Fix it'),
+        assistantMessage(''),
+        userMessage('Shorter')
+      ])
+
+      expect(sent).toEqual(['Shorter + the text'])
+    })
   })
 })
 
