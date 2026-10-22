@@ -35,3 +35,14 @@ export function buildConversationsQuery() {
     }
   }
 }
+
+export function buildConversationByIdQuery(id) {
+  return {
+    definition: () => Q(DOCTYPE_AI_CHAT_CONVERSATIONS).getById(id),
+    options: {
+      as: `${DOCTYPE_AI_CHAT_CONVERSATIONS}/${id}`,
+      fetchPolicy: defaultFetchPolicy,
+      singleDocData: true
+    }
+  }
+}

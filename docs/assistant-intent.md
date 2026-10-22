@@ -15,7 +15,7 @@ type = 'io.cozy.ai.chat.conversations'
 
 The service renders the AI assistant in the frame of the calling app, on a new conversation. The frame can be a modal or a side panel: the assistant adapts to the width it is given.
 
-The assistant opens as a **scribe**, whatever its configuration: an assistant that works for the calling app. It works on a text of the app and hands its answers back for the app to insert them, and it calls the **capabilities** of the app, what the app can do beside taking an answer, when a request of the user needs one. The scribe is made for a side panel: it has no sidebar and no choice of the assistant. Its header starts a new conversation, lists the past conversations to open, rename or delete one of them, and closes the scribe.
+The assistant opens as a **scribe**, whatever its configuration: an assistant that works for the calling app. It works on a text of the app and hands its answers back for the app to insert them, and it calls the **capabilities** of the app, what the app can do beside taking an answer, when a request of the user needs one. The scribe is made for a side panel: it has no sidebar and no choice of the assistant. Its header starts a new conversation, lists the past conversations to open, rename or delete one of them, and closes the scribe. Its compact layout, without the header, fits a popover (see `layout` in [AssistantIntentConfig](#assistantintentconfig)).
 
 Unlike a picker, this intent does not end with a result. The assistant stays open for as many requests as the user makes, and each answer the user picks is sent to the calling app while the intent goes on. The user closes it from the header of the scribe, or the calling app closes it.
 
@@ -85,6 +85,40 @@ interface AssistantIntentConfig {
    * Defaults to the theme of the Cozy instance.
    */
   theme?: { type: 'light' | 'dark' }
+
+  /**
+   * How the scribe is laid out. 'panel' is the scribe of a side panel, with
+   * its header. 'compact' is the scribe of a popover, without the header,
+   * the welcome nor the disclaimer: the suggestions, a "Scribe panel" row
+   * that asks the app to go on in a panel (see PanelRequest), the composer,
+   * then the latest exchange only. A compact scribe sends its height in
+   * `resize` messages, and Escape in its composer closes it (`cancel`).
+   * Any other value means 'panel'.
+   */
+  layout?: 'panel' | 'compact'
+
+  /**
+   * A text to put in the composer at the opening: the `draft` of a
+   * PanelRequest, for the panel that goes on from a compact scribe.
+   * Read at the opening only.
+   */
+  draft?: string
+
+  /**
+   * The id of a conversation (`io.cozy.ai.chat.conversations`) to open the
+   * scribe on: the `conversation` of a PanelRequest. The scribe shows
+   * nothing until the conversation is loaded. An id the stack does not have,
+   * as the one of a conversation without a request yet, opens an empty
+   * conversation that goes on with this id.
+   * Read at the opening only.
+   */
+  conversation?: string
+
+  /**
+   * Where the user opened the scribe from in the calling app, as 'toolbar'
+   * or 'selection'. Informative: the assistant does not act on it.
+   */
+  source?: string
 }
 ```
 
@@ -255,7 +289,11 @@ When no config is provided, the assistant uses:
   capabilities: [],
   suggestions: undefined,
   documents: undefined,
-  theme: { type: undefined }
+  theme: { type: undefined },
+  layout: 'panel',
+  draft: undefined,
+  conversation: undefined,
+  source: undefined
 }
 ```
 
@@ -525,7 +563,7 @@ Set `answerActions` to get the answers of the assistant back:
 
 ## Result
 
-On each click on an action button, and on each call of a capability, the assistant sends a `result` message. The intent goes on.
+On each click on an action button, on each call of a capability, and when the user goes on from a compact scribe to a panel, the assistant sends a `result` message. The intent goes on.
 
 ```ts
 {
@@ -538,10 +576,10 @@ On each click on an action button, and on each call of a capability, the assista
 
 ### AssistantIntentResult
 
-A result is an answer, for an action button, or a call, for a capability. The calling app tells them apart by their field: `answerAction` or `capability`.
+A result is an answer, for an action button, a call, for a capability, or a request of a compact scribe to the app. The calling app tells them apart by their field: `answerAction`, `capability` or `request`.
 
 ```ts
-type AssistantIntentResult = AnswerResult | CapabilityCall
+type AssistantIntentResult = AnswerResult | CapabilityCall | PanelRequest
 
 interface AnswerResult {
   /**
@@ -583,6 +621,26 @@ interface CapabilityCall {
    */
   format?: 'markdown'
 }
+
+interface PanelRequest {
+  /**
+   * The user clicked the "Scribe panel" row of a compact scribe: the app
+   * opens the scribe in its panel, with this `draft` and this
+   * `conversation` in its data, and closes the compact one.
+   */
+  request: 'panel'
+
+  /**
+   * The text of the composer, `''` when it is empty.
+   */
+  draft: string
+
+  /**
+   * The id of the conversation of the compact scribe. The stack does not
+   * have it yet when the user made no request.
+   */
+  conversation: string
+}
 ```
 
 Examples:
@@ -607,6 +665,17 @@ Examples:
       "title": "Risques du lancement",
       "bullets": ["Migration des clients pilotes", "Charge du support", "Formation des équipes"]
     }
+  }
+}
+```
+
+```json
+{
+  "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result",
+  "result": {
+    "request": "panel",
+    "draft": "Plus court",
+    "conversation": "1792483200000-48213"
   }
 }
 ```
@@ -650,11 +719,12 @@ The messages of the assistant intent, in order. They all go through `window.post
 | 1 | Assistant → app | `intent-{id}:ready` | none | handled by `cozy-interapp` |
 | 2 | App → assistant | the data, without envelope | `AssistantIntentConfig` | third argument of `intents.create()`, `service.getData()` |
 | 3 | Assistant → app | `intent-{id}:readyToUse` | none, once | `onReadyToUse` option of `start()` |
-| 4 | Assistant → app | `intent-{id}:result` | `result: AssistantIntentResult`, an answer or a call, any number of times | `service.sendResult()`, `onResult` option of `start()` |
-| 5 | App → assistant | `intent-{id}:data` | `data: AssistantIntentConfig`, any number of times | `sendData()` of the started intent, `service.onData()` |
-| 6 | Assistant → app | `intent-{id}:cancel` | none, when the user closes the scribe or the page of the assistant is unloaded | `service.cancel()`, the intent promise resolves with `null` |
+| 4 | Assistant → app | `intent-{id}:result` | `result: AssistantIntentResult`, an answer, a call or a request, any number of times | `service.sendResult()`, `onResult` option of `start()` |
+| 5 | Assistant → app | `intent-{id}:resize` | `dimensions: { height }`, the height of a compact scribe in pixels, when it shows and each time it changes | `service.resizeClient()`, `cozy-interapp` sets it as the height of the element of the intent (the frame of `IntentIframe`) |
+| 6 | App → assistant | `intent-{id}:data` | `data: AssistantIntentConfig`, any number of times | `sendData()` of the started intent, `service.onData()` |
+| 7 | Assistant → app | `intent-{id}:cancel` | none, when the user closes the scribe or the page of the assistant is unloaded | `service.cancel()`, the intent promise resolves with `null` |
 
-The user ends the exchange from the scribe, or the calling app ends it itself, by stopping the intent or removing its iframe (see [End of the intent](#end-of-the-intent)). The assistant never sends `done`, `error` or `resize`.
+The user ends the exchange from the scribe, or the calling app ends it itself, by stopping the intent or removing its iframe (see [End of the intent](#end-of-the-intent)). The assistant never sends `done` nor `error`, and sends `resize` in the compact layout only.
 
 Each side checks where a message comes from: `cozy-interapp` takes the messages of the client from the origin of the assistant only, with the id of its intent, and the assistant takes the messages of the service from the origin of the calling app only (`attributes.client` of the intent document).
 
@@ -671,7 +741,11 @@ The messages of an exchange, one per line:
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result", "result": { "answerAction": "insert", "text": "Bonjour à tous.", "format": "markdown" } }
 // 4. a result: a call
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result", "result": { "capability": "insert_slide", "params": { "title": "Risques", "bullets": ["Charge du support"] } } }
-// 5. new data
+// 4. a result: a compact scribe goes on in a panel
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result", "result": { "request": "panel", "draft": "Plus court", "conversation": "1792483200000-48213" } }
+// 5. resize, in the compact layout
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:resize", "dimensions": { "height": 212 } }
+// 6. new data
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "Merci de confirmer", "answerActions": [{ "name": "insert" }, { "name": "replace" }], "theme": { "type": "light" } } }
 ```
 
@@ -691,7 +765,7 @@ That draft is not normative yet: its message catalogue, the shape of its envelop
 | The consumer owns the lifecycle and tears the iframe down | The same: the scribe asks for it with `cancel` |
 | `intent:ready`, provider → consumer | `intent-{id}:ready` |
 | `intent:init`, consumer → provider, with the parameters | The data, in reply to `ready` |
-| `intent:resize`, optional | `intent-{id}:resize`, not sent by the assistant |
+| `intent:resize`, optional | `intent-{id}:resize`, sent by a compact scribe only |
 | `intent:done`, which may be sent several times with `final: false` | `intent-{id}:result`, any number of times: a result that does not end the intent |
 | `intent:cancel`, `intent:error` | `intent-{id}:cancel` when the user closes the scribe or on unload, no error |
 | An `intentId` in every message | The id of the intent in the type of every message |

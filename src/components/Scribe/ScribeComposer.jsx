@@ -13,7 +13,7 @@ import styles from '@/components/Scribe/styles.styl'
 
 /**
  * Where the user writes a request: Enter sends it, except on a phone or a
- * tablet, where it is a new line
+ * tablet, where it is a new line. Escape closes a compact scribe.
  *
  * @param {object} props
  * @param {string} props.placeholder
@@ -21,13 +21,16 @@ import styles from '@/components/Scribe/styles.styl'
  */
 export function ScribeComposer({ placeholder, inputRef }) {
   const { t } = useI18n()
-  const { hasDocuments, setHasDocuments } = useScribe()
+  const { hasDocuments, setHasDocuments, layout, onCancel } = useScribe()
   const isRunning = useThread(state => state.isRunning)
 
   const handleToggleDocuments = () => setHasDocuments(value => !value)
   const documentsLabel = t('scribe.documents', {
     folder: t('assistant.twake_knowledges.drive')
   })
+  const handleKeyDown = event => {
+    if (event.key === 'Escape' && layout === 'compact') onCancel?.()
+  }
 
   return (
     <ComposerPrimitive.Root
@@ -42,6 +45,7 @@ export function ScribeComposer({ placeholder, inputRef }) {
         maxRows={8}
         autoFocus={!isMobileDevice()}
         submitOnEnter={!isMobileDevice()}
+        onKeyDown={handleKeyDown}
       />
       <div className="u-flex u-flex-items-center u-flex-shrink-0 u-ml-half">
         <Tooltip title={documentsLabel}>

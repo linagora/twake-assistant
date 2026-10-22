@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 
 import { createMockClient } from 'cozy-client'
@@ -18,6 +18,7 @@ const mockService = {
   terminate: jest.fn(),
   cancel: jest.fn(),
   sendResult: jest.fn(),
+  resizeClient: jest.fn(),
   notifyReadyToUse: jest.fn(),
   onData: jest.fn(listener => {
     mockSendData = listener
@@ -26,6 +27,13 @@ const mockService = {
 }
 let mockSendData = null
 const mockCreateService = jest.fn()
+const mockComposer = {
+  text: '',
+  getState: () => ({ text: mockComposer.text }),
+  setText: text => {
+    mockComposer.text = text
+  }
+}
 
 jest.mock('cozy-interapp', () =>
   jest.fn().mockImplementation(() => ({
@@ -34,6 +42,22 @@ jest.mock('cozy-interapp', () =>
 )
 jest.mock('@/components/Scribe/ScribeView', () => ({
   ScribeView: jest.fn(() => <div data-testid="scribe-view" />)
+}))
+// For the scribe itself, on a new conversation
+jest.mock('@assistant-ui/react', () => ({
+  AssistantRuntimeProvider: ({ children }) => children,
+  useLocalRuntime: () => ({ thread: { getState: () => ({ messages: [] }) } }),
+  ThreadPrimitive: {
+    Root: ({ children }) => <div>{children}</div>,
+    Messages: () => null
+  },
+  ComposerPrimitive: {
+    Root: ({ children }) => <form>{children}</form>,
+    Input: ({ placeholder }) => <textarea aria-label={placeholder} />
+  },
+  useThread: selector => selector({ messages: [], isRunning: false }),
+  useThreadRuntime: () => ({}),
+  useComposerRuntime: () => mockComposer
 }))
 jest.mock('cozy-client', () => ({
   ...jest.requireActual('cozy-client'),
@@ -45,9 +69,14 @@ jest.mock('cozy-ui-plus/dist/providers/CozyTheme', () =>
 
 // Not under a router nor providers: the intent has its own
 function renderIntent() {
+  const client = createMockClient({})
+  client.plugins = {
+    realtime: { subscribe: jest.fn(), unsubscribe: jest.fn() }
+  }
+
   return render(
     <AssistantIntent
-      client={createMockClient({})}
+      client={client}
       lang="en"
       polyglot={initTranslation('en', () => en)}
       intentId="intent-1"
@@ -191,6 +220,60 @@ describe('AssistantIntent', () => {
     onClose()
 
     expect(mockService.cancel).toHaveBeenCalled()
+  })
+
+  describe('in the compact layout', () => {
+    beforeEach(() => {
+      mockComposer.text = ''
+      global.ResizeObserver = class {
+        observe() {}
+        disconnect() {}
+      }
+      ScribeView.mockImplementation(
+        jest.requireActual('@/components/Scribe/ScribeView').ScribeView
+      )
+    })
+    afterEach(() => {
+      ScribeView.mockImplementation(() => <div data-testid="scribe-view" />)
+    })
+
+    it('hands a panel request to the app with the draft and the conversation', async () => {
+      mockService.getData.mockReturnValue({ layout: 'compact', draft: 'Hi' })
+      renderIntent()
+
+      fireEvent.click(
+        await screen.findByRole('button', { name: 'Scribe panel' })
+      )
+
+      expect(mockService.sendResult).toHaveBeenCalledWith({
+        request: 'panel',
+        draft: 'Hi',
+        conversation: expect.any(String)
+      })
+      expect(mockService.cancel).not.toHaveBeenCalled()
+    })
+  })
+
+  it('asks the app to resize the frame of the compact layout only', async () => {
+    mockService.getData.mockReturnValue({
+      layout: 'compact',
+      draft: 'Hi',
+      conversation: 'c1'
+    })
+    renderIntent()
+
+    const { layout, draft, conversation, onResize } = await findScribeProps()
+    expect({ layout, draft, conversation }).toEqual({
+      layout: 'compact',
+      draft: 'Hi',
+      conversation: 'c1'
+    })
+    onResize({ height: 240 })
+    expect(mockService.resizeClient).toHaveBeenCalledWith({ height: 240 })
+
+    act(() => mockSendData({ layout: 'panel' }))
+
+    expect((await findScribeProps()).onResize).toBe(null)
   })
 
   it('hands the answer and the action clicked to the app', async () => {

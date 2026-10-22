@@ -52,6 +52,8 @@ function sendAsItIs(text) {
  * When the app gives another one, the next request is about it.
  * @param {import('@assistant-ui/react').ThreadMessageLike[]} [props.messages] -
  * the messages of a past conversation: the next request is about the text
+ * @param {'panel'|'compact'} [props.layout] - see ScribeView
+ * @param {Function} [props.onCancel] - closes the scribe
  */
 export function ScribeProvider({
   conversationId,
@@ -64,6 +66,8 @@ export function ScribeProvider({
   instructions = null,
   text = '',
   messages = NO_MESSAGES,
+  layout = 'panel',
+  onCancel = null,
   children
 }) {
   // The answers come from the LLM alone until the user asks for their
@@ -127,7 +131,9 @@ export function ScribeProvider({
       setHasDocuments,
       handCall,
       isCallHanded,
-      textStart
+      textStart,
+      layout,
+      onCancel
     }),
     [
       suggestions,
@@ -136,7 +142,9 @@ export function ScribeProvider({
       hasDocuments,
       handCall,
       isCallHanded,
-      textStart
+      textStart,
+      layout,
+      onCancel
     ]
   )
 
