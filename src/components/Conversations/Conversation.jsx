@@ -68,7 +68,7 @@ const Conversation = ({ className }) => {
   // mobile, where its button stays to open and close it
   const hasSources = !isThreadEmpty && hasFolder
   const placeholder = hasFolder
-    ? t('assistant.search.placeholder_folder', { folder: folderName })
+    ? t('assistant.search.placeholder_folder')
     : t('assistant.search.placeholder')
 
   return (

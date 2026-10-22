@@ -103,7 +103,7 @@
       "send": "Envoyer",
       "noItem": "Aucun résultat",
       "notEnough": "Votre recherche doit contenir au moins 3 caractères",
-      "placeholder_folder": "Que souhaitez-vous savoir des fichiers de %{folder} ?",
+      "placeholder_folder": "Posez vos questions sur votre Drive",
       "stop": "Arrêter"
     },
     "websearch": {
