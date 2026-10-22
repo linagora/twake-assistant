@@ -26,13 +26,16 @@ describe('classifyChatError', () => {
     expect(classifyChatError(new ChatEventError('Error code: 429')).kind).toBe(
       'rate_limit'
     )
+    expect(
+      classifyChatError(new ChatEventError('rate limit exceeded')).kind
+    ).toBe('rate_limit')
   })
 
   it('tells a context too large from the status or the realtime message', () => {
     expect(classifyChatError(fetchError(413)).kind).toBe('context_too_large')
     expect(
       classifyChatError(
-        new ChatEventError("This model's maximum context length is 8192")
+        new ChatEventError("This model's maximum context length is 8192 tokens")
       ).kind
     ).toBe('context_too_large')
     expect(
@@ -48,6 +51,19 @@ describe('classifyChatError', () => {
       kind: 'server',
       message: 'Overloaded'
     })
+  })
+
+  it('does not take words that merely contain a pattern for a kind', () => {
+    expect(
+      classifyChatError(new ChatEventError('Failed to generate a response'))
+        .kind
+    ).toBe('server')
+    expect(
+      classifyChatError(new ChatEventError('context deadline exceeded')).kind
+    ).toBe('server')
+    expect(classifyChatError(new ChatEventError('invalid token')).kind).toBe(
+      'server'
+    )
   })
 
   it('tells a network error', () => {

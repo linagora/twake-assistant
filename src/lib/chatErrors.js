@@ -18,6 +18,11 @@ export class ChatEventError extends Error {
 export const RETRYABLE_KINDS = ['rate_limit', 'server', 'network', 'generic']
 
 const NETWORK_MESSAGE = /Failed to fetch|Network request failed/
+// Whole phrases: a word holding "rate" or "token", or a "context deadline
+// exceeded" of the stack, is no such error
+const RATE_LIMIT_MESSAGE = /\b429\b|rate.?limit|too many requests/i
+const CONTEXT_TOO_LARGE_MESSAGE =
+  /context (length|window)|(max|too many|exceed\w*).{0,20}tokens?/i
 
 function getKindOfStatus(status) {
   if (status === 401 || status === 403) return 'auth'
@@ -28,8 +33,8 @@ function getKindOfStatus(status) {
 }
 
 function getKindOfEventMessage(message) {
-  if (/429|rate/i.test(message)) return 'rate_limit'
-  if (/context|token/i.test(message)) return 'context_too_large'
+  if (RATE_LIMIT_MESSAGE.test(message)) return 'rate_limit'
+  if (CONTEXT_TOO_LARGE_MESSAGE.test(message)) return 'context_too_large'
   return 'server'
 }
 
