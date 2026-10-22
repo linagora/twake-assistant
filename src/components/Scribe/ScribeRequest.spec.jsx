@@ -39,8 +39,7 @@ function renderRequest(message, messages, scribe) {
   mockThread = { messages }
   useScribe.mockReturnValue({
     layout: 'panel',
-    text: '',
-    textStart: 0,
+    sentTexts: {},
     ...scribe
   })
 
@@ -52,9 +51,9 @@ function renderRequest(message, messages, scribe) {
 }
 
 describe('ScribeRequest', () => {
-  it('quotes the text of the app under the first request', () => {
+  it('quotes the text sent with the request', () => {
     const first = request('q1', 'Fix it')
-    renderRequest(first, [first], { text: 'Bonjour le monde' })
+    renderRequest(first, [first], { sentTexts: { 0: 'Bonjour le monde' } })
 
     const quote = screen.getByText('Bonjour le monde')
     expect(quote).toBeInTheDocument()
@@ -63,38 +62,43 @@ describe('ScribeRequest', () => {
     )
   })
 
-  it('quotes the text on the first request about it, not on the first of the conversation', () => {
+  it('quotes the text on the request that sent it, not on the first of the conversation', () => {
     const messages = [
       request('q1', 'Fix it'),
       answer('a1'),
       request('q2', 'Shorter')
     ]
     renderRequest(messages[2], messages, {
-      text: 'Bonjour le monde',
-      textStart: 1
+      sentTexts: { 1: 'Bonjour le monde' }
     })
 
     expect(screen.queryByText('Bonjour le monde')).toBeInTheDocument()
   })
 
-  it('shows a later request without the quote', () => {
+  it('shows a request that did not send the text without the quote', () => {
     const messages = [
       request('q1', 'Fix it'),
       answer('a1'),
       request('q2', 'Shorter')
     ]
-    renderRequest(messages[2], messages, { text: 'Bonjour le monde' })
-
-    expect(screen.queryByText('Shorter')).toBeInTheDocument()
-    expect(screen.queryByTestId('scribe-quote')).toBe(null)
-  })
-
-  it('shows no quote without a text of the app', () => {
-    const first = request('q1', 'Fix it')
-    renderRequest(first, [first], { text: '' })
+    renderRequest(messages[0], messages, {
+      text: 'Bonjour le monde',
+      sentTexts: { 1: 'Bonjour le monde' }
+    })
 
     expect(screen.queryByText('Fix it')).toBeInTheDocument()
     expect(screen.queryByTestId('scribe-quote')).toBe(null)
+  })
+
+  it('keeps the quote of a request when the app gives another text', () => {
+    const first = request('q1', 'Fix it')
+    renderRequest(first, [first], {
+      text: 'Au revoir',
+      sentTexts: { 0: 'Bonjour le monde' }
+    })
+
+    expect(screen.queryByText('Bonjour le monde')).toBeInTheDocument()
+    expect(screen.queryByText('Au revoir')).toBe(null)
   })
 
   it('quotes the selection of a past request', () => {
@@ -104,22 +108,11 @@ describe('ScribeRequest', () => {
       request('q2', 'Shorter')
     ]
     renderRequest(messages[0], messages, {
-      text: 'Bonjour le monde',
-      textStart: 2
+      sentTexts: { 0: 'Bonjour le monde' }
     })
 
     expect(screen.queryByText('Hello there')).toBeInTheDocument()
     expect(screen.queryByText('Bonjour le monde')).toBe(null)
-  })
-
-  it('quotes the selection of a past request when the app gives no text', () => {
-    const messages = [
-      request('q1', 'Fix it', { selection: 'Hello there' }),
-      answer('a1')
-    ]
-    renderRequest(messages[0], messages, { textStart: 1 })
-
-    expect(screen.queryByText('Hello there')).toBeInTheDocument()
   })
 
   it('shows nothing outside the latest exchange in the compact layout', () => {
@@ -130,8 +123,7 @@ describe('ScribeRequest', () => {
       answer('a2')
     ]
     const { container } = renderRequest(messages[0], messages, {
-      layout: 'compact',
-      textStart: 2
+      layout: 'compact'
     })
 
     expect(container).toBeEmptyDOMElement()

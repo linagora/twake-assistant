@@ -297,9 +297,17 @@ const PROMPT_PATTERNS = catalogue.prompts.flatMap(prompt => {
   const pattern = template
     .split(/\{\{\s*input\s*\}\}/)
     .map(piece => piece.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-    .join('[\\s\\S]*')
+    .join('([\\s\\S]*)')
   return [{ prompt, pattern: new RegExp(`^${pattern}$`) }]
 })
+
+function matchPrompt(query) {
+  for (const { prompt, pattern } of PROMPT_PATTERNS) {
+    const match = query.match(pattern)
+    if (match) return { prompt, input: match[1] ?? null }
+  }
+  return null
+}
 
 /**
  * The request a message of a past conversation shows. The stack keeps the
@@ -311,9 +319,7 @@ const PROMPT_PATTERNS = catalogue.prompts.flatMap(prompt => {
  * @returns {string}
  */
 export function getScribeRequest(query, t) {
-  const prompt = PROMPT_PATTERNS.find(({ pattern }) =>
-    pattern.test(query)
-  )?.prompt
+  const prompt = matchPrompt(query)?.prompt
   if (!prompt) {
     const request = query.replace(FULL_DOCUMENT, '')
     return (
@@ -329,7 +335,11 @@ export function getScribeRequest(query, t) {
 }
 
 function getScribeSelection(query) {
-  return query.replace(FULL_DOCUMENT, '').match(JOINED_TEXT)?.[1] ?? null
+  const matched = matchPrompt(query)
+  const selection = matched
+    ? matched.input
+    : query.replace(FULL_DOCUMENT, '').match(JOINED_TEXT)?.[1]
+  return selection && selection.trim() !== '' ? selection : null
 }
 
 /**

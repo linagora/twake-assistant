@@ -136,6 +136,10 @@ function makeAnswer() {
  * new conversation of its own
  * @property {boolean} [hasSelection] - false to leave the text of the app
  * out of a typed request
+ * @property {string} [text] - the text of the app
+ * @property {((index: number, text: string) => void)|null} [recordSentText] -
+ * called with the index of a message, among the messages of the user, and
+ * the text of the app when that message sends it
  * @property {(() => Promise<{ document: string, isTruncated: boolean }|null>)|null} [requestDocument] -
  * asks the app for its document, null when it cannot give it
  * @property {string|null} instructions - how to answer, sent to the LLM as a
@@ -198,7 +202,9 @@ export function makeChatAdapter({
         rules,
         actions,
         assistantId,
-        websearch
+        websearch,
+        text: appText,
+        recordSentText
       } = getRequest()
       const index =
         messages.filter(message => message.role === 'user').length - 1
@@ -230,6 +236,9 @@ export function makeChatAdapter({
           hasSelection,
           document: doc?.document ?? null
         })
+      const isTextSent =
+        Boolean(prompt) || (isFirstOnText && hasSelection !== false)
+      if (isTextSent && appText?.trim()) recordSentText?.(index, appText)
       const documentNotice = isDocumentIncluded ? getDocumentNotice(doc) : null
       // assistant-ui sets the custom metadata of the answer anew at each
       // yield that has some: the notice goes in each one
@@ -336,6 +345,8 @@ const DEFAULT_REQUEST = {
   hasDocument: false,
   hasConversation: true,
   hasSelection: true,
+  text: '',
+  recordSentText: null,
   requestDocument: null,
   instructions: null,
   rules: null,
