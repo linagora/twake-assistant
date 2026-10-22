@@ -41,9 +41,15 @@ describe('Answer', () => {
   it('waits for the answer', () => {
     renderAnswer(answer('', 'running'))
 
-    expect(screen.queryByRole('status')).toHaveTextContent(
-      'The assistant is writing…'
-    )
+    expect(
+      screen.queryByRole('status', { name: 'The assistant is writing…' })
+    ).toBeInTheDocument()
+  })
+
+  it('shows no waiting label as text by default', () => {
+    renderAnswer(answer('', 'running'))
+
+    expect(screen.getByRole('status').textContent).toBe('')
   })
 
   it('shows the waiting label it is given', () => {
@@ -70,7 +76,9 @@ describe('Answer', () => {
     expect(
       screen.queryByRole('button', { name: 'Thinking…' })
     ).toBeInTheDocument()
-    expect(screen.queryByText('The assistant is writing…')).toBe(null)
+    expect(
+      screen.queryByRole('status', { name: 'The assistant is writing…' })
+    ).toBe(null)
     expect(screen.queryByRole('status')).toHaveTextContent('Thinking…')
   })
 
