@@ -80,11 +80,11 @@ function DocumentNotice({ notice }) {
   return null
 }
 
-function ScribeAnswerActions({ text }) {
+function ScribeAnswerActions({ text, ...props }) {
   const { answerActions } = useScribe()
 
   return (
-    <div className="u-flex u-flex-items-center u-flex-wrap">
+    <div {...props} className="u-flex u-flex-items-center u-flex-wrap">
       <ScribeCopyButton text={text} />
       {answerActions.map(action => (
         <AnswerActionButton key={action.name} action={action} text={text} />
@@ -196,7 +196,9 @@ export function ScribeAnswer() {
             onClick={handleRetry}
           />
         )}
-        {canAct && !parts && <ScribeAnswerActions text={text} />}
+        {canAct && !parts && (
+          <ScribeAnswerActions text={text} data-scribe-card="answer" />
+        )}
         {capability && status === 'complete' && (
           <ScribeCapabilityCard
             messageId={messageId}

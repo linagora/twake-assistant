@@ -29,6 +29,7 @@ import { ScribeProvider, useScribe } from '@/components/Scribe/ScribeProvider'
 import { ScribeRequest } from '@/components/Scribe/ScribeRequest'
 import { ScribeSelectionChip } from '@/components/Scribe/ScribeSelectionChip'
 import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
+import { handleCardKey } from '@/components/Scribe/scribeKeyboard'
 import styles from '@/components/Scribe/styles.styl'
 import { makeConversationId } from '@/components/helpers'
 import { DOCTYPE_AI_CHAT_CONVERSATIONS } from '@/doctypes'
@@ -60,6 +61,13 @@ function HeaderButton({ label, isPressed, onClick, children }) {
       </IconButton>
     </Tooltip>
   )
+}
+
+function handleThreadKeyDown(event) {
+  if (event.nativeEvent.isComposing) return
+  const root = event.currentTarget
+  const composer = root.querySelector('[data-scribe-composer]')
+  if (handleCardKey(event, root, composer)) event.preventDefault()
 }
 
 // The draft of the app goes into the composer of the first conversation only
@@ -96,7 +104,9 @@ function ScribeConversation({ isHidden, hasText, draftRef }) {
 
   return (
     <ThreadPrimitive.Root
+      data-scribe-thread
       className={`u-flex u-flex-column u-flex-auto u-ov-hidden${isHidden ? ' u-hide' : ''}`}
+      onKeyDown={handleThreadKeyDown}
     >
       <ThreadPrimitive.Viewport
         autoScroll
@@ -151,7 +161,11 @@ function ScribeCompactConversation({
     onPanelRequest(composerRuntime.getState().text, conversationId)
 
   return (
-    <ThreadPrimitive.Root className="u-flex u-flex-column">
+    <ThreadPrimitive.Root
+      data-scribe-thread
+      className="u-flex u-flex-column"
+      onKeyDown={handleThreadKeyDown}
+    >
       <ScribeSuggestions />
       {onPanelRequest && (
         <Button

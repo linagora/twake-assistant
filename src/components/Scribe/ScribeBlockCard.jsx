@@ -13,7 +13,7 @@ import styles from '@/components/Scribe/styles.styl'
  */
 export function ScribeBlockCard({ text, children }) {
   return (
-    <div data-scribe-card className={styles['scribe-card']}>
+    <div data-scribe-card="block" className={styles['scribe-card']}>
       {text !== '' && <Markdown content={text} />}
       {children}
     </div>

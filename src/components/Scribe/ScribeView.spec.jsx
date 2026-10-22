@@ -47,9 +47,7 @@ jest.mock('@assistant-ui/react', () => {
       return { thread: { getState: () => mockThread } }
     },
     ThreadPrimitive: {
-      Root: ({ children, className }) => (
-        <div className={className}>{children}</div>
-      ),
+      Root: ({ children, ...props }) => <div {...props}>{children}</div>,
       Viewport: ({ children, className }) => (
         <div className={className}>{children}</div>
       ),
@@ -79,8 +77,16 @@ jest.mock('@assistant-ui/react', () => {
       Root: ({ children, className }) => (
         <form className={className}>{children}</form>
       ),
-      Input: ({ placeholder, onKeyDown }) => (
-        <textarea aria-label={placeholder} onKeyDown={onKeyDown} />
+      Input: ({
+        placeholder,
+        onKeyDown,
+        'data-scribe-composer': isComposer
+      }) => (
+        <textarea
+          aria-label={placeholder}
+          onKeyDown={onKeyDown}
+          data-scribe-composer={isComposer}
+        />
       )
     },
     useThread: selector => selector(mockThread),
@@ -114,6 +120,14 @@ const pastConversation = {
     { id: 'q1', role: 'user', content: 'Fix the first text' },
     { id: 'a1', role: 'assistant', content: 'The first text, fixed' },
     { id: 'q2', role: 'user', content: 'Translate the second text' }
+  ]
+}
+
+const answeredConversation = {
+  _id: 'c1',
+  messages: [
+    { id: 'q1', role: 'user', content: 'Fix the text' },
+    { id: 'a1', role: 'assistant', content: 'The text, fixed' }
   ]
 }
 
@@ -317,6 +331,39 @@ describe('ScribeView', () => {
       error
     )
   })
+
+  it.each(['panel', 'compact'])(
+    'moves between the answers and the composer with the keyboard in the %s layout',
+    async layout => {
+      renderScribe(
+        {
+          layout,
+          text: 'The text',
+          conversation: 'c1',
+          answerActions: [
+            { name: 'insert', label: 'Insert', onClick: jest.fn() },
+            { name: 'replace', label: 'Replace', onClick: jest.fn() }
+          ]
+        },
+        makeClient({ conversation: answeredConversation })
+      )
+      const insert = await screen.findByRole('button', { name: 'Insert' })
+      const composer = screen.getByRole('textbox', {
+        name: en.scribe.placeholder
+      })
+      composer.focus()
+
+      fireEvent.keyDown(composer, { key: 'ArrowUp' })
+      expect(insert).toHaveFocus()
+      expect(fireEvent.keyDown(insert, { key: 'ArrowLeft' })).toBe(false)
+      const copy = screen.getByRole('button', { name: 'Copy' })
+      expect(copy).toHaveFocus()
+      expect(fireEvent.keyDown(copy, { key: 'Enter' })).toBe(true)
+      expect(fireEvent.keyDown(copy, { key: 'Escape' })).toBe(false)
+
+      expect(composer).toHaveFocus()
+    }
+  )
 
   it('seeds the composer with the draft', () => {
     renderScribe({ draft: 'Hi' })

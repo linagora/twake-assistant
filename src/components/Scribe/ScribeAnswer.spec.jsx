@@ -159,7 +159,7 @@ describe('ScribeAnswer', () => {
     const blocks =
       'Here:\n\n```insert\nHello\n```\n\nand\n\n```insert\nBye\n```'
     const getCards = container =>
-      Array.from(container.querySelectorAll('[data-scribe-card]'))
+      Array.from(container.querySelectorAll('[data-scribe-card="block"]'))
 
     it('shows a card per insert block with its own actions', async () => {
       const { container } = renderAnswer(answer(blocks, 'complete'), actions)
@@ -180,6 +180,31 @@ describe('ScribeAnswer', () => {
       expect(actions[0].onClick).toHaveBeenCalledWith('Bye')
       expect(actions[0].onClick).toHaveBeenCalledTimes(1)
       expect(copyAnswer).toHaveBeenCalledWith('Hello')
+    })
+
+    it('makes a card for the keyboard of the actions of a whole answer, or of each block', () => {
+      const { container, unmount } = renderAnswer(
+        answer('Bonjour', 'complete'),
+        actions
+      )
+      const [row, ...others] = container.querySelectorAll('[data-scribe-card]')
+
+      expect(others).toHaveLength(0)
+      expect(row).not.toHaveTextContent('Bonjour')
+      expect(
+        within(row)
+          .getAllByRole('button')
+          .map(
+            button => button.getAttribute('aria-label') ?? button.textContent
+          )
+      ).toEqual(['Copy', 'Insert', 'Replace'])
+      unmount()
+
+      const blocksAnswer = renderAnswer(answer(blocks, 'complete'), actions)
+
+      expect(
+        blocksAnswer.container.querySelectorAll('[data-scribe-card]')
+      ).toHaveLength(2)
     })
 
     it('shows the blocks as cards while the answer is written, without their actions', () => {

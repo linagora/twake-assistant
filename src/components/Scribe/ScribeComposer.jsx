@@ -1,4 +1,8 @@
-import { ComposerPrimitive, useThread } from '@assistant-ui/react'
+import {
+  ComposerPrimitive,
+  useComposerRuntime,
+  useThread
+} from '@assistant-ui/react'
 import React from 'react'
 
 import { Drive, Icon } from '@linagora/twake-icons'
@@ -9,11 +13,13 @@ import { useI18n } from 'twake-i18n'
 
 import { ConversationSendButton } from '@/components/Conversations/ConversationSendButton'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
+import { focusLatestInsert } from '@/components/Scribe/scribeKeyboard'
 import styles from '@/components/Scribe/styles.styl'
 
 /**
  * Where the user writes a request: Enter sends it, except on a phone or a
- * tablet, where it is a new line. Escape closes a compact scribe.
+ * tablet, where it is a new line. Escape closes a compact scribe. Arrow up
+ * on an empty draft goes to the Insert button of the latest answer.
  *
  * @param {object} props
  * @param {string} props.placeholder
@@ -23,6 +29,7 @@ export function ScribeComposer({ placeholder, inputRef }) {
   const { t } = useI18n()
   const { hasDocuments, setHasDocuments, layout, onCancel } = useScribe()
   const isRunning = useThread(state => state.isRunning)
+  const composerRuntime = useComposerRuntime()
 
   const handleToggleDocuments = () => setHasDocuments(value => !value)
   const documentsLabel = t('scribe.documents', {
@@ -30,6 +37,14 @@ export function ScribeComposer({ placeholder, inputRef }) {
   })
   const handleKeyDown = event => {
     if (event.key === 'Escape' && layout === 'compact') onCancel?.()
+    if (
+      event.key === 'ArrowUp' &&
+      !event.nativeEvent.isComposing &&
+      composerRuntime.getState().text === '' &&
+      focusLatestInsert(event.currentTarget.closest('[data-scribe-thread]'))
+    ) {
+      event.preventDefault()
+    }
   }
 
   return (
@@ -46,6 +61,7 @@ export function ScribeComposer({ placeholder, inputRef }) {
         autoFocus={!isMobileDevice()}
         submitOnEnter={!isMobileDevice()}
         onKeyDown={handleKeyDown}
+        data-scribe-composer
       />
       <div className="u-flex u-flex-items-center u-flex-shrink-0 u-ml-half">
         <Tooltip title={documentsLabel}>
