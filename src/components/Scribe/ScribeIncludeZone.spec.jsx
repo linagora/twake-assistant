@@ -16,7 +16,11 @@ jest.mock('@assistant-ui/react', () => ({
   useThread: selector => selector(mockThread)
 }))
 
-function renderZone({ text = 'Bonjour', isRunning = false } = {}) {
+function renderZone({
+  text = 'Bonjour',
+  isRunning = false,
+  requestDocument = jest.fn()
+} = {}) {
   mockThread = { messages: [], isRunning }
   const client = createMockClient({})
   client.plugins = {
@@ -26,7 +30,11 @@ function renderZone({ text = 'Bonjour', isRunning = false } = {}) {
   render(
     <CozyProvider client={client}>
       <I18n lang="en" polyglot={initTranslation('en', () => en)}>
-        <ScribeProvider conversationId="c1" text={text}>
+        <ScribeProvider
+          conversationId="c1"
+          text={text}
+          requestDocument={requestDocument}
+        >
           <ScribeIncludeZone />
         </ScribeProvider>
       </I18n>
@@ -59,6 +67,14 @@ describe('ScribeIncludeZone', () => {
     expect(getToggle('Document')).toBeInTheDocument()
     expect(getToggle('Conversation')).toBeInTheDocument()
     expect(getToggle('Selection')).toBe(null)
+  })
+
+  it('hides the document toggle when the app cannot give its document', () => {
+    const getToggle = renderZone({ requestDocument: null })
+
+    expect(getToggle('Document')).toBe(null)
+    expect(getToggle('Conversation')).toBeInTheDocument()
+    expect(getToggle('Selection')).toBeInTheDocument()
   })
 
   it('does not change what is included while an answer is written', () => {

@@ -688,16 +688,18 @@ describe('makeChatAdapter', () => {
       expect(requestDocument).not.toHaveBeenCalled()
     })
 
-    it('tells the document could not be read when the app cannot give it', async () => {
+    it('does not include the document of an app that cannot give it', async () => {
+      const prepareQuery = jest.fn(text => text)
       const { adapter, fetchJSON } = setup({
         events: [{ object: 'done' }],
-        options: { hasDocument: true, requestDocument: null }
+        options: { prepareQuery, hasDocument: true, requestDocument: null }
       })
 
       const results = await run(adapter, [userMessage('Fix it')])
 
+      expect(prepareQuery.mock.calls[0][1].document).toBe(null)
       expect(fetchJSON.mock.calls[0][2].q).toBe('Fix it')
-      expect(results.at(-1).metadata.custom.documentNotice).toBe('unavailable')
+      expect(results.at(-1).metadata.custom.documentNotice).toBe(undefined)
     })
   })
 

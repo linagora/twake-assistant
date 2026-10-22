@@ -141,7 +141,8 @@ function readSuggestion(suggestion) {
  *   source: string|null,
  *   rules: string|null,
  *   document: string|null|undefined,
- *   documentTruncated: boolean
+ *   documentTruncated: boolean,
+ *   documentAvailable: boolean
  * }} `suggestions` is null when the app leaves the scribe its default menu.
  * `document` is null when the app cannot read its document, and undefined
  * when the data do not answer a request for it.
@@ -160,7 +161,8 @@ export function getIntentConfig(data) {
     source,
     rules,
     document,
-    documentTruncated
+    documentTruncated,
+    documentAvailable
   } = data ?? {}
 
   return {
@@ -186,6 +188,7 @@ export function getIntentConfig(data) {
     rules: readText(rules),
     document:
       typeof document === 'string' || document === null ? document : undefined,
-    documentTruncated: documentTruncated === true
+    documentTruncated: documentTruncated === true,
+    documentAvailable: documentAvailable === true
   }
 }

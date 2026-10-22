@@ -9,13 +9,14 @@ import { useScribe } from '@/components/Scribe/ScribeProvider'
 import styles from '@/components/Scribe/styles.styl'
 
 /**
- * What the next request includes: the whole document, the conversation so
- * far, and the text of the app when there is one
+ * What the next request includes: the whole document when the app can give
+ * it, the conversation so far, and the text of the app when there is one
  */
 export function ScribeIncludeZone() {
   const { t } = useI18n()
   const {
     text,
+    isDocumentAvailable,
     hasDocument,
     setHasDocument,
     hasConversation,
@@ -42,13 +43,15 @@ export function ScribeIncludeZone() {
         aria-labelledby={titleId}
         className={`${styles['scribe-include']} u-flex u-flex-wrap u-flex-items-center`}
       >
-        <Checkbox
-          size="small"
-          label={t('scribe.include.document')}
-          checked={hasDocument}
-          disabled={isRunning}
-          onChange={event => setHasDocument(event.target.checked)}
-        />
+        {isDocumentAvailable && (
+          <Checkbox
+            size="small"
+            label={t('scribe.include.document')}
+            checked={hasDocument}
+            disabled={isRunning}
+            onChange={event => setHasDocument(event.target.checked)}
+          />
+        )}
         <Checkbox
           size="small"
           label={t('scribe.include.conversation')}

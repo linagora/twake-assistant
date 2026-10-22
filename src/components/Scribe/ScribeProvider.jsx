@@ -53,7 +53,7 @@ function sendAsItIs(text) {
  * @param {string} [props.text] - the text of the app the requests are about.
  * When the app gives another one, the next request is about it.
  * @param {Function} [props.requestDocument] - asks the app for its whole
- * document, for a typed request that includes it
+ * document, for a typed request that includes it: no Document box without it
  * @param {import('@assistant-ui/react').ThreadMessageLike[]} [props.messages] -
  * the messages of a past conversation: the next request is about the text
  * @param {'panel'|'compact'} [props.layout] - see ScribeView
@@ -170,6 +170,7 @@ export function ScribeProvider({
       capabilities,
       hasDocuments,
       setHasDocuments,
+      isDocumentAvailable: requestDocument !== null,
       hasDocument,
       setHasDocument,
       hasConversation,
@@ -189,6 +190,7 @@ export function ScribeProvider({
       answerActions,
       capabilities,
       hasDocuments,
+      requestDocument,
       hasDocument,
       hasConversation,
       hasSelection,

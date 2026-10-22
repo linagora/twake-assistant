@@ -142,7 +142,8 @@ function makeAnswer() {
  * called with the index of a message, among the messages of the user, and
  * the text of the app when that message sends it
  * @property {(() => Promise<{ document: string, isTruncated: boolean }|null>)|null} [requestDocument] -
- * asks the app for its document, null when it cannot give it
+ * asks the app for its document, null when it cannot give it: no request
+ * includes the document then
  * @property {string|null} instructions - how to answer, sent to the LLM as a
  * system message
  * @property {string|null} [rules] - the rules of the app, joined to the
@@ -216,13 +217,14 @@ export function makeChatAdapter({
       const custom = runConfig?.custom ?? {}
       const prompt = custom.prompt ? preparePrompt?.(custom.prompt) : null
       if (!custom.prompt && hasSelection === false) releaseText(index)
-      const isDocumentIncluded = hasDocument && !custom.prompt
+      const isDocumentIncluded =
+        hasDocument && Boolean(requestDocument) && !custom.prompt
       let doc = null
       if (isDocumentIncluded) {
         // The app may take seconds to answer, or never: Stop does not wait
         doc =
           (await Promise.race([
-            requestDocument?.(),
+            requestDocument(),
             waitForAbort(abortSignal)
           ])) ?? null
         if (abortSignal?.aborted) {
