@@ -357,8 +357,15 @@
       "done": "Thought process"
     },
     "assistant_gone": "The agent of this conversation was deleted: start a new conversation to go on.",
-    "error": "An error occurred while writing the answer. Please try again.",
-    "empty": "I could not find an answer to your request. Please try rephrasing it.",
+    "errors": {
+      "auth": "Authorization error. Please check your Cozy permissions.",
+      "rate_limit": "Too many requests. Please wait a moment and try again.",
+      "context_too_large": "The included context is too large for the AI, which could not take all of it into account. Reduce it — shorten the selection or uncheck the document — then try again.",
+      "server": "The AI service is temporarily unavailable. Please try again.",
+      "network": "Network error. Check your connection and try again.",
+      "empty_response": "No result received. Please try again.",
+      "generic": "Something went wrong. Please try again later."
+    },
     "sources": "%{smart_count} source |||| %{smart_count} sources"
   }
 }

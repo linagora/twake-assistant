@@ -20,6 +20,8 @@ function getPartText(message, type) {
 }
 
 export const getText = message => getPartText(message, 'text')
+export const getErrorKind = message =>
+  message.metadata?.custom?.error?.kind ?? 'generic'
 const getReasoning = message => getPartText(message, 'reasoning')
 
 function ThinkingDots() {
@@ -120,6 +122,7 @@ export function Answer({
   const isAssistantGone = useMessage(
     message => message.metadata?.custom?.isAssistantGone === true
   )
+  const errorKind = useMessage(getErrorKind)
   const sources = useMessage(message => message.metadata?.custom?.sources)
   const hasCall = useMessage(message => !!message.metadata?.custom?.action)
   const isEmpty =
@@ -142,11 +145,15 @@ export function Answer({
       {text !== '' && (content ?? <Markdown content={text} />)}
       {isError && (
         <Alert severity="error">
-          {t(isAssistantGone ? 'chat.assistant_gone' : 'chat.error')}
+          {t(
+            isAssistantGone ? 'chat.assistant_gone' : `chat.errors.${errorKind}`
+          )}
         </Alert>
       )}
       {isEmpty && (
-        <Typography color="textSecondary">{t('chat.empty')}</Typography>
+        <Typography color="textSecondary">
+          {t('chat.errors.empty_response')}
+        </Typography>
       )}
       {!isEmpty && sources?.length > 0 && <Sources sources={sources} />}
       {children}

@@ -388,9 +388,29 @@ describe('makeChatAdapter', () => {
       {
         content: [{ type: 'text', text: '' }],
         status: { type: 'incomplete', reason: 'error' },
-        metadata: { custom: { isError: true } }
+        metadata: {
+          custom: {
+            isError: true,
+            error: { kind: 'generic', message: 'Bad Request' }
+          }
+        }
       }
     ])
+  })
+
+  it('keeps the kind of an error the stack refused', async () => {
+    const { adapter, fetchJSON } = setup({})
+    fetchJSON.mockRejectedValue(
+      Object.assign(new Error('Too Many Requests'), { status: 429 })
+    )
+
+    const results = await run(adapter, [userMessage('Fix it')])
+
+    expect(results.at(-1).metadata.custom.error).toEqual({
+      kind: 'rate_limit',
+      status: 429,
+      message: 'Too Many Requests'
+    })
   })
 
   it('tells when the answer fails, and keeps what came', async () => {
@@ -404,7 +424,32 @@ describe('makeChatAdapter', () => {
     const results = await run(adapter, [userMessage('Fix it')])
 
     expect(getText(results.at(-1))).toBe('Bonjour')
-    expect(results.at(-1).metadata.custom).toEqual({ isError: true })
+    expect(results.at(-1).metadata.custom).toEqual({
+      isError: true,
+      error: { kind: 'server', message: 'LLM error' }
+    })
+  })
+
+  it('keeps the kind of an error of the answer', async () => {
+    const tooLong = setup({
+      events: [
+        { object: 'error', message: 'maximum context length is 8192 tokens' }
+      ]
+    })
+    const withoutMessage = setup({ events: [{ object: 'error' }] })
+
+    const tooLongResults = await run(tooLong.adapter, [userMessage('Fix it')])
+    const withoutMessageResults = await run(withoutMessage.adapter, [
+      userMessage('Fix it')
+    ])
+
+    expect(tooLongResults.at(-1).metadata.custom.error).toEqual({
+      kind: 'context_too_large',
+      message: 'maximum context length is 8192 tokens'
+    })
+    expect(withoutMessageResults.at(-1).metadata.custom.error).toEqual({
+      kind: 'server'
+    })
   })
 
   it('tells when the assistant of the conversation was deleted', async () => {
@@ -416,6 +461,7 @@ describe('makeChatAdapter', () => {
 
     expect(results.at(-1).metadata.custom).toEqual({
       isError: true,
+      error: { kind: 'server', message: 'assistant not found' },
       isAssistantGone: true
     })
   })
@@ -605,9 +651,10 @@ describe('makeChatAdapter', () => {
       expect(results[0].metadata.custom).toEqual({
         documentNotice: 'unavailable'
       })
-      expect(results.at(-1).metadata.custom).toMatchObject({
+      expect(results.at(-1).metadata.custom).toEqual({
+        documentNotice: 'unavailable',
         isError: true,
-        documentNotice: 'unavailable'
+        error: { kind: 'server', message: 'Overloaded' }
       })
     })
 

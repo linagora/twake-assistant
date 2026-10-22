@@ -102,8 +102,27 @@ describe('Answer', () => {
   it('tells when the answer failed, with what came', () => {
     renderAnswer(answer('Bonj', 'incomplete', { isError: true }))
 
-    expect(screen.queryByRole('alert')).toHaveTextContent('An error occurred')
+    expect(screen.queryByRole('alert')).toHaveTextContent(
+      'Something went wrong. Please try again later.'
+    )
     expect(screen.queryByText('Bonj')).toBeInTheDocument()
+  })
+
+  it('shows the message of the kind of error', () => {
+    const failed = error => answer('', 'incomplete', { isError: true, error })
+
+    const { unmount } = renderAnswer(
+      failed({ kind: 'rate_limit', status: 429 })
+    )
+    expect(screen.queryByRole('alert')).toHaveTextContent(
+      'Too many requests. Please wait a moment and try again.'
+    )
+    unmount()
+
+    renderAnswer(failed({ kind: 'server' }))
+    expect(screen.queryByRole('alert')).toHaveTextContent(
+      'The AI service is temporarily unavailable. Please try again.'
+    )
   })
 
   it('tells when the assistant of the conversation was deleted', () => {
@@ -124,7 +143,9 @@ describe('Answer', () => {
       })
     )
 
-    expect(screen.queryByText(en.chat.empty)).toBeInTheDocument()
+    expect(
+      screen.queryByText(en.chat.errors.empty_response)
+    ).toBeInTheDocument()
     expect(screen.queryByTestId('sources')).toBe(null)
   })
 
@@ -132,10 +153,12 @@ describe('Answer', () => {
     const call = answer('', 'complete', { action: { name: 'insert_slide' } })
 
     renderAnswer(call)
-    expect(screen.queryByText(en.chat.empty)).toBeInTheDocument()
+    expect(
+      screen.queryByText(en.chat.errors.empty_response)
+    ).toBeInTheDocument()
 
     renderAnswer(call, { isCallShown: true })
-    expect(screen.queryAllByText(en.chat.empty)).toHaveLength(1)
+    expect(screen.queryAllByText(en.chat.errors.empty_response)).toHaveLength(1)
   })
 
   it('shows the sources of an answer', () => {

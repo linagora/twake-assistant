@@ -374,8 +374,15 @@
       "done": "Quá trình suy nghĩ"
     },
     "assistant_gone": "Tác tử của cuộc trò chuyện này đã bị xóa: hãy bắt đầu cuộc trò chuyện mới để tiếp tục.",
-    "error": "Đã xảy ra lỗi khi viết câu trả lời. Vui lòng thử lại.",
-    "empty": "Tôi không tìm thấy câu trả lời cho yêu cầu của bạn. Vui lòng thử diễn đạt lại.",
+    "errors": {
+      "auth": "Lỗi ủy quyền. Vui lòng kiểm tra quyền Cozy của bạn.",
+      "rate_limit": "Quá nhiều yêu cầu. Vui lòng đợi một lát rồi thử lại.",
+      "context_too_large": "Ngữ cảnh được đưa vào quá lớn đối với AI, nên AI không thể xem xét toàn bộ. Hãy giảm bớt — rút ngắn vùng chọn hoặc bỏ chọn tài liệu — rồi thử lại.",
+      "server": "Dịch vụ AI tạm thời không khả dụng. Vui lòng thử lại.",
+      "network": "Lỗi mạng. Vui lòng kiểm tra kết nối rồi thử lại.",
+      "empty_response": "Không nhận được kết quả. Vui lòng thử lại.",
+      "generic": "Đã xảy ra lỗi. Vui lòng thử lại sau."
+    },
     "sources": "%{smart_count} nguồn |||| %{smart_count} nguồn"
   }
 }
