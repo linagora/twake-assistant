@@ -103,7 +103,7 @@
       "send": "Send",
       "noItem": "No results",
       "notEnough": "Your query must contain at least 3 characters",
-      "placeholder_folder": "What would you like to know from %{folder} files?",
+      "placeholder_folder": "Ask anything from your Drive",
       "stop": "Stop"
     },
     "websearch": {
