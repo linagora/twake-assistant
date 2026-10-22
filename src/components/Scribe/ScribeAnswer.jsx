@@ -5,16 +5,25 @@ import {
 } from '@assistant-ui/react'
 import React from 'react'
 
+import { Check, Icon } from '@linagora/twake-icons'
 import Button from 'cozy-ui/transpiled/react/Buttons'
 import { useI18n } from 'twake-i18n'
 
 import { Answer, getText } from '@/components/Messages/Answer'
 import { ScribeCapabilityCard } from '@/components/Scribe/ScribeCapabilityCard'
+import { ScribeCopyButton } from '@/components/Scribe/ScribeCopyButton'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
+import styles from '@/components/Scribe/styles.styl'
+import { useDone } from '@/components/Scribe/useDone'
 import { useIsInLatestExchange } from '@/components/Scribe/useLatestExchange'
 
 function AnswerActionButton({ action, text }) {
-  const handleClick = () => action.onClick(text)
+  const [isDone, markDone] = useDone()
+
+  const handleClick = () => {
+    action.onClick(text)
+    markDone()
+  }
 
   return (
     <Button
@@ -22,14 +31,25 @@ function AnswerActionButton({ action, text }) {
       variant="secondary"
       className="u-mr-half u-mt-half"
       label={action.label}
+      startIcon={
+        isDone ? (
+          <Icon
+            icon={Check}
+            size={16}
+            className={styles['scribe-check']}
+            data-testid="scribe-check"
+          />
+        ) : undefined
+      }
       onClick={handleClick}
     />
   )
 }
 
 /**
- * An answer of the LLM, with the buttons of the actions of the app once it
- * is complete: in the compact layout, the one of the latest exchange only
+ * An answer of the LLM, with Copy and the buttons of the actions of the app
+ * once it is complete: in the compact layout, the one of the latest exchange
+ * only
  */
 export function ScribeAnswer() {
   const { t } = useI18n()
@@ -89,8 +109,9 @@ export function ScribeAnswer() {
           onClick={handleRetry}
         />
       )}
-      {canAct && answerActions.length > 0 && (
-        <div className="u-flex u-flex-wrap">
+      {canAct && (
+        <div className="u-flex u-flex-items-center u-flex-wrap">
+          <ScribeCopyButton text={text} />
           {answerActions.map(action => (
             <AnswerActionButton key={action.name} action={action} text={text} />
           ))}

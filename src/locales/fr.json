@@ -23,6 +23,8 @@
     "instructions": "Tu aides l'utilisateur à travailler un texte dans son éditeur. Regarde d'abord ce qu'il demande.\nS'il pose une question sur le texte ou demande ton avis, réponds-lui normalement, en quelques phrases, sans réécrire le texte.\nS'il demande d'écrire ou de modifier un texte, ta réponse sera insérée telle quelle dans son document : réponds alors uniquement avec ce texte, dans la langue du texte, en une seule version, sans introduction, sans commentaire sur ta réponse, sans ligne de séparation, sans emoji et sans rien à compléter entre crochets. Garde la forme du texte, sauf si on te demande de la changer, et n'invente pas d'informations.",
     "content": "Texte :",
     "actions": {
+      "copy": "Copier",
+      "copied": "Copié",
       "insert": "Insérer",
       "replace": "Remplacer"
     },
