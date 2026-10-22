@@ -24,6 +24,9 @@ export function ScribeComposer({ placeholder }) {
   const isRunning = useThread(state => state.isRunning)
 
   const handleToggleDocuments = () => setHasDocuments(value => !value)
+  const documentsLabel = t('scribe.documents', {
+    folder: t('assistant.twake_knowledges.drive')
+  })
 
   return (
     <ComposerPrimitive.Root
@@ -39,13 +42,13 @@ export function ScribeComposer({ placeholder }) {
         submitOnEnter={!isMobileDevice()}
       />
       <div className="u-flex u-flex-items-center u-flex-shrink-0 u-ml-half">
-        <Tooltip title={t('scribe.documents')}>
+        <Tooltip title={documentsLabel}>
           <IconButton
             size="small"
             className={
               hasDocuments ? null : styles['scribe-composer-source--off']
             }
-            aria-label={t('scribe.documents')}
+            aria-label={documentsLabel}
             aria-pressed={hasDocuments}
             disabled={isRunning}
             onClick={handleToggleDocuments}

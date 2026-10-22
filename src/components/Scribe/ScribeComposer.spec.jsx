@@ -60,7 +60,7 @@ describe('ScribeComposer', () => {
 
   it('lets the user ask for their documents, between two answers', () => {
     const { setHasDocuments } = renderComposer()
-    const toggle = screen.getByRole('button', { name: 'Use my documents' })
+    const toggle = screen.getByRole('button', { name: 'Use Drive files' })
     expect(toggle).toHaveAttribute('aria-pressed', 'false')
 
     fireEvent.click(toggle)
@@ -73,7 +73,7 @@ describe('ScribeComposer', () => {
     renderComposer({ isRunning: true })
 
     expect(
-      screen.getByRole('button', { name: 'Use my documents' })
+      screen.getByRole('button', { name: 'Use Drive files' })
     ).toBeDisabled()
   })
 })
