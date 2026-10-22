@@ -44,7 +44,8 @@ function Scribe({ service, config }) {
     layout,
     draft,
     conversation,
-    rules
+    rules,
+    documentAvailable
   } = config
 
   // The assistant is rendered: an app that waits for it can show the intent
@@ -89,7 +90,10 @@ function Scribe({ service, config }) {
     () => makeScribePreparePrompt(content),
     [content]
   )
-  const requestDocument = useMemo(() => makeDocumentRequest(service), [service])
+  const requestDocument = useMemo(
+    () => (documentAvailable ? makeDocumentRequest(service) : null),
+    [service, documentAvailable]
+  )
   const handleClose = useCallback(() => service.cancel(), [service])
   const handleResize = useCallback(
     size => service.resizeClient?.(size),

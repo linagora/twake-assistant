@@ -186,7 +186,10 @@ describe('AssistantIntent', () => {
   })
 
   it('asks the app for its document, and reads it in the next data', async () => {
-    mockService.getData.mockReturnValue({ content: 'Bonjour' })
+    mockService.getData.mockReturnValue({
+      content: 'Bonjour',
+      documentAvailable: true
+    })
     renderIntent()
     const { requestDocument } = await findScribeProps()
 
@@ -195,6 +198,7 @@ describe('AssistantIntent', () => {
     act(() =>
       mockSendData({
         content: 'Bonjour',
+        documentAvailable: true,
         document: 'Bonjour à tous',
         documentTruncated: true
       })
@@ -205,6 +209,13 @@ describe('AssistantIntent', () => {
       isTruncated: true
     })
     expect((await findScribeProps()).text).toBe('Bonjour')
+  })
+
+  it('does not ask for the document of an app that cannot give it', async () => {
+    mockService.getData.mockReturnValue({ content: 'Bonjour' })
+    renderIntent()
+
+    expect((await findScribeProps()).requestDocument).toBe(null)
   })
 
   it('keeps the theme of the opening when the app gives new data', async () => {

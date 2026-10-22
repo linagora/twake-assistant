@@ -131,6 +131,14 @@ interface AssistantIntentConfig {
   rules?: string
 
   /**
+   * Whether the app answers `{ request: 'document' }`, a DocumentRequest
+   * (see Result), with `document`. Only then does the scribe show its
+   * Document box (see "What a request includes").
+   * Defaults to false: no request asks for the document.
+   */
+  documentAvailable?: boolean
+
+  /**
    * The whole document of the calling app, in answer to a DocumentRequest
    * (see Result): new data with the rest of the configuration, and this
    * field. `null` when the app cannot read its document: the request is
@@ -322,6 +330,7 @@ When no config is provided, the assistant uses:
   conversation: undefined,
   source: undefined,
   rules: undefined,
+  documentAvailable: false,
   document: undefined,
   documentTruncated: false
 }
@@ -487,7 +496,7 @@ I kept the time you gave.
 
 ### Another text while the assistant is open
 
-The calling app sends new data to the open assistant, with another `content`, when the user selects another text: `sendData(data)` on the started intent of `cozy-interapp`, or new `data` given to `IntentIframe`. They travel in a `data` message (see [Protocol](#protocol)), and replace the whole configuration: send the `answerActions` and the `theme` again with the new `content`. The theme does not change while the assistant is open. The assistant keeps its conversation:
+The calling app sends new data to the open assistant, with another `content`, when the user selects another text: `sendData(data)` on the started intent of `cozy-interapp`, or new `data` given to `IntentIframe`. They travel in a `data` message (see [Protocol](#protocol)), and replace the whole configuration: send the `answerActions`, `documentAvailable` and the `theme` again with the new `content`. The theme does not change while the assistant is open. The assistant keeps its conversation:
 
 - the next message, typed or from a prompt, gets the new text joined to it, and the messages after it are sent as they are;
 - the prompts are offered again above the composer until that message;
@@ -498,13 +507,13 @@ Send new data for another text only, not for a cursor that moves: the next messa
 
 ### What a request includes
 
-Above the composer, under "Include", three boxes choose what goes with the next request. They do not change while an answer is written.
+Above the composer, under "Include", up to three boxes choose what goes with the next request. They do not change while an answer is written.
 
-- **Document**, unchecked at first. A typed request then asks the app for its whole document, with a DocumentRequest (see [Result](#result)), and waits for the next data that hold a `document`, 8 seconds at most. The document goes before the request, between a `[Full document]` and an `[End of full document]` line; the conversation shows the request alone. When the app gives `document: null`, or nothing in time, the request is sent without it, and the answer tells that the document could not be read. With `documentTruncated`, the answer tells that only part of it was sent. Stop ends the wait at once, and nothing is sent. A prompt of the catalogue never asks for the document: it is about the text.
+- **Document**, shown only with `documentAvailable`, unchecked at first. A typed request then asks the app for its whole document, with a DocumentRequest (see [Result](#result)), and waits for the next data that hold a `document`, 8 seconds at most. The document goes before the request, between a `[Full document]` and an `[End of full document]` line; the conversation shows the request alone. When the app gives `document: null`, or nothing in time, the request is sent without it, and the answer tells that the document could not be read. With `documentTruncated`, the answer tells that only part of it was sent. Stop ends the wait at once, and nothing is sent. A prompt of the catalogue never asks for the document: it is about the text.
 - **Conversation**, checked at first. Unchecked, each request goes to a new conversation of its own, without the previous messages, and gets the text joined to it; the scribe still shows the whole exchange. Once checked again, the next request goes back to the conversation of the scribe, with the text if that conversation does not have it yet.
 - **Selection**, shown only with a `content`, checked at first and again whenever the app gives another text. Unchecked, a typed request is sent without the text, and the text goes with the next request sent with the box checked. A prompt of the catalogue keeps the text in its query.
 
-An app that cannot read its document answers at once with `document: null`: the request would wait 8 seconds otherwise.
+An app that cannot read its document answers at once with `document: null`: the request would wait 8 seconds otherwise. An app that never answers a DocumentRequest leaves `documentAvailable` out.
 
 ## Suggestions
 
@@ -710,10 +719,11 @@ interface PanelRequest {
 interface DocumentRequest {
   /**
    * A typed request includes the document (see "What a request
-   * includes"): the app answers with new data, its whole configuration
-   * and `document`, the whole text of its document, or `document: null`
-   * when it cannot read it. The request waits 8 seconds at most. A request
-   * of the document while another one waits does not send another result.
+   * includes"), for an app that sets `documentAvailable`: the app answers
+   * with new data, its whole configuration and `document`, the whole text
+   * of its document, or `document: null` when it cannot read it. The
+   * request waits 8 seconds at most. A request of the document while
+   * another one waits does not send another result.
    */
   request: 'document'
 }
@@ -817,7 +827,7 @@ The messages of an exchange, one per line:
 // 1. ready
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:ready" }
 // 2. the data
-{ "content": "bonjour à tous", "answerActions": [{ "name": "insert" }], "theme": { "type": "light" } }
+{ "content": "bonjour à tous", "answerActions": [{ "name": "insert" }], "theme": { "type": "light" }, "documentAvailable": true }
 // 3. readyToUse
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:readyToUse" }
 // 4. a result: an answer
@@ -831,9 +841,9 @@ The messages of an exchange, one per line:
 // 5. resize, in the compact layout
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:resize", "dimensions": { "height": 212 } }
 // 6. new data: another text
-{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "Merci de confirmer", "answerActions": [{ "name": "insert" }, { "name": "replace" }], "theme": { "type": "light" } } }
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "Merci de confirmer", "answerActions": [{ "name": "insert" }, { "name": "replace" }], "theme": { "type": "light" }, "documentAvailable": true } }
 // 6. new data: the document
-{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "Merci de confirmer", "answerActions": [{ "name": "insert" }, { "name": "replace" }], "theme": { "type": "light" }, "document": "Compte rendu\n\nMerci de confirmer", "documentTruncated": false } }
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "Merci de confirmer", "answerActions": [{ "name": "insert" }, { "name": "replace" }], "theme": { "type": "light" }, "documentAvailable": true, "document": "Compte rendu\n\nMerci de confirmer", "documentTruncated": false } }
 ```
 
 ## Interoperability with Open Buro

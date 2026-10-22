@@ -24,7 +24,8 @@ describe('getIntentConfig', () => {
       source: null,
       rules: null,
       document: undefined,
-      documentTruncated: false
+      documentTruncated: false,
+      documentAvailable: false
     })
   })
 
@@ -42,7 +43,8 @@ describe('getIntentConfig', () => {
       source: null,
       rules: null,
       document: undefined,
-      documentTruncated: false
+      documentTruncated: false,
+      documentAvailable: false
     })
   })
 
@@ -66,7 +68,8 @@ describe('getIntentConfig', () => {
       source: null,
       rules: null,
       document: undefined,
-      documentTruncated: false
+      documentTruncated: false,
+      documentAvailable: false
     })
     expect(getIntentConfig({ answerActions: null }).answerActions).toEqual([])
     expect(getIntentConfig({ answerActions: 'insert' }).answerActions).toEqual(
@@ -345,6 +348,18 @@ describe('getIntentConfig', () => {
     expect(
       getIntentConfig({ document: 'Bonjour', documentTruncated: 'yes' })
         .documentTruncated
+    ).toBe(false)
+  })
+
+  it('reads whether the app answers a request for its document', () => {
+    expect(getIntentConfig({ documentAvailable: true }).documentAvailable).toBe(
+      true
+    )
+    expect(
+      getIntentConfig({ documentAvailable: false }).documentAvailable
+    ).toBe(false)
+    expect(
+      getIntentConfig({ documentAvailable: 'true' }).documentAvailable
     ).toBe(false)
   })
 

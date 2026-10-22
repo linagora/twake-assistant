@@ -242,6 +242,7 @@ describe('ScribeProvider', () => {
       requestDocument
     })
     answerAtOnce(scribe)
+    expect(scribe.getScribe().isDocumentAvailable).toBe(true)
     act(() => scribe.getScribe().setHasDocument(true))
 
     await run([userMessage('Fix it')])
@@ -250,6 +251,20 @@ describe('ScribeProvider', () => {
     expect(scribe.client.stackClient.fetchJSON.mock.calls[0][2].q).toBe(
       '[Full document]\nThe whole note\n[End of full document]\n\nFix it\n\nText:\n"""\nBonjour\n"""'
     )
+  })
+
+  it('sends a request without the document when the app cannot give it', async () => {
+    const scribe = setup({ prepareQuery: scribePrepareQuery, text: 'Bonjour' })
+    answerAtOnce(scribe)
+    expect(scribe.getScribe().isDocumentAvailable).toBe(false)
+    act(() => scribe.getScribe().setHasDocument(true))
+
+    const results = await run([userMessage('Fix it')])
+
+    expect(scribe.client.stackClient.fetchJSON.mock.calls[0][2].q).toBe(
+      'Fix it\n\nText:\n"""\nBonjour\n"""'
+    )
+    expect(results.at(-1).metadata.custom.documentNotice).toBe(undefined)
   })
 
   it('sends a fresh conversation for each request when the conversation is off', async () => {
