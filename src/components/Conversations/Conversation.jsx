@@ -162,7 +162,10 @@ const Conversation = ({ className }) => {
             variant={isMobile ? 'overline' : 'caption'}
             color="textSecondary"
             component="p"
-            className="u-w-100 u-maw-5-t u-maw-7 u-mh-auto u-mt-1-half  u-mb-0 u-ta-center"
+            className={cx(
+              'u-w-100 u-maw-5-t u-maw-7 u-mh-auto u-mb-0 u-ta-center',
+              isMobile ? 'u-mt-half' : 'u-mt-1-half'
+            )}
           >
             {t(
               isMobile ? 'assistant.disclaimer_short' : 'assistant.disclaimer'
