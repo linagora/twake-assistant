@@ -1,0 +1,101 @@
+import { copyAnswer } from '@/lib/clipboard'
+
+const readBlob = blob =>
+  new Promise(resolve => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.readAsText(blob)
+  })
+
+const defineClipboard = clipboard =>
+  Object.defineProperty(navigator, 'clipboard', {
+    value: clipboard,
+    configurable: true
+  })
+
+describe('copyAnswer', () => {
+  const originalClipboardItem = global.ClipboardItem
+
+  beforeEach(() => {
+    global.ClipboardItem = class {
+      constructor(items) {
+        this.items = items
+      }
+    }
+  })
+
+  afterEach(() => {
+    delete navigator.clipboard
+    global.ClipboardItem = originalClipboardItem
+  })
+
+  it('writes the answer as HTML and text', async () => {
+    const write = jest.fn().mockResolvedValue()
+    defineClipboard({ write, writeText: jest.fn() })
+
+    await copyAnswer('a **b**')
+
+    expect(write).toHaveBeenCalledTimes(1)
+    const [[item]] = write.mock.calls[0]
+    expect(Object.keys(item.items)).toEqual(['text/html', 'text/plain'])
+    expect(item.items['text/html'].type).toBe('text/html')
+    expect(await readBlob(item.items['text/html'])).toBe('a <strong>b</strong>')
+    expect(item.items['text/plain'].type).toBe('text/plain')
+    expect(await readBlob(item.items['text/plain'])).toBe('a **b**')
+  })
+
+  it('keeps the paragraphs of an answer that has several', async () => {
+    const write = jest.fn().mockResolvedValue()
+    defineClipboard({ write })
+
+    await copyAnswer('One\n\nTwo')
+
+    const [[item]] = write.mock.calls[0]
+    expect(await readBlob(item.items['text/html'])).toBe(
+      '<p>One</p>\n<p>Two</p>'
+    )
+  })
+
+  it('keeps a list as it is', async () => {
+    const write = jest.fn().mockResolvedValue()
+    defineClipboard({ write })
+
+    await copyAnswer('- one\n- two')
+
+    const [[item]] = write.mock.calls[0]
+    expect(await readBlob(item.items['text/html'])).toBe(
+      '<ul>\n<li>one</li>\n<li>two</li>\n</ul>'
+    )
+  })
+
+  it('falls back to writeText without ClipboardItem', async () => {
+    const write = jest.fn()
+    const writeText = jest.fn().mockResolvedValue()
+    delete global.ClipboardItem
+    defineClipboard({ write, writeText })
+
+    await copyAnswer('a **b**')
+
+    expect(write).not.toHaveBeenCalled()
+    expect(writeText).toHaveBeenCalledWith('a **b**')
+  })
+
+  it('falls back to writeText without write', async () => {
+    const writeText = jest.fn().mockResolvedValue()
+    defineClipboard({ writeText })
+
+    await copyAnswer('a **b**')
+
+    expect(writeText).toHaveBeenCalledWith('a **b**')
+  })
+
+  it('does nothing without a way to write', async () => {
+    defineClipboard({})
+
+    await expect(copyAnswer('a **b**')).resolves.toBeUndefined()
+  })
+
+  it('does nothing without a clipboard', async () => {
+    await expect(copyAnswer('a **b**')).resolves.toBeUndefined()
+  })
+})

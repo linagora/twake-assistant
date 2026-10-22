@@ -17,7 +17,9 @@ module.exports = {
     '^src/(.*)': '<rootDir>/src/$1',
     '^test/(.*)': '<rootDir>/test/$1'
   },
-  transformIgnorePatterns: ['node_modules/(?!(cozy-ui|@linagora/twake-icons)/)'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(cozy-ui|@linagora/twake-icons|marked)/)'
+  ],
   transform: {
     '^.+\\.[jt]sx?$': 'babel-jest'
   },

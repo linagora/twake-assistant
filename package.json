@@ -70,6 +70,7 @@
     "cozy-ui": "^142.1.0",
     "cozy-ui-plus": "^13.0.8",
     "lodash": "^4.17.21",
+    "marked": "^18.1.1",
     "mime-types": "2.1.35",
     "react": "18.2.0",
     "react-dom": "18.2.0",

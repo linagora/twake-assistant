@@ -1,10 +1,11 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import React from 'react'
 
 import { I18n, initTranslation } from 'twake-i18n'
 
 import { ScribeAnswer } from '@/components/Scribe/ScribeAnswer'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
+import { copyAnswer } from '@/lib/clipboard'
 import en from '@/locales/en.json'
 
 let mockMessage = null
@@ -38,6 +39,9 @@ jest.mock('@/components/Scribe/ScribeCapabilityCard', () => ({
 jest.mock('@/components/Messages/Sources', () => ({
   Sources: ({ sources }) => <div data-testid="sources">{sources.length}</div>
 }))
+jest.mock('@/lib/clipboard', () => ({
+  copyAnswer: jest.fn()
+}))
 
 const answer = (text, status, custom = {}) => ({
   id: 'a1',
@@ -62,6 +66,9 @@ describe('ScribeAnswer', () => {
   beforeEach(() => {
     mockThread = { messages: [] }
     mockReload.mockClear()
+    copyAnswer.mockReset()
+    copyAnswer.mockResolvedValue()
+    actions.forEach(action => action.onClick.mockClear())
   })
 
   const actions = [
@@ -91,6 +98,108 @@ describe('ScribeAnswer', () => {
 
     expect(actions[1].onClick).toHaveBeenCalledWith('Bonjour à **tous**')
     expect(actions[0].onClick).not.toHaveBeenCalled()
+  })
+
+  it('offers to copy a whole answer, before the actions of the app', () => {
+    renderAnswer(answer('Bonjour', 'complete'), actions)
+
+    expect(
+      screen
+        .getAllByRole('button')
+        .map(button => button.getAttribute('aria-label') ?? button.textContent)
+    ).toEqual(['Copy', 'Insert', 'Replace'])
+  })
+
+  it('offers to copy even when the app has no action', () => {
+    renderAnswer(answer('Bonjour', 'complete'), [])
+
+    expect(screen.queryByRole('button', { name: 'Copy' })).toBeInTheDocument()
+  })
+
+  it('copies the answer', async () => {
+    renderAnswer(answer('Bonjour à **tous**', 'complete'), actions)
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Copy' }))
+    })
+
+    expect(copyAnswer).toHaveBeenCalledWith('Bonjour à **tous**')
+    expect(actions[0].onClick).not.toHaveBeenCalled()
+    expect(actions[1].onClick).not.toHaveBeenCalled()
+  })
+
+  describe('the feedback of a click', () => {
+    beforeEach(() => {
+      jest.useFakeTimers()
+    })
+
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
+    it('shows a check for 1.5 s after an action', () => {
+      renderAnswer(answer('Bonjour', 'complete'), actions)
+      const insert = screen.getByRole('button', { name: 'Insert' })
+      expect(within(insert).queryByTestId('scribe-check')).toBe(null)
+
+      fireEvent.click(insert)
+
+      expect(within(insert).queryByTestId('scribe-check')).toBeInTheDocument()
+      expect(insert).toHaveAccessibleName('Insert')
+      expect(
+        within(screen.getByRole('button', { name: 'Replace' })).queryByTestId(
+          'scribe-check'
+        )
+      ).toBe(null)
+
+      act(() => jest.advanceTimersByTime(1499))
+      expect(within(insert).queryByTestId('scribe-check')).toBeInTheDocument()
+
+      act(() => jest.advanceTimersByTime(1))
+      expect(within(insert).queryByTestId('scribe-check')).toBe(null)
+    })
+
+    it('starts the 1.5 s again on a second click', () => {
+      renderAnswer(answer('Bonjour', 'complete'), actions)
+      const insert = screen.getByRole('button', { name: 'Insert' })
+
+      fireEvent.click(insert)
+      act(() => jest.advanceTimersByTime(1000))
+      fireEvent.click(insert)
+      act(() => jest.advanceTimersByTime(1000))
+
+      expect(within(insert).queryByTestId('scribe-check')).toBeInTheDocument()
+
+      act(() => jest.advanceTimersByTime(500))
+      expect(within(insert).queryByTestId('scribe-check')).toBe(null)
+    })
+
+    it('shows a check for 1.5 s once the answer is copied', async () => {
+      renderAnswer(answer('Bonjour', 'complete'), actions)
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Copy' }))
+      })
+
+      const copied = screen.getByRole('button', { name: 'Copied' })
+      expect(within(copied).queryByTestId('scribe-check')).toBeInTheDocument()
+
+      act(() => jest.advanceTimersByTime(1500))
+      expect(screen.queryByRole('button', { name: 'Copied' })).toBe(null)
+      expect(screen.queryByRole('button', { name: 'Copy' })).toBeInTheDocument()
+    })
+
+    it('shows no check when the answer could not be copied', async () => {
+      copyAnswer.mockRejectedValue(new Error('NotAllowedError'))
+      renderAnswer(answer('Bonjour', 'complete'), actions)
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Copy' }))
+      })
+
+      expect(screen.queryByRole('button', { name: 'Copy' })).toBeInTheDocument()
+      expect(screen.queryByTestId('scribe-check')).toBe(null)
+    })
   })
 
   it('tells when the answer failed, with what came, and lets the user try again', () => {
