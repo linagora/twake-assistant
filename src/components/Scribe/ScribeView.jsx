@@ -13,6 +13,7 @@ import {
   Previous
 } from '@linagora/twake-icons'
 import { RealTimeQueries, isQueryLoading, useQuery } from 'cozy-client'
+import Minilog from 'cozy-minilog'
 import Button from 'cozy-ui/transpiled/react/Buttons'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
 import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
@@ -31,6 +32,8 @@ import { makeConversationId } from '@/components/helpers'
 import { DOCTYPE_AI_CHAT_CONVERSATIONS } from '@/doctypes'
 import { getScribeWording, makeChatMessages } from '@/lib/scribe'
 import { buildConversationByIdQuery } from '@/queries'
+
+const log = Minilog('🤖 [ScribeView]')
 
 const MESSAGE_COMPONENTS = {
   UserMessage: ScribeRequest,
@@ -304,23 +307,42 @@ function ScribeLayout({
   )
 }
 
+function isNotFound(error) {
+  return error?.status === 404
+}
+
+// The stack does not have a conversation before its first request, as the
+// one of a draft handed over: the scribe goes on with its id. On another
+// error, a new conversation: no request goes to one whose history is not shown
+function makeHandedConversation(conversationId, result, t) {
+  if (result.data) {
+    return {
+      id: conversationId,
+      messages: makeChatMessages(result.data.messages, t)
+    }
+  }
+  return isNotFound(result.lastError)
+    ? { id: conversationId, messages: [] }
+    : null
+}
+
 function ScribeOnConversation({ conversationId, ...props }) {
   const { t } = useI18n()
   const query = buildConversationByIdQuery(conversationId)
-  // The stack does not have a conversation before its first request, as the
-  // one of a draft handed over: the scribe goes on with its id, no error
   const result = useQuery(query.definition, {
     ...query.options,
-    onError: () => {}
+    onError: error => {
+      if (isNotFound(error)) return
+      log.error(`Cannot load the conversation ${conversationId}`, error)
+    }
   })
 
   if (isQueryLoading(result)) return null
 
-  const messages = result.data ? makeChatMessages(result.data.messages, t) : []
   return (
     <ScribeLayout
       {...props}
-      initialConversation={{ id: conversationId, messages }}
+      initialConversation={makeHandedConversation(conversationId, result, t)}
     />
   )
 }
