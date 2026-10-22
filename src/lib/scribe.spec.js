@@ -4,6 +4,7 @@ import { initTranslation } from 'twake-i18n'
 import {
   getScribeConversationDescription,
   getScribeRequest,
+  getScribeWording,
   makeScribeAnswerActions,
   makeScribeCapabilities,
   makeChatMessages,
@@ -495,5 +496,34 @@ describe('makeScribeCapabilities', () => {
     )
 
     expect(insertSlide.label).toBe('Apply')
+  })
+})
+
+describe('getScribeWording', () => {
+  it('speaks of the text of the app', () => {
+    expect(
+      getScribeWording(mockT, { hasText: true, hasDocuments: true })
+    ).toEqual({
+      welcome: 'Ask me a question about your document',
+      placeholder: 'Help me write'
+    })
+  })
+
+  it('speaks of the files of the folder without a text', () => {
+    expect(
+      getScribeWording(mockT, { hasText: false, hasDocuments: true })
+    ).toEqual({
+      welcome: 'Ask me a question about Drive files',
+      placeholder: 'Ask anything from Drive files'
+    })
+  })
+
+  it('speaks of the LLM alone once the documents are off', () => {
+    expect(
+      getScribeWording(mockT, { hasText: false, hasDocuments: false })
+    ).toEqual({
+      welcome: 'Ask me a question',
+      placeholder: 'Ask anything to Twake AI'
+    })
   })
 })
