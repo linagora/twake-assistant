@@ -32,7 +32,12 @@ const makeClient = ({ assistants = {}, files = {}, paths = {} } = {}) => {
     statByPath: jest.fn(async path => {
       if (!paths[path]) throw notFound()
       return { data: paths[path] }
-    })
+    }),
+    // Like the stack client: returns what already sits at the path.
+    createDirectoryByPath: jest.fn(async path => ({
+      data: paths[path] || { _id: `created:${path}`, type: 'directory', path }
+    })),
+    addReferencesTo: jest.fn(async () => {})
   }
   const client = {
     collection: jest.fn(doctype => {
@@ -225,6 +230,89 @@ describe('resolveProvisionedFolder', () => {
     expect(
       await resolveProvisionedFolder(client, { dirName: 'Docs' })
     ).toBeNull()
+  })
+
+  it('creates a missing magic folder named after name with autoCreateFolder', async () => {
+    const { client, filesCollection } = makeClient()
+    models.folder.getReferencedFolder.mockResolvedValue(null)
+
+    expect(
+      await resolveProvisionedFolder(client, {
+        name: 'Meetings',
+        dirId: 'io.cozy.apps/meet',
+        dirName: '_Reunions',
+        autoCreateFolder: true
+      })
+    ).toBe('created:/Meetings')
+    expect(filesCollection.createDirectoryByPath).toHaveBeenCalledWith(
+      '/Meetings'
+    )
+    expect(filesCollection.addReferencesTo).toHaveBeenCalledWith(
+      { _type: 'io.cozy.apps', _id: 'io.cozy.apps/meet' },
+      [expect.objectContaining({ _id: 'created:/Meetings' })]
+    )
+  })
+
+  it('names a created magic folder after dirName when there is no name', async () => {
+    const { client, filesCollection } = makeClient()
+    models.folder.getReferencedFolder.mockResolvedValue(null)
+
+    await resolveProvisionedFolder(client, {
+      dirId: 'io.cozy.apps/meet',
+      dirName: '_Reunions',
+      autoCreateFolder: true
+    })
+    expect(filesCollection.createDirectoryByPath).toHaveBeenCalledWith(
+      '/_Reunions'
+    )
+  })
+
+  it('creates a missing dirName folder with autoCreateFolder', async () => {
+    const { client, filesCollection } = makeClient()
+    expect(
+      await resolveProvisionedFolder(client, {
+        name: 'Docs',
+        dirName: 'Docs',
+        autoCreateFolder: true
+      })
+    ).toBe('created:/Docs')
+    expect(filesCollection.createDirectoryByPath).toHaveBeenCalledWith('/Docs')
+    expect(filesCollection.addReferencesTo).not.toHaveBeenCalled()
+  })
+
+  it('does not take a file in the way for the folder it creates', async () => {
+    const { client, filesCollection } = makeClient({
+      paths: {
+        '/Meetings': { _id: 'a-file', type: 'file', path: '/Meetings' }
+      }
+    })
+    models.folder.getReferencedFolder.mockResolvedValue(null)
+
+    expect(
+      await resolveProvisionedFolder(client, {
+        name: 'Meetings',
+        dirId: 'io.cozy.apps/meet',
+        autoCreateFolder: true
+      })
+    ).toBeNull()
+    expect(filesCollection.addReferencesTo).not.toHaveBeenCalled()
+  })
+
+  it('creates nothing when the folder exists, even with autoCreateFolder', async () => {
+    const { client, filesCollection } = makeClient({
+      paths: { '/_Reunions': { _id: 'reunions-dir', type: 'directory' } }
+    })
+    models.folder.getReferencedFolder.mockResolvedValue(null)
+
+    expect(
+      await resolveProvisionedFolder(client, {
+        name: 'Meetings',
+        dirId: 'io.cozy.apps/meet',
+        dirName: '_Reunions',
+        autoCreateFolder: true
+      })
+    ).toBe('reunions-dir')
+    expect(filesCollection.createDirectoryByPath).not.toHaveBeenCalled()
   })
 
   it('accepts the root folder without looking it up', async () => {
@@ -549,6 +637,84 @@ describe('ensureProvisionedAssistants', () => {
 
     expect(result).toEqual({ created: [], ensured: ['reunions'], skipped: [] })
     expect(client.save).not.toHaveBeenCalled()
+  })
+
+  it('creates the assistant on the magic folder it creates with autoCreateFolder', async () => {
+    const { client } = makeClient()
+    models.folder.getReferencedFolder.mockResolvedValue(null)
+
+    const result = await ensureProvisionedAssistants(client, [
+      {
+        default: true,
+        name: 'Meetings',
+        dirId: 'io.cozy.apps/meet',
+        dirName: '_Reunions',
+        autoCreateFolder: true
+      }
+    ])
+
+    expect(result).toEqual({ created: ['meetings'], ensured: [], skipped: [] })
+    expect(client.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        _id: 'meetings',
+        relationships: expect.objectContaining({
+          knowledgeBase: {
+            data: [{ _id: 'created:/Meetings', _type: 'io.cozy.files' }]
+          }
+        })
+      })
+    )
+  })
+
+  it('creates no folder for an assistant that keeps its own', async () => {
+    const { client, filesCollection } = makeClient({
+      assistants: {
+        docs: {
+          _id: 'docs',
+          _type: 'io.cozy.ai.chat.assistants',
+          knowledgeBase: [{ doctype: 'io.cozy.files', dirId: 'dir-1' }]
+        }
+      },
+      // The user moved /Docs: the assistant follows it by id.
+      files: { 'dir-1': { _id: 'dir-1', type: 'directory', path: '/A/Docs' } }
+    })
+
+    await ensureProvisionedAssistants(client, [
+      { name: 'Docs', dirName: 'Docs', autoCreateFolder: true }
+    ])
+
+    expect(filesCollection.createDirectoryByPath).not.toHaveBeenCalled()
+    expect(client.save).not.toHaveBeenCalled()
+  })
+
+  it('creates the folder it re-attaches to an assistant on the root', async () => {
+    const { client } = makeClient({
+      assistants: {
+        docs: {
+          _id: 'docs',
+          _type: 'io.cozy.ai.chat.assistants',
+          knowledgeBase: [
+            { doctype: 'io.cozy.files', dirId: 'io.cozy.files.root-dir' }
+          ]
+        }
+      }
+    })
+
+    const result = await ensureProvisionedAssistants(client, [
+      { name: 'Docs', dirName: 'Docs', autoCreateFolder: true }
+    ])
+
+    expect(result).toEqual({ created: [], ensured: ['docs'], skipped: [] })
+    expect(client.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        _id: 'docs',
+        relationships: {
+          knowledgeBase: {
+            data: [{ _id: 'created:/Docs', _type: 'io.cozy.files' }]
+          }
+        }
+      })
+    )
   })
 
   it('creates nothing when neither dirId nor dirName exists', async () => {
