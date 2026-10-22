@@ -129,7 +129,10 @@ describe('resolveProvisionedFolder', () => {
 
   it('resolves a magic folder through getReferencedFolder', async () => {
     const { client } = makeClient()
-    models.folder.getReferencedFolder.mockResolvedValue({ _id: 'meet-dir' })
+    models.folder.getReferencedFolder.mockResolvedValue({
+      _id: 'meet-dir',
+      type: 'directory'
+    })
 
     expect(
       await resolveProvisionedFolder(client, { dirId: 'io.cozy.apps/meet' })
@@ -143,6 +146,19 @@ describe('resolveProvisionedFolder', () => {
   it('returns null when the magic folder does not exist yet', async () => {
     const { client } = makeClient()
     models.folder.getReferencedFolder.mockResolvedValue(null)
+    expect(
+      await resolveProvisionedFolder(client, { dirId: 'io.cozy.apps/meet' })
+    ).toBeNull()
+  })
+
+  it('treats a trashed magic folder as missing', async () => {
+    const { client } = makeClient()
+    models.folder.getReferencedFolder.mockResolvedValue({
+      _id: 'old-meet-dir',
+      type: 'directory',
+      path: '/.cozy_trash/Meetings'
+    })
+
     expect(
       await resolveProvisionedFolder(client, { dirId: 'io.cozy.apps/meet' })
     ).toBeNull()
@@ -181,7 +197,10 @@ describe('resolveProvisionedFolder', () => {
     const { client, filesCollection } = makeClient({
       paths: { '/_Reunions': { _id: 'reunions-dir', type: 'directory' } }
     })
-    models.folder.getReferencedFolder.mockResolvedValue({ _id: 'meet-dir' })
+    models.folder.getReferencedFolder.mockResolvedValue({
+      _id: 'meet-dir',
+      type: 'directory'
+    })
 
     expect(
       await resolveProvisionedFolder(client, {
@@ -519,7 +538,10 @@ describe('ensureProvisionedAssistants', () => {
       files: { 'reunions-dir': { _id: 'reunions-dir', type: 'directory' } }
     })
     // Meet adopted /_Reunions as its magic folder.
-    models.folder.getReferencedFolder.mockResolvedValue({ _id: 'reunions-dir' })
+    models.folder.getReferencedFolder.mockResolvedValue({
+      _id: 'reunions-dir',
+      type: 'directory'
+    })
 
     const result = await ensureProvisionedAssistants(client, [
       { name: 'Réunions', dirId: 'io.cozy.apps/meet', dirName: '_Reunions' }

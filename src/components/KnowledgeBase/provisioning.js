@@ -87,8 +87,10 @@ const resolveFolderById = async (client, dirId) => {
       _type: APPS_DOCTYPE,
       _id: dirId
     })
-    if (!folder) warn(`magic folder ${dirId} has no directory yet`)
-    return folder ? folder._id : null
+    // The references listed by the stack include the trashed folders.
+    if (isLiveDirectory(folder)) return folder._id
+    warn(`magic folder ${dirId} has no live directory`)
+    return null
   }
   return statLiveDirectory(
     () => client.collection(FILES_DOCTYPE).statById(dirId),
