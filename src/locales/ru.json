@@ -147,6 +147,7 @@
     },
     "default_error": "Произошла ошибка, попробуйте снова",
     "disclaimer": "Twake AI может ошибаться. Проверяйте важную информацию.",
+    "disclaimer_short": "Twake AI может ошибаться.",
     "hide": "Скрыть",
     "show": "Показать",
     "search_conversation": {

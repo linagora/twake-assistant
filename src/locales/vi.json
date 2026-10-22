@@ -155,6 +155,7 @@
     },
     "default_error": "Đã xảy ra lỗi, vui lòng thử lại",
     "disclaimer": "Twake AI có thể mắc lỗi. Hãy kiểm tra lại các thông tin quan trọng.",
+    "disclaimer_short": "Twake AI có thể mắc lỗi.",
     "hide": "Ẩn",
     "show": "Hiện",
     "message": {
