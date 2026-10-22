@@ -24,9 +24,9 @@ export const getErrorKind = message =>
   message.metadata?.custom?.error?.kind ?? 'generic'
 const getReasoning = message => getPartText(message, 'reasoning')
 
-function ThinkingDots() {
+function ThinkingDots(props) {
   return (
-    <div className={styles['thinking-dots']}>
+    <div {...props} className={styles['thinking-dots']}>
       <span className={styles['thinking-dot']} />
       <span className={styles['thinking-dot']} />
       <span className={styles['thinking-dot']} />
@@ -116,14 +116,15 @@ function AnswerReasoning({ reasoning, isRunning }) {
  * @param {import('react').ReactNode} [props.content] - what the view shows
  * of the text, in place of its Markdown
  * @param {string} [props.waitingLabel] - what the view says it does until
- * the answer comes
+ * the answer comes, as text: without it, three dots named for screen
+ * readers only
  * @param {import('react').ReactNode} [props.waitingIndicator] - what the
- * view shows beside it
+ * view shows beside its waiting label
  */
 export function Answer({
   isCallShown = false,
   content = null,
-  waitingLabel,
+  waitingLabel = null,
   waitingIndicator = <ThinkingDots />,
   children,
   ...props
@@ -154,12 +155,13 @@ export function Answer({
       {...props}
       className={`u-mt-1-half ${styles['answer']}`}
     >
-      {isWaiting && !hasReasoning && (
-        <AnswerWaiting
-          label={waitingLabel ?? t('chat.thinking')}
-          indicator={waitingIndicator}
-        />
-      )}
+      {isWaiting &&
+        !hasReasoning &&
+        (waitingLabel ? (
+          <AnswerWaiting label={waitingLabel} indicator={waitingIndicator} />
+        ) : (
+          <ThinkingDots role="status" aria-label={t('chat.thinking')} />
+        ))}
       {hasReasoning && (
         <AnswerReasoning reasoning={reasoning} isRunning={isWaiting} />
       )}
