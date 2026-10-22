@@ -200,7 +200,9 @@ describe('getDescriptionOfConversation', () => {
         { role: 'assistant', content: '' }
       ]
     }
-    expect(getDescriptionOfConversation(convo, t)).toBe('chat.empty')
+    expect(getDescriptionOfConversation(convo, t)).toBe(
+      'chat.errors.empty_response'
+    )
   })
 
   it('does not apply the fallback to an answer of Markdown only', () => {

@@ -4,6 +4,7 @@ import unified from 'unified'
 
 import Minilog from 'cozy-minilog'
 
+import { ChatEventError, classifyChatError } from '@/lib/chatErrors'
 import { ChatEventStream } from '@/lib/chatEvents'
 import { stopAnswerOnAbort } from '@/lib/stopAnswer'
 
@@ -290,7 +291,7 @@ export function makeChatAdapter({
           getMessageId(response),
           abortSignal
         )) {
-          if (event.object === 'error') throw new Error(event.message)
+          if (event.object === 'error') throw new ChatEventError(event.message)
           if (event.object === 'sources') sources = event.content
           if (event.object === 'action') action = event.action ?? null
           if (event.object === 'reasoning') {
@@ -328,6 +329,7 @@ export function makeChatAdapter({
             custom: {
               ...notice,
               isError: true,
+              error: classifyChatError(error),
               ...(error.message === ASSISTANT_NOT_FOUND && {
                 isAssistantGone: true
               })

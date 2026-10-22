@@ -13,7 +13,7 @@ import Markdown from 'cozy-ui/transpiled/react/Markdown'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
-import { Answer, getText } from '@/components/Messages/Answer'
+import { Answer, getErrorKind, getText } from '@/components/Messages/Answer'
 import { ScribeBlockCard } from '@/components/Scribe/ScribeBlockCard'
 import { ScribeCapabilityCard } from '@/components/Scribe/ScribeCapabilityCard'
 import { ScribeCopyButton } from '@/components/Scribe/ScribeCopyButton'
@@ -21,6 +21,7 @@ import { useScribe } from '@/components/Scribe/ScribeProvider'
 import styles from '@/components/Scribe/styles.styl'
 import { useDone } from '@/components/Scribe/useDone'
 import { useIsInLatestExchange } from '@/components/Scribe/useLatestExchange'
+import { RETRYABLE_KINDS } from '@/lib/chatErrors'
 import { hasInsertBlocks, splitAnswerBlocks } from '@/lib/scribeBlocks'
 
 function AnswerActionButton({ action, text }) {
@@ -117,6 +118,7 @@ export function ScribeAnswer() {
   const isError = useMessage(
     message => message.metadata?.custom?.isError === true
   )
+  const errorKind = useMessage(getErrorKind)
   // Asking again fails again: the agent of the conversation is gone
   const isAssistantGone = useMessage(
     message => message.metadata?.custom?.isAssistantGone === true
@@ -130,7 +132,10 @@ export function ScribeAnswer() {
   // again would hide what follows it, and a past request has lost its prompt
   const isLast = useMessage(message => message.isLast)
   const canRetry =
-    ((isError && !isAssistantGone) || hasNoAnswer) && isLast && !isPast
+    ((isError && !isAssistantGone && RETRYABLE_KINDS.includes(errorKind)) ||
+      hasNoAnswer) &&
+    isLast &&
+    !isPast
   const threadRuntime = useThreadRuntime()
   const messageRuntime = useMessageRuntime()
   const handleRetry = () => {

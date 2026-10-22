@@ -15,7 +15,7 @@ export const makeConversationId = () =>
 export const formatAnswer = (message, t) => {
   const content = message.content ?? ''
   return message.role === 'assistant' && !removeSourceMarks(content).trim()
-    ? t('chat.empty')
+    ? t('chat.errors.empty_response')
     : toPlainText(content)
 }
 

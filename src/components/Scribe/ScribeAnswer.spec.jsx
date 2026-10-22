@@ -321,7 +321,9 @@ describe('ScribeAnswer', () => {
   it('tells when the answer failed, with what came, and lets the user try again', () => {
     renderAnswer(answer('Bonj', 'incomplete', { isError: true }), actions)
 
-    expect(screen.queryByRole('alert')).toHaveTextContent('An error occurred')
+    expect(screen.queryByRole('alert')).toHaveTextContent(
+      'Something went wrong. Please try again later.'
+    )
     expect(screen.queryByText('Bonj')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Insert' })).toBe(null)
     expect(
@@ -335,6 +337,30 @@ describe('ScribeAnswer', () => {
       actions
     )
 
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
+  })
+
+  it('offers to try again a server error only', () => {
+    const failed = kind =>
+      answer('', 'incomplete', { isError: true, error: { kind } })
+
+    const { unmount } = renderAnswer(failed('server'), actions)
+    expect(
+      screen.queryByRole('button', { name: 'Try again' })
+    ).toBeInTheDocument()
+    unmount()
+
+    const auth = renderAnswer(failed('auth'), actions)
+    expect(screen.queryByRole('alert')).toHaveTextContent(
+      'Authorization error. Please check your Cozy permissions.'
+    )
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
+    auth.unmount()
+
+    renderAnswer(failed('context_too_large'), actions)
+    expect(screen.queryByRole('alert')).toHaveTextContent(
+      'The included context is too large for the AI'
+    )
     expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
   })
 
@@ -359,7 +385,9 @@ describe('ScribeAnswer', () => {
   it('tells when the answer is empty, and lets the user try again', () => {
     renderAnswer(answer('', 'complete', { isEmpty: true }), actions)
 
-    expect(screen.queryByText(/could not find an answer/)).toBeInTheDocument()
+    expect(
+      screen.queryByText(en.chat.errors.empty_response)
+    ).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Insert' })).toBe(null)
     expect(
       screen.queryByRole('button', { name: 'Try again' })
@@ -404,7 +432,9 @@ describe('ScribeAnswer', () => {
       answer('', 'complete', { isEmpty: true, isPast: true }),
       actions
     )
-    expect(screen.queryByText(/could not find an answer/)).toBeInTheDocument()
+    expect(
+      screen.queryByText(en.chat.errors.empty_response)
+    ).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
   })
 
@@ -418,7 +448,7 @@ describe('ScribeAnswer', () => {
       expect(screen.getByTestId('capability').textContent).toBe(
         'a1 insert_slide Risks '
       )
-      expect(screen.queryByText(en.chat.empty)).toBe(null)
+      expect(screen.queryByText(en.chat.errors.empty_response)).toBe(null)
       expect(screen.queryByRole('button')).toBe(null)
     })
 
@@ -447,7 +477,9 @@ describe('ScribeAnswer', () => {
       renderAnswer(answer('', 'complete', { action }), [], [])
 
       expect(screen.queryByTestId('capability')).toBe(null)
-      expect(screen.queryByText(en.chat.empty)).toBeInTheDocument()
+      expect(
+        screen.queryByText(en.chat.errors.empty_response)
+      ).toBeInTheDocument()
       expect(screen.queryByRole('button')).toBe(null)
     })
   })
