@@ -413,7 +413,7 @@ Default labels:
 | `replace` | `Replace` |
 | any other name | the name itself |
 
-The default labels exist in English, French, Russian and Vietnamese, like the rest of the interface of the assistant.
+The default labels exist in English, French, German, Spanish, Italian, Russian and Vietnamese, like the rest of the interface of the assistant.
 
 ## Modes
 
