@@ -33,7 +33,7 @@ describe('copyAnswer', () => {
     const write = jest.fn().mockResolvedValue()
     defineClipboard({ write, writeText: jest.fn() })
 
-    await copyAnswer('a **b**')
+    await expect(copyAnswer('a **b**')).resolves.toBe(true)
 
     expect(write).toHaveBeenCalledTimes(1)
     const [[item]] = write.mock.calls[0]
@@ -74,7 +74,7 @@ describe('copyAnswer', () => {
     delete global.ClipboardItem
     defineClipboard({ write, writeText })
 
-    await copyAnswer('a **b**')
+    await expect(copyAnswer('a **b**')).resolves.toBe(true)
 
     expect(write).not.toHaveBeenCalled()
     expect(writeText).toHaveBeenCalledWith('a **b**')
@@ -84,18 +84,25 @@ describe('copyAnswer', () => {
     const writeText = jest.fn().mockResolvedValue()
     defineClipboard({ writeText })
 
-    await copyAnswer('a **b**')
+    await expect(copyAnswer('a **b**')).resolves.toBe(true)
 
     expect(writeText).toHaveBeenCalledWith('a **b**')
   })
 
-  it('does nothing without a way to write', async () => {
+  it('writes nothing, and tells it, without a way to write', async () => {
     defineClipboard({})
 
-    await expect(copyAnswer('a **b**')).resolves.toBeUndefined()
+    await expect(copyAnswer('a **b**')).resolves.toBe(false)
   })
 
-  it('does nothing without a clipboard', async () => {
-    await expect(copyAnswer('a **b**')).resolves.toBeUndefined()
+  it('writes nothing, and tells it, without a clipboard', async () => {
+    await expect(copyAnswer('a **b**')).resolves.toBe(false)
+  })
+
+  it('lets a refused write reject', async () => {
+    const error = new Error('NotAllowedError')
+    defineClipboard({ write: jest.fn().mockRejectedValue(error) })
+
+    await expect(copyAnswer('a **b**')).rejects.toBe(error)
   })
 })

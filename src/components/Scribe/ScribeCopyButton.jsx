@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { Check, Copy, Icon } from '@linagora/twake-icons'
+import Minilog from 'cozy-minilog'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
 import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
 import { useI18n } from 'twake-i18n'
@@ -8,6 +9,8 @@ import { useI18n } from 'twake-i18n'
 import styles from '@/components/Scribe/styles.styl'
 import { useDone } from '@/components/Scribe/useDone'
 import { copyAnswer } from '@/lib/clipboard'
+
+const log = Minilog('🤖 [ScribeCopyButton]')
 
 const ICON_SIZE = 16
 
@@ -24,10 +27,9 @@ export function ScribeCopyButton({ text }) {
 
   const handleClick = async () => {
     try {
-      await copyAnswer(text)
-      markCopied()
-    } catch {
-      // A refused write, as in a frame without the permission, shows no check
+      if (await copyAnswer(text)) markCopied()
+    } catch (error) {
+      log.error('The answer could not be copied', error)
     }
   }
 

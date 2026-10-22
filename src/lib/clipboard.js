@@ -12,20 +12,25 @@ function toHtml(markdown) {
  * the clipboard may be missing (plain HTTP) or limited to text (old browsers)
  *
  * @param {string} text
- * @returns {Promise<void>}
+ * @returns {Promise<boolean>} whether there was a clipboard to write to
  */
 export async function copyAnswer(text) {
   const clipboard = navigator.clipboard
-  if (!clipboard) return
 
-  if (typeof ClipboardItem !== 'undefined' && clipboard.write) {
+  if (typeof ClipboardItem !== 'undefined' && clipboard?.write) {
     await clipboard.write([
       new ClipboardItem({
         'text/html': new Blob([toHtml(text)], { type: 'text/html' }),
         'text/plain': new Blob([text], { type: 'text/plain' })
       })
     ])
-  } else {
-    await clipboard.writeText?.(text)
+    return true
   }
+
+  if (clipboard?.writeText) {
+    await clipboard.writeText(text)
+    return true
+  }
+
+  return false
 }
