@@ -168,6 +168,30 @@ export function makeScribeSuggestions(t, config = null, capabilities = []) {
   )
 }
 
+/**
+ * The welcome and the placeholder of the scribe. Without a text, they say
+ * where the answers come from.
+ */
+export function getScribeWording(t, { hasText, hasDocuments }) {
+  if (hasText) {
+    return {
+      welcome: t('scribe.welcome'),
+      placeholder: t('scribe.placeholder')
+    }
+  }
+  if (!hasDocuments) {
+    return {
+      welcome: t('scribe.welcome_llm'),
+      placeholder: t('scribe.placeholder_llm')
+    }
+  }
+  const folder = t('assistant.twake_knowledges.drive')
+  return {
+    welcome: t('scribe.welcome_documents', { folder }),
+    placeholder: t('scribe.placeholder_documents', { folder })
+  }
+}
+
 function findRequestsFor(suggestions, name) {
   return (suggestions ?? []).flatMap(suggestion => {
     if (suggestion.options) return findRequestsFor(suggestion.options, name)

@@ -24,7 +24,7 @@ import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
 import styles from '@/components/Scribe/styles.styl'
 import { makeConversationId } from '@/components/helpers'
 import { DOCTYPE_AI_CHAT_CONVERSATIONS } from '@/doctypes'
-import { makeChatMessages } from '@/lib/scribe'
+import { getScribeWording, makeChatMessages } from '@/lib/scribe'
 
 const MESSAGE_COMPONENTS = {
   UserMessage: ScribeRequest,
@@ -61,9 +61,12 @@ function ScribeConversation({ isHidden, hasText }) {
     state => state.messages.filter(message => message.role === 'user').length
   )
   // The prompts are about the text: offered again when the app gives another
-  const { textStart } = useScribe()
+  const { textStart, hasDocuments } = useScribe()
   const hasNewText = requestCount === textStart
-  const folder = t('assistant.twake_knowledges.drive')
+  const { welcome, placeholder } = getScribeWording(t, {
+    hasText,
+    hasDocuments
+  })
 
   return (
     <ThreadPrimitive.Root
@@ -82,9 +85,7 @@ function ScribeConversation({ isHidden, hasText }) {
               color="textSecondary"
               className="u-ta-center u-mt-1-half u-mb-1 u-o-70"
             >
-              {hasText
-                ? t('scribe.welcome')
-                : t('scribe.welcome_documents', { folder })}
+              {welcome}
             </Typography>
             <ScribeSuggestions />
           </div>
@@ -93,13 +94,7 @@ function ScribeConversation({ isHidden, hasText }) {
       </ThreadPrimitive.Viewport>
       <div className={styles['scribe-footer']}>
         {!isEmpty && hasNewText && <ScribeSuggestions />}
-        <ScribeComposer
-          placeholder={
-            hasText
-              ? t('scribe.placeholder')
-              : t('scribe.placeholder_documents', { folder })
-          }
-        />
+        <ScribeComposer placeholder={placeholder} />
         <Typography
           variant="overline"
           color="textSecondary"
