@@ -94,6 +94,7 @@ interface AssistantIntentConfig {
    * then the latest exchange only. A compact scribe sends its height in
    * `resize` messages, and Escape in its composer closes it (`cancel`).
    * Any other value means 'panel'.
+   * Read at the opening only.
    */
   layout?: 'panel' | 'compact'
 
@@ -496,7 +497,7 @@ I kept the time you gave.
 
 ### Another text while the assistant is open
 
-The calling app sends new data to the open assistant, with another `content`, when the user selects another text: `sendData(data)` on the started intent of `cozy-interapp`, or new `data` given to `IntentIframe`. They travel in a `data` message (see [Protocol](#protocol)), and replace the whole configuration: send the `answerActions`, `documentAvailable` and the `theme` again with the new `content`. The theme does not change while the assistant is open. The assistant keeps its conversation:
+The calling app sends new data to the open assistant, with another `content`, when the user selects another text: `sendData(data)` on the started intent of `cozy-interapp`, or new `data` given to `IntentIframe`. They travel in a `data` message (see [Protocol](#protocol)), and replace the whole configuration: send the `answerActions`, `documentAvailable` and the `theme` again with the new `content`. The theme and the layout do not change while the assistant is open. The assistant keeps its conversation:
 
 - the next message, typed or from a prompt, gets the new text joined to it, and the messages after it are sent as they are;
 - the prompts are offered again above the composer until that message;
