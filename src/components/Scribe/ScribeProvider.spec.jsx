@@ -279,6 +279,21 @@ describe('ScribeProvider', () => {
     )
   })
 
+  it('sends the selection with the next request once it is checked again', async () => {
+    const scribe = setup({ prepareQuery: scribePrepareQuery, text: 'Bonjour' })
+    answerAtOnce(scribe)
+    act(() => scribe.getScribe().setHasSelection(false))
+
+    await run([userMessage('Fix it')])
+    act(() => scribe.getScribe().setHasSelection(true))
+    mockMessages = [userMessage('Fix it'), { role: 'assistant' }]
+    await run([...mockMessages, userMessage('Shorter')])
+
+    expect(
+      scribe.client.stackClient.fetchJSON.mock.calls.map(call => call[2].q)
+    ).toEqual(['Fix it', 'Shorter\n\nText:\n"""\nBonjour\n"""'])
+  })
+
   it('sends a chip without the document even when it is included', async () => {
     const requestDocument = jest.fn(async () => ({
       document: 'The whole note',

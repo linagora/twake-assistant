@@ -86,6 +86,14 @@ function getDocumentNotice(doc) {
   return doc.isTruncated ? 'truncated' : null
 }
 
+function waitForAbort(abortSignal) {
+  return new Promise(resolve => {
+    if (!abortSignal) return
+    if (abortSignal.aborted) resolve()
+    else abortSignal.addEventListener('abort', resolve, { once: true })
+  })
+}
+
 /**
  * Gathers the pieces of an answer, which the realtime may give out of order
  */
@@ -158,6 +166,9 @@ function makeAnswer() {
  * @param {(index: number) => number} [options.getTextIndex] - the index,
  * among the messages of the user, of the first one about the text of the
  * app, given the index of the message sent
+ * @param {(index: number) => void} [options.releaseText] - called when the
+ * message of this index does not send the text of the app: the next one
+ * does
  * @param {() => string} [options.getConversationId] - the conversation the
  * message is posted to, read when it is sent
  * @returns {import('@assistant-ui/react').ChatModelAdapter}
@@ -168,6 +179,7 @@ export function makeChatAdapter({
   events,
   getRequest,
   getTextIndex = () => 0,
+  releaseText = () => {},
   getConversationId = () => conversationId
 }) {
   return {
@@ -196,12 +208,20 @@ export function makeChatAdapter({
       // and instructions, about the text of the app only
       const custom = runConfig?.custom ?? {}
       const prompt = custom.prompt ? preparePrompt?.(custom.prompt) : null
+      if (!custom.prompt && hasSelection === false) releaseText(index)
       const isDocumentIncluded = hasDocument && !custom.prompt
       let doc = null
       if (isDocumentIncluded) {
-        doc = (await requestDocument?.()) ?? null
-        // The user stopped the request while the app gave its document
-        if (abortSignal?.aborted) return
+        // The app may take seconds to answer, or never: Stop does not wait
+        doc =
+          (await Promise.race([
+            requestDocument?.(),
+            waitForAbort(abortSignal)
+          ])) ?? null
+        if (abortSignal?.aborted) {
+          releaseText(index)
+          return
+        }
       }
       const query =
         prompt?.q ??
@@ -354,6 +374,9 @@ export function makeChat({
   // next one after the app gives another text. A message sent again keeps
   // its index, and is still about the text.
   let firstOnText = textIndex
+  const releaseText = index => {
+    if (firstOnText === index) firstOnText = null
+  }
 
   return {
     events,
@@ -371,12 +394,13 @@ export function makeChat({
         // message, and with the next one of the conversation if this one
         // was to bring it
         if (request.hasConversation === false) {
-          if (firstOnText === index) firstOnText = null
+          releaseText(index)
           return index
         }
         if (firstOnText === null) firstOnText = index
         return firstOnText
-      }
+      },
+      releaseText
     }),
     setRequest: nextRequest => {
       request = { ...DEFAULT_REQUEST, ...nextRequest }
