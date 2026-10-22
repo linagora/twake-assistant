@@ -10,6 +10,7 @@ import {
 import { removeSourceMarks, toPlainText } from '@/lib/chat'
 import { findExampleError } from '@/lib/chatActions'
 import { DEFAULT_MENU_SUGGESTION } from '@/lib/intent'
+import { removeInsertFences } from '@/lib/scribeBlocks'
 import catalogue from '@/lib/scribePrompts.json'
 
 // The prompts of the scribe are the ones of the catalogue of linagora/ai-prompts
@@ -365,7 +366,8 @@ export function getScribeConversationDescription(conversation) {
   const answer = conversation.messages?.findLast(
     message => message.role === 'assistant'
   )
-  return toPlainText(answer?.content ?? '')
+  // The text of an insert block is Markdown, not code: its syntax goes too
+  return toPlainText(removeInsertFences(answer?.content ?? ''))
 }
 
 /**

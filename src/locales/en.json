@@ -20,7 +20,7 @@
     "documents": "Use %{folder} files",
     "retry": "Try again",
     "panel": "Scribe panel",
-    "instructions": "You help the user work on a text in their editor. First look at what they ask.\nIf they ask a question about the text or want your opinion, answer normally, in a few sentences, without rewriting the text.\nIf they ask to write or change a text, your answer will be put in their document as it is: answer with that text only, in the language of the text, in a single version, with no introduction, no comment about your answer, no separator line, no emoji and nothing to fill in between brackets. Keep the form of the text, unless asked to change it, and do not make up information.",
+    "instructions": "You help the user work on a text in their editor. First look at what they ask.\nIf they ask a question about the text or want your opinion, answer normally, in a few sentences, without rewriting the text, and use no block.\nIf they ask to write or change a text, put each text meant to go into their document in a fenced block whose info string is `insert`, and write anything else, as a comment, outside of the blocks: the blocks are put in the document as they are. Write that text in the language of the text, in a single version, with no introduction inside the block, no separator line, no emoji and nothing to fill in between brackets. Keep the form of the text, unless asked to change it, and do not make up information.",
     "content": "Text:",
     "actions": {
       "copy": "Copy",

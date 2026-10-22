@@ -48,6 +48,8 @@ function sendAsItIs(text) {
  * a prompt of the catalogue, for a message sent by a suggestion
  * @param {string} [props.instructions] - how to answer, sent to the LLM as a
  * system message with each message
+ * @param {string} [props.rules] - the rules of the app, joined to the
+ * system message of each message, a prompt of the catalogue included
  * @param {string} [props.text] - the text of the app the requests are about.
  * When the app gives another one, the next request is about it.
  * @param {import('@assistant-ui/react').ThreadMessageLike[]} [props.messages] -
@@ -64,6 +66,7 @@ export function ScribeProvider({
   prepareQuery = sendAsItIs,
   preparePrompt = null,
   instructions = null,
+  rules = null,
   text = '',
   messages = NO_MESSAGES,
   layout = 'panel',
@@ -91,9 +94,17 @@ export function ScribeProvider({
       preparePrompt,
       hasDocuments,
       instructions,
+      rules,
       actions: capabilities.map(capability => capability.action)
     }),
-    [prepareQuery, preparePrompt, hasDocuments, instructions, capabilities]
+    [
+      prepareQuery,
+      preparePrompt,
+      hasDocuments,
+      instructions,
+      rules,
+      capabilities
+    ]
   )
   const { chat, runtime } = useChatRuntime({
     conversationId,

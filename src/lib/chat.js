@@ -117,6 +117,8 @@ function makeAnswer() {
  * documents of the user
  * @property {string|null} instructions - how to answer, sent to the LLM as a
  * system message
+ * @property {string|null} [rules] - the rules of the app, joined to the
+ * system message of every request, a prompt of the catalogue included
  * @property {(name: string) => { q: string, instructions: string|null }|null} [preparePrompt] -
  * the query and the instructions of a prompt of the catalogue, for a message
  * sent by a suggestion
@@ -160,6 +162,7 @@ export function makeChatAdapter({
         preparePrompt,
         hasDocuments,
         instructions,
+        rules,
         actions,
         assistantId,
         websearch
@@ -172,9 +175,12 @@ export function makeChatAdapter({
       const custom = runConfig?.custom ?? {}
       const prompt = custom.prompt ? preparePrompt?.(custom.prompt) : null
       const query = prompt?.q ?? prepareQuery(text, { isFirstOnText })
-      const system = prompt
-        ? prompt.instructions
-        : (custom.instructions ?? instructions)
+      const system = [
+        prompt ? prompt.instructions : (custom.instructions ?? instructions),
+        rules
+      ]
+        .filter(Boolean)
+        .join('\n\n')
       const answer = makeAnswer()
       const reasoning = makeAnswer()
       const getContent = ({ isWhole = false } = {}) => {
@@ -259,6 +265,7 @@ const DEFAULT_REQUEST = {
   prepareQuery: text => text,
   hasDocuments: false,
   instructions: null,
+  rules: null,
   actions: []
 }
 

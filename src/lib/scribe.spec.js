@@ -349,6 +349,22 @@ describe('getScribeConversationDescription', () => {
       'Summary Bonjour'
     )
   })
+
+  it('describes a conversation without the fences', () => {
+    const conversation = {
+      messages: [
+        { role: 'user', content: 'Write a greeting' },
+        {
+          role: 'assistant',
+          content: 'Here:\n\n```insert\n**Bonjour** à _tous_\n```\n\nShort.'
+        }
+      ]
+    }
+
+    expect(getScribeConversationDescription(conversation)).toBe(
+      'Here: Bonjour à tous Short.'
+    )
+  })
 })
 
 describe('makeScribeAnswerActions', () => {

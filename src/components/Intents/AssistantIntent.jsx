@@ -42,7 +42,8 @@ function Scribe({ service, config }) {
     documents,
     layout,
     draft,
-    conversation
+    conversation,
+    rules
   } = config
 
   // The assistant is rendered: an app that waits for it can show the intent
@@ -107,6 +108,7 @@ function Scribe({ service, config }) {
       documents={documents ?? content === ''}
       text={content}
       {...textProps}
+      rules={rules}
       layout={layout}
       draft={draft}
       conversation={conversation}

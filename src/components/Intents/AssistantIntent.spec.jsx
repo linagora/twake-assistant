@@ -148,6 +148,14 @@ describe('AssistantIntent', () => {
     expect(answerActions).toEqual([])
   })
 
+  it('hands the rules of the app to the scribe', async () => {
+    mockService.getData.mockReturnValue({ rules: 'Never write the price.' })
+    renderIntent()
+
+    const { rules } = await findScribeProps()
+    expect(rules).toBe('Never write the price.')
+  })
+
   it('works on the new text the app gives while it is open', async () => {
     mockService.getData.mockReturnValue({
       content: 'Bonjour',

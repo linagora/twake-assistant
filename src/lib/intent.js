@@ -138,7 +138,8 @@ function readSuggestion(suggestion) {
  *   layout: 'panel'|'compact',
  *   draft: string|null,
  *   conversation: string|null,
- *   source: string|null
+ *   source: string|null,
+ *   rules: string|null
  * }} `suggestions` is null when the app leaves the scribe its default menu
  */
 export function getIntentConfig(data) {
@@ -152,7 +153,8 @@ export function getIntentConfig(data) {
     layout,
     draft,
     conversation,
-    source
+    source,
+    rules
   } = data ?? {}
 
   return {
@@ -174,6 +176,7 @@ export function getIntentConfig(data) {
     layout: layout === 'compact' ? 'compact' : 'panel',
     draft: readText(draft),
     conversation: readText(conversation),
-    source: readText(source)
+    source: readText(source),
+    rules: readText(rules)
   }
 }
