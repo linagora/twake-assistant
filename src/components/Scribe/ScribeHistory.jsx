@@ -10,6 +10,7 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
 import { remove } from '@/actions/delete'
+import { rename } from '@/actions/rename'
 import ConversationActions from '@/components/Conversations/ConversationActions'
 import listStyles from '@/components/Conversations/styles.styl'
 import styles from '@/components/Scribe/styles.styl'
@@ -21,7 +22,7 @@ import { getScribeConversationDescription } from '@/lib/scribe'
 import { buildConversationsQuery } from '@/queries'
 
 const conversationsQuery = buildConversationsQuery()
-const historyActions = [remove]
+const historyActions = [rename, remove]
 
 function HistoryItem({ conversation, isSelected, onOpen, onDelete }) {
   const { t, lang } = useI18n()
@@ -129,7 +130,7 @@ function HistoryContent({ conversationId, labelId, onOpen, onDelete }) {
 
 /**
  * The past conversations, the last one first: a click opens one in the
- * scribe, its menu deletes it
+ * scribe, its menu renames or deletes it
  */
 export function ScribeHistory(props) {
   const { t } = useI18n()
