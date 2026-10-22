@@ -2,6 +2,7 @@ import { Text } from '@linagora/twake-icons'
 import { initTranslation } from 'twake-i18n'
 
 import {
+  getRunningLabel,
   getScribeConversationDescription,
   getScribeRequest,
   getScribeWording,
@@ -35,6 +36,7 @@ describe('makeScribeSuggestions', () => {
       label: 'Summary',
       icon: Text,
       request: 'Summarize the text.',
+      running: 'Summarizing…',
       prompt: 'summarize'
     })
     expect(suggestions[3].options.map(option => option.prompt)).toEqual([
@@ -80,6 +82,7 @@ describe('makeScribeSuggestions', () => {
     prompts.forEach(suggestion => {
       expect(names).toContain(suggestion.prompt)
       expect(suggestion.request).not.toMatch(/^scribe\./)
+      expect(suggestion.running).not.toMatch(/^scribe\./)
     })
   })
 })
@@ -181,6 +184,22 @@ describe('makeScribeSuggestions with the suggestions of the app', () => {
 
   it('offers nothing when the app asks for nothing', () => {
     expect(makeScribeSuggestions(mockT, [])).toEqual([])
+  })
+})
+
+describe('getRunningLabel', () => {
+  it('gives the running label of a prompt', () => {
+    expect(getRunningLabel('translate-french', mockT)).toBe(
+      'Translating to French…'
+    )
+    expect(getRunningLabel('correct-grammar', mockT)).toBe(
+      'Correcting grammar…'
+    )
+  })
+
+  it('gives a generic label without a prompt', () => {
+    expect(getRunningLabel(null, mockT)).toBe('Processing…')
+    expect(getRunningLabel('unknown-prompt', mockT)).toBe('Processing…')
   })
 })
 

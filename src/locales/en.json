@@ -19,6 +19,7 @@
     "placeholder_llm": "Ask anything to Twake AI",
     "documents": "Use %{folder} files",
     "retry": "Try again",
+    "processing": "Processing…",
     "panel": "Scribe panel",
     "include": {
       "title": "Include",
@@ -45,71 +46,86 @@
     "suggestions": {
       "summarize": {
         "label": "Summary",
-        "request": "Summarize the text."
+        "request": "Summarize the text.",
+        "running": "Summarizing…"
       },
       "correct": {
         "label": "Correct",
-        "request": "Correct the grammar and spelling of the text."
+        "request": "Correct the grammar and spelling of the text.",
+        "running": "Correcting grammar…"
       },
       "keypoints": {
         "label": "Key points",
-        "request": "List the key points of the text."
+        "request": "List the key points of the text.",
+        "running": "Listing the key points…"
       },
       "rewrite": {
         "label": "Rewrite",
         "shorter": {
           "label": "Shorter",
-          "request": "Make the text shorter."
+          "request": "Make the text shorter.",
+          "running": "Making it shorter…"
         },
         "longer": {
           "label": "Longer",
-          "request": "Make the text longer."
+          "request": "Make the text longer.",
+          "running": "Making it longer…"
         }
       },
       "tone": {
         "label": "Tone",
         "professional": {
           "label": "Professional",
-          "request": "Rewrite the text in a professional tone."
+          "request": "Rewrite the text in a professional tone.",
+          "running": "Making it more professional…"
         },
         "casual": {
           "label": "Casual",
-          "request": "Rewrite the text in a casual tone."
+          "request": "Rewrite the text in a casual tone.",
+          "running": "Making it more casual…"
         },
         "polite": {
           "label": "Polite",
-          "request": "Rewrite the text in a polite tone."
+          "request": "Rewrite the text in a polite tone.",
+          "running": "Making it more polite…"
         }
       },
       "translate": {
         "label": "Translate",
         "french": {
           "label": "French",
-          "request": "Translate the text into French."
+          "request": "Translate the text into French.",
+          "running": "Translating to French…"
         },
         "english": {
           "label": "English",
-          "request": "Translate the text into English."
+          "request": "Translate the text into English.",
+          "running": "Translating to English…"
         },
         "german": {
           "label": "German",
-          "request": "Translate the text into German."
+          "request": "Translate the text into German.",
+          "running": "Translating to German…"
         },
         "spanish": {
           "label": "Spanish",
-          "request": "Translate the text into Spanish."
+          "request": "Translate the text into Spanish.",
+          "running": "Translating to Spanish…"
         },
         "italian": {
           "label": "Italian",
-          "request": "Translate the text into Italian."
+          "request": "Translate the text into Italian.",
+          "running": "Translating to Italian…"
         },
         "russian": {
           "label": "Russian",
-          "request": "Translate the text into Russian."
+          "request": "Translate the text into Russian.",
+          "running": "Translating to Russian…"
         },
         "vietnamese": {
           "label": "Vietnamese",
-          "request": "Translate the text into Vietnamese."
+          "request": "Translate the text into Vietnamese.",
+          "running": "Translating to Vietnamese…"
         }
       }
     }

@@ -67,6 +67,10 @@ jest.mock('cozy-client', () => ({
 jest.mock('cozy-ui-plus/dist/providers/CozyTheme', () =>
   jest.fn(({ children }) => <div>{children}</div>)
 )
+jest.mock('lottie-react', () => ({
+  __esModule: true,
+  default: () => <div data-testid="scribe-loader" />
+}))
 
 // Not under a router nor providers: the intent has its own
 function renderIntent() {

@@ -17,11 +17,13 @@ import { Answer, getErrorKind, getText } from '@/components/Messages/Answer'
 import { ScribeBlockCard } from '@/components/Scribe/ScribeBlockCard'
 import { ScribeCapabilityCard } from '@/components/Scribe/ScribeCapabilityCard'
 import { ScribeCopyButton } from '@/components/Scribe/ScribeCopyButton'
+import { ScribeLoader } from '@/components/Scribe/ScribeLoader'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import styles from '@/components/Scribe/styles.styl'
 import { useDone } from '@/components/Scribe/useDone'
 import { useIsInLatestExchange } from '@/components/Scribe/useLatestExchange'
 import { RETRYABLE_KINDS } from '@/lib/chatErrors'
+import { getRunningLabel } from '@/lib/scribe'
 import { hasInsertBlocks, splitAnswerBlocks } from '@/lib/scribeBlocks'
 
 function AnswerActionButton({ action, text }) {
@@ -150,13 +152,13 @@ export function ScribeAnswer() {
   // A prompt of the catalogue brings its own instructions, which have no
   // insert blocks: a fence of its answer is not one
   const parentId = useMessage(message => message.parentId)
-  const isPromptAnswer = useThread(
+  const parentPrompt = useThread(
     state =>
-      !!state.messages.find(message => message.id === parentId)?.metadata
-        ?.custom?.prompt
+      state.messages.find(message => message.id === parentId)?.metadata?.custom
+        ?.prompt ?? null
   )
   const parts =
-    !isPromptAnswer && hasInsertBlocks(text) ? splitAnswerBlocks(text) : null
+    !parentPrompt && hasInsertBlocks(text) ? splitAnswerBlocks(text) : null
   // Only a whole answer, or a whole block, goes into the document of the app
   const isComplete = status === 'complete'
   const canAct = isComplete && text.trim() !== ''
@@ -168,6 +170,10 @@ export function ScribeAnswer() {
       <DocumentNotice notice={documentNotice} />
       <Answer
         isCallShown={!!capability}
+        waitingLabel={getRunningLabel(parentPrompt, t)}
+        waitingIndicator={
+          <ScribeLoader size={layout === 'compact' ? 40 : 20} />
+        }
         content={parts?.map((part, index) =>
           part.type === 'block' ? (
             <ScribeBlockCard key={index} text={part.text}>

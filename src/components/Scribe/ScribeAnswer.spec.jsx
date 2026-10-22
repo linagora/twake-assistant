@@ -47,6 +47,10 @@ jest.mock('cozy-minilog', () => {
   const log = { error: jest.fn() }
   return () => log
 })
+jest.mock('lottie-react', () => ({
+  __esModule: true,
+  default: () => <div data-testid="scribe-loader" />
+}))
 
 const answer = (text, status, custom = {}) => ({
   id: 'a1',
@@ -85,8 +89,25 @@ describe('ScribeAnswer', () => {
   it('waits for the answer', () => {
     renderAnswer(answer('', 'running'), actions)
 
-    expect(screen.queryByRole('status')).toBeInTheDocument()
+    expect(screen.queryByRole('status')).toHaveTextContent('Processing…')
     expect(screen.queryByRole('button')).toBe(null)
+  })
+
+  it('shows the running label of the prompt of the request while waiting', () => {
+    mockThread = {
+      messages: [
+        {
+          id: 'q1',
+          role: 'user',
+          metadata: { custom: { prompt: 'translate-french' } }
+        }
+      ]
+    }
+    renderAnswer({ ...answer('', 'running'), parentId: 'q1' }, actions)
+    const status = screen.getByRole('status')
+
+    expect(status).toHaveTextContent('Translating to French…')
+    expect(within(status).queryByTestId('scribe-loader')).toBeInTheDocument()
   })
 
   it('shows the answer as it comes, without the actions yet', () => {
