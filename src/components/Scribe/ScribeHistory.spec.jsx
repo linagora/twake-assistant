@@ -23,6 +23,10 @@ jest.mock('cozy-client', () => ({
   ...jest.requireActual('cozy-client'),
   RealTimeQueries: () => null
 }))
+jest.mock('lottie-react', () => ({
+  __esModule: true,
+  default: () => <div data-testid="scribe-loader" />
+}))
 jest.mock('@/components/Scribe/ScribeProvider', () => ({
   ScribeProvider: ({ conversationId }) => (
     <p data-testid="conversation">{conversationId}</p>

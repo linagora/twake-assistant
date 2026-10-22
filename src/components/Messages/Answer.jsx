@@ -25,17 +25,27 @@ export const getErrorKind = message =>
 const getReasoning = message => getPartText(message, 'reasoning')
 
 function ThinkingDots() {
-  const { t } = useI18n()
-
   return (
-    <div
-      role="status"
-      aria-label={t('chat.thinking')}
-      className={styles['thinking-dots']}
-    >
+    <div className={styles['thinking-dots']}>
       <span className={styles['thinking-dot']} />
       <span className={styles['thinking-dot']} />
       <span className={styles['thinking-dot']} />
+    </div>
+  )
+}
+
+function AnswerWaiting({ label, indicator }) {
+  return (
+    <div role="status" className="u-flex u-flex-items-center">
+      {indicator}
+      <Typography
+        variant="body2"
+        color="textSecondary"
+        component="span"
+        className="u-ml-half"
+      >
+        {label}
+      </Typography>
     </div>
   )
 }
@@ -105,10 +115,16 @@ function AnswerReasoning({ reasoning, isRunning }) {
  * otherwise
  * @param {import('react').ReactNode} [props.content] - what the view shows
  * of the text, in place of its Markdown
+ * @param {string} [props.waitingLabel] - what the view says it does until
+ * the answer comes
+ * @param {import('react').ReactNode} [props.waitingIndicator] - what the
+ * view shows beside it
  */
 export function Answer({
   isCallShown = false,
   content = null,
+  waitingLabel,
+  waitingIndicator = <ThinkingDots />,
   children,
   ...props
 }) {
@@ -138,7 +154,12 @@ export function Answer({
       {...props}
       className={`u-mt-1-half ${styles['answer']}`}
     >
-      {isWaiting && !hasReasoning && <ThinkingDots />}
+      {isWaiting && !hasReasoning && (
+        <AnswerWaiting
+          label={waitingLabel ?? t('chat.thinking')}
+          indicator={waitingIndicator}
+        />
+      )}
       {hasReasoning && (
         <AnswerReasoning reasoning={reasoning} isRunning={isWaiting} />
       )}

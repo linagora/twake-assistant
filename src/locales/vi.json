@@ -19,6 +19,7 @@
     "placeholder_llm": "Hỏi Twake AI bất cứ điều gì",
     "documents": "Sử dụng các tệp trong %{folder}",
     "retry": "Thử lại",
+    "processing": "Đang xử lý…",
     "panel": "Bảng Scribe",
     "include": {
       "title": "Bao gồm",
@@ -45,71 +46,86 @@
     "suggestions": {
       "summarize": {
         "label": "Tóm tắt",
-        "request": "Tóm tắt văn bản."
+        "request": "Tóm tắt văn bản.",
+        "running": "Đang tóm tắt…"
       },
       "correct": {
         "label": "Sửa lỗi",
-        "request": "Sửa lỗi ngữ pháp và chính tả của văn bản."
+        "request": "Sửa lỗi ngữ pháp và chính tả của văn bản.",
+        "running": "Đang sửa lỗi ngữ pháp…"
       },
       "keypoints": {
         "label": "Điểm chính",
-        "request": "Liệt kê các điểm chính của văn bản."
+        "request": "Liệt kê các điểm chính của văn bản.",
+        "running": "Đang liệt kê các điểm chính…"
       },
       "rewrite": {
         "label": "Viết lại",
         "shorter": {
           "label": "Ngắn hơn",
-          "request": "Rút ngắn văn bản."
+          "request": "Rút ngắn văn bản.",
+          "running": "Đang rút ngắn…"
         },
         "longer": {
           "label": "Dài hơn",
-          "request": "Mở rộng văn bản."
+          "request": "Mở rộng văn bản.",
+          "running": "Đang mở rộng…"
         }
       },
       "tone": {
         "label": "Giọng điệu",
         "professional": {
           "label": "Chuyên nghiệp",
-          "request": "Viết lại văn bản với giọng điệu chuyên nghiệp."
+          "request": "Viết lại văn bản với giọng điệu chuyên nghiệp.",
+          "running": "Đang viết chuyên nghiệp hơn…"
         },
         "casual": {
           "label": "Thân mật",
-          "request": "Viết lại văn bản với giọng điệu thân mật."
+          "request": "Viết lại văn bản với giọng điệu thân mật.",
+          "running": "Đang viết thân mật hơn…"
         },
         "polite": {
           "label": "Lịch sự",
-          "request": "Viết lại văn bản với giọng điệu lịch sự."
+          "request": "Viết lại văn bản với giọng điệu lịch sự.",
+          "running": "Đang viết lịch sự hơn…"
         }
       },
       "translate": {
         "label": "Dịch",
         "french": {
           "label": "Tiếng Pháp",
-          "request": "Dịch văn bản sang tiếng Pháp."
+          "request": "Dịch văn bản sang tiếng Pháp.",
+          "running": "Đang dịch sang tiếng Pháp…"
         },
         "english": {
           "label": "Tiếng Anh",
-          "request": "Dịch văn bản sang tiếng Anh."
+          "request": "Dịch văn bản sang tiếng Anh.",
+          "running": "Đang dịch sang tiếng Anh…"
         },
         "german": {
           "label": "Tiếng Đức",
-          "request": "Dịch văn bản sang tiếng Đức."
+          "request": "Dịch văn bản sang tiếng Đức.",
+          "running": "Đang dịch sang tiếng Đức…"
         },
         "spanish": {
           "label": "Tiếng Tây Ban Nha",
-          "request": "Dịch văn bản sang tiếng Tây Ban Nha."
+          "request": "Dịch văn bản sang tiếng Tây Ban Nha.",
+          "running": "Đang dịch sang tiếng Tây Ban Nha…"
         },
         "italian": {
           "label": "Tiếng Ý",
-          "request": "Dịch văn bản sang tiếng Ý."
+          "request": "Dịch văn bản sang tiếng Ý.",
+          "running": "Đang dịch sang tiếng Ý…"
         },
         "russian": {
           "label": "Tiếng Nga",
-          "request": "Dịch văn bản sang tiếng Nga."
+          "request": "Dịch văn bản sang tiếng Nga.",
+          "running": "Đang dịch sang tiếng Nga…"
         },
         "vietnamese": {
           "label": "Tiếng Việt",
-          "request": "Dịch văn bản sang tiếng Việt."
+          "request": "Dịch văn bản sang tiếng Việt.",
+          "running": "Đang dịch sang tiếng Việt…"
         }
       }
     }

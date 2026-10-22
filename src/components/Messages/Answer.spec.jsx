@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import React from 'react'
 
 import { I18n, initTranslation } from 'twake-i18n'
@@ -41,9 +41,21 @@ describe('Answer', () => {
   it('waits for the answer', () => {
     renderAnswer(answer('', 'running'))
 
-    expect(
-      screen.queryByRole('status', { name: 'The assistant is writing…' })
-    ).toBeInTheDocument()
+    expect(screen.queryByRole('status')).toHaveTextContent(
+      'The assistant is writing…'
+    )
+  })
+
+  it('shows the waiting label it is given', () => {
+    renderAnswer(answer('', 'running'), {
+      waitingLabel: 'Translating to French…',
+      waitingIndicator: <div data-testid="loader" />
+    })
+    const status = screen.getByRole('status')
+
+    expect(status).toHaveTextContent('Translating to French…')
+    expect(within(status).queryByTestId('loader')).toBeInTheDocument()
+    expect(screen.queryByText('The assistant is writing…')).toBe(null)
   })
 
   it('tells that the model thinks, in place of the dots', () => {
@@ -58,9 +70,7 @@ describe('Answer', () => {
     expect(
       screen.queryByRole('button', { name: 'Thinking…' })
     ).toBeInTheDocument()
-    expect(
-      screen.queryByRole('status', { name: 'The assistant is writing…' })
-    ).toBe(null)
+    expect(screen.queryByText('The assistant is writing…')).toBe(null)
     expect(screen.queryByRole('status')).toHaveTextContent('Thinking…')
   })
 

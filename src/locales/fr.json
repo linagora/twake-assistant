@@ -19,6 +19,7 @@
     "placeholder_llm": "Demandez n'importe quoi à Twake AI",
     "documents": "Utiliser les fichiers de %{folder}",
     "retry": "Réessayer",
+    "processing": "Traitement en cours…",
     "panel": "Panneau Scribe",
     "include": {
       "title": "Inclure",
@@ -45,71 +46,86 @@
     "suggestions": {
       "summarize": {
         "label": "Résumer",
-        "request": "Résume le texte."
+        "request": "Résume le texte.",
+        "running": "Résumé en cours…"
       },
       "correct": {
         "label": "Corriger",
-        "request": "Corrige la grammaire et l'orthographe du texte."
+        "request": "Corrige la grammaire et l'orthographe du texte.",
+        "running": "Correction de la grammaire…"
       },
       "keypoints": {
         "label": "Points clés",
-        "request": "Liste les points clés du texte."
+        "request": "Liste les points clés du texte.",
+        "running": "Liste des points clés…"
       },
       "rewrite": {
         "label": "Réécrire",
         "shorter": {
           "label": "Plus court",
-          "request": "Raccourcis le texte."
+          "request": "Raccourcis le texte.",
+          "running": "Raccourcissement…"
         },
         "longer": {
           "label": "Plus long",
-          "request": "Développe le texte."
+          "request": "Développe le texte.",
+          "running": "Développement…"
         }
       },
       "tone": {
         "label": "Ton",
         "professional": {
           "label": "Professionnel",
-          "request": "Réécris le texte sur un ton professionnel."
+          "request": "Réécris le texte sur un ton professionnel.",
+          "running": "Ton plus professionnel…"
         },
         "casual": {
           "label": "Décontracté",
-          "request": "Réécris le texte sur un ton décontracté."
+          "request": "Réécris le texte sur un ton décontracté.",
+          "running": "Ton plus décontracté…"
         },
         "polite": {
           "label": "Poli",
-          "request": "Réécris le texte sur un ton poli."
+          "request": "Réécris le texte sur un ton poli.",
+          "running": "Ton plus poli…"
         }
       },
       "translate": {
         "label": "Traduire",
         "french": {
           "label": "Français",
-          "request": "Traduis le texte en français."
+          "request": "Traduis le texte en français.",
+          "running": "Traduction en français…"
         },
         "english": {
           "label": "Anglais",
-          "request": "Traduis le texte en anglais."
+          "request": "Traduis le texte en anglais.",
+          "running": "Traduction en anglais…"
         },
         "german": {
           "label": "Allemand",
-          "request": "Traduis le texte en allemand."
+          "request": "Traduis le texte en allemand.",
+          "running": "Traduction en allemand…"
         },
         "spanish": {
           "label": "Espagnol",
-          "request": "Traduis le texte en espagnol."
+          "request": "Traduis le texte en espagnol.",
+          "running": "Traduction en espagnol…"
         },
         "italian": {
           "label": "Italien",
-          "request": "Traduis le texte en italien."
+          "request": "Traduis le texte en italien.",
+          "running": "Traduction en italien…"
         },
         "russian": {
           "label": "Russe",
-          "request": "Traduis le texte en russe."
+          "request": "Traduis le texte en russe.",
+          "running": "Traduction en russe…"
         },
         "vietnamese": {
           "label": "Vietnamien",
-          "request": "Traduis le texte en vietnamien."
+          "request": "Traduis le texte en vietnamien.",
+          "running": "Traduction en vietnamien…"
         }
       }
     }

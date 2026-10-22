@@ -80,6 +80,8 @@ const SHORT_ACTIONS = [
  * @property {string} [request] - the request shown in the conversation
  * @property {string} [draft] - put in the composer for the user to
  * complete, in place of a request sent at once
+ * @property {string} [running] - what the scribe shows it does while it
+ * answers
  * @property {string} [prompt] - the name of its prompt in the catalogue
  * @property {string} [instructions] - the system message of a request of
  * the app
@@ -104,6 +106,7 @@ function makeDefaultMenu(t) {
       label: t(`${key}.label`),
       icon: suggestion.icon,
       request: t(`${key}.request`),
+      running: t(`${key}.running`),
       prompt: suggestion.prompt
     }
   }
@@ -138,6 +141,21 @@ function findSuggestion(suggestions, predicate) {
     if (found) return found
   }
   return null
+}
+
+/**
+ * What the scribe shows it does while it answers a request
+ *
+ * @param {string|null} prompt - the prompt of the request, null for a
+ * request the user typed
+ * @param {Function} t - translation function
+ * @returns {string}
+ */
+export function getRunningLabel(prompt, t) {
+  const known = prompt
+    ? findSuggestion(makeDefaultMenu(t), item => item.prompt === prompt)
+    : null
+  return known?.running ?? t('scribe.processing')
 }
 
 /**
