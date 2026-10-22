@@ -159,12 +159,14 @@ const Conversation = ({ className }) => {
             />
           )}
           <Typography
-            variant="caption"
+            variant={isMobile ? 'overline' : 'caption'}
             color="textSecondary"
             component="p"
             className="u-w-100 u-maw-5-t u-maw-7 u-mh-auto u-mt-1-half  u-mb-0 u-ta-center"
           >
-            {t('assistant.disclaimer')}
+            {t(
+              isMobile ? 'assistant.disclaimer_short' : 'assistant.disclaimer'
+            )}
           </Typography>
         </div>
         {hasSources && (isMobile || !isOpenSources) && (

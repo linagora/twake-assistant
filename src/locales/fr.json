@@ -158,6 +158,7 @@
     },
     "default_error": "Une erreur est survenue lors de la génération de la réponse. Veuillez réessayer",
     "disclaimer": "Twake AI peut faire des erreurs. Vérifiez les informations importantes.",
+    "disclaimer_short": "Twake AI peut faire des erreurs.",
     "hide": "Masquer",
     "show": "Afficher",
     "search_conversation": {
