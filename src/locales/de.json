@@ -1,0 +1,387 @@
+{
+  "intent": {
+    "error": "Der Assistent kann nicht geöffnet werden."
+  },
+  "scribe": {
+    "title": "Twake AI fragen",
+    "new": "Neuer Chat",
+    "history": {
+      "title": "Verlauf",
+      "empty": "Noch keine Unterhaltung"
+    },
+    "close": "Schließen",
+    "back": "Zurück",
+    "welcome": "Stellen Sie mir eine Frage zu Ihrem Dokument",
+    "welcome_documents": "Stellen Sie mir eine Frage zu den Dateien in %{folder}",
+    "welcome_llm": "Stellen Sie mir eine Frage",
+    "placeholder": "Hilf mir beim Schreiben",
+    "placeholder_documents": "Fragen Sie alles zu den Dateien in %{folder}",
+    "placeholder_llm": "Fragen Sie Twake AI alles",
+    "documents": "Dateien in %{folder} verwenden",
+    "retry": "Erneut versuchen",
+    "processing": "Wird verarbeitet…",
+    "panel": "Scribe-Panel",
+    "include": {
+      "title": "Einbeziehen",
+      "document": "Dokument",
+      "conversation": "Unterhaltung",
+      "selection": "Auswahl"
+    },
+    "document": {
+      "truncated": "Dokument zu lang — nur ein Teil davon wurde an den Assistenten gesendet.",
+      "unavailable": "Das Dokument konnte nicht gelesen werden — Ihre Nachricht wurde ohne das Dokument gesendet."
+    },
+    "instructions": "Du hilfst dem Nutzer, an einem Text in seinem Editor zu arbeiten. Sieh dir zuerst an, worum er bittet.\nWenn er eine Frage zum Text stellt oder deine Meinung wissen möchte, antworte ganz normal in wenigen Sätzen, ohne den Text umzuschreiben, und verwende keinen Block.\nWenn er darum bittet, einen Text zu schreiben oder zu ändern, setze jeden Text, der in sein Dokument gehört, in einen fenced block, dessen info string `insert` ist, und schreibe alles andere als Kommentar außerhalb der Blöcke: Die Blöcke werden unverändert in das Dokument übernommen. Schreibe diesen Text in der Sprache des Textes, in einer einzigen Fassung, ohne Einleitung im Block, ohne Trennlinie, ohne Emoji und ohne etwas, das in eckigen Klammern auszufüllen ist. Behalte die Form des Textes bei, sofern nicht verlangt wird, sie zu ändern, und erfinde keine Informationen.",
+    "content": "Text:",
+    "actions": {
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "insert": "Einfügen",
+      "replace": "Ersetzen"
+    },
+    "capabilities": {
+      "run": "Anwenden",
+      "done": "Erledigt"
+    },
+    "suggestions": {
+      "summarize": {
+        "label": "Zusammenfassung",
+        "request": "Fasse den Text zusammen.",
+        "running": "Wird zusammengefasst…"
+      },
+      "correct": {
+        "label": "Korrigieren",
+        "request": "Korrigiere die Grammatik und die Rechtschreibung des Textes.",
+        "running": "Grammatik wird korrigiert…"
+      },
+      "keypoints": {
+        "label": "Kernpunkte",
+        "request": "Liste die Kernpunkte des Textes auf.",
+        "running": "Kernpunkte werden aufgelistet…"
+      },
+      "rewrite": {
+        "label": "Umschreiben",
+        "shorter": {
+          "label": "Kürzer",
+          "request": "Kürze den Text.",
+          "running": "Wird gekürzt…"
+        },
+        "longer": {
+          "label": "Länger",
+          "request": "Erweitere den Text.",
+          "running": "Wird erweitert…"
+        }
+      },
+      "tone": {
+        "label": "Tonfall",
+        "professional": {
+          "label": "Professionell",
+          "request": "Schreibe den Text in einem professionellen Ton um.",
+          "running": "Wird professioneller formuliert…"
+        },
+        "casual": {
+          "label": "Locker",
+          "request": "Schreibe den Text in einem lockeren Ton um.",
+          "running": "Wird lockerer formuliert…"
+        },
+        "polite": {
+          "label": "Höflich",
+          "request": "Schreibe den Text in einem höflichen Ton um.",
+          "running": "Wird höflicher formuliert…"
+        }
+      },
+      "translate": {
+        "label": "Übersetzen",
+        "french": {
+          "label": "Französisch",
+          "request": "Übersetze den Text ins Französische.",
+          "running": "Wird ins Französische übersetzt…"
+        },
+        "english": {
+          "label": "Englisch",
+          "request": "Übersetze den Text ins Englische.",
+          "running": "Wird ins Englische übersetzt…"
+        },
+        "german": {
+          "label": "Deutsch",
+          "request": "Übersetze den Text ins Deutsche.",
+          "running": "Wird ins Deutsche übersetzt…"
+        },
+        "spanish": {
+          "label": "Spanisch",
+          "request": "Übersetze den Text ins Spanische.",
+          "running": "Wird ins Spanische übersetzt…"
+        },
+        "italian": {
+          "label": "Italienisch",
+          "request": "Übersetze den Text ins Italienische.",
+          "running": "Wird ins Italienische übersetzt…"
+        },
+        "russian": {
+          "label": "Russisch",
+          "request": "Übersetze den Text ins Russische.",
+          "running": "Wird ins Russische übersetzt…"
+        },
+        "vietnamese": {
+          "label": "Vietnamesisch",
+          "request": "Übersetze den Text ins Vietnamesische.",
+          "running": "Wird ins Vietnamesische übersetzt…"
+        }
+      }
+    }
+  },
+  "assistant": {
+    "search": {
+      "placeholder": "Beschreiben Sie eine Aufgabe",
+      "send": "Senden",
+      "noItem": "Keine Ergebnisse",
+      "notEnough": "Ihre Suche muss mindestens 3 Zeichen enthalten",
+      "placeholder_folder": "Fragen Sie alles zu Ihrem Drive",
+      "stop": "Stoppen"
+    },
+    "websearch": {
+      "label": "Websuche"
+    },
+    "dialog": {
+      "close": "Schließen"
+    },
+    "name": "Twake-Assistent",
+    "default_username": "Anonym",
+    "suggestions": {
+      "find_file": "Eine Datei suchen",
+      "reimbursements": "Meine Erstattungen prüfen",
+      "reorganise_files": "Meine Dateien neu ordnen"
+    },
+    "actions": {
+      "copy": "Kopieren",
+      "copied": "In die Zwischenablage kopiert",
+      "reload": "Antwort neu generieren",
+      "edit": "Bearbeiten",
+      "edited": "Nachricht gespeichert",
+      "retry": "Erneut versuchen"
+    },
+    "sidebar": {
+      "create_new": "Neuer Chat",
+      "toggle_sidebar": "Seitenleiste ein-/ausblenden",
+      "toggle_search": "Suche ein-/ausblenden",
+      "close_sidebar": "Seitenleiste schließen",
+      "assistant": "Assistent",
+      "recent_chats": "Zuletzt verwendet",
+      "conversation": {
+        "actions": {
+          "delete": "Löschen",
+          "rename": "Umbenennen",
+          "share": "Teilen",
+          "load_more": "Mehr laden",
+          "more": "Weitere Aktionen"
+        }
+      },
+      "app": "AI",
+      "new_discussion": "Neue Unterhaltung",
+      "search_discussions": "Unterhaltungen durchsuchen",
+      "coming_soon": {
+        "title": "Demnächst",
+        "folders": "Andere Drive-Ordner",
+        "apps": "Mail · Chat · Notes · Calendar"
+      }
+    },
+    "time": {
+      "today": "Heute",
+      "yesterday": "Gestern"
+    },
+    "default_error": "Beim Generieren der Antwort ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut",
+    "disclaimer": "Twake AI kann Fehler machen. Bitte überprüfen Sie wichtige Informationen.",
+    "disclaimer_short": "Twake AI kann Fehler machen.",
+    "hide": "Ausblenden",
+    "show": "Anzeigen",
+    "search_conversation": {
+      "placeholder": "In Ihren Unterhaltungen suchen...",
+      "new_chat": "Neue Unterhaltung",
+      "recent": "Letzte Unterhaltungen",
+      "older": "Älter",
+      "not_found_title": "Keine Unterhaltungen gefunden",
+      "not_found_desc": "Klicken Sie auf „Neuer Chat“, um eine Unterhaltung zu beginnen, oder wählen Sie einen Ihrer letzten Chats aus",
+      "close": "Schließen"
+    },
+    "message": {
+      "welcome": "Wie kann ich Ihnen heute helfen?"
+    },
+    "twake_knowledges": {
+      "drive": "Drive",
+      "mail": "E-Mail",
+      "search_in": "Suchen in"
+    },
+    "knowledge_base": {
+      "change_folder": "Ordner ändern…",
+      "folder_hint": "Der Assistent kann auf alle Dateien in diesem Drive-Ordner zugreifen",
+      "emails": "E-Mails",
+      "open_folder": "In Drive öffnen",
+      "picker_error": "Die Auswahl der Drive-Ordner kann nicht geöffnet werden. Bitte versuchen Sie es erneut.",
+      "remove": "Ordner entfernen",
+      "remove_emails": "E-Mails entfernen",
+      "select_folder": "Diesen Ordner auswählen",
+      "unavailable": "Ordner nicht verfügbar"
+    },
+    "welcome": {
+      "title": "Ihr %{name}",
+      "default_title": "Ihr Twake-Assistent",
+      "subtitle": "Die Antworten stützen sich auf alle Dateien aus",
+      "folder_subtitle": "Die Antworten stützen sich nur auf die Dateien aus",
+      "default_subtitle": "Woran möchten Sie heute arbeiten?",
+      "actions": {
+        "summarize": {
+          "label": "Zusammenfassen",
+          "prompt": "Fasse zusammen: "
+        },
+        "find_decision": {
+          "label": "Eine Entscheidung finden",
+          "prompt": "Finde die Entscheidung zu "
+        },
+        "translate": {
+          "label": "Übersetzen",
+          "prompt": "Übersetze ins "
+        },
+        "correct": {
+          "label": "Korrigieren",
+          "prompt": "Korrigiere diesen Text: "
+        },
+        "write": {
+          "label": "Hilf mir beim Schreiben",
+          "prompt": "Hilf mir beim Schreiben von "
+        },
+        "key_points": {
+          "label": "Kernpunkte der letzten Woche",
+          "prompt": "Was waren die Kernpunkte der letzten Woche zu "
+        }
+      }
+    },
+    "sources_panel": {
+      "title": "Quellen",
+      "connected": "%{smart_count} Ordner verbunden |||| %{smart_count} Ordner verbunden",
+      "any_content_folder": "Alle Inhalte dieses Ordners",
+      "close": "Quellen ausblenden",
+      "show": "Quellen anzeigen",
+      "any_content": "Alle Inhalte aus Drive"
+    }
+  },
+  "assistant_create": {
+    "title": "Assistent erstellen",
+    "steps": {
+      "basic_info": {
+        "description": "Passen Sie Ihren Assistenten an. Wählen Sie seine Wissensdatenbank und dann sein KI-Modell.",
+        "avatar": "Avatar (optional)",
+        "upload_photo": "Foto hochladen",
+        "name": "Name",
+        "name_placeholder": "Geben Sie Ihrem Assistenten einen Namen",
+        "prompt_label": "Anweisungen",
+        "prompt_placeholder": "Legen Sie den Kontext fest und passen Sie die Antworten des Assistenten an",
+        "knowledge_base": "Wissensdatenbank (optional)",
+        "knowledge_base_placeholder": "In Unterhaltungen können einige oder alle hochgeladenen Dateien offengelegt werden.",
+        "from_drive": "Aus Drive",
+        "from_mail": "Aus Mail"
+      },
+      "provider_selection": {
+        "description": "Wählen Sie das KI-Modell, das Ihren Anforderungen am besten entspricht.",
+        "by": "von",
+        "openrag": {
+          "description": "Der in Twake integrierte KI-Assistent, mit dem Sie an Ihren Daten arbeiten, ohne dass sie jemals Ihren Workplace verlassen"
+        },
+        "google": {
+          "description": "Gemini-Modelle von Google"
+        },
+        "openai": {
+          "description": "GPT-Modelle von OpenAI"
+        },
+        "mistral_ai": {
+          "description": "Mistral-Modelle von Mistral AI"
+        },
+        "meta": {
+          "description": "Offene Llama-Modelle von Meta"
+        },
+        "custom": {
+          "name": "Benutzerdefinierten Anbieter hinzufügen",
+          "description": "Konfigurieren Sie Ihren eigenen KI-Anbieter"
+        },
+        "external_warning": "Ihre Daten werden auf externen Servern verarbeitet. Dieser Modus bietet keinen erweiterten Sicherheitsschutz."
+      },
+      "configuration": {
+        "description": "Geben Sie das Modell des Anbieters und Ihren API-Schlüssel ein. Ihr Schlüssel wird sicher gespeichert.",
+        "custom_provider_description": "Konfigurieren Sie die Einstellungen Ihres benutzerdefinierten KI-Anbieters",
+        "model": {
+          "label": "Modell",
+          "placeholder": "Geben Sie den Modellnamen des Anbieters ein",
+          "unsupported": "Dieses Modell wird noch nicht unterstützt."
+        },
+        "url": {
+          "label": "Basis-URL",
+          "placeholder": "https://api.example.com/v1"
+        },
+        "api_key": {
+          "label": "API-Schlüssel",
+          "placeholder": "sk-..."
+        },
+        "no_key": "Sie haben keinen API-Schlüssel?",
+        "generate": "Sie können im Dashboard Ihres Kontos bei %{provider} einen neuen API-Schlüssel erstellen.",
+        "custom_provider": "dem benutzerdefinierten Anbieter",
+        "read_docs": "Hier nachlesen"
+      }
+    },
+    "buttons": {
+      "cancel": "Abbrechen",
+      "next": "Weiter",
+      "create": "Erstellen"
+    },
+    "configure_api_key_title": "Neuen Assistenten konfigurieren",
+    "from_drive": {
+      "actions": {
+        "cancel": "Abbrechen",
+        "add": "Hinzufügen"
+      }
+    },
+    "success": "Assistent erfolgreich erstellt"
+  },
+  "assistant_edit": {
+    "title": "Assistent bearbeiten",
+    "buttons": {
+      "cancel": "Abbrechen",
+      "next": "Weiter",
+      "edit": "Speichern"
+    },
+    "configure_api_key_title": "Ihren Assistenten konfigurieren",
+    "success": "Assistent erfolgreich aktualisiert"
+  },
+  "conversation_delete": {
+    "title": "Unterhaltung löschen",
+    "content": "Möchten Sie diese Unterhaltung wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "buttons": {
+      "cancel": "Abbrechen",
+      "confirm": "Löschen"
+    }
+  },
+  "assistant_delete": {
+    "title": "Assistent löschen",
+    "content": "Möchten Sie %{name} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden und entfernt diesen Assistenten dauerhaft aus Ihrem Twake.",
+    "buttons": {
+      "cancel": "Abbrechen",
+      "confirm": "Löschen"
+    }
+  },
+  "chat": {
+    "thinking": "Der Assistent schreibt…",
+    "reasoning": {
+      "running": "Denkt nach…",
+      "done": "Denkprozess"
+    },
+    "assistant_gone": "Der Agent dieser Unterhaltung wurde gelöscht: Beginnen Sie eine neue Unterhaltung, um fortzufahren.",
+    "errors": {
+      "auth": "Autorisierungsfehler. Bitte überprüfen Sie Ihre Cozy-Berechtigungen.",
+      "rate_limit": "Zu viele Anfragen. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
+      "context_too_large": "Der einbezogene Kontext ist zu groß für die KI, die ihn nicht vollständig berücksichtigen konnte. Verkleinern Sie ihn — kürzen Sie die Auswahl oder deaktivieren Sie das Dokument — und versuchen Sie es dann erneut.",
+      "server": "Der KI-Dienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es erneut.",
+      "network": "Netzwerkfehler. Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "empty_response": "Kein Ergebnis erhalten. Bitte versuchen Sie es erneut.",
+      "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut."
+    },
+    "sources": "%{smart_count} Quelle |||| %{smart_count} Quellen"
+  }
+}

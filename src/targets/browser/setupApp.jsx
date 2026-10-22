@@ -37,7 +37,10 @@ export function setupApp() {
   const client = makeClient(container)
   const locale = JSON.parse(container.dataset.cozy)?.locale
   const lang = getDataOrDefault(locale, 'en')
-  const polyglot = initTranslation(lang, lang => require(`@/locales/${lang}`))
+  // The extension keeps locales.spec.js out of the bundle
+  const polyglot = initTranslation(lang, lang =>
+    require(`@/locales/${lang}.json`)
+  )
   client.registerPlugin(flag.plugin)
   client.registerPlugin(RealtimePlugin)
 

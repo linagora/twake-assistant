@@ -1,0 +1,387 @@
+{
+  "intent": {
+    "error": "Impossibile aprire l'assistente."
+  },
+  "scribe": {
+    "title": "Chiedi a Twake AI",
+    "new": "Nuova chat",
+    "history": {
+      "title": "Cronologia",
+      "empty": "Ancora nessuna conversazione"
+    },
+    "close": "Chiudi",
+    "back": "Indietro",
+    "welcome": "Fammi una domanda sul tuo documento",
+    "welcome_documents": "Fammi una domanda sui file di %{folder}",
+    "welcome_llm": "Fammi una domanda",
+    "placeholder": "Aiutami a scrivere",
+    "placeholder_documents": "Chiedi qualsiasi cosa sui file di %{folder}",
+    "placeholder_llm": "Chiedi qualsiasi cosa a Twake AI",
+    "documents": "Usa i file di %{folder}",
+    "retry": "Riprova",
+    "processing": "Elaborazione in corso…",
+    "panel": "Pannello di Scribe",
+    "include": {
+      "title": "Includi",
+      "document": "Documento",
+      "conversation": "Conversazione",
+      "selection": "Selezione"
+    },
+    "document": {
+      "truncated": "Documento troppo lungo — solo una parte è stata inviata all'assistente.",
+      "unavailable": "Impossibile leggere il documento — il tuo messaggio è stato inviato senza il documento."
+    },
+    "instructions": "Aiuti l'utente a lavorare su un testo nel suo editor. Per prima cosa guarda che cosa chiede.\nSe fa una domanda sul testo o vuole la tua opinione, rispondi normalmente, in poche frasi, senza riscrivere il testo, e non usare alcun blocco.\nSe chiede di scrivere o modificare un testo, metti ogni testo destinato al suo documento in un fenced block il cui info string è `insert`, e scrivi tutto il resto, come commento, fuori dai blocchi: i blocchi vengono inseriti nel documento così come sono. Scrivi quel testo nella lingua del testo, in un'unica versione, senza introduzione nel blocco, senza linea di separazione, senza emoji e senza nulla da completare tra parentesi quadre. Mantieni la forma del testo, a meno che non ti venga chiesto di cambiarla, e non inventare informazioni.",
+    "content": "Testo:",
+    "actions": {
+      "copy": "Copia",
+      "copied": "Copiato",
+      "insert": "Inserisci",
+      "replace": "Sostituisci"
+    },
+    "capabilities": {
+      "run": "Applica",
+      "done": "Fatto"
+    },
+    "suggestions": {
+      "summarize": {
+        "label": "Riassunto",
+        "request": "Riassumi il testo.",
+        "running": "Riassunto in corso…"
+      },
+      "correct": {
+        "label": "Correggi",
+        "request": "Correggi la grammatica e l'ortografia del testo.",
+        "running": "Correzione della grammatica…"
+      },
+      "keypoints": {
+        "label": "Punti chiave",
+        "request": "Elenca i punti chiave del testo.",
+        "running": "Elenco dei punti chiave…"
+      },
+      "rewrite": {
+        "label": "Riscrivi",
+        "shorter": {
+          "label": "Più breve",
+          "request": "Accorcia il testo.",
+          "running": "Accorciamento in corso…"
+        },
+        "longer": {
+          "label": "Più lungo",
+          "request": "Amplia il testo.",
+          "running": "Ampliamento in corso…"
+        }
+      },
+      "tone": {
+        "label": "Tono",
+        "professional": {
+          "label": "Professionale",
+          "request": "Riscrivi il testo con un tono professionale.",
+          "running": "Tono più professionale…"
+        },
+        "casual": {
+          "label": "Informale",
+          "request": "Riscrivi il testo con un tono informale.",
+          "running": "Tono più informale…"
+        },
+        "polite": {
+          "label": "Cortese",
+          "request": "Riscrivi il testo con un tono cortese.",
+          "running": "Tono più cortese…"
+        }
+      },
+      "translate": {
+        "label": "Traduci",
+        "french": {
+          "label": "Francese",
+          "request": "Traduci il testo in francese.",
+          "running": "Traduzione in francese…"
+        },
+        "english": {
+          "label": "Inglese",
+          "request": "Traduci il testo in inglese.",
+          "running": "Traduzione in inglese…"
+        },
+        "german": {
+          "label": "Tedesco",
+          "request": "Traduci il testo in tedesco.",
+          "running": "Traduzione in tedesco…"
+        },
+        "spanish": {
+          "label": "Spagnolo",
+          "request": "Traduci il testo in spagnolo.",
+          "running": "Traduzione in spagnolo…"
+        },
+        "italian": {
+          "label": "Italiano",
+          "request": "Traduci il testo in italiano.",
+          "running": "Traduzione in italiano…"
+        },
+        "russian": {
+          "label": "Russo",
+          "request": "Traduci il testo in russo.",
+          "running": "Traduzione in russo…"
+        },
+        "vietnamese": {
+          "label": "Vietnamita",
+          "request": "Traduci il testo in vietnamita.",
+          "running": "Traduzione in vietnamita…"
+        }
+      }
+    }
+  },
+  "assistant": {
+    "search": {
+      "placeholder": "Descrivi un'attività",
+      "send": "Invia",
+      "noItem": "Nessun risultato",
+      "notEnough": "La ricerca deve contenere almeno 3 caratteri",
+      "placeholder_folder": "Chiedi qualsiasi cosa sul tuo Drive",
+      "stop": "Interrompi"
+    },
+    "websearch": {
+      "label": "Ricerca web"
+    },
+    "dialog": {
+      "close": "Chiudi"
+    },
+    "name": "Assistente Twake",
+    "default_username": "Anonimo",
+    "suggestions": {
+      "find_file": "Cerca un file",
+      "reimbursements": "Controlla i miei rimborsi",
+      "reorganise_files": "Riorganizza i miei file"
+    },
+    "actions": {
+      "copy": "Copia",
+      "copied": "Copiato negli appunti",
+      "reload": "Rigenera la risposta",
+      "edit": "Modifica",
+      "edited": "Messaggio salvato",
+      "retry": "Riprova"
+    },
+    "sidebar": {
+      "create_new": "Nuova chat",
+      "toggle_sidebar": "Mostra/nascondi la barra laterale",
+      "toggle_search": "Mostra/nascondi la ricerca",
+      "close_sidebar": "Chiudi la barra laterale",
+      "assistant": "Assistente",
+      "recent_chats": "Recenti",
+      "conversation": {
+        "actions": {
+          "delete": "Elimina",
+          "rename": "Rinomina",
+          "share": "Condividi",
+          "load_more": "Carica altro",
+          "more": "Altre azioni"
+        }
+      },
+      "app": "AI",
+      "new_discussion": "Nuova discussione",
+      "search_discussions": "Cerca nelle discussioni",
+      "coming_soon": {
+        "title": "Prossimamente",
+        "folders": "Altre cartelle di Drive",
+        "apps": "Mail · Chat · Notes · Calendar"
+      }
+    },
+    "time": {
+      "today": "Oggi",
+      "yesterday": "Ieri"
+    },
+    "default_error": "Si è verificato un errore durante la generazione della risposta. Riprova",
+    "disclaimer": "Twake AI può commettere errori. Verifica le informazioni importanti.",
+    "disclaimer_short": "Twake AI può commettere errori.",
+    "hide": "Nascondi",
+    "show": "Mostra",
+    "search_conversation": {
+      "placeholder": "Cerca nelle tue conversazioni...",
+      "new_chat": "Nuova conversazione",
+      "recent": "Conversazioni recenti",
+      "older": "Meno recenti",
+      "not_found_title": "Nessuna conversazione trovata",
+      "not_found_desc": "Fai clic su \"Nuova chat\" per iniziare una conversazione o scegline una tra le tue chat recenti",
+      "close": "Chiudi"
+    },
+    "message": {
+      "welcome": "Come posso aiutarti oggi?"
+    },
+    "twake_knowledges": {
+      "drive": "Drive",
+      "mail": "Email",
+      "search_in": "Cerca in"
+    },
+    "knowledge_base": {
+      "change_folder": "Cambia cartella…",
+      "folder_hint": "L'assistente può accedere a tutti i file salvati in questa cartella di Drive",
+      "emails": "Email",
+      "open_folder": "Apri in Drive",
+      "picker_error": "Impossibile aprire il selettore di cartelle di Drive. Riprova.",
+      "remove": "Rimuovi la cartella",
+      "remove_emails": "Rimuovi le email",
+      "select_folder": "Seleziona questa cartella",
+      "unavailable": "Cartella non disponibile"
+    },
+    "welcome": {
+      "title": "Il tuo %{name}",
+      "default_title": "Il tuo assistente Twake",
+      "subtitle": "Le risposte si basano su qualsiasi file di",
+      "folder_subtitle": "Le risposte si basano solo sui file di",
+      "default_subtitle": "Su cosa vuoi lavorare oggi?",
+      "actions": {
+        "summarize": {
+          "label": "Riassumi",
+          "prompt": "Riassumi "
+        },
+        "find_decision": {
+          "label": "Trova una decisione",
+          "prompt": "Trova la decisione su "
+        },
+        "translate": {
+          "label": "Traduci",
+          "prompt": "Traduci in "
+        },
+        "correct": {
+          "label": "Correggi",
+          "prompt": "Correggi questo testo: "
+        },
+        "write": {
+          "label": "Aiutami a scrivere",
+          "prompt": "Aiutami a scrivere "
+        },
+        "key_points": {
+          "label": "Punti chiave della settimana scorsa",
+          "prompt": "Quali sono stati i punti chiave della settimana scorsa su "
+        }
+      }
+    },
+    "sources_panel": {
+      "title": "Fonti",
+      "connected": "%{smart_count} cartella collegata |||| %{smart_count} cartelle collegate",
+      "any_content_folder": "Tutto il contenuto di questa cartella",
+      "close": "Nascondi le fonti",
+      "show": "Mostra le fonti",
+      "any_content": "Tutto il contenuto di Drive"
+    }
+  },
+  "assistant_create": {
+    "title": "Crea assistente",
+    "steps": {
+      "basic_info": {
+        "description": "Personalizza il tuo assistente. Scegli la sua base di conoscenza, poi il suo modello di IA.",
+        "avatar": "Avatar (facoltativo)",
+        "upload_photo": "Carica una foto",
+        "name": "Nome",
+        "name_placeholder": "Dai un nome al tuo assistente",
+        "prompt_label": "Istruzioni",
+        "prompt_placeholder": "Definisci il contesto e personalizza le risposte dell'assistente",
+        "knowledge_base": "Base di conoscenza (facoltativa)",
+        "knowledge_base_placeholder": "Le conversazioni possono rivelare alcuni o tutti i file caricati.",
+        "from_drive": "Da Drive",
+        "from_mail": "Da Mail"
+      },
+      "provider_selection": {
+        "description": "Scegli il modello di IA più adatto alle tue esigenze.",
+        "by": "di",
+        "openrag": {
+          "description": "L'assistente IA integrato in Twake, per lavorare sui tuoi dati senza che escano mai dal tuo Workplace"
+        },
+        "google": {
+          "description": "Modelli Gemini forniti da Google"
+        },
+        "openai": {
+          "description": "Modelli GPT forniti da OpenAI"
+        },
+        "mistral_ai": {
+          "description": "Modelli Mistral forniti da Mistral AI"
+        },
+        "meta": {
+          "description": "Modelli aperti Llama, forniti da Meta"
+        },
+        "custom": {
+          "name": "Aggiungi un fornitore personalizzato",
+          "description": "Configura il tuo fornitore di IA"
+        },
+        "external_warning": "I tuoi dati saranno elaborati su server esterni. Questa modalità non offre protezioni di sicurezza avanzate."
+      },
+      "configuration": {
+        "description": "Inserisci il modello del fornitore e la tua chiave API. La tua chiave sarà conservata in modo sicuro.",
+        "custom_provider_description": "Configura le impostazioni del tuo fornitore di IA personalizzato",
+        "model": {
+          "label": "Modello",
+          "placeholder": "Inserisci il nome del modello del fornitore",
+          "unsupported": "Questo modello non è ancora supportato."
+        },
+        "url": {
+          "label": "URL di base",
+          "placeholder": "https://api.example.com/v1"
+        },
+        "api_key": {
+          "label": "Chiave API",
+          "placeholder": "sk-..."
+        },
+        "no_key": "Non hai una chiave API?",
+        "generate": "Puoi generare una nuova chiave API dalla dashboard del tuo account presso %{provider}.",
+        "custom_provider": "il fornitore personalizzato",
+        "read_docs": "Leggi qui"
+      }
+    },
+    "buttons": {
+      "cancel": "Annulla",
+      "next": "Avanti",
+      "create": "Crea"
+    },
+    "configure_api_key_title": "Configura un nuovo assistente",
+    "from_drive": {
+      "actions": {
+        "cancel": "Annulla",
+        "add": "Aggiungi"
+      }
+    },
+    "success": "Assistente creato correttamente"
+  },
+  "assistant_edit": {
+    "title": "Modifica assistente",
+    "buttons": {
+      "cancel": "Annulla",
+      "next": "Avanti",
+      "edit": "Salva"
+    },
+    "configure_api_key_title": "Configura il tuo assistente",
+    "success": "Assistente aggiornato correttamente"
+  },
+  "conversation_delete": {
+    "title": "Elimina conversazione",
+    "content": "Vuoi davvero eliminare questa conversazione? Questa azione non può essere annullata.",
+    "buttons": {
+      "cancel": "Annulla",
+      "confirm": "Elimina"
+    }
+  },
+  "assistant_delete": {
+    "title": "Elimina assistente",
+    "content": "Vuoi davvero eliminare %{name}? Questa azione non può essere annullata e rimuoverà definitivamente questo assistente dal tuo Twake.",
+    "buttons": {
+      "cancel": "Annulla",
+      "confirm": "Elimina"
+    }
+  },
+  "chat": {
+    "thinking": "L'assistente sta scrivendo…",
+    "reasoning": {
+      "running": "Sto pensando…",
+      "done": "Processo di ragionamento"
+    },
+    "assistant_gone": "L'agente di questa conversazione è stato eliminato: inizia una nuova conversazione per continuare.",
+    "errors": {
+      "auth": "Errore di autorizzazione. Controlla le tue autorizzazioni Cozy.",
+      "rate_limit": "Troppe richieste. Attendi un momento e riprova.",
+      "context_too_large": "Il contesto incluso è troppo grande per l'IA, che non ha potuto tenerne conto per intero. Riducilo — accorcia la selezione o deseleziona il documento — poi riprova.",
+      "server": "Il servizio di IA è temporaneamente non disponibile. Riprova.",
+      "network": "Errore di rete. Controlla la connessione e riprova.",
+      "empty_response": "Nessun risultato ricevuto. Riprova.",
+      "generic": "Qualcosa è andato storto. Riprova più tardi."
+    },
+    "sources": "%{smart_count} fonte |||| %{smart_count} fonti"
+  }
+}

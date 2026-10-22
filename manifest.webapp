@@ -29,6 +29,18 @@
     "vi": {
       "short_description": "Trợ lý AI của bạn",
       "long_description": "Trò chuyện với trợ lý AI trả lời dựa trên các tài liệu trong Twake Workplace của bạn."
+    },
+    "de": {
+      "short_description": "Ihr KI-Assistent",
+      "long_description": "Unterhalten Sie sich mit einem KI-Assistenten, der auf Grundlage der Dokumente Ihres Twake Workplace antwortet."
+    },
+    "es": {
+      "short_description": "Su asistente de IA",
+      "long_description": "Converse con un asistente de IA que responde a partir de los documentos de su Twake Workplace."
+    },
+    "it": {
+      "short_description": "Il tuo assistente IA",
+      "long_description": "Chatta con un assistente IA che risponde a partire dai documenti del tuo Twake Workplace."
     }
   },
   "routes": {
