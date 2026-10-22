@@ -224,6 +224,40 @@ describe('ScribeView', () => {
     }
   )
 
+  it.each(['panel', 'compact'])(
+    'shows the chip of the selection above the composer in the %s layout',
+    layout => {
+      renderScribe({ layout, text: 'Bonjour le monde' })
+      const chip = screen.getByTitle('Bonjour le monde')
+      const zone = screen.getByRole('group', { name: 'Include' })
+      const composer = screen.getByRole('textbox', {
+        name: en.scribe.placeholder
+      })
+
+      expect(chip).toHaveTextContent('Bonjour le monde')
+      expect(chip.compareDocumentPosition(zone)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING
+      )
+      expect(chip.compareDocumentPosition(composer)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING
+      )
+    }
+  )
+
+  it('shows no chip without a text, or once the selection is unchecked', () => {
+    const { unmount } = renderScribe()
+    expect(screen.queryByTitle(/Bonjour/)).toBe(null)
+    unmount()
+
+    renderScribe({ text: 'Bonjour' })
+    expect(screen.queryByTitle('Bonjour')).toBeInTheDocument()
+    fireEvent.click(
+      screen.getByRole('checkbox', { name: en.scribe.include.selection })
+    )
+
+    expect(screen.queryByTitle('Bonjour')).toBe(null)
+  })
+
   it('shows only the latest exchange in the compact layout', async () => {
     const onPanelRequest = jest.fn()
     renderScribe(
