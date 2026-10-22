@@ -303,7 +303,7 @@ describe('AssistantIntent', () => {
     })
   })
 
-  it('asks the app to resize the frame of the compact layout only', async () => {
+  it('asks the app to resize the frame of the compact layout', async () => {
     mockService.getData.mockReturnValue({
       layout: 'compact',
       draft: 'Hi',
@@ -319,10 +319,32 @@ describe('AssistantIntent', () => {
     })
     onResize({ height: 240 })
     expect(mockService.resizeClient).toHaveBeenCalledWith({ height: 240 })
+  })
+
+  it('does not ask the app to resize the frame of a panel', async () => {
+    mockService.getData.mockReturnValue({ content: 'Bonjour' })
+    renderIntent()
+
+    const { layout, onResize } = await findScribeProps()
+    expect(layout).toBe('panel')
+    expect(onResize).toBe(null)
+  })
+
+  it('keeps the layout of the opening when the app gives new data', async () => {
+    mockService.getData.mockReturnValue({ layout: 'compact' })
+    renderIntent()
+    await findScribeProps()
+
+    act(() => mockSendData({ content: 'Au revoir' }))
+
+    const { layout, onResize } = await findScribeProps()
+    expect(layout).toBe('compact')
+    onResize({ height: 240 })
+    expect(mockService.resizeClient).toHaveBeenCalledWith({ height: 240 })
 
     act(() => mockSendData({ layout: 'panel' }))
 
-    expect((await findScribeProps()).onResize).toBe(null)
+    expect((await findScribeProps()).layout).toBe('compact')
   })
 
   it('hands the answer and the action clicked to the app', async () => {

@@ -35,13 +35,14 @@ function IntentError() {
 function Scribe({ service, config }) {
   const { t } = useI18n()
   const hasNotifiedReadyRef = useRef(false)
+  // The layout is the one of the opening: new data do not change it
+  const [layout] = useState(config.layout)
   const {
     content,
     answerActions,
     capabilities,
     suggestions,
     documents,
-    layout,
     draft,
     conversation,
     rules,
