@@ -104,7 +104,7 @@ const Conversation = ({ className }) => {
             {
               'u-flex-auto': !isThreadEmpty,
               [styles['conversationViewport--filled']]: !isThreadEmpty,
-              'u-mb-1': isThreadEmpty
+              'u-mb-1': isThreadEmpty && !isMobile
             }
           )}
         >

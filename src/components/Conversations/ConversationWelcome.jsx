@@ -52,8 +52,10 @@ export const ConversationWelcome = ({ inputRef }) => {
   return (
     <div
       className={cx(
-        'u-pos-relative u-w-100 u-maw-7 u-mh-auto u-mb-3 u-bxz u-flex u-flex-auto u-flex-column u-flex-items-center u-flex-justify-center',
-        isMobile ? 'u-ph-1' : 'u-ph-2',
+        'u-pos-relative u-w-100 u-maw-7 u-mh-auto u-bxz u-flex u-flex-auto u-flex-column u-flex-items-center u-flex-justify-center',
+        // On mobile the 48px sidebar bar lies over the top: the margin clears
+        // it, so the content centers between the bar and the composer
+        isMobile ? 'u-ph-1 u-mt-3' : 'u-ph-2 u-mb-3',
         styles['welcome']
       )}
     >
