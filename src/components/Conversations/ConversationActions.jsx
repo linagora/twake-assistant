@@ -34,6 +34,7 @@ const ConversationActions = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showRenameDialog, setShowRenameDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [newName, setNewName] = useState('')
   const anchorRef = useRef(null)
 
@@ -63,7 +64,10 @@ const ConversationActions = ({
     }
   }
 
+  // Busy until the stack answers: a second click would delete it again, and
+  // fail on the deleted conversation
   const handleDelete = async () => {
+    setIsDeleting(true)
     try {
       await client.destroy({
         ...conversation,
@@ -76,6 +80,8 @@ const ConversationActions = ({
         message: t('assistant.default_error'),
         severity: 'error'
       })
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -161,6 +167,7 @@ const ConversationActions = ({
               <Button
                 color="error"
                 label={t('conversation_delete.buttons.confirm')}
+                busy={isDeleting}
                 onClick={handleDelete}
               />
             </>
