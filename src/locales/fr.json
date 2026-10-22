@@ -212,6 +212,14 @@
           "label": "Traduire",
           "prompt": "Traduis en "
         },
+        "correct": {
+          "label": "Corriger",
+          "prompt": "Corrige ce texte : "
+        },
+        "write": {
+          "label": "Aide-moi à écrire",
+          "prompt": "Aide-moi à écrire "
+        },
         "key_points": {
           "label": "Points clés de la semaine dernière",
           "prompt": "Quels sont les points clés de la semaine dernière concernant "

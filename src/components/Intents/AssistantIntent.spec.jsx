@@ -76,7 +76,11 @@ describe('AssistantIntent', () => {
       await findScribeProps()
     expect(text).toBe('')
     expect(documents).toBe(true)
-    expect(suggestions).toEqual([])
+    expect(suggestions.map(suggestion => suggestion.label)).toEqual([
+      'Translate',
+      'Correct',
+      'Help me write'
+    ])
     expect(answerActions).toEqual([])
     expect(capabilities).toEqual([])
     expect(mockCreateService).toHaveBeenCalledWith('intent-1', window)
@@ -166,7 +170,11 @@ describe('AssistantIntent', () => {
       documents,
       answerActions
     } = await findScribeProps()
-    expect(suggestions).toEqual([])
+    expect(suggestions.map(suggestion => suggestion.name)).toEqual([
+      'translate',
+      'correct',
+      'write'
+    ])
     expect(prepareQuery).toBe(undefined)
     expect(instructions).toBe(undefined)
     expect(documents).toBe(true)

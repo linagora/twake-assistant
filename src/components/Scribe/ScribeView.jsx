@@ -1,5 +1,5 @@
 import { ThreadPrimitive, useThread } from '@assistant-ui/react'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 
 import {
   CrossSmall,
@@ -60,8 +60,11 @@ function ScribeConversation({ isHidden, hasText }) {
   const requestCount = useThread(
     state => state.messages.filter(message => message.role === 'user').length
   )
-  // The prompts are about the text: offered again when the app gives another
+  // The prompts are about the text: offered again when the app gives another.
+  // Without a text, only in the welcome: not over a past conversation opened
+  // again.
   const { textStart, hasDocuments } = useScribe()
+  const inputRef = useRef(null)
   const hasNewText = requestCount === textStart
   const { welcome, placeholder } = getScribeWording(t, {
     hasText,
@@ -87,14 +90,16 @@ function ScribeConversation({ isHidden, hasText }) {
             >
               {welcome}
             </Typography>
-            <ScribeSuggestions />
+            <ScribeSuggestions inputRef={inputRef} />
           </div>
         )}
         <ThreadPrimitive.Messages components={MESSAGE_COMPONENTS} />
       </ThreadPrimitive.Viewport>
       <div className={styles['scribe-footer']}>
-        {!isEmpty && hasNewText && <ScribeSuggestions />}
-        <ScribeComposer placeholder={placeholder} />
+        {hasText && !isEmpty && hasNewText && (
+          <ScribeSuggestions inputRef={inputRef} />
+        )}
+        <ScribeComposer placeholder={placeholder} inputRef={inputRef} />
         <Typography
           variant="overline"
           color="textSecondary"

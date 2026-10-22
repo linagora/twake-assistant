@@ -13,6 +13,7 @@ import {
   makeScribeCapabilities,
   makeScribePreparePrompt,
   makeScribePrepareQuery,
+  makeScribeShortActions,
   makeScribeSuggestions
 } from '@/lib/scribe'
 
@@ -66,7 +67,7 @@ function Scribe({ service, config }) {
     () =>
       content || suggestions
         ? makeScribeSuggestions(t, suggestions, scribeCapabilities)
-        : [],
+        : makeScribeShortActions(t),
     [content, suggestions, scribeCapabilities, t]
   )
   const textProps = useMemo(

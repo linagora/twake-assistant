@@ -65,12 +65,20 @@ function keepCatalogued(suggestions) {
   })
 }
 
+const SHORT_ACTIONS = [
+  { name: 'translate', icon: Globe },
+  { name: 'correct', icon: TextInfo },
+  { name: 'write', icon: Pen }
+]
+
 /**
  * @typedef {object} Suggestion
  * @property {string} name
  * @property {string} label - the label of its chip or of its item
  * @property {Function} [icon] - the icon of its chip, from twake-icons
  * @property {string} [request] - the request shown in the conversation
+ * @property {string} [draft] - put in the composer for the user to
+ * complete, in place of a request sent at once
  * @property {string} [prompt] - the name of its prompt in the catalogue
  * @property {string} [instructions] - the system message of a request of
  * the app
@@ -102,6 +110,22 @@ function makeDefaultMenu(t) {
   return keepCatalogued(SUGGESTIONS).map(suggestion =>
     makeSuggestion(suggestion, [])
   )
+}
+
+/**
+ * The chips of the scribe without a text: short actions that start a
+ * request in the composer
+ *
+ * @param {Function} t - translation function
+ * @returns {Suggestion[]}
+ */
+export function makeScribeShortActions(t) {
+  return SHORT_ACTIONS.map(({ name, icon }) => ({
+    name,
+    icon,
+    label: t(`assistant.welcome.actions.${name}.label`),
+    draft: t(`assistant.welcome.actions.${name}.prompt`)
+  }))
 }
 
 function findSuggestion(suggestions, predicate) {
