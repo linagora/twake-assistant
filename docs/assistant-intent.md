@@ -109,7 +109,8 @@ interface AssistantIntentConfig {
    * scribe on: the `conversation` of a PanelRequest. The scribe shows
    * nothing until the conversation is loaded. An id the stack does not have,
    * as the one of a conversation without a request yet, opens an empty
-   * conversation that goes on with this id.
+   * conversation that goes on with this id. Another error (the console of
+   * the browser tells which) opens a new conversation.
    * Read at the opening only.
    */
   conversation?: string

@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 
 import { CozyProvider, createMockClient } from 'cozy-client'
+import Minilog from 'cozy-minilog'
 import { I18n, initTranslation } from 'twake-i18n'
 
 import { ScribeView } from '@/components/Scribe/ScribeView'
@@ -93,6 +94,15 @@ jest.mock('cozy-client', () => ({
   ...jest.requireActual('cozy-client'),
   RealTimeQueries: () => null
 }))
+jest.mock('cozy-minilog', () => {
+  const log = {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn()
+  }
+  return () => log
+})
 
 const pastConversation = {
   _id: 'c1',
@@ -117,7 +127,17 @@ function makeClient({ conversation, queryError } = {}) {
   client.plugins = {
     realtime: { subscribe: jest.fn(), unsubscribe: jest.fn() }
   }
+  // As cozy-client does when the query fails: its state, then its onError
+  if (queryError) {
+    client.query = jest.fn(async (definition, options) =>
+      options.onError(queryError)
+    )
+  }
   return client
+}
+
+function makeError(status) {
+  return Object.assign(new Error(`Error ${status}`), { status })
 }
 
 function renderScribe(props = {}, client = makeClient()) {
@@ -218,12 +238,31 @@ describe('ScribeView', () => {
     const onPanelRequest = jest.fn()
     renderScribe(
       { layout: 'compact', conversation: 'c1', onPanelRequest },
-      makeClient({ queryError: new Error('Not Found') })
+      makeClient({ queryError: makeError(404) })
     )
 
     fireEvent.click(await screen.findByRole('button', { name: 'Scribe panel' }))
 
     expect(onPanelRequest).toHaveBeenCalledWith('', 'c1')
+    expect(Minilog().error).not.toHaveBeenCalled()
+  })
+
+  it('starts a new conversation when the one handed over cannot be loaded', async () => {
+    const onPanelRequest = jest.fn()
+    const error = makeError(403)
+    renderScribe(
+      { layout: 'compact', conversation: 'c1', onPanelRequest },
+      makeClient({ queryError: error })
+    )
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Scribe panel' }))
+
+    expect(onPanelRequest).toHaveBeenCalledTimes(1)
+    expect(onPanelRequest.mock.calls[0][1]).not.toBe('c1')
+    expect(Minilog().error).toHaveBeenCalledWith(
+      expect.stringContaining('c1'),
+      error
+    )
   })
 
   it('seeds the composer with the draft', () => {
