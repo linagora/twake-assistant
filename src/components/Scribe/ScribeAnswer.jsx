@@ -11,6 +11,7 @@ import { useI18n } from 'twake-i18n'
 import { Answer, getText } from '@/components/Messages/Answer'
 import { ScribeCapabilityCard } from '@/components/Scribe/ScribeCapabilityCard'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
+import { useIsInLatestExchange } from '@/components/Scribe/useLatestExchange'
 
 function AnswerActionButton({ action, text }) {
   const handleClick = () => action.onClick(text)
@@ -28,11 +29,12 @@ function AnswerActionButton({ action, text }) {
 
 /**
  * An answer of the LLM, with the buttons of the actions of the app once it
- * is complete
+ * is complete: in the compact layout, the one of the latest exchange only
  */
 export function ScribeAnswer() {
   const { t } = useI18n()
-  const { answerActions, capabilities } = useScribe()
+  const { answerActions, capabilities, layout } = useScribe()
+  const isInLatestExchange = useIsInLatestExchange()
   const messageId = useMessage(message => message.id)
   const text = useMessage(getText)
   const status = useMessage(message => message.status?.type)
@@ -73,6 +75,8 @@ export function ScribeAnswer() {
   }
   // Only a whole answer goes into the document of the app
   const canAct = status === 'complete' && text.trim() !== ''
+
+  if (layout === 'compact' && !isInLatestExchange) return null
 
   return (
     <Answer isCallShown={!!capability} data-testid="scribe-answer">

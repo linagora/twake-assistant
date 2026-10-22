@@ -24,18 +24,24 @@ jest.mock('@/components/Scribe/ScribeProvider', () => ({
   useScribe: jest.fn()
 }))
 
-function renderComposer({ isRunning = false } = {}) {
+function renderComposer({ isRunning = false, layout = 'panel' } = {}) {
   mockThread = { isRunning }
   const setHasDocuments = jest.fn()
-  useScribe.mockReturnValue({ hasDocuments: false, setHasDocuments })
+  const onCancel = jest.fn()
+  useScribe.mockReturnValue({
+    hasDocuments: false,
+    setHasDocuments,
+    layout,
+    onCancel
+  })
 
   render(
     <I18n lang="en" polyglot={initTranslation('en', () => en)}>
-      <ScribeComposer />
+      <ScribeComposer placeholder={en.scribe.placeholder} />
     </I18n>
   )
 
-  return { setHasDocuments }
+  return { setHasDocuments, onCancel }
 }
 
 describe('ScribeComposer', () => {
@@ -67,6 +73,27 @@ describe('ScribeComposer', () => {
 
     expect(setHasDocuments).toHaveBeenCalledTimes(1)
     expect(setHasDocuments.mock.calls[0][0](false)).toBe(true)
+  })
+
+  it('cancels on Escape in the compact layout', () => {
+    const { onCancel } = renderComposer({ layout: 'compact' })
+    const input = screen.getByRole('textbox', { name: 'Help me write' })
+
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(onCancel).not.toHaveBeenCalled()
+    fireEvent.keyDown(input, { key: 'Escape' })
+
+    expect(onCancel).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps the panel open on Escape', () => {
+    const { onCancel } = renderComposer()
+
+    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Help me write' }), {
+      key: 'Escape'
+    })
+
+    expect(onCancel).not.toHaveBeenCalled()
   })
 
   it('does not change the sources while an answer is written', () => {

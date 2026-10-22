@@ -17,7 +17,11 @@ describe('getIntentConfig', () => {
       capabilities: [],
       suggestions: null,
       documents: null,
-      theme: { type: 'dark' }
+      theme: { type: 'dark' },
+      layout: 'panel',
+      draft: null,
+      conversation: null,
+      source: null
     })
   })
 
@@ -28,7 +32,11 @@ describe('getIntentConfig', () => {
       capabilities: [],
       suggestions: null,
       documents: null,
-      theme: { type: null }
+      theme: { type: null },
+      layout: 'panel',
+      draft: null,
+      conversation: null,
+      source: null
     })
   })
 
@@ -45,7 +53,11 @@ describe('getIntentConfig', () => {
       capabilities: [],
       suggestions: null,
       documents: null,
-      theme: { type: null }
+      theme: { type: null },
+      layout: 'panel',
+      draft: null,
+      conversation: null,
+      source: null
     })
     expect(getIntentConfig({ answerActions: null }).answerActions).toEqual([])
     expect(getIntentConfig({ answerActions: 'insert' }).answerActions).toEqual(
@@ -280,6 +292,26 @@ describe('getIntentConfig', () => {
         null
       )
     })
+  })
+
+  it('reads the layout, the draft and the conversation of the data', () => {
+    expect(
+      getIntentConfig({
+        layout: 'compact',
+        draft: 'Hi',
+        conversation: 'c1',
+        source: 'selection'
+      })
+    ).toMatchObject({
+      layout: 'compact',
+      draft: 'Hi',
+      conversation: 'c1',
+      source: 'selection'
+    })
+    expect(getIntentConfig({ layout: 'other' }).layout).toBe('panel')
+    expect(
+      getIntentConfig({ draft: 12, conversation: '', source: {} })
+    ).toMatchObject({ draft: null, conversation: null, source: null })
   })
 
   describe('documents', () => {

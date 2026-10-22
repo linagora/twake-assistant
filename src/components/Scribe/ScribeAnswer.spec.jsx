@@ -18,6 +18,7 @@ jest.mock('@assistant-ui/react', () => ({
     )
   },
   useMessage: selector => selector(mockMessage),
+  useThread: selector => selector(mockThread),
   useMessageRuntime: () => ({
     reload: mockReload,
     getState: () => mockMessage

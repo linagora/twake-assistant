@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import Intents from 'cozy-interapp'
 import Minilog from 'cozy-minilog'
@@ -34,8 +34,16 @@ function IntentError() {
 function Scribe({ service, config }) {
   const { t } = useI18n()
   const hasNotifiedReadyRef = useRef(false)
-  const { content, answerActions, capabilities, suggestions, documents } =
-    config
+  const {
+    content,
+    answerActions,
+    capabilities,
+    suggestions,
+    documents,
+    layout,
+    draft,
+    conversation
+  } = config
 
   // The assistant is rendered: an app that waits for it can show the intent
   useEffect(() => {
@@ -84,6 +92,11 @@ function Scribe({ service, config }) {
     () => makeScribePreparePrompt(content),
     [content]
   )
+  const handleClose = useCallback(() => service.cancel(), [service])
+  const handleResize = useCallback(
+    size => service.resizeClient?.(size),
+    [service]
+  )
 
   return (
     <ScribeView
@@ -94,7 +107,18 @@ function Scribe({ service, config }) {
       documents={documents ?? content === ''}
       text={content}
       {...textProps}
-      onClose={() => service.cancel()}
+      layout={layout}
+      draft={draft}
+      conversation={conversation}
+      onClose={handleClose}
+      onPanelRequest={(text, conversationId) =>
+        service.sendResult({
+          request: 'panel',
+          draft: text,
+          conversation: conversationId
+        })
+      }
+      onResize={layout === 'compact' ? handleResize : null}
     />
   )
 }

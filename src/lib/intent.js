@@ -134,7 +134,11 @@ function readSuggestion(suggestion) {
  *   capabilities: Capability[],
  *   suggestions: SuggestionConfig[]|null,
  *   documents: boolean|null,
- *   theme: { type: 'light'|'dark'|null }
+ *   theme: { type: 'light'|'dark'|null },
+ *   layout: 'panel'|'compact',
+ *   draft: string|null,
+ *   conversation: string|null,
+ *   source: string|null
  * }} `suggestions` is null when the app leaves the scribe its default menu
  */
 export function getIntentConfig(data) {
@@ -144,7 +148,11 @@ export function getIntentConfig(data) {
     capabilities,
     suggestions,
     documents,
-    theme
+    theme,
+    layout,
+    draft,
+    conversation,
+    source
   } = data ?? {}
 
   return {
@@ -162,6 +170,10 @@ export function getIntentConfig(data) {
       ? suggestions.filter(isSuggestion).map(readSuggestion)
       : null,
     documents: typeof documents === 'boolean' ? documents : null,
-    theme: { type: THEME_TYPES.includes(theme?.type) ? theme.type : null }
+    theme: { type: THEME_TYPES.includes(theme?.type) ? theme.type : null },
+    layout: layout === 'compact' ? 'compact' : 'panel',
+    draft: readText(draft),
+    conversation: readText(conversation),
+    source: readText(source)
   }
 }
