@@ -81,6 +81,11 @@ function getMessageId(response) {
   return message.id
 }
 
+function getDocumentNotice(doc) {
+  if (doc === null) return 'unavailable'
+  return doc.isTruncated ? 'truncated' : null
+}
+
 /**
  * Gathers the pieces of an answer, which the realtime may give out of order
  */
@@ -110,11 +115,21 @@ function makeAnswer() {
 
 /**
  * @typedef {object} ChatRequest
- * @property {(text: string, context: { isFirstOnText: boolean }) => string} prepareQuery -
+ * @property {(text: string, context: { isFirstOnText: boolean, hasSelection: boolean, document: string|null }) => string} prepareQuery -
  * turns the text of a message into the query sent to the stack:
- * `isFirstOnText` for the first message about the text of the app
+ * `isFirstOnText` for the first message about the text of the app,
+ * `hasSelection` false to leave that text out, `document` the whole
+ * document of the app when the user includes it
  * @property {boolean} hasDocuments - whether the answer comes from the
  * documents of the user
+ * @property {boolean} [hasDocument] - whether a typed request includes the
+ * whole document of the app, a prompt of the catalogue never does
+ * @property {boolean} [hasConversation] - false to send each request in a
+ * new conversation of its own
+ * @property {boolean} [hasSelection] - false to leave the text of the app
+ * out of a typed request
+ * @property {(() => Promise<{ document: string, isTruncated: boolean }|null>)|null} [requestDocument] -
+ * asks the app for its document, null when it cannot give it
  * @property {string|null} instructions - how to answer, sent to the LLM as a
  * system message
  * @property {string|null} [rules] - the rules of the app, joined to the
@@ -143,6 +158,8 @@ function makeAnswer() {
  * @param {(index: number) => number} [options.getTextIndex] - the index,
  * among the messages of the user, of the first one about the text of the
  * app, given the index of the message sent
+ * @param {() => string} [options.getConversationId] - the conversation the
+ * message is posted to, read when it is sent
  * @returns {import('@assistant-ui/react').ChatModelAdapter}
  */
 export function makeChatAdapter({
@@ -150,7 +167,8 @@ export function makeChatAdapter({
   conversationId,
   events,
   getRequest,
-  getTextIndex = () => 0
+  getTextIndex = () => 0,
+  getConversationId = () => conversationId
 }) {
   return {
     async *run({ messages, abortSignal, runConfig }) {
@@ -161,6 +179,9 @@ export function makeChatAdapter({
         prepareQuery,
         preparePrompt,
         hasDocuments,
+        hasDocument,
+        hasSelection,
+        requestDocument,
         instructions,
         rules,
         actions,
@@ -170,11 +191,29 @@ export function makeChatAdapter({
       const index =
         messages.filter(message => message.role === 'user').length - 1
       const isFirstOnText = index === getTextIndex(index)
+      const runConversationId = getConversationId()
       // A prompt of the catalogue, from a suggestion, brings its own query
-      // and instructions
+      // and instructions, about the text of the app only
       const custom = runConfig?.custom ?? {}
       const prompt = custom.prompt ? preparePrompt?.(custom.prompt) : null
-      const query = prompt?.q ?? prepareQuery(text, { isFirstOnText })
+      const isDocumentIncluded = hasDocument && !custom.prompt
+      let doc = null
+      if (isDocumentIncluded) {
+        doc = (await requestDocument?.()) ?? null
+        // The user stopped the request while the app gave its document
+        if (abortSignal?.aborted) return
+      }
+      const query =
+        prompt?.q ??
+        prepareQuery(text, {
+          isFirstOnText,
+          hasSelection,
+          document: doc?.document ?? null
+        })
+      const documentNotice = isDocumentIncluded ? getDocumentNotice(doc) : null
+      // assistant-ui sets the custom metadata of the answer anew at each
+      // yield that has some: the notice goes in each one
+      const notice = documentNotice ? { documentNotice } : {}
       const system = [
         prompt ? prompt.instructions : (custom.instructions ?? instructions),
         rules
@@ -193,11 +232,15 @@ export function makeChatAdapter({
       let sources = null
       let action = null
 
+      if (documentNotice) {
+        yield { content: getContent(), metadata: { custom: notice } }
+      }
+
       try {
         events.clear()
         const response = await client.stackClient.fetchJSON(
           'POST',
-          `/ai/chat/conversations/${conversationId}`,
+          `/ai/chat/conversations/${runConversationId}`,
           {
             q: query,
             // The LLM answers alone, unless the user asks for their documents
@@ -208,7 +251,11 @@ export function makeChatAdapter({
             ...(websearch && { websearch: true })
           }
         )
-        stopAnswerOnAbort({ client, conversationId, abortSignal })
+        stopAnswerOnAbort({
+          client,
+          conversationId: runConversationId,
+          abortSignal
+        })
 
         for await (const event of events.read(
           getMessageId(response),
@@ -236,6 +283,7 @@ export function makeChatAdapter({
           status: { type: 'complete', reason: 'stop' },
           metadata: {
             custom: {
+              ...notice,
               ...(answerText.trim() === '' && !action && { isEmpty: true }),
               ...(sources?.length > 0 && { sources }),
               ...(action && { action })
@@ -249,6 +297,7 @@ export function makeChatAdapter({
           status: { type: 'incomplete', reason: 'error' },
           metadata: {
             custom: {
+              ...notice,
               isError: true,
               ...(error.message === ASSISTANT_NOT_FOUND && {
                 isAssistantGone: true
@@ -264,6 +313,10 @@ export function makeChatAdapter({
 const DEFAULT_REQUEST = {
   prepareQuery: text => text,
   hasDocuments: false,
+  hasDocument: false,
+  hasConversation: true,
+  hasSelection: true,
+  requestDocument: null,
   instructions: null,
   rules: null,
   actions: []
@@ -277,6 +330,8 @@ const DEFAULT_REQUEST = {
  * @param {object} options
  * @param {import('cozy-client/types/CozyClient').default} options.client
  * @param {string} options.conversationId
+ * @param {() => string} [options.makeFreshConversationId] - the id of a new
+ * conversation, for a request sent without the conversation
  * @param {number} [options.textIndex] - the index, among the messages of the
  * user, of the first one about the text of the app: the number of requests
  * of a past conversation
@@ -287,7 +342,12 @@ const DEFAULT_REQUEST = {
  *   startNewText: () => void
  * }}
  */
-export function makeChat({ client, conversationId, textIndex = 0 }) {
+export function makeChat({
+  client,
+  conversationId,
+  makeFreshConversationId,
+  textIndex = 0
+}) {
   const events = new ChatEventStream()
   let request = DEFAULT_REQUEST
   // The first message about the text of the app: the first new one, or the
@@ -302,7 +362,18 @@ export function makeChat({ client, conversationId, textIndex = 0 }) {
       conversationId,
       events,
       getRequest: () => request,
+      getConversationId: () =>
+        request.hasConversation === false
+          ? makeFreshConversationId()
+          : conversationId,
       getTextIndex: index => {
+        // A fresh conversation does not hold the text: it goes with each
+        // message, and with the next one of the conversation if this one
+        // was to bring it
+        if (request.hasConversation === false) {
+          if (firstOnText === index) firstOnText = null
+          return index
+        }
         if (firstOnText === null) firstOnText = index
         return firstOnText
       }

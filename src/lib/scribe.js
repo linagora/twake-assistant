@@ -255,22 +255,32 @@ export function makeScribePreparePrompt(content) {
 
 /**
  * Joins the text of the app to the first message about it only: the next
- * ones are about the answers, until the app gives another text. Nothing
+ * ones are about the answers, until the app gives another text. The whole
+ * document, when the user includes it, goes before the request. Nothing
  * else is added to what the
  * user asks: an instruction on how to answer belongs to the prompt of a
  * suggestion, and would twist a request it was not written for.
  *
  * @param {string} content - the text of the app
  * @param {Function} t - translation function
- * @returns {(text: string, options: { isFirstOnText: boolean }) => string}
+ * @returns {(text: string, options: { isFirstOnText: boolean, hasSelection?: boolean, document?: string|null }) => string}
+ * `hasSelection` false leaves the text of the app out
  */
 export function makeScribePrepareQuery(content, t) {
-  return (text, { isFirstOnText }) =>
-    isFirstOnText
-      ? `${text}\n\n${t('scribe.content')}\n"""\n${content}\n"""`
-      : text
+  return (text, { isFirstOnText, hasSelection = true, document = null }) => {
+    const request =
+      isFirstOnText && hasSelection && content !== ''
+        ? `${text}\n\n${t('scribe.content')}\n"""\n${content}\n"""`
+        : text
+    return document
+      ? `[Full document]\n${document}\n[End of full document]\n\n${request}`
+      : request
+  }
 }
 
+// The document as makeScribePrepareQuery puts it before the request
+const FULL_DOCUMENT =
+  /^\[Full document\]\n[\s\S]*\n\[End of full document\]\n\n/
 // The text of the app as makeScribePrepareQuery joins it, in any language
 const JOINED_TEXT = /\n\n[^\n]*\n"""\n[\s\S]*\n"""$/
 // A prompt of the catalogue, even one written before its current version:
@@ -293,8 +303,8 @@ const PROMPT_PATTERNS = catalogue.prompts.flatMap(prompt => {
 
 /**
  * The request a message of a past conversation shows. The stack keeps the
- * query sent to the LLM: the prompt of a chip, or the request with the text
- * of the app.
+ * query sent to the LLM: the prompt of a chip, or the request with the
+ * document and the text of the app.
  *
  * @param {string} query - the content of the message kept by the stack
  * @param {Function} t - translation function
@@ -305,7 +315,10 @@ export function getScribeRequest(query, t) {
     pattern.test(query)
   )?.prompt
   if (!prompt) {
-    return query.match(CATALOGUE_QUERY)?.[1] ?? query.replace(JOINED_TEXT, '')
+    const request = query.replace(FULL_DOCUMENT, '')
+    return (
+      request.match(CATALOGUE_QUERY)?.[1] ?? request.replace(JOINED_TEXT, '')
+    )
   }
 
   const known = findSuggestion(

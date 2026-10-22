@@ -129,6 +129,23 @@ interface AssistantIntentConfig {
    * Absent or empty means no rule.
    */
   rules?: string
+
+  /**
+   * The whole document of the calling app, in answer to a DocumentRequest
+   * (see Result): new data with the rest of the configuration, and this
+   * field. `null` when the app cannot read its document: the request is
+   * sent without it, and the scribe tells the user.
+   * Absent, or of another type, means the data do not answer a
+   * DocumentRequest, as the data of another text selected meanwhile.
+   */
+  document?: string | null
+
+  /**
+   * Whether the app cut `document` to a length it chose: the scribe tells
+   * the user that only part of the document was sent.
+   * Defaults to false.
+   */
+  documentTruncated?: boolean
 }
 ```
 
@@ -304,11 +321,13 @@ When no config is provided, the assistant uses:
   draft: undefined,
   conversation: undefined,
   source: undefined,
-  rules: undefined
+  rules: undefined,
+  document: undefined,
+  documentTruncated: false
 }
 ```
 
-A field that is missing, `null` or of another type falls back to its default. An entry of `answerActions` without a non-empty string `name` is left out. A capability the stack would refuse is left out, since the stack refuses the whole message for it: an invalid or reserved name, the name of another capability, no description, an example without a message, both `parameters` and `content` or neither, parameters that are not a schema as described in [Capability](#capability), a negative `max_tokens`. The reason is written in the console of the browser, as `Capability <name> left out: <reason>`. Nothing is cut: the assistant does not limit the number of the capabilities nor the length of their texts. A suggestion that sends nothing, without `prompt` nor `message`, is left out, and so is a menu with no item left. The assistant never fails on a configuration it cannot read: it opens with what it understands.
+A field that is missing, `null` or of another type falls back to its default, except `document`, whose `null` means that the app cannot read its document. An entry of `answerActions` without a non-empty string `name` is left out. A capability the stack would refuse is left out, since the stack refuses the whole message for it: an invalid or reserved name, the name of another capability, no description, an example without a message, both `parameters` and `content` or neither, parameters that are not a schema as described in [Capability](#capability), a negative `max_tokens`. The reason is written in the console of the browser, as `Capability <name> left out: <reason>`. Nothing is cut: the assistant does not limit the number of the capabilities nor the length of their texts. A suggestion that sends nothing, without `prompt` nor `message`, is left out, and so is a menu with no item left. The assistant never fails on a configuration it cannot read: it opens with what it understands.
 
 For instance, with these capabilities, the assistant keeps `insert_slide` and leaves the two others out:
 
@@ -435,7 +454,7 @@ Set `content` to the text the user wants to work on:
 
 - Prompts about the text are offered above the composer of the empty conversation: correct, improve (make it shorter, expand context, emojify, transform to bullets), change tone (more professional, more casual, more polite), translate (into French, English, Russian or Vietnamese), and summarize.
 - The user can also type any request about the text.
-- The text is joined to the first message of the conversation only. The next messages are sent as they are: the conversation already holds the text and the previous answers, so a follow-up such as "shorter" works on the last answer.
+- The text is joined to the first message of the conversation only. The next messages are sent as they are: the conversation already holds the text and the previous answers, so a follow-up such as "shorter" works on the last answer. The user changes what a request includes above the composer (see [What a request includes](#what-a-request-includes)).
 
 ### The prompts
 
@@ -472,9 +491,20 @@ The calling app sends new data to the open assistant, with another `content`, wh
 
 - the next message, typed or from a prompt, gets the new text joined to it, and the messages after it are sent as they are;
 - the prompts are offered again above the composer until that message;
-- the action buttons follow the new `answerActions`, under every answer.
+- the action buttons follow the new `answerActions`, under every answer;
+- the Selection box is checked again (see [What a request includes](#what-a-request-includes)).
 
 Send new data for another text only, not for a cursor that moves: the next message would be about the same text again.
+
+### What a request includes
+
+Above the composer, under "Include", three boxes choose what goes with the next request. They do not change while an answer is written.
+
+- **Document**, unchecked at first. A typed request then asks the app for its whole document, with a DocumentRequest (see [Result](#result)), and waits for the next data that hold a `document`, 8 seconds at most. The document goes before the request, between a `[Full document]` and an `[End of full document]` line; the conversation shows the request alone. When the app gives `document: null`, or nothing in time, the request is sent without it, and the answer tells that the document could not be read. With `documentTruncated`, the answer tells that only part of it was sent. A prompt of the catalogue never asks for the document: it is about the text.
+- **Conversation**, checked at first. Unchecked, each request goes to a new conversation of its own, without the previous messages, and gets the text joined to it; the scribe still shows the whole exchange. Once checked again, the next request goes back to the conversation of the scribe, with the text if that conversation does not have it yet.
+- **Selection**, shown only with a `content`, checked at first and again whenever the app gives another text. Unchecked, a typed request is sent without the text. A prompt of the catalogue keeps the text in its query.
+
+An app that cannot read its document answers at once with `document: null`: the request would wait 8 seconds otherwise.
 
 ## Suggestions
 
@@ -593,7 +623,7 @@ Set `answerActions` to get the answers of the assistant back:
 
 ## Result
 
-On each click on an action button, on each call of a capability, and when the user goes on from a compact scribe to a panel, the assistant sends a `result` message. The intent goes on.
+On each click on an action button, on each call of a capability, when the user goes on from a compact scribe to a panel, and when a typed request includes the document, the assistant sends a `result` message. The intent goes on.
 
 ```ts
 {
@@ -606,10 +636,14 @@ On each click on an action button, on each call of a capability, and when the us
 
 ### AssistantIntentResult
 
-A result is an answer, for an action button, a call, for a capability, or a request of a compact scribe to the app. The calling app tells them apart by their field: `answerAction`, `capability` or `request`.
+A result is an answer, for an action button, a call, for a capability, or a request of the scribe to the app. The calling app tells them apart by their field: `answerAction`, `capability` or `request`, and the requests by its value.
 
 ```ts
-type AssistantIntentResult = AnswerResult | CapabilityCall | PanelRequest
+type AssistantIntentResult =
+  | AnswerResult
+  | CapabilityCall
+  | PanelRequest
+  | DocumentRequest
 
 interface AnswerResult {
   /**
@@ -672,6 +706,17 @@ interface PanelRequest {
    */
   conversation: string
 }
+
+interface DocumentRequest {
+  /**
+   * A typed request includes the document (see "What a request
+   * includes"): the app answers with new data, its whole configuration
+   * and `document`, the whole text of its document, or `document: null`
+   * when it cannot read it. The request waits 8 seconds at most. A request
+   * of the document while another one waits does not send another result.
+   */
+  request: 'document'
+}
 ```
 
 Examples:
@@ -708,6 +753,13 @@ Examples:
     "draft": "Plus court",
     "conversation": "1792483200000-48213"
   }
+}
+```
+
+```json
+{
+  "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result",
+  "result": { "request": "document" }
 }
 ```
 
@@ -752,7 +804,7 @@ The messages of the assistant intent, in order. They all go through `window.post
 | 3 | Assistant → app | `intent-{id}:readyToUse` | none, once | `onReadyToUse` option of `start()` |
 | 4 | Assistant → app | `intent-{id}:result` | `result: AssistantIntentResult`, an answer, a call or a request, any number of times | `service.sendResult()`, `onResult` option of `start()` |
 | 5 | Assistant → app | `intent-{id}:resize` | `dimensions: { height }`, the height of a compact scribe in pixels, when it shows and each time it changes | `service.resizeClient()`, `cozy-interapp` sets it as the height of the element of the intent (the frame of `IntentIframe`) |
-| 6 | App → assistant | `intent-{id}:data` | `data: AssistantIntentConfig`, any number of times | `sendData()` of the started intent, `service.onData()` |
+| 6 | App → assistant | `intent-{id}:data` | `data: AssistantIntentConfig`, any number of times: another text, or the `document` a DocumentRequest asks for | `sendData()` of the started intent, `service.onData()` |
 | 7 | Assistant → app | `intent-{id}:cancel` | none, when the user closes the scribe or the page of the assistant is unloaded | `service.cancel()`, the intent promise resolves with `null` |
 
 The user ends the exchange from the scribe, or the calling app ends it itself, by stopping the intent or removing its iframe (see [End of the intent](#end-of-the-intent)). The assistant never sends `done` nor `error`, and sends `resize` in the compact layout only.
@@ -774,10 +826,14 @@ The messages of an exchange, one per line:
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result", "result": { "capability": "insert_slide", "params": { "title": "Risques", "bullets": ["Charge du support"] } } }
 // 4. a result: a compact scribe goes on in a panel
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result", "result": { "request": "panel", "draft": "Plus court", "conversation": "1792483200000-48213" } }
+// 4. a result: a typed request includes the document
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result", "result": { "request": "document" } }
 // 5. resize, in the compact layout
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:resize", "dimensions": { "height": 212 } }
-// 6. new data
+// 6. new data: another text
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "Merci de confirmer", "answerActions": [{ "name": "insert" }, { "name": "replace" }], "theme": { "type": "light" } } }
+// 6. new data: the document
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "Merci de confirmer", "answerActions": [{ "name": "insert" }, { "name": "replace" }], "theme": { "type": "light" }, "document": "Compte rendu\n\nMerci de confirmer", "documentTruncated": false } }
 ```
 
 ## Interoperability with Open Buro
@@ -900,7 +956,7 @@ const assistant = intents
 ## Requirements
 
 - `cozy-interapp` 0.20.0 or later in the calling app, for the `result` message (`service.sendResult()`, `onResult` option of `start()`). With an older one, the assistant opens but the clicks on the action buttons do not reach the calling app.
-- To give another text while the assistant is open, `cozy-interapp` 0.21.0 or later in the calling app, for the `data` message (`sendData()` on the started intent). With an older one, the assistant keeps the first text.
+- To give another text, or the document, while the assistant is open, `cozy-interapp` 0.21.0 or later in the calling app, for the `data` message (`sendData()` on the started intent). With an older one, the assistant keeps the first text, and a request that includes the document waits 8 seconds and goes without it.
 - For the `onResult` prop and new `data` given to `IntentIframe` and `IntentDialogOpener`, `cozy-ui-plus` 14.0.0 or later, which requires `cozy-interapp` 0.21.0.
 - For the scribe, a cozy-stack that knows the `documents` and `instructions` options of `POST /ai/chat/conversations/:id`.
 - For the capabilities, a cozy-stack that knows the `actions` of `POST /ai/chat/conversations/:id` and proposes them with the `action` event of the chat. With an older one, the message is refused and the scribe shows an error.

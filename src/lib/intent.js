@@ -139,8 +139,12 @@ function readSuggestion(suggestion) {
  *   draft: string|null,
  *   conversation: string|null,
  *   source: string|null,
- *   rules: string|null
- * }} `suggestions` is null when the app leaves the scribe its default menu
+ *   rules: string|null,
+ *   document: string|null|undefined,
+ *   documentTruncated: boolean
+ * }} `suggestions` is null when the app leaves the scribe its default menu.
+ * `document` is null when the app cannot read its document, and undefined
+ * when the data do not answer a request for it.
  */
 export function getIntentConfig(data) {
   const {
@@ -154,7 +158,9 @@ export function getIntentConfig(data) {
     draft,
     conversation,
     source,
-    rules
+    rules,
+    document,
+    documentTruncated
   } = data ?? {}
 
   return {
@@ -177,6 +183,9 @@ export function getIntentConfig(data) {
     draft: readText(draft),
     conversation: readText(conversation),
     source: readText(source),
-    rules: readText(rules)
+    rules: readText(rules),
+    document:
+      typeof document === 'string' || document === null ? document : undefined,
+    documentTruncated: documentTruncated === true
   }
 }

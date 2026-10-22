@@ -20,6 +20,16 @@
     "documents": "Utiliser les fichiers de %{folder}",
     "retry": "Réessayer",
     "panel": "Panneau Scribe",
+    "include": {
+      "title": "Inclure",
+      "document": "Document",
+      "conversation": "Conversation",
+      "selection": "Sélection"
+    },
+    "document": {
+      "truncated": "Document trop long — seule une partie a été envoyée à l'assistant.",
+      "unavailable": "Impossible de lire le document — votre message a été envoyé sans lui."
+    },
     "instructions": "Tu aides l'utilisateur à travailler un texte dans son éditeur. Regarde d'abord ce qu'il demande.\nS'il pose une question sur le texte ou demande ton avis, réponds-lui normalement, en quelques phrases, sans réécrire le texte, et n'utilise aucun bloc.\nS'il demande d'écrire ou de modifier un texte, mets chaque texte destiné à son document dans un fenced block dont l'info string est `insert`, et écris tout le reste, comme un commentaire, en dehors des blocs : les blocs sont insérés tels quels dans le document. Écris ce texte dans la langue du texte, en une seule version, sans introduction dans le bloc, sans ligne de séparation, sans emoji et sans rien à compléter entre crochets. Garde la forme du texte, sauf si on te demande de la changer, et n'invente pas d'informations.",
     "content": "Texte :",
     "actions": {

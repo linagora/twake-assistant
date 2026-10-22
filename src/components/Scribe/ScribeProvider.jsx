@@ -52,6 +52,8 @@ function sendAsItIs(text) {
  * system message of each message, a prompt of the catalogue included
  * @param {string} [props.text] - the text of the app the requests are about.
  * When the app gives another one, the next request is about it.
+ * @param {Function} [props.requestDocument] - asks the app for its whole
+ * document, for a typed request that includes it
  * @param {import('@assistant-ui/react').ThreadMessageLike[]} [props.messages] -
  * the messages of a past conversation: the next request is about the text
  * @param {'panel'|'compact'} [props.layout] - see ScribeView
@@ -68,6 +70,7 @@ export function ScribeProvider({
   instructions = null,
   rules = null,
   text = '',
+  requestDocument = null,
   messages = NO_MESSAGES,
   layout = 'panel',
   onCancel = null,
@@ -76,6 +79,10 @@ export function ScribeProvider({
   // The answers come from the LLM alone until the user asks for their
   // documents
   const [hasDocuments, setHasDocuments] = useState(documents)
+  // What a request includes, in the zone above the composer
+  const [hasDocument, setHasDocument] = useState(false)
+  const [hasConversation, setHasConversation] = useState(true)
+  const [hasSelection, setHasSelection] = useState(true)
   // A call without confirmation is handed when its card mounts: the ids of
   // their messages keep a card that mounts again from handing it twice
   const handedCallsRef = useRef(new Set())
@@ -93,6 +100,10 @@ export function ScribeProvider({
       prepareQuery,
       preparePrompt,
       hasDocuments,
+      hasDocument,
+      hasConversation,
+      hasSelection,
+      requestDocument,
       instructions,
       rules,
       actions: capabilities.map(capability => capability.action)
@@ -101,6 +112,10 @@ export function ScribeProvider({
       prepareQuery,
       preparePrompt,
       hasDocuments,
+      hasDocument,
+      hasConversation,
+      hasSelection,
+      requestDocument,
       instructions,
       rules,
       capabilities
@@ -123,6 +138,7 @@ export function ScribeProvider({
   if (given.text !== text) {
     const start = countRequests(runtime.thread.getState().messages)
     setGiven({ text, start })
+    setHasSelection(true)
   }
   const textStart = given.start
 
@@ -140,6 +156,13 @@ export function ScribeProvider({
       capabilities,
       hasDocuments,
       setHasDocuments,
+      hasDocument,
+      setHasDocument,
+      hasConversation,
+      setHasConversation,
+      hasSelection,
+      setHasSelection,
+      text,
       handCall,
       isCallHanded,
       textStart,
@@ -151,6 +174,10 @@ export function ScribeProvider({
       answerActions,
       capabilities,
       hasDocuments,
+      hasDocument,
+      hasConversation,
+      hasSelection,
+      text,
       handCall,
       isCallHanded,
       textStart,

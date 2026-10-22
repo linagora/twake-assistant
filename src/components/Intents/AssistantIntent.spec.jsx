@@ -21,11 +21,12 @@ const mockService = {
   resizeClient: jest.fn(),
   notifyReadyToUse: jest.fn(),
   onData: jest.fn(listener => {
-    mockSendData = listener
-    return () => {}
+    dataListeners.add(listener)
+    return () => dataListeners.delete(listener)
   })
 }
-let mockSendData = null
+const dataListeners = new Set()
+const mockSendData = data => dataListeners.forEach(listener => listener(data))
 const mockCreateService = jest.fn()
 const mockComposer = {
   text: '',
@@ -180,6 +181,28 @@ describe('AssistantIntent', () => {
     ])
   })
 
+  it('asks the app for its document, and reads it in the next data', async () => {
+    mockService.getData.mockReturnValue({ content: 'Bonjour' })
+    renderIntent()
+    const { requestDocument } = await findScribeProps()
+
+    const request = requestDocument()
+    expect(mockService.sendResult).toHaveBeenCalledWith({ request: 'document' })
+    act(() =>
+      mockSendData({
+        content: 'Bonjour',
+        document: 'Bonjour à tous',
+        documentTruncated: true
+      })
+    )
+
+    await expect(request).resolves.toEqual({
+      document: 'Bonjour à tous',
+      isTruncated: true
+    })
+    expect((await findScribeProps()).text).toBe('Bonjour')
+  })
+
   it('keeps the theme of the opening when the app gives new data', async () => {
     mockService.getData.mockReturnValue({
       content: 'Bonjour',
@@ -212,7 +235,10 @@ describe('AssistantIntent', () => {
       'correct',
       'write'
     ])
-    expect(prepareQuery).toBe(undefined)
+    expect(prepareQuery('Fix', { isFirstOnText: true })).toBe('Fix')
+    expect(
+      prepareQuery('Fix', { isFirstOnText: true, document: 'The note' })
+    ).toBe('[Full document]\nThe note\n[End of full document]\n\nFix')
     expect(instructions).toBe(undefined)
     expect(documents).toBe(true)
     expect(answerActions.map(action => action.label)).toEqual([

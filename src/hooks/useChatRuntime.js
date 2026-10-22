@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 import { useClient } from 'cozy-client'
 
+import { makeConversationId } from '@/components/helpers'
 import { DOCTYPE_AI_CHAT_EVENTS } from '@/doctypes'
 import { makeChat } from '@/lib/chat'
 
@@ -26,7 +27,14 @@ export function useChatRuntime({
   textIndex = 0
 }) {
   const client = useClient()
-  const [chat] = useState(() => makeChat({ client, conversationId, textIndex }))
+  const [chat] = useState(() =>
+    makeChat({
+      client,
+      conversationId,
+      makeFreshConversationId: makeConversationId,
+      textIndex
+    })
+  )
 
   useEffect(() => {
     chat.setRequest(request)

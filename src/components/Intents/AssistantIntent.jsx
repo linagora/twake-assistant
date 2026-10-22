@@ -7,6 +7,7 @@ import { useI18n } from 'twake-i18n'
 
 import { IntentProviders } from '@/components/IntentProviders'
 import { ScribeView } from '@/components/Scribe/ScribeView'
+import { makeDocumentRequest } from '@/lib/documentRequest'
 import { getIntentConfig } from '@/lib/intent'
 import {
   makeScribeAnswerActions,
@@ -79,20 +80,16 @@ function Scribe({ service, config }) {
         : makeScribeShortActions(t),
     [content, suggestions, scribeCapabilities, t]
   )
-  const textProps = useMemo(
-    () =>
-      content
-        ? {
-            prepareQuery: makeScribePrepareQuery(content, t),
-            instructions: t('scribe.instructions')
-          }
-        : {},
+  // Without a text, a request may still include the document
+  const prepareQuery = useMemo(
+    () => makeScribePrepareQuery(content, t),
     [content, t]
   )
   const preparePrompt = useMemo(
     () => makeScribePreparePrompt(content),
     [content]
   )
+  const requestDocument = useMemo(() => makeDocumentRequest(service), [service])
   const handleClose = useCallback(() => service.cancel(), [service])
   const handleResize = useCallback(
     size => service.resizeClient?.(size),
@@ -104,10 +101,12 @@ function Scribe({ service, config }) {
       answerActions={scribeActions}
       capabilities={scribeCapabilities}
       suggestions={scribeSuggestions}
+      prepareQuery={prepareQuery}
       preparePrompt={preparePrompt}
+      requestDocument={requestDocument}
       documents={documents ?? content === ''}
       text={content}
-      {...textProps}
+      instructions={content ? t('scribe.instructions') : undefined}
       rules={rules}
       layout={layout}
       draft={draft}

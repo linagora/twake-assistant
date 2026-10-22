@@ -19,7 +19,12 @@ const assistantMessage = text => ({
 
 // The stack answers with the conversation, then the events of the answer
 // come: here as soon as the message is posted
-function setup({ events: answerEvents = [], options = {}, messageId = 'q1' }) {
+function setup({
+  events: answerEvents = [],
+  options = {},
+  messageId = 'q1',
+  getConversationId
+}) {
   const events = new ChatEventStream()
   const fetchJSON = jest.fn(async (method, path) => {
     if (path.endsWith('/cancel')) return null
@@ -37,7 +42,8 @@ function setup({ events: answerEvents = [], options = {}, messageId = 'q1' }) {
       hasDocuments: false,
       instructions: null,
       ...options
-    })
+    }),
+    getConversationId
   })
 
   return { adapter, events, fetchJSON }
@@ -533,6 +539,138 @@ describe('makeChatAdapter', () => {
     expect(await run(adapter, [])).toEqual([])
     expect(fetchJSON).not.toHaveBeenCalled()
   })
+
+  describe('the document of the app', () => {
+    it('asks the app for its document, and joins it to a typed request', async () => {
+      const prepareQuery = jest.fn((text, { document }) =>
+        document ? `${document} + ${text}` : text
+      )
+      const requestDocument = jest.fn(async () => ({
+        document: 'The note',
+        isTruncated: false
+      }))
+      const { adapter, fetchJSON } = setup({
+        events: [{ object: 'delta', content: 'Done' }, { object: 'done' }],
+        options: {
+          prepareQuery,
+          hasDocument: true,
+          hasSelection: false,
+          requestDocument
+        }
+      })
+
+      const results = await run(adapter, [userMessage('Fix it')])
+
+      expect(prepareQuery).toHaveBeenCalledWith('Fix it', {
+        isFirstOnText: true,
+        hasSelection: false,
+        document: 'The note'
+      })
+      expect(fetchJSON.mock.calls[0][2].q).toBe('The note + Fix it')
+      expect(results.at(-1).metadata.custom).toEqual({})
+    })
+
+    it('tells when only part of the document was sent', async () => {
+      const { adapter } = setup({
+        events: [{ object: 'delta', content: 'Done' }, { object: 'done' }],
+        options: {
+          hasDocument: true,
+          requestDocument: async () => ({ document: 'The', isTruncated: true })
+        }
+      })
+
+      const results = await run(adapter, [userMessage('Fix it')])
+
+      expect(results[0].metadata.custom).toEqual({
+        documentNotice: 'truncated'
+      })
+      expect(results.at(-1).metadata.custom.documentNotice).toBe('truncated')
+    })
+
+    it('sends the request without the document the app cannot read', async () => {
+      const prepareQuery = jest.fn(text => text)
+      const { adapter, fetchJSON } = setup({
+        events: [{ object: 'error', message: 'Overloaded' }],
+        options: {
+          prepareQuery,
+          hasDocument: true,
+          requestDocument: async () => null
+        }
+      })
+
+      const results = await run(adapter, [userMessage('Fix it')])
+
+      expect(prepareQuery.mock.calls[0][1].document).toBe(null)
+      expect(fetchJSON.mock.calls[0][2].q).toBe('Fix it')
+      expect(results[0].metadata.custom).toEqual({
+        documentNotice: 'unavailable'
+      })
+      expect(results.at(-1).metadata.custom).toMatchObject({
+        isError: true,
+        documentNotice: 'unavailable'
+      })
+    })
+
+    it('sends nothing when the user stops while the app reads its document', async () => {
+      const controller = new AbortController()
+      const { adapter, fetchJSON } = setup({
+        options: {
+          hasDocument: true,
+          requestDocument: async () => {
+            controller.abort()
+            return { document: 'The note', isTruncated: false }
+          }
+        }
+      })
+
+      expect(
+        await run(adapter, [userMessage('Fix it')], controller.signal)
+      ).toEqual([])
+      expect(fetchJSON).not.toHaveBeenCalled()
+    })
+
+    it('does not ask for it without the toggle', async () => {
+      const requestDocument = jest.fn()
+      const { adapter } = setup({
+        events: [{ object: 'done' }],
+        options: { requestDocument }
+      })
+
+      await run(adapter, [userMessage('Fix it')])
+
+      expect(requestDocument).not.toHaveBeenCalled()
+    })
+
+    it('tells the document could not be read when the app cannot give it', async () => {
+      const { adapter, fetchJSON } = setup({
+        events: [{ object: 'done' }],
+        options: { hasDocument: true, requestDocument: null }
+      })
+
+      const results = await run(adapter, [userMessage('Fix it')])
+
+      expect(fetchJSON.mock.calls[0][2].q).toBe('Fix it')
+      expect(results.at(-1).metadata.custom.documentNotice).toBe('unavailable')
+    })
+  })
+
+  it('posts the message to the conversation of the moment, and stops it there', async () => {
+    const controller = new AbortController()
+    const { adapter, fetchJSON } = setup({
+      events: [{ object: 'delta', content: 'Bonjour' }],
+      getConversationId: () => 'fresh'
+    })
+
+    const running = run(adapter, [userMessage('Fix it')], controller.signal)
+    await new Promise(resolve => setTimeout(resolve, 0))
+    controller.abort()
+    await running
+
+    expect(fetchJSON.mock.calls.map(call => call[1])).toEqual([
+      '/ai/chat/conversations/fresh',
+      '/ai/chat/conversations/fresh/cancel'
+    ])
+  })
 })
 
 describe('makeChat', () => {
@@ -671,6 +809,55 @@ describe('makeChat', () => {
     const results = await run(chat.adapter, [userMessage('Hello')])
 
     expect(getText(results.at(-1))).toBe('Hi')
+  })
+
+  it('sends each request to a fresh conversation, with the text, when the conversation is off', async () => {
+    const sent = []
+    const chat = makeChat({
+      client: {
+        stackClient: {
+          fetchJSON: jest.fn(async (method, path, body) => {
+            chat.events.push({ _id: 'q1', object: 'done' })
+            sent.push([path, body.q])
+            return {
+              data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
+            }
+          })
+        }
+      },
+      conversationId: 'c1',
+      makeFreshConversationId: jest
+        .fn()
+        .mockReturnValueOnce('n1')
+        .mockReturnValueOnce('n2')
+    })
+    const request = {
+      prepareQuery: (text, { isFirstOnText }) =>
+        isFirstOnText ? `${text} + the text` : text
+    }
+    chat.setRequest({ ...request, hasConversation: false })
+    const first = [userMessage('Fix it'), assistantMessage('Fixed')]
+    const second = [userMessage('Shorter'), assistantMessage('Short')]
+
+    await run(chat.adapter, [userMessage('Fix it')])
+    await run(chat.adapter, [...first, userMessage('Shorter')])
+    chat.setRequest(request)
+    await run(chat.adapter, [...first, ...second, userMessage('Translate')])
+    await run(chat.adapter, [
+      ...first,
+      ...second,
+      userMessage('Translate'),
+      assistantMessage('Translated'),
+      userMessage('Again')
+    ])
+
+    expect(sent).toEqual([
+      ['/ai/chat/conversations/n1', 'Fix it + the text'],
+      ['/ai/chat/conversations/n2', 'Shorter + the text'],
+      // The conversation has not had the text yet
+      ['/ai/chat/conversations/c1', 'Translate + the text'],
+      ['/ai/chat/conversations/c1', 'Again']
+    ])
   })
 })
 
