@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import React from 'react'
 
+import Minilog from 'cozy-minilog'
 import { I18n, initTranslation } from 'twake-i18n'
 
 import { ScribeAnswer } from '@/components/Scribe/ScribeAnswer'
@@ -42,6 +43,10 @@ jest.mock('@/components/Messages/Sources', () => ({
 jest.mock('@/lib/clipboard', () => ({
   copyAnswer: jest.fn()
 }))
+jest.mock('cozy-minilog', () => {
+  const log = { error: jest.fn() }
+  return () => log
+})
 
 const answer = (text, status, custom = {}) => ({
   id: 'a1',
@@ -67,7 +72,8 @@ describe('ScribeAnswer', () => {
     mockThread = { messages: [] }
     mockReload.mockClear()
     copyAnswer.mockReset()
-    copyAnswer.mockResolvedValue()
+    copyAnswer.mockResolvedValue(true)
+    Minilog().error.mockClear()
     actions.forEach(action => action.onClick.mockClear())
   })
 
@@ -189,8 +195,9 @@ describe('ScribeAnswer', () => {
       expect(screen.queryByRole('button', { name: 'Copy' })).toBeInTheDocument()
     })
 
-    it('shows no check when the answer could not be copied', async () => {
-      copyAnswer.mockRejectedValue(new Error('NotAllowedError'))
+    it('shows no check, and logs it, when the copy fails', async () => {
+      const error = new Error('NotAllowedError')
+      copyAnswer.mockRejectedValue(error)
       renderAnswer(answer('Bonjour', 'complete'), actions)
 
       await act(async () => {
@@ -199,6 +206,24 @@ describe('ScribeAnswer', () => {
 
       expect(screen.queryByRole('button', { name: 'Copy' })).toBeInTheDocument()
       expect(screen.queryByTestId('scribe-check')).toBe(null)
+      expect(Minilog().error).toHaveBeenCalledWith(
+        'The answer could not be copied',
+        error
+      )
+    })
+
+    it('shows no check when there was nothing to copy to', async () => {
+      copyAnswer.mockResolvedValue(false)
+      renderAnswer(answer('Bonjour', 'complete'), actions)
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Copy' }))
+      })
+
+      expect(screen.queryByRole('button', { name: 'Copy' })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Copied' })).toBe(null)
+      expect(screen.queryByTestId('scribe-check')).toBe(null)
+      expect(Minilog().error).not.toHaveBeenCalled()
     })
   })
 
