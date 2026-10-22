@@ -378,6 +378,47 @@ describe('makeChatMessages', () => {
     expect(withoutText.metadata).toBeUndefined()
   })
 
+  it('keeps the text of a past chip request as its selection', () => {
+    const [summary, shorter] = makeChatMessages(
+      [
+        {
+          id: 'm1',
+          role: 'user',
+          content: makeScribePreparePrompt('Bonjour\n\nle monde')('summarize').q
+        },
+        {
+          id: 'm2',
+          role: 'user',
+          content: makeScribePreparePrompt('Hello')('make-shorter').q
+        }
+      ],
+      mockT
+    )
+
+    expect(summary.content).toBe('Summarize the text.')
+    expect(summary.metadata.custom.selection).toBe('Bonjour\n\nle monde')
+    expect(shorter.metadata.custom.selection).toBe('Hello')
+  })
+
+  it('keeps no selection from a blank text', () => {
+    const messages = makeChatMessages(
+      [
+        { id: 'm1', role: 'user', content: 'Fix it\n\nText:\n"""\n \n"""' },
+        {
+          id: 'm2',
+          role: 'user',
+          content: makeScribePreparePrompt('  ')('summarize').q
+        }
+      ],
+      mockT
+    )
+
+    expect(messages.map(message => message.metadata)).toEqual([
+      undefined,
+      undefined
+    ])
+  })
+
   it('says an empty answer is empty', () => {
     const [answer] = makeChatMessages(
       [{ id: 'm2', role: 'assistant', content: ' ' }],

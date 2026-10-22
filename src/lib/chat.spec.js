@@ -654,6 +654,101 @@ describe('makeChatAdapter', () => {
     })
   })
 
+  describe('the text of the app it sends', () => {
+    const prepareQuery = (text, { isFirstOnText, hasSelection = true }) =>
+      isFirstOnText && hasSelection ? `${text} + the text` : text
+    const preparePrompt = name => ({
+      q: `${name}: the text`,
+      instructions: null
+    })
+
+    it('tells the text it joins to a typed request', async () => {
+      const recordSentText = jest.fn()
+      const { adapter } = setup({
+        events: [{ object: 'done' }],
+        options: { prepareQuery, text: 'Bonjour', recordSentText }
+      })
+
+      await run(adapter, [userMessage('Fix it')])
+
+      expect(recordSentText).toHaveBeenCalledTimes(1)
+      expect(recordSentText).toHaveBeenCalledWith(0, 'Bonjour')
+    })
+
+    it('tells the text of a suggestion, which holds it, even without the selection', async () => {
+      const recordSentText = jest.fn()
+      const { adapter } = setup({
+        events: [{ object: 'done' }],
+        options: {
+          prepareQuery,
+          preparePrompt,
+          hasSelection: false,
+          text: 'Bonjour',
+          recordSentText
+        }
+      })
+
+      await run(adapter, [userMessage('Summarize')], undefined, {
+        custom: { prompt: 'summarize' }
+      })
+
+      expect(recordSentText).toHaveBeenCalledWith(0, 'Bonjour')
+    })
+
+    it.each([
+      ['the selection is off', { hasSelection: false }],
+      ['the app gives no text', { text: '' }],
+      ['the text is blank', { text: ' \n' }]
+    ])('tells nothing when %s', async (name, options) => {
+      const recordSentText = jest.fn()
+      const { adapter } = setup({
+        events: [{ object: 'done' }],
+        options: { prepareQuery, text: 'Bonjour', recordSentText, ...options }
+      })
+
+      await run(adapter, [userMessage('Fix it')])
+
+      expect(recordSentText).not.toHaveBeenCalled()
+    })
+
+    it('tells nothing for a request after the first one about the text', async () => {
+      const recordSentText = jest.fn()
+      const { adapter } = setup({
+        events: [{ object: 'done' }],
+        options: { prepareQuery, text: 'Bonjour', recordSentText }
+      })
+
+      await run(adapter, [
+        userMessage('Fix it'),
+        assistantMessage('Fixed'),
+        userMessage('Shorter')
+      ])
+
+      expect(recordSentText).not.toHaveBeenCalled()
+    })
+
+    it('tells nothing when the user stops while the app reads its document', async () => {
+      const recordSentText = jest.fn()
+      const { adapter } = setup({
+        options: {
+          prepareQuery,
+          text: 'Bonjour',
+          recordSentText,
+          hasDocument: true,
+          requestDocument: () => new Promise(() => {})
+        }
+      })
+      const controller = new AbortController()
+
+      const running = run(adapter, [userMessage('Fix it')], controller.signal)
+      await new Promise(resolve => setTimeout(resolve, 0))
+      controller.abort()
+      await running
+
+      expect(recordSentText).not.toHaveBeenCalled()
+    })
+  })
+
   it('posts the message to the conversation of the moment, and stops it there', async () => {
     const controller = new AbortController()
     const { adapter, fetchJSON } = setup({
@@ -900,6 +995,30 @@ describe('makeChat', () => {
       ])
 
       expect(sent).toEqual(['Fix it', 'Shorter + the text', 'Again'])
+    })
+
+    it('tells the text with the request that sends it', async () => {
+      const { chat } = makeSendingChat()
+      const recordSentText = jest.fn()
+      chat.setRequest({
+        prepareQuery,
+        text: 'Bonjour',
+        recordSentText,
+        hasSelection: false
+      })
+
+      await run(chat.adapter, [userMessage('Fix it')])
+      expect(recordSentText).not.toHaveBeenCalled()
+      chat.setRequest({ prepareQuery, text: 'Bonjour', recordSentText })
+      await run(chat.adapter, [...first, userMessage('Shorter')])
+      await run(chat.adapter, [
+        ...first,
+        userMessage('Shorter'),
+        assistantMessage('Short'),
+        userMessage('Again')
+      ])
+
+      expect(recordSentText.mock.calls).toEqual([[1, 'Bonjour']])
     })
 
     it('counts a chip, which holds the text, even without the selection', async () => {

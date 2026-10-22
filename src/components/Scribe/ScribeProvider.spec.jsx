@@ -5,7 +5,7 @@ import { CozyProvider, createMockClient } from 'cozy-client'
 import { initTranslation } from 'twake-i18n'
 
 import { ScribeProvider, useScribe } from '@/components/Scribe/ScribeProvider'
-import { makeScribePrepareQuery } from '@/lib/scribe'
+import { makeScribePrepareQuery, makeScribePreparePrompt } from '@/lib/scribe'
 import en from '@/locales/en.json'
 
 let mockAdapter = null
@@ -61,9 +61,11 @@ function setup(props = {}) {
 
 async function run(messages, runConfig) {
   const results = []
-  for await (const result of mockAdapter.run({ messages, runConfig })) {
-    results.push(result)
-  }
+  await act(async () => {
+    for await (const result of mockAdapter.run({ messages, runConfig })) {
+      results.push(result)
+    }
+  })
   return results
 }
 
@@ -292,6 +294,37 @@ describe('ScribeProvider', () => {
     expect(
       scribe.client.stackClient.fetchJSON.mock.calls.map(call => call[2].q)
     ).toEqual(['Fix it', 'Shorter\n\nText:\n"""\nBonjour\n"""'])
+  })
+
+  it('keeps the text sent with each request, whatever the app gives next', async () => {
+    const scribe = setup({ prepareQuery: scribePrepareQuery, text: 'Bonjour' })
+    answerAtOnce(scribe)
+    expect(scribe.getScribe().sentTexts).toEqual({})
+    act(() => scribe.getScribe().setHasSelection(false))
+
+    await run([userMessage('Fix it')])
+    expect(scribe.getScribe().sentTexts).toEqual({})
+    act(() => scribe.getScribe().setHasSelection(true))
+    mockMessages = [userMessage('Fix it'), { role: 'assistant' }]
+    await run([...mockMessages, userMessage('Shorter')])
+    scribe.rerenderWith({ prepareQuery: scribePrepareQuery, text: 'Au revoir' })
+
+    expect(scribe.getScribe().sentTexts).toEqual({ 1: 'Bonjour' })
+  })
+
+  it('keeps the text of a suggestion as sent with its request', async () => {
+    const scribe = setup({
+      prepareQuery: scribePrepareQuery,
+      preparePrompt: makeScribePreparePrompt('Bonjour'),
+      text: 'Bonjour'
+    })
+    answerAtOnce(scribe)
+
+    await run([userMessage('Summarize the text.')], {
+      custom: { prompt: 'summarize' }
+    })
+
+    expect(scribe.getScribe().sentTexts).toEqual({ 0: 'Bonjour' })
   })
 
   it('sends a chip without the document even when it is included', async () => {

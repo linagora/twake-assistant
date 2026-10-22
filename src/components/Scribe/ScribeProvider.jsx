@@ -83,6 +83,16 @@ export function ScribeProvider({
   const [hasDocument, setHasDocument] = useState(false)
   const [hasConversation, setHasConversation] = useState(true)
   const [hasSelection, setHasSelection] = useState(true)
+  // The text each request sent, by the index of the request among the
+  // requests of the user: the app may give another text afterwards
+  const [sentTexts, setSentTexts] = useState({})
+  const recordSentText = useCallback((index, sentText) => {
+    setSentTexts(previous =>
+      previous[index] === sentText
+        ? previous
+        : { ...previous, [index]: sentText }
+    )
+  }, [])
   // A call without confirmation is handed when its card mounts: the ids of
   // their messages keep a card that mounts again from handing it twice
   const handedCallsRef = useRef(new Set())
@@ -103,6 +113,8 @@ export function ScribeProvider({
       hasDocument,
       hasConversation,
       hasSelection,
+      text,
+      recordSentText,
       requestDocument,
       instructions,
       rules,
@@ -115,6 +127,8 @@ export function ScribeProvider({
       hasDocument,
       hasConversation,
       hasSelection,
+      text,
+      recordSentText,
       requestDocument,
       instructions,
       rules,
@@ -163,6 +177,7 @@ export function ScribeProvider({
       hasSelection,
       setHasSelection,
       text,
+      sentTexts,
       handCall,
       isCallHanded,
       textStart,
@@ -178,6 +193,7 @@ export function ScribeProvider({
       hasConversation,
       hasSelection,
       text,
+      sentTexts,
       handCall,
       isCallHanded,
       textStart,
