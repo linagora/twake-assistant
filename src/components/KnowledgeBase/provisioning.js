@@ -98,13 +98,7 @@ const resolveFolderById = async (client, dirId) => {
   )
 }
 
-/**
- * Resolves the knowledge base folder of a flag entry. dirId wins; when it
- * does not resolve, like a magic folder its app has not created yet, the
- * dirName folder is used. Nothing is ever created. Returns the dir id, or
- * null.
- */
-export const resolveProvisionedFolder = async (client, { dirId, dirName }) => {
+const findProvisionedFolder = async (client, { dirId, dirName }) => {
   if (dirId) {
     const id = await resolveFolderById(client, dirId)
     if (id || !dirName) return id
@@ -114,6 +108,37 @@ export const resolveProvisionedFolder = async (client, { dirId, dirName }) => {
     () => client.collection(FILES_DOCTYPE).statByPath(path),
     path
   )
+}
+
+const createProvisionedFolder = async (client, { dirId, dirName, name }) => {
+  const magic = isMagicFolderId(dirId)
+  const folderName = magic ? name || dirName : dirName
+  if (!folderName) return null
+  const files = client.collection(FILES_DOCTYPE)
+  const path = `/${folderName}`
+  // Returns whatever already sits at the path, a file included.
+  const { data: folder } = await files.createDirectoryByPath(path)
+  if (!isLiveDirectory(folder)) {
+    warn(`folder ${path} is not a live directory`)
+    return null
+  }
+  if (magic) {
+    // The app of the magic folder finds it by this reference and uses it.
+    await files.addReferencesTo({ _type: APPS_DOCTYPE, _id: dirId }, [folder])
+  }
+  return folder._id
+}
+
+/**
+ * Resolves the knowledge base folder of a flag entry. dirId wins; when it
+ * does not resolve, like a magic folder its app has not created yet, the
+ * dirName folder is used. When neither exists, the folder is created only
+ * if the entry sets autoCreateFolder. Returns the dir id, or null.
+ */
+export const resolveProvisionedFolder = async (client, entry) => {
+  const id = await findProvisionedFolder(client, entry)
+  if (id || entry.autoCreateFolder !== true) return id
+  return createProvisionedFolder(client, entry)
 }
 
 /**
@@ -191,7 +216,7 @@ const validate = entry => {
  * names derive to the same id would fight over one assistant: the second
  * one is skipped.
  * @param {import('cozy-client').CozyClient} client
- * @param {Array<{name: string, dirName?: string, dirId?: string, prompt?: string, icon?: string|null, default?: boolean}>} configs - The flag entries.
+ * @param {Array<{name: string, dirName?: string, dirId?: string, autoCreateFolder?: boolean, prompt?: string, icon?: string|null, default?: boolean}>} configs - The flag entries.
  * @param {object} [options]
  * @param {Array<object>} [options.assistants] - Every assistant of the instance, when already fetched: spares one query per entry.
  * @returns {Promise<{created: string[], ensured: string[], skipped: {id: string, reason: string}[]}>}
@@ -247,8 +272,11 @@ export const ensureProvisionedAssistants = async (
       }
       // The flag wins for provisioned assistants: resolve it first so we
       // can tell a deliberate root fallback from one the flag disagrees
-      // with.
-      const wanted = await resolveProvisionedFolder(client, entry)
+      // with. Only a folder about to be re-attached may be created.
+      const heal = current === null || isRootDirId(current)
+      const wanted = heal
+        ? await resolveProvisionedFolder(client, entry)
+        : await findProvisionedFolder(client, entry)
       if (!wanted) {
         result.skipped.push({ id, reason: 'folder could not be resolved' })
         continue
@@ -264,7 +292,7 @@ export const ensureProvisionedAssistants = async (
         result.ensured.push(id)
         continue
       }
-      const live = await resolveProvisionedFolder(client, { dirId: current })
+      const live = await resolveFolderById(client, current)
       if (!live) {
         result.skipped.push({
           id,

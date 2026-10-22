@@ -32,8 +32,11 @@ request needs one. See
   folders. An entry names an existing folder by `dirId` (a folder id or a
   magic folder like `io.cozy.apps/meet`), by `dirName` (a path from the
   root), or both: `dirName` is then used when `dirId` does not resolve, and
-  the assistant stays on it afterwards. No folder is ever created: an entry
-  whose folder does not exist is retried later.
+  the assistant stays on it afterwards. An entry whose folder does not exist
+  is retried later, unless it sets `autoCreateFolder: true`: the `dirName`
+  folder is then created or, for a magic folder, a folder at the root named
+  after `name` (`dirName` if none), referenced by its app, which then uses
+  it.
 
 ## Develop
 
