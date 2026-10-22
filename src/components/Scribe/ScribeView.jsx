@@ -139,6 +139,10 @@ export function ScribeView({ onClose, ...props }) {
     }
     setIsHistoryOpen(false)
   }
+  // The conversation on screen is deleted: a new one takes its place
+  const handleDelete = deleted => {
+    if (deleted._id === conversation.id) setConversation(makeNewConversation())
+  }
 
   return (
     <div className={styles['scribe']}>
@@ -177,7 +181,11 @@ export function ScribeView({ onClose, ...props }) {
         )}
       </header>
       {isHistoryOpen && (
-        <ScribeHistory conversationId={conversation.id} onOpen={handleOpen} />
+        <ScribeHistory
+          conversationId={conversation.id}
+          onOpen={handleOpen}
+          onDelete={handleDelete}
+        />
       )}
       <ScribeProvider
         key={conversation.id}

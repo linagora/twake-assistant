@@ -35,3 +35,25 @@ export function buildConversationsQuery() {
     }
   }
 }
+
+// The pinned conversations, on top of the history whatever their date
+export function buildPinnedConversationsQuery() {
+  return {
+    definition: () =>
+      Q(DOCTYPE_AI_CHAT_CONVERSATIONS)
+        .where({
+          'cozyMetadata.favorite': true,
+          'cozyMetadata.updatedAt': { $gt: null }
+        })
+        .indexFields(['cozyMetadata.favorite', 'cozyMetadata.updatedAt'])
+        .sortBy([
+          { 'cozyMetadata.favorite': 'desc' },
+          { 'cozyMetadata.updatedAt': 'desc' }
+        ])
+        .limitBy(CONVERSATIONS_LIMIT),
+    options: {
+      as: `${DOCTYPE_AI_CHAT_CONVERSATIONS}/favorite/true/updatedAt/desc`,
+      fetchPolicy: defaultFetchPolicy
+    }
+  }
+}

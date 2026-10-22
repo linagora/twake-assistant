@@ -74,3 +74,7 @@ export const getDescriptionOfConversation = (conversation, t) => {
   if (!answer) return undefined
   return formatAnswer(answer, t)
 }
+
+// A pinned conversation is a favorite of cozy-stack, kept in `cozyMetadata`
+export const isPinned = conversation =>
+  conversation.cozyMetadata?.favorite === true
