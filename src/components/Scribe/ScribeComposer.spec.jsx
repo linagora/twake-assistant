@@ -102,6 +102,17 @@ describe('ScribeComposer', () => {
     expect(onCancel).toHaveBeenCalledTimes(1)
   })
 
+  it('keeps the compact layout open on Escape while composing', () => {
+    const { onCancel } = renderComposer({ layout: 'compact' })
+
+    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Help me write' }), {
+      key: 'Escape',
+      isComposing: true
+    })
+
+    expect(onCancel).not.toHaveBeenCalled()
+  })
+
   it('keeps the panel open on Escape', () => {
     const { onCancel } = renderComposer()
 

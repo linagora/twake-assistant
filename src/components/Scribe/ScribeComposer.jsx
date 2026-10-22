@@ -36,10 +36,10 @@ export function ScribeComposer({ placeholder, inputRef }) {
     folder: t('assistant.twake_knowledges.drive')
   })
   const handleKeyDown = event => {
+    if (event.nativeEvent.isComposing) return
     if (event.key === 'Escape' && layout === 'compact') onCancel?.()
     if (
       event.key === 'ArrowUp' &&
-      !event.nativeEvent.isComposing &&
       composerRuntime.getState().text === '' &&
       focusLatestInsert(event.currentTarget.closest('[data-scribe-thread]'))
     ) {
