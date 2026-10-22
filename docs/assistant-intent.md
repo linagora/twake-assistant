@@ -352,9 +352,9 @@ The configuration picks what the scribe offers. There is no mode option.
 
 | Configuration | What the assistant shows | User's documents |
 | --- | --- | --- |
-| None of `content`, `answerActions`, `capabilities`, `suggestions` | The scribe alone, without prompts, actions nor cards | Optional, on by default |
+| None of `content`, `answerActions`, `capabilities`, `suggestions` | The scribe alone, with its short actions, without prompts, actions nor cards | Optional, on by default |
 | `content` only | The prompts about the text | Optional, off by default |
-| `answerActions` only | The action buttons under each answer | Optional, on by default |
+| `answerActions` only | The short actions, and the action buttons under each answer | Optional, on by default |
 | `content` and `answerActions` | The full scribe: prompts and action buttons | Optional, off by default |
 | `capabilities`, with or without the others | The cards of the calls the LLM proposes | Optional, off with a `content`, on without |
 | `suggestions`, with or without the others | The chips of the app above the composer | Optional, off with a `content`, on without |
@@ -409,7 +409,7 @@ Send new data for another text only, not for a cursor that moves: the next messa
 
 ## Suggestions
 
-Set `suggestions` to choose the chips above the composer. Without it, a scribe with a text offers the default menu, the prompts of the catalogue (see [The prompts](#the-prompts)), and a scribe without a text offers nothing.
+Set `suggestions` to choose the chips above the composer. Without it, a scribe with a text offers the default menu, the prompts of the catalogue (see [The prompts](#the-prompts)), and a scribe without a text offers short actions (translate, correct, help me write): each one puts the start of a request in the composer, for the user to complete before sending it.
 
 ```json
 {

@@ -229,6 +229,14 @@
           "label": "Dịch",
           "prompt": "Dịch sang "
         },
+        "correct": {
+          "label": "Sửa lỗi",
+          "prompt": "Sửa lỗi văn bản này: "
+        },
+        "write": {
+          "label": "Giúp tôi viết",
+          "prompt": "Giúp tôi viết "
+        },
         "key_points": {
           "label": "Điểm chính tuần trước",
           "prompt": "Những điểm chính tuần trước về "

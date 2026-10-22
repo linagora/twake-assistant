@@ -212,6 +212,14 @@
           "label": "Translate",
           "prompt": "Translate into "
         },
+        "correct": {
+          "label": "Correct",
+          "prompt": "Correct this text: "
+        },
+        "write": {
+          "label": "Help me write",
+          "prompt": "Help me write "
+        },
         "key_points": {
           "label": "Key points from last week",
           "prompt": "What were the key points from last week about "

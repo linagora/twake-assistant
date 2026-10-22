@@ -9,21 +9,23 @@ import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
 import en from '@/locales/en.json'
 
 const mockThread = { append: jest.fn() }
+const mockComposer = { setText: jest.fn() }
 
 jest.mock('@assistant-ui/react', () => ({
-  useThreadRuntime: () => mockThread
+  useThreadRuntime: () => mockThread,
+  useComposerRuntime: () => mockComposer
 }))
 jest.mock('@/components/Scribe/ScribeProvider', () => ({
   useScribe: jest.fn()
 }))
 
-function renderSuggestions(suggestions) {
+function renderSuggestions(suggestions, inputRef) {
   useScribe.mockReturnValue({ suggestions })
 
   return render(
     <I18n lang="en" polyglot={initTranslation('en', () => en)}>
       <BreakpointsProvider>
-        <ScribeSuggestions />
+        <ScribeSuggestions inputRef={inputRef} />
       </BreakpointsProvider>
     </I18n>
   )
@@ -85,6 +87,20 @@ describe('ScribeSuggestions', () => {
       metadata: { custom: { prompt: 'translate-french' } },
       runConfig: { custom: { prompt: 'translate-french' } }
     })
+  })
+
+  it('puts the draft of a short action in the composer, without sending it', () => {
+    const inputRef = { current: { focus: jest.fn() } }
+    renderSuggestions(
+      [{ name: 'write', label: 'Help me write', draft: 'Help me write ' }],
+      inputRef
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Help me write' }))
+
+    expect(mockComposer.setText).toHaveBeenCalledWith('Help me write ')
+    expect(inputRef.current.focus).toHaveBeenCalledTimes(1)
+    expect(mockThread.append).not.toHaveBeenCalled()
   })
 
   it('shows nothing without prompts', () => {

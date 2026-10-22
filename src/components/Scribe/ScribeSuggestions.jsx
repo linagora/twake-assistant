@@ -1,4 +1,4 @@
-import { useThreadRuntime } from '@assistant-ui/react'
+import { useComposerRuntime, useThreadRuntime } from '@assistant-ui/react'
 import React, { useRef, useState } from 'react'
 
 import { Icon } from '@linagora/twake-icons'
@@ -77,11 +77,13 @@ function SuggestionChip({ suggestion, onSend }) {
 
 /**
  * The prompts about the text of the app: under the welcome of an empty
- * conversation, and above the composer when the app gives another text
+ * conversation, and above the composer when the app gives another text.
+ * `inputRef` is the input of the composer, focused once a draft fills it.
  */
-export function ScribeSuggestions() {
+export function ScribeSuggestions({ inputRef }) {
   const { suggestions } = useScribe()
   const threadRuntime = useThreadRuntime()
+  const composerRuntime = useComposerRuntime()
 
   if (suggestions.length === 0) return null
 
@@ -90,6 +92,11 @@ export function ScribeSuggestions() {
   // run config, not through the composer, which would keep it for the next
   // message typed. Its metadata keeps it too, for an answer asked again.
   const handleSend = suggestion => {
+    if (suggestion.draft) {
+      composerRuntime.setText(suggestion.draft)
+      inputRef?.current?.focus()
+      return
+    }
     const custom = {
       ...(suggestion.prompt && { prompt: suggestion.prompt }),
       ...(suggestion.instructions && {

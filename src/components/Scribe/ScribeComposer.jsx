@@ -17,8 +17,9 @@ import styles from '@/components/Scribe/styles.styl'
  *
  * @param {object} props
  * @param {string} props.placeholder
+ * @param {object} [props.inputRef]
  */
-export function ScribeComposer({ placeholder }) {
+export function ScribeComposer({ placeholder, inputRef }) {
   const { t } = useI18n()
   const { hasDocuments, setHasDocuments } = useScribe()
   const isRunning = useThread(state => state.isRunning)
@@ -33,6 +34,7 @@ export function ScribeComposer({ placeholder }) {
       className={`${styles['scribe-composer']} u-flex u-flex-items-end`}
     >
       <ComposerPrimitive.Input
+        ref={inputRef}
         className={`${styles['scribe-composer-input']} u-fz-small`}
         placeholder={placeholder}
         aria-label={placeholder}
