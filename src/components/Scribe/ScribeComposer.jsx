@@ -14,8 +14,11 @@ import styles from '@/components/Scribe/styles.styl'
 /**
  * Where the user writes a request: Enter sends it, except on a phone or a
  * tablet, where it is a new line
+ *
+ * @param {object} props
+ * @param {string} props.placeholder
  */
-export function ScribeComposer() {
+export function ScribeComposer({ placeholder }) {
   const { t } = useI18n()
   const { hasDocuments, setHasDocuments } = useScribe()
   const isRunning = useThread(state => state.isRunning)
@@ -28,8 +31,8 @@ export function ScribeComposer() {
     >
       <ComposerPrimitive.Input
         className={`${styles['scribe-composer-input']} u-fz-small`}
-        placeholder={t('scribe.placeholder')}
-        aria-label={t('scribe.placeholder')}
+        placeholder={placeholder}
+        aria-label={placeholder}
         rows={1}
         maxRows={8}
         autoFocus={!isMobileDevice()}
