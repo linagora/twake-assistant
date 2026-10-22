@@ -282,7 +282,7 @@ export function makeScribePrepareQuery(content, t) {
 const FULL_DOCUMENT =
   /^\[Full document\]\n[\s\S]*\n\[End of full document\]\n\n/
 // The text of the app as makeScribePrepareQuery joins it, in any language
-const JOINED_TEXT = /\n\n[^\n]*\n"""\n[\s\S]*\n"""$/
+const JOINED_TEXT = /\n\n[^\n]*\n"""\n([\s\S]*)\n"""$/
 // A prompt of the catalogue, even one written before its current version:
 // its first instruction stands for it
 const CATALOGUE_QUERY = /^INSTRUCTION:\n([^\n]+)\n[\s\S]*\nTEXT:\n/
@@ -328,6 +328,10 @@ export function getScribeRequest(query, t) {
   return known?.request ?? prompt.description
 }
 
+function getScribeSelection(query) {
+  return query.replace(FULL_DOCUMENT, '').match(JOINED_TEXT)?.[1] ?? null
+}
+
 /**
  * The messages of a past conversation, as the assistant shows them
  *
@@ -341,10 +345,12 @@ export function makeChatMessages(messages, t) {
     .filter(message => message.role === 'user' || message.role === 'assistant')
     .map(message => {
       if (message.role === 'user') {
+        const selection = getScribeSelection(message.content)
         return {
           id: message.id,
           role: 'user',
-          content: getScribeRequest(message.content, t)
+          content: getScribeRequest(message.content, t),
+          ...(selection !== null && { metadata: { custom: { selection } } })
         }
       }
 

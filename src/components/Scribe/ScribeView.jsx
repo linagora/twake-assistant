@@ -27,6 +27,7 @@ import { ScribeHistory } from '@/components/Scribe/ScribeHistory'
 import { ScribeIncludeZone } from '@/components/Scribe/ScribeIncludeZone'
 import { ScribeProvider, useScribe } from '@/components/Scribe/ScribeProvider'
 import { ScribeRequest } from '@/components/Scribe/ScribeRequest'
+import { ScribeSelectionChip } from '@/components/Scribe/ScribeSelectionChip'
 import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
 import styles from '@/components/Scribe/styles.styl'
 import { makeConversationId } from '@/components/helpers'
@@ -121,6 +122,7 @@ function ScribeConversation({ isHidden, hasText, draftRef }) {
         {hasText && !isEmpty && hasNewText && (
           <ScribeSuggestions inputRef={inputRef} />
         )}
+        <ScribeSelectionChip />
         <ScribeIncludeZone />
         <ScribeComposer placeholder={placeholder} inputRef={inputRef} />
         <Typography
@@ -160,6 +162,7 @@ function ScribeCompactConversation({
           onClick={handlePanelRequest}
         />
       )}
+      <ScribeSelectionChip />
       <ScribeIncludeZone />
       <ScribeComposer placeholder={t('scribe.placeholder')} />
       <ThreadPrimitive.Messages components={MESSAGE_COMPONENTS} />

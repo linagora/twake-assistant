@@ -318,7 +318,12 @@ describe('makeChatMessages', () => {
     )
 
     expect(messages).toEqual([
-      { id: 'm1', role: 'user', content: 'Hello' },
+      {
+        id: 'm1',
+        role: 'user',
+        content: 'Hello',
+        metadata: { custom: { selection: 'Hi' } }
+      },
       {
         id: 'm2',
         role: 'assistant',
@@ -338,6 +343,39 @@ describe('makeChatMessages', () => {
         }
       }
     ])
+  })
+
+  it('keeps the text of the app of a past request as its selection', () => {
+    const [withText, withDocument, onlyDocument, withoutText] =
+      makeChatMessages(
+        [
+          {
+            id: 'm1',
+            role: 'user',
+            content: 'Fix it\n\nText:\n"""\nA\n\nB\n"""'
+          },
+          {
+            id: 'm2',
+            role: 'user',
+            content:
+              '[Full document]\nThe note\n[End of full document]\n\nFix it\n\nTexte :\n"""\nBonjour\n"""'
+          },
+          {
+            id: 'm3',
+            role: 'user',
+            content:
+              '[Full document]\nA\n\nText:\n"""\nB\n"""\n[End of full document]\n\nFix it'
+          },
+          { id: 'm4', role: 'user', content: 'Fix it' }
+        ],
+        mockT
+      )
+
+    expect(withText.metadata.custom.selection).toBe('A\n\nB')
+    expect(withDocument.metadata.custom.selection).toBe('Bonjour')
+    expect(withDocument.content).toBe('Fix it')
+    expect(onlyDocument.metadata).toBeUndefined()
+    expect(withoutText.metadata).toBeUndefined()
   })
 
   it('says an empty answer is empty', () => {
