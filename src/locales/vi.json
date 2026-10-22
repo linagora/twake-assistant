@@ -20,6 +20,16 @@
     "documents": "Sử dụng các tệp trong %{folder}",
     "retry": "Thử lại",
     "panel": "Bảng Scribe",
+    "include": {
+      "title": "Bao gồm",
+      "document": "Tài liệu",
+      "conversation": "Cuộc trò chuyện",
+      "selection": "Vùng chọn"
+    },
+    "document": {
+      "truncated": "Tài liệu quá dài — chỉ một phần được gửi đến trợ lý.",
+      "unavailable": "Không thể đọc tài liệu — tin nhắn của bạn đã được gửi mà không có tài liệu."
+    },
     "instructions": "Bạn giúp người dùng làm việc với một văn bản trong trình soạn thảo của họ. Trước tiên, hãy xem họ yêu cầu gì.\nNếu họ đặt câu hỏi về văn bản hoặc muốn biết ý kiến của bạn, hãy trả lời bình thường, trong vài câu, mà không viết lại văn bản, và không dùng khối nào.\nNếu họ yêu cầu viết hoặc thay đổi một văn bản, hãy đặt mỗi văn bản dành cho tài liệu của họ vào một fenced block có info string là `insert`, và viết mọi thứ khác, như một bình luận, bên ngoài các khối: các khối được đưa nguyên vẹn vào tài liệu. Viết văn bản đó bằng ngôn ngữ của văn bản, trong một phiên bản duy nhất, không có lời giới thiệu bên trong khối, không có dòng phân cách, không có emoji và không có chỗ trống nào cần điền trong ngoặc. Giữ nguyên hình thức của văn bản, trừ khi được yêu cầu thay đổi, và không bịa ra thông tin.",
     "content": "Văn bản:",
     "actions": {

@@ -218,6 +218,32 @@ describe('makeScribePrepareQuery', () => {
   it('sends a later message as it is', () => {
     expect(prepareQuery('Shorter', { isFirstOnText: false })).toBe('Shorter')
   })
+
+  it('puts the document before the request', () => {
+    expect(
+      prepareQuery('Translate', {
+        isFirstOnText: true,
+        document: 'Hello\n\nAll'
+      })
+    ).toBe(
+      '[Full document]\nHello\n\nAll\n[End of full document]\n\nTranslate\n\nText:\n"""\nBonjour à tous\n"""'
+    )
+    expect(
+      prepareQuery('Shorter', { isFirstOnText: false, document: 'Hello' })
+    ).toBe('[Full document]\nHello\n[End of full document]\n\nShorter')
+  })
+
+  it('leaves out the text of the app when the selection is off', () => {
+    expect(
+      prepareQuery('Translate', { isFirstOnText: true, hasSelection: false })
+    ).toBe('Translate')
+  })
+
+  it('joins no text when the app gives none', () => {
+    expect(
+      makeScribePrepareQuery('', mockT)('Translate', { isFirstOnText: true })
+    ).toBe('Translate')
+  })
 })
 
 describe('getScribeRequest', () => {
@@ -236,6 +262,26 @@ describe('getScribeRequest', () => {
     )
 
     expect(getScribeRequest(query, mockT)).toBe('Translate')
+  })
+
+  it('shows the request without the document of the app', () => {
+    const prepareQuery = makeScribePrepareQuery('Bonjour', mockT)
+
+    expect(
+      getScribeRequest(
+        prepareQuery('Translate', {
+          isFirstOnText: true,
+          document: 'Hello\n\nText:\n"""\nAll\n"""'
+        }),
+        mockT
+      )
+    ).toBe('Translate')
+    expect(
+      getScribeRequest(
+        prepareQuery('Shorter', { isFirstOnText: false, document: 'Hello' }),
+        mockT
+      )
+    ).toBe('Shorter')
   })
 
   it('shows a later request as it is', () => {

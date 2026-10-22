@@ -209,6 +209,21 @@ describe('ScribeView', () => {
     expect(onPanelRequest).toHaveBeenCalledWith('Hi', expect.any(String))
   })
 
+  it.each(['panel', 'compact'])(
+    'shows what to include above the composer in the %s layout',
+    layout => {
+      renderScribe({ layout, text: 'Bonjour' })
+      const zone = screen.getByRole('group', { name: 'Include' })
+      const composer = screen.getByRole('textbox', {
+        name: en.scribe.placeholder
+      })
+
+      expect(zone.compareDocumentPosition(composer)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING
+      )
+    }
+  )
+
   it('shows only the latest exchange in the compact layout', async () => {
     const onPanelRequest = jest.fn()
     renderScribe(

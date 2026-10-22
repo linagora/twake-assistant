@@ -1,9 +1,12 @@
-import { render } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import React from 'react'
 
 import { CozyProvider, createMockClient } from 'cozy-client'
+import { initTranslation } from 'twake-i18n'
 
 import { ScribeProvider, useScribe } from '@/components/Scribe/ScribeProvider'
+import { makeScribePrepareQuery } from '@/lib/scribe'
+import en from '@/locales/en.json'
 
 let mockAdapter = null
 
@@ -56,9 +59,9 @@ function setup(props = {}) {
   }
 }
 
-async function run(messages) {
+async function run(messages, runConfig) {
   const results = []
-  for await (const result of mockAdapter.run({ messages })) {
+  for await (const result of mockAdapter.run({ messages, runConfig })) {
     results.push(result)
   }
   return results
@@ -68,6 +71,22 @@ const userMessage = text => ({
   role: 'user',
   content: [{ type: 'text', text }]
 })
+
+// The answer of each message comes as soon as it is posted
+function answerAtOnce({ client, emit }) {
+  client.stackClient.fetchJSON.mockImplementation(async () => {
+    emit({ _id: 'q1', object: 'done' })
+    return {
+      data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
+    }
+  })
+}
+
+const polyglot = initTranslation('en', () => en)
+const scribePrepareQuery = makeScribePrepareQuery(
+  'Bonjour',
+  polyglot.t.bind(polyglot)
+)
 
 describe('ScribeProvider', () => {
   beforeEach(() => {
@@ -198,5 +217,90 @@ describe('ScribeProvider', () => {
       answerActions,
       hasDocuments: false
     })
+  })
+
+  it('checks the selection again when the app gives another text', () => {
+    const { getScribe, rerenderWith } = setup({ text: 'Bonjour' })
+    act(() => getScribe().setHasSelection(false))
+    expect(getScribe().hasSelection).toBe(false)
+
+    rerenderWith({ text: 'Au revoir' })
+
+    expect(getScribe().hasSelection).toBe(true)
+  })
+
+  it('sends the document before the text when it is included', async () => {
+    const requestDocument = jest.fn(async () => ({
+      document: 'The whole note',
+      isTruncated: false
+    }))
+    const scribe = setup({
+      prepareQuery: scribePrepareQuery,
+      text: 'Bonjour',
+      requestDocument
+    })
+    answerAtOnce(scribe)
+    act(() => scribe.getScribe().setHasDocument(true))
+
+    await run([userMessage('Fix it')])
+
+    expect(requestDocument).toHaveBeenCalledTimes(1)
+    expect(scribe.client.stackClient.fetchJSON.mock.calls[0][2].q).toBe(
+      '[Full document]\nThe whole note\n[End of full document]\n\nFix it\n\nText:\n"""\nBonjour\n"""'
+    )
+  })
+
+  it('sends a fresh conversation for each request when the conversation is off', async () => {
+    const scribe = setup({ prepareQuery: scribePrepareQuery, text: 'Bonjour' })
+    answerAtOnce(scribe)
+    act(() => scribe.getScribe().setHasConversation(false))
+
+    await run([userMessage('Fix it')])
+    mockMessages = [userMessage('Fix it'), { role: 'assistant' }]
+    await run([...mockMessages, userMessage('Shorter')])
+
+    const calls = scribe.client.stackClient.fetchJSON.mock.calls
+    const paths = calls.map(call => call[1])
+    expect(paths[0]).not.toBe(paths[1])
+    expect(paths).not.toContain('/ai/chat/conversations/c1')
+    // A fresh conversation does not hold the text
+    expect(calls[1][2].q).toBe('Shorter\n\nText:\n"""\nBonjour\n"""')
+  })
+
+  it('sends the text without the selection when it is off', async () => {
+    const scribe = setup({ prepareQuery: scribePrepareQuery, text: 'Bonjour' })
+    answerAtOnce(scribe)
+    act(() => scribe.getScribe().setHasSelection(false))
+
+    await run([userMessage('Fix it')])
+
+    expect(scribe.client.stackClient.fetchJSON.mock.calls[0][2].q).toBe(
+      'Fix it'
+    )
+  })
+
+  it('sends a chip without the document even when it is included', async () => {
+    const requestDocument = jest.fn(async () => ({
+      document: 'The whole note',
+      isTruncated: false
+    }))
+    const scribe = setup({
+      prepareQuery: scribePrepareQuery,
+      preparePrompt: name => ({ q: `${name}: Bonjour`, instructions: null }),
+      text: 'Bonjour',
+      requestDocument
+    })
+    answerAtOnce(scribe)
+    act(() => scribe.getScribe().setHasDocument(true))
+
+    const results = await run([userMessage('Summarize the text.')], {
+      custom: { prompt: 'summarize' }
+    })
+
+    expect(requestDocument).not.toHaveBeenCalled()
+    expect(scribe.client.stackClient.fetchJSON.mock.calls[0][2].q).toBe(
+      'summarize: Bonjour'
+    )
+    expect(results.at(-1).metadata.custom.documentNotice).toBe(undefined)
   })
 })

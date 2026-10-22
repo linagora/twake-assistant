@@ -24,6 +24,7 @@ import DocumentAssistant from '@/assets/illu-document-assistant.svg'
 import { ScribeAnswer } from '@/components/Scribe/ScribeAnswer'
 import { ScribeComposer } from '@/components/Scribe/ScribeComposer'
 import { ScribeHistory } from '@/components/Scribe/ScribeHistory'
+import { ScribeIncludeZone } from '@/components/Scribe/ScribeIncludeZone'
 import { ScribeProvider, useScribe } from '@/components/Scribe/ScribeProvider'
 import { ScribeRequest } from '@/components/Scribe/ScribeRequest'
 import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
@@ -120,6 +121,7 @@ function ScribeConversation({ isHidden, hasText, draftRef }) {
         {hasText && !isEmpty && hasNewText && (
           <ScribeSuggestions inputRef={inputRef} />
         )}
+        <ScribeIncludeZone />
         <ScribeComposer placeholder={placeholder} inputRef={inputRef} />
         <Typography
           variant="overline"
@@ -158,6 +160,7 @@ function ScribeCompactConversation({
           onClick={handlePanelRequest}
         />
       )}
+      <ScribeIncludeZone />
       <ScribeComposer placeholder={t('scribe.placeholder')} />
       <ThreadPrimitive.Messages components={MESSAGE_COMPONENTS} />
     </ThreadPrimitive.Root>

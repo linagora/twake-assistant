@@ -22,7 +22,9 @@ describe('getIntentConfig', () => {
       draft: null,
       conversation: null,
       source: null,
-      rules: null
+      rules: null,
+      document: undefined,
+      documentTruncated: false
     })
   })
 
@@ -38,7 +40,9 @@ describe('getIntentConfig', () => {
       draft: null,
       conversation: null,
       source: null,
-      rules: null
+      rules: null,
+      document: undefined,
+      documentTruncated: false
     })
   })
 
@@ -60,7 +64,9 @@ describe('getIntentConfig', () => {
       draft: null,
       conversation: null,
       source: null,
-      rules: null
+      rules: null,
+      document: undefined,
+      documentTruncated: false
     })
     expect(getIntentConfig({ answerActions: null }).answerActions).toEqual([])
     expect(getIntentConfig({ answerActions: 'insert' }).answerActions).toEqual(
@@ -323,6 +329,23 @@ describe('getIntentConfig', () => {
     )
     expect(getIntentConfig({ rules: '' }).rules).toBe(null)
     expect(getIntentConfig({ rules: ['Be short'] }).rules).toBe(null)
+  })
+
+  it('reads the document the app gives, or that it cannot read it', () => {
+    expect(
+      getIntentConfig({ document: 'Bonjour', documentTruncated: true })
+    ).toMatchObject({ document: 'Bonjour', documentTruncated: true })
+    expect(getIntentConfig({ document: '' }).document).toBe('')
+    expect(getIntentConfig({ document: null })).toMatchObject({
+      document: null,
+      documentTruncated: false
+    })
+    expect(getIntentConfig({}).document).toBe(undefined)
+    expect(getIntentConfig({ document: 12 }).document).toBe(undefined)
+    expect(
+      getIntentConfig({ document: 'Bonjour', documentTruncated: 'yes' })
+        .documentTruncated
+    ).toBe(false)
   })
 
   describe('documents', () => {

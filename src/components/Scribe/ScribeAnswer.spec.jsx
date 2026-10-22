@@ -374,6 +374,31 @@ describe('ScribeAnswer', () => {
     expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
   })
 
+  it('tells when the document was truncated', () => {
+    renderAnswer(
+      answer('Bonjour', 'complete', { documentNotice: 'truncated' }),
+      actions
+    )
+
+    expect(screen.queryByRole('status')).toHaveTextContent(
+      'Document too long — only part of it was sent to the assistant.'
+    )
+    expect(screen.queryByRole('alert')).toBe(null)
+    expect(screen.queryByText('Bonjour')).toBeInTheDocument()
+  })
+
+  it('tells when the document could not be read', () => {
+    renderAnswer(
+      answer('Bonjour', 'complete', { documentNotice: 'unavailable' }),
+      actions
+    )
+
+    expect(screen.queryByRole('alert')).toHaveTextContent(
+      "Couldn't read the document — your message was sent without it."
+    )
+    expect(screen.queryByText('Bonjour')).toBeInTheDocument()
+  })
+
   it('does not ask again an answer of a past conversation', () => {
     renderAnswer(
       answer('', 'complete', { isEmpty: true, isPast: true }),

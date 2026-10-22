@@ -7,8 +7,10 @@ import {
 import React from 'react'
 
 import { Check, Icon } from '@linagora/twake-icons'
+import Alert from 'cozy-ui/transpiled/react/Alert'
 import Button from 'cozy-ui/transpiled/react/Buttons'
 import Markdown from 'cozy-ui/transpiled/react/Markdown'
+import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
 import { Answer, getText } from '@/components/Messages/Answer'
@@ -50,6 +52,31 @@ function AnswerActionButton({ action, text }) {
   )
 }
 
+function DocumentNotice({ notice }) {
+  const { t } = useI18n()
+
+  if (notice === 'truncated') {
+    return (
+      <Typography
+        role="status"
+        variant="body2"
+        color="textSecondary"
+        className="u-mt-1"
+      >
+        {t('scribe.document.truncated')}
+      </Typography>
+    )
+  }
+  if (notice === 'unavailable') {
+    return (
+      <Alert severity="error" className="u-mt-1">
+        {t('scribe.document.unavailable')}
+      </Alert>
+    )
+  }
+  return null
+}
+
 function ScribeAnswerActions({ text }) {
   const { answerActions } = useScribe()
 
@@ -67,7 +94,8 @@ function ScribeAnswerActions({ text }) {
  * An answer of the LLM, with Copy and the buttons of the actions of the app
  * once it is complete, under the whole answer or under each of its insert
  * blocks, shown as cards: in the compact layout, the one of the latest
- * exchange only
+ * exchange only. Above it, whether the document of the request was cut or
+ * could not be read.
  */
 export function ScribeAnswer() {
   const { t } = useI18n()
@@ -76,6 +104,9 @@ export function ScribeAnswer() {
   const messageId = useMessage(message => message.id)
   const text = useMessage(getText)
   const status = useMessage(message => message.status?.type)
+  const documentNotice = useMessage(
+    message => message.metadata?.custom?.documentNotice
+  )
   const action = useMessage(message => message.metadata?.custom?.action)
   const isPast = useMessage(
     message => message.metadata?.custom?.isPast === true
@@ -128,40 +159,43 @@ export function ScribeAnswer() {
   if (layout === 'compact' && !isInLatestExchange) return null
 
   return (
-    <Answer
-      isCallShown={!!capability}
-      content={parts?.map((part, index) =>
-        part.type === 'block' ? (
-          <ScribeBlockCard key={index} text={part.text}>
-            {isComplete && part.text.trim() !== '' && (
-              <ScribeAnswerActions text={part.text} />
-            )}
-          </ScribeBlockCard>
-        ) : (
-          <Markdown key={index} content={part.text} />
-        )
-      )}
-      data-testid="scribe-answer"
-    >
-      {canRetry && (
-        <Button
-          size="small"
-          variant="secondary"
-          className="u-mt-half"
-          label={t('scribe.retry')}
-          onClick={handleRetry}
-        />
-      )}
-      {canAct && !parts && <ScribeAnswerActions text={text} />}
-      {capability && status === 'complete' && (
-        <ScribeCapabilityCard
-          messageId={messageId}
-          capability={capability}
-          params={action.params ?? {}}
-          text={text}
-          isPast={isPast}
-        />
-      )}
-    </Answer>
+    <>
+      <DocumentNotice notice={documentNotice} />
+      <Answer
+        isCallShown={!!capability}
+        content={parts?.map((part, index) =>
+          part.type === 'block' ? (
+            <ScribeBlockCard key={index} text={part.text}>
+              {isComplete && part.text.trim() !== '' && (
+                <ScribeAnswerActions text={part.text} />
+              )}
+            </ScribeBlockCard>
+          ) : (
+            <Markdown key={index} content={part.text} />
+          )
+        )}
+        data-testid="scribe-answer"
+      >
+        {canRetry && (
+          <Button
+            size="small"
+            variant="secondary"
+            className="u-mt-half"
+            label={t('scribe.retry')}
+            onClick={handleRetry}
+          />
+        )}
+        {canAct && !parts && <ScribeAnswerActions text={text} />}
+        {capability && status === 'complete' && (
+          <ScribeCapabilityCard
+            messageId={messageId}
+            capability={capability}
+            params={action.params ?? {}}
+            text={text}
+            isPast={isPast}
+          />
+        )}
+      </Answer>
+    </>
   )
 }
