@@ -90,6 +90,15 @@ describe('Answer', () => {
     expect(screen.queryByRole('status')).toBe(null)
   })
 
+  it('shows the content of the view in place of the text', () => {
+    renderAnswer(answer('Bonjour à **tous**', 'running'), {
+      content: <p>A card of the view</p>
+    })
+
+    expect(screen.queryByText('A card of the view')).toBeInTheDocument()
+    expect(screen.queryByText('tous')).toBe(null)
+  })
+
   it('tells when the answer failed, with what came', () => {
     renderAnswer(answer('Bonj', 'incomplete', { isError: true }))
 

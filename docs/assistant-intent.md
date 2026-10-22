@@ -120,6 +120,15 @@ interface AssistantIntentConfig {
    * or 'selection'. Informative: the assistant does not act on it.
    */
   source?: string
+
+  /**
+   * Rules of the calling app for every answer, written for the LLM, in
+   * English: a style, what never to write. They are joined to the system
+   * message of each request: a typed request, a request of the app and a
+   * prompt of the catalogue alike.
+   * Absent or empty means no rule.
+   */
+  rules?: string
 }
 ```
 
@@ -294,7 +303,8 @@ When no config is provided, the assistant uses:
   layout: 'panel',
   draft: undefined,
   conversation: undefined,
-  source: undefined
+  source: undefined,
+  rules: undefined
 }
 ```
 
@@ -401,7 +411,7 @@ The configuration picks what the scribe offers. There is no mode option.
 
 In a scribe with a text, the answers come from the LLM alone, without the documents of the user and without sources. The user turns the Drive source of the composer on for a request that needs their documents: the documents an answer comes from are then listed under it. Without a text, the scribe works from the documents of the user at first: the app that opens the assistant on its capabilities, like the file list of Drive, expects answers about them. `documents` sets the start the app wants either way.
 
-A scribe with a text also tells the LLM, in a system message, that its answer goes into a document as it is: a request to write or change a text is answered with that text only, and a question about the text is answered normally. Without a text, the LLM gets no such instructions.
+A scribe with a text also tells the LLM, in a system message, how its answers go into a document: a request to write or change a text is answered with each text meant for the document in an insert block (see [Insert blocks](#insert-blocks)), and a question about the text is answered normally. Without a text, the LLM gets no such instructions.
 
 ### Theme
 
@@ -431,11 +441,30 @@ Set `content` to the text the user wants to work on:
 
 The prompts are the ones of the catalogue of [linagora/ai-prompts](https://github.com/linagora/ai-prompts), evaluated there and published at `https://files.twake.app/prompts/scribe/latest.json`: the scribe of Twake Mail uses the same catalogue, and the assistant arranges them as its menu. The assistant bundles a copy of the catalogue (`yarn prompts:update` refreshes it), since the page of an app cannot fetch another domain under the content security policy of the cozy-stack.
 
-- A prompt of the catalogue has a system message and a user message with the text in place of `{{input}}`. When the user picks one, the user message, with the text, is sent as the query of the chat, and the system message as its `instructions`.
+- A prompt of the catalogue has a system message and a user message with the text in place of `{{input}}`. When the user picks one, the user message, with the text, is sent as the query of the chat, and the system message as its `instructions`, followed by the `rules` of the app.
 - The conversation shows a short request instead, in the language of the user, such as "Correct the grammar and spelling of the text.".
-- A typed request is sent with the instructions of the scribe: a question about the text gets a normal answer, a request to write or change a text gets that text only.
+- A typed request is sent with the instructions of the scribe, followed by the `rules` of the app: a question about the text gets a normal answer, a request to write or change a text gets each text meant for the document in an insert block.
 
 The text is plain text.
+
+### Insert blocks
+
+The instructions of the scribe ask the LLM to put each text meant for the document in a fenced block whose info string is `insert`, and to write anything else, as a comment, outside of the blocks:
+
+````md
+Here is a shorter version:
+
+```insert
+The meeting of tomorrow is moved to Thursday, 2 pm.
+```
+
+I kept the time you gave.
+````
+
+- Each block is shown as a card of its own, with Copy and the answer actions: a click hands the text of the block, without its fences, to the calling app. The rest of the answer is shown around the cards, without actions.
+- A block is shown as soon as its fence opens, while the answer is written. Its buttons come once the answer is complete.
+- An answer without a block, as the answer to a question, keeps Copy and the answer actions for the whole answer. So does the answer of a prompt of the catalogue, whose own instructions have no blocks: a fence in it is part of the answer.
+- Only the info string `insert` makes a block, with a ```` ``` ```` or `~~~` fence: another fenced block, as code, stays in the answer.
 
 ### Another text while the assistant is open
 
@@ -557,7 +586,7 @@ Set `answerActions` to get the answers of the assistant back:
 }
 ```
 
-- Each answer gets one button per action, in the order of the list.
+- Each answer gets one button per action, in the order of the list, or each of its insert blocks when it has some (see [Insert blocks](#insert-blocks)).
 - The assistant does not run the action. It only tells the calling app which button was clicked on which answer: the calling app knows what `insert` or `replace` means for its document.
 - Any name can be used. The names have no meaning for the assistant, except for the default labels of `insert` and `replace`.
 - A click does not close the assistant. The user can click several buttons, on several answers.
@@ -589,7 +618,8 @@ interface AnswerResult {
   answerAction: string
 
   /**
-   * The answer of the assistant.
+   * The answer of the assistant, or the text of the insert block whose
+   * button was clicked.
    */
   text: string
 

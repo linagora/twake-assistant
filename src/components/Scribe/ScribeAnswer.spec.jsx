@@ -134,6 +134,97 @@ describe('ScribeAnswer', () => {
     expect(actions[1].onClick).not.toHaveBeenCalled()
   })
 
+  describe('the insert blocks of an answer', () => {
+    const blocks =
+      'Here:\n\n```insert\nHello\n```\n\nand\n\n```insert\nBye\n```'
+    const getCards = container =>
+      Array.from(container.querySelectorAll('[data-scribe-card]'))
+
+    it('shows a card per insert block with its own actions', async () => {
+      const { container } = renderAnswer(answer(blocks, 'complete'), actions)
+      const cards = getCards(container)
+
+      expect(cards).toHaveLength(2)
+      expect(cards[0]).toHaveTextContent('Hello')
+      expect(cards[1]).toHaveTextContent('Bye')
+      expect(screen.queryByText('Here:')).toBeInTheDocument()
+      expect(screen.queryByText('and')).toBeInTheDocument()
+      expect(screen.getAllByRole('button', { name: 'Insert' })).toHaveLength(2)
+
+      fireEvent.click(within(cards[1]).getByRole('button', { name: 'Insert' }))
+      await act(async () => {
+        fireEvent.click(within(cards[0]).getByRole('button', { name: 'Copy' }))
+      })
+
+      expect(actions[0].onClick).toHaveBeenCalledWith('Bye')
+      expect(actions[0].onClick).toHaveBeenCalledTimes(1)
+      expect(copyAnswer).toHaveBeenCalledWith('Hello')
+    })
+
+    it('shows the blocks as cards while the answer is written, without their actions', () => {
+      const { container } = renderAnswer(
+        answer('Here is **the** text:\n\n```insert\nHel', 'running'),
+        actions
+      )
+      const cards = getCards(container)
+
+      expect(cards).toHaveLength(1)
+      expect(cards[0]).toHaveTextContent('Hel')
+      expect(screen.queryByText('the').tagName).toBe('STRONG')
+      expect(screen.queryByRole('button')).toBe(null)
+    })
+
+    it('keeps the whole answer insertable without a block', () => {
+      const text = 'Run:\n\n```js\nconsole.log(1)\n```'
+      const { container } = renderAnswer(answer(text, 'complete'), actions)
+
+      fireEvent.click(screen.getByRole('button', { name: 'Insert' }))
+
+      expect(getCards(container)).toHaveLength(0)
+      expect(actions[0].onClick).toHaveBeenCalledWith(text)
+    })
+
+    it('keeps a catalogue answer whole even with a fence', () => {
+      mockThread = {
+        messages: [
+          {
+            id: 'q1',
+            role: 'user',
+            metadata: { custom: { prompt: 'correct-grammar' } }
+          }
+        ]
+      }
+      const text = 'Here:\n\n```insert\nHello\n```'
+      const { container } = renderAnswer(
+        { ...answer(text, 'complete'), parentId: 'q1' },
+        actions
+      )
+
+      fireEvent.click(screen.getByRole('button', { name: 'Insert' }))
+
+      expect(getCards(container)).toHaveLength(0)
+      expect(actions[0].onClick).toHaveBeenCalledWith(text)
+    })
+
+    it('splits an answer to a request of the app', () => {
+      mockThread = {
+        messages: [
+          {
+            id: 'q1',
+            role: 'user',
+            metadata: { custom: { instructions: 'Be funny' } }
+          }
+        ]
+      }
+      const { container } = renderAnswer(
+        { ...answer(blocks, 'complete'), parentId: 'q1' },
+        actions
+      )
+
+      expect(getCards(container)).toHaveLength(2)
+    })
+  })
+
   describe('the feedback of a click', () => {
     beforeEach(() => {
       jest.useFakeTimers()

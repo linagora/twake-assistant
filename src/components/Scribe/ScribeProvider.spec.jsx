@@ -128,6 +128,25 @@ describe('ScribeProvider', () => {
     expect(results.at(-1).content[0].text).toBe('Bonjour')
   })
 
+  it('sends the rules of the app with the instructions', async () => {
+    const { client, emit } = setup({
+      instructions: 'Answer with the text only.',
+      rules: 'Write in French.'
+    })
+    client.stackClient.fetchJSON.mockImplementation(async () => {
+      emit({ _id: 'q1', object: 'done' })
+      return {
+        data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
+      }
+    })
+
+    await run([userMessage('Fix it')])
+
+    expect(client.stackClient.fetchJSON.mock.calls[0][2].instructions).toBe(
+      'Answer with the text only.\n\nWrite in French.'
+    )
+  })
+
   it('subscribes to the events of the chat, and stops with the scribe', () => {
     const { client, unmount } = setup()
     const { subscribe, unsubscribe } = client.plugins.realtime

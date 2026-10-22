@@ -150,6 +150,62 @@ describe('makeChatAdapter', () => {
     })
   })
 
+  it('appends the rules of the app to the instructions', async () => {
+    const { adapter, fetchJSON } = setup({
+      events: [{ object: 'done' }],
+      options: { instructions: 'Scribe', rules: 'Write in French.' }
+    })
+
+    await run(adapter, [userMessage('Fix it')])
+    await run(adapter, [userMessage('Tell a joke')], undefined, {
+      custom: { instructions: 'Be funny' }
+    })
+
+    expect(fetchJSON.mock.calls.map(call => call[2].instructions)).toEqual([
+      'Scribe\n\nWrite in French.',
+      'Be funny\n\nWrite in French.'
+    ])
+  })
+
+  it('sends the rules alone without instructions', async () => {
+    const { adapter, fetchJSON } = setup({
+      events: [{ object: 'done' }],
+      options: { rules: 'Write in French.' }
+    })
+
+    await run(adapter, [userMessage('Fix it')])
+
+    expect(fetchJSON.mock.calls[0][2]).toEqual({
+      q: 'Fix it',
+      documents: false,
+      instructions: 'Write in French.'
+    })
+  })
+
+  it('appends them to a prompt of the catalogue too', async () => {
+    const preparePrompt = jest.fn(name =>
+      name === 'make-shorter'
+        ? { q: 'INSTRUCTION: shorter TEXT: Bonjour', instructions: 'Edit only' }
+        : { q: 'INSTRUCTION: sum up TEXT: Bonjour', instructions: null }
+    )
+    const { adapter, fetchJSON } = setup({
+      events: [{ object: 'done' }],
+      options: { preparePrompt, instructions: 'Scribe', rules: 'No emoji.' }
+    })
+
+    await run(adapter, [userMessage('Make the text shorter.')], undefined, {
+      custom: { prompt: 'make-shorter' }
+    })
+    await run(adapter, [userMessage('Summarize the text.')], undefined, {
+      custom: { prompt: 'summarize' }
+    })
+
+    expect(fetchJSON.mock.calls.map(call => call[2].instructions)).toEqual([
+      'Edit only\n\nNo emoji.',
+      'No emoji.'
+    ])
+  })
+
   it('answers from the documents when the user asks for them', async () => {
     const sources = [{ id: 'f1', doctype: 'io.cozy.files' }]
     const { adapter, fetchJSON } = setup({

@@ -21,7 +21,8 @@ describe('getIntentConfig', () => {
       layout: 'panel',
       draft: null,
       conversation: null,
-      source: null
+      source: null,
+      rules: null
     })
   })
 
@@ -36,7 +37,8 @@ describe('getIntentConfig', () => {
       layout: 'panel',
       draft: null,
       conversation: null,
-      source: null
+      source: null,
+      rules: null
     })
   })
 
@@ -57,7 +59,8 @@ describe('getIntentConfig', () => {
       layout: 'panel',
       draft: null,
       conversation: null,
-      source: null
+      source: null,
+      rules: null
     })
     expect(getIntentConfig({ answerActions: null }).answerActions).toEqual([])
     expect(getIntentConfig({ answerActions: 'insert' }).answerActions).toEqual(
@@ -312,6 +315,14 @@ describe('getIntentConfig', () => {
     expect(
       getIntentConfig({ draft: 12, conversation: '', source: {} })
     ).toMatchObject({ draft: null, conversation: null, source: null })
+  })
+
+  it('reads the rules of the data', () => {
+    expect(getIntentConfig({ rules: 'Never write the price.' }).rules).toBe(
+      'Never write the price.'
+    )
+    expect(getIntentConfig({ rules: '' }).rules).toBe(null)
+    expect(getIntentConfig({ rules: ['Be short'] }).rules).toBe(null)
   })
 
   describe('documents', () => {

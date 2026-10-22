@@ -101,8 +101,15 @@ function AnswerReasoning({ reasoning, isRunning }) {
  * @param {boolean} [props.isCallShown] - whether the view shows the call of
  * the app the LLM proposes: an answer with only such a call is empty
  * otherwise
+ * @param {import('react').ReactNode} [props.content] - what the view shows
+ * of the text, in place of its Markdown
  */
-export function Answer({ isCallShown = false, children, ...props }) {
+export function Answer({
+  isCallShown = false,
+  content = null,
+  children,
+  ...props
+}) {
   const { t } = useI18n()
   const text = useMessage(getText)
   const reasoning = useMessage(getReasoning)
@@ -132,7 +139,7 @@ export function Answer({ isCallShown = false, children, ...props }) {
       {hasReasoning && (
         <AnswerReasoning reasoning={reasoning} isRunning={isWaiting} />
       )}
-      {text !== '' && <Markdown content={text} />}
+      {text !== '' && (content ?? <Markdown content={text} />)}
       {isError && (
         <Alert severity="error">
           {t(isAssistantGone ? 'chat.assistant_gone' : 'chat.error')}
