@@ -63,6 +63,7 @@ function ScribeConversation({ isHidden, hasText }) {
   // The prompts are about the text: offered again when the app gives another
   const { textStart } = useScribe()
   const hasNewText = requestCount === textStart
+  const folder = t('assistant.twake_knowledges.drive')
 
   return (
     <ThreadPrimitive.Root
@@ -81,7 +82,9 @@ function ScribeConversation({ isHidden, hasText }) {
               color="textSecondary"
               className="u-ta-center u-mt-1-half u-mb-1 u-o-70"
             >
-              {t(hasText ? 'scribe.welcome' : 'scribe.welcome_documents')}
+              {hasText
+                ? t('scribe.welcome')
+                : t('scribe.welcome_documents', { folder })}
             </Typography>
             <ScribeSuggestions />
           </div>
@@ -94,9 +97,7 @@ function ScribeConversation({ isHidden, hasText }) {
           placeholder={
             hasText
               ? t('scribe.placeholder')
-              : t('scribe.placeholder_documents', {
-                  folder: t('assistant.twake_knowledges.drive')
-                })
+              : t('scribe.placeholder_documents', { folder })
           }
         />
         <Typography
