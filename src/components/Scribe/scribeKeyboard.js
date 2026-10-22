@@ -28,6 +28,10 @@ function focusButton(buttons, index) {
  * @returns {boolean} whether the key moved the focus
  */
 export function handleCardKey(event, root, composer) {
+  // A key with a modifier is a shortcut of the browser, as Alt+← for back
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+    return false
+  }
   const cards = findCards(root)
   const cardIndex = cards.findIndex(buttons => buttons.includes(event.target))
   if (cardIndex === -1) return false
