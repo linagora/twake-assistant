@@ -103,7 +103,8 @@ export const ConversationWelcome = ({ inputRef }) => {
       </Typography>
       {hasFolder && (
         <div className="u-pos-relative u-mt-2 u-flex u-flex-wrap u-flex-justify-center u-g-half">
-          {ACTIONS.map(action => (
+          {/* Two on mobile, to fit on one line */}
+          {(isMobile ? ACTIONS.slice(0, 2) : ACTIONS).map(action => (
             <Button
               key={action.name}
               variant="ghost"
