@@ -7,7 +7,12 @@ import { ScribeComposer } from '@/components/Scribe/ScribeComposer'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import en from '@/locales/en.json'
 
-const mockComposer = { send: jest.fn(), cancel: jest.fn() }
+const mockComposer = {
+  text: '',
+  getState: () => ({ text: mockComposer.text }),
+  send: jest.fn(),
+  cancel: jest.fn()
+}
 let mockThread = { isRunning: false }
 
 jest.mock('@assistant-ui/react', () => ({
@@ -24,8 +29,13 @@ jest.mock('@/components/Scribe/ScribeProvider', () => ({
   useScribe: jest.fn()
 }))
 
-function renderComposer({ isRunning = false, layout = 'panel' } = {}) {
+function renderComposer({
+  isRunning = false,
+  layout = 'panel',
+  text = ''
+} = {}) {
   mockThread = { isRunning }
+  mockComposer.text = text
   const setHasDocuments = jest.fn()
   const onCancel = jest.fn()
   useScribe.mockReturnValue({
@@ -37,7 +47,13 @@ function renderComposer({ isRunning = false, layout = 'panel' } = {}) {
 
   render(
     <I18n lang="en" polyglot={initTranslation('en', () => en)}>
-      <ScribeComposer placeholder={en.scribe.placeholder} />
+      <div data-scribe-thread>
+        <div data-scribe-card>
+          <button>Copy</button>
+          <button>Insert</button>
+        </div>
+        <ScribeComposer placeholder={en.scribe.placeholder} />
+      </div>
     </I18n>
   )
 
@@ -94,6 +110,29 @@ describe('ScribeComposer', () => {
     })
 
     expect(onCancel).not.toHaveBeenCalled()
+  })
+
+  it('focuses the latest card on arrow up with an empty draft', () => {
+    renderComposer()
+    const input = screen.getByRole('textbox', { name: 'Help me write' })
+    input.focus()
+
+    expect(fireEvent.keyDown(input, { key: 'ArrowUp' })).toBe(false)
+
+    expect(screen.getByRole('button', { name: 'Insert' })).toHaveFocus()
+  })
+
+  it('keeps the focus on arrow up with a draft, or while composing', () => {
+    renderComposer({ text: 'Hi' })
+    const input = screen.getByRole('textbox', { name: 'Help me write' })
+    input.focus()
+
+    expect(fireEvent.keyDown(input, { key: 'ArrowUp' })).toBe(true)
+    expect(input).toHaveFocus()
+    mockComposer.text = ''
+    fireEvent.keyDown(input, { key: 'ArrowUp', isComposing: true })
+
+    expect(input).toHaveFocus()
   })
 
   it('does not change the sources while an answer is written', () => {
