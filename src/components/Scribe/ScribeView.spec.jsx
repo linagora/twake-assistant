@@ -51,6 +51,7 @@ function setup() {
     }
   })
   client.destroy = jest.fn().mockResolvedValue({})
+  client.save = jest.fn().mockResolvedValue({})
   render(
     <CozyProvider client={client}>
       <I18n lang="en" polyglot={initTranslation('en', () => en)}>
@@ -103,6 +104,24 @@ describe('ScribeView', () => {
 
     expect(screen.queryByRole('dialog')).toBe(null)
     expect(client.destroy).not.toHaveBeenCalled()
+  })
+
+  it('renames a conversation', async () => {
+    const client = setup()
+    openHistory()
+
+    openMenuOf('Other request')
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Rename' }))
+    const dialog = screen.getByRole('dialog')
+    fireEvent.change(within(dialog).getByRole('textbox'), {
+      target: { value: 'New name' }
+    })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Edit' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null))
+    expect(client.save).toHaveBeenCalledWith(
+      expect.objectContaining({ _id: 'c2', name: 'New name' })
+    )
   })
 
   it('starts a new conversation when the one on screen is deleted', async () => {
