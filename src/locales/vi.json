@@ -132,11 +132,11 @@
   },
   "assistant": {
     "search": {
-      "placeholder": "Mô tả một nhiệm vụ",
+      "placeholder": "Hỏi Twake AI",
       "send": "Gửi",
       "noItem": "Không có kết quả",
       "notEnough": "Truy vấn của bạn phải chứa ít nhất 3 ký tự",
-      "placeholder_folder": "Hỏi bất cứ điều gì từ Drive của bạn",
+      "placeholder_folder": "Hỏi Drive của bạn",
       "stop": "Dừng"
     },
     "dialog": {
