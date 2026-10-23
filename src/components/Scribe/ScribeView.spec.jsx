@@ -258,7 +258,7 @@ describe('ScribeView', () => {
   it.each(['panel', 'compact'])(
     'shows what to include above the composer in the %s layout',
     layout => {
-      renderScribe({ layout, text: 'Bonjour' })
+      renderScribe({ layout, text: 'Bonjour', requestDocument: jest.fn() })
       const zone = screen.getByRole('group', { name: 'Include' })
       const composer = screen.getByRole('textbox', {
         name: en.scribe.placeholder
@@ -270,38 +270,11 @@ describe('ScribeView', () => {
     }
   )
 
-  it.each(['panel', 'compact'])(
-    'shows the chip of the selection above the composer in the %s layout',
-    layout => {
-      renderScribe({ layout, text: 'Bonjour le monde' })
-      const chip = screen.getByTitle('Bonjour le monde')
-      const zone = screen.getByRole('group', { name: 'Include' })
-      const composer = screen.getByRole('textbox', {
-        name: en.scribe.placeholder
-      })
+  it('shows neither the text of the app nor the zone without the document', () => {
+    renderScribe({ text: 'Bonjour le monde' })
 
-      expect(chip).toHaveTextContent('Bonjour le monde')
-      expect(chip.compareDocumentPosition(zone)).toBe(
-        Node.DOCUMENT_POSITION_FOLLOWING
-      )
-      expect(chip.compareDocumentPosition(composer)).toBe(
-        Node.DOCUMENT_POSITION_FOLLOWING
-      )
-    }
-  )
-
-  it('shows no chip without a text, or once the selection is unchecked', () => {
-    const { unmount } = renderScribe()
-    expect(screen.queryByTitle(/Bonjour/)).toBe(null)
-    unmount()
-
-    renderScribe({ text: 'Bonjour' })
-    expect(screen.queryByTitle('Bonjour')).toBeInTheDocument()
-    fireEvent.click(
-      screen.getByRole('checkbox', { name: en.scribe.include.selection })
-    )
-
-    expect(screen.queryByTitle('Bonjour')).toBe(null)
+    expect(screen.queryByText('Bonjour le monde')).toBe(null)
+    expect(screen.queryByRole('group', { name: 'Include' })).toBe(null)
   })
 
   it('shows only the latest exchange in the compact layout', async () => {

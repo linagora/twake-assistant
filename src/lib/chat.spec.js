@@ -19,12 +19,7 @@ const assistantMessage = text => ({
 
 // The stack answers with the conversation, then the events of the answer
 // come: here as soon as the message is posted
-function setup({
-  events: answerEvents = [],
-  options = {},
-  messageId = 'q1',
-  getConversationId
-}) {
+function setup({ events: answerEvents = [], options = {}, messageId = 'q1' }) {
   const events = new ChatEventStream()
   const fetchJSON = jest.fn(async (method, path) => {
     if (path.endsWith('/cancel')) return null
@@ -42,8 +37,7 @@ function setup({
       hasDocuments: false,
       instructions: null,
       ...options
-    }),
-    getConversationId
+    })
   })
 
   return { adapter, events, fetchJSON }
@@ -600,7 +594,6 @@ describe('makeChatAdapter', () => {
         options: {
           prepareQuery,
           hasDocument: true,
-          hasSelection: false,
           requestDocument
         }
       })
@@ -609,7 +602,6 @@ describe('makeChatAdapter', () => {
 
       expect(prepareQuery).toHaveBeenCalledWith('Fix it', {
         isFirstOnText: true,
-        hasSelection: false,
         document: 'The note'
       })
       expect(fetchJSON.mock.calls[0][2].q).toBe('The note + Fix it')
@@ -704,8 +696,8 @@ describe('makeChatAdapter', () => {
   })
 
   describe('the text of the app it sends', () => {
-    const prepareQuery = (text, { isFirstOnText, hasSelection = true }) =>
-      isFirstOnText && hasSelection ? `${text} + the text` : text
+    const prepareQuery = (text, { isFirstOnText }) =>
+      isFirstOnText ? `${text} + the text` : text
     const preparePrompt = name => ({
       q: `${name}: the text`,
       instructions: null
@@ -724,14 +716,13 @@ describe('makeChatAdapter', () => {
       expect(recordSentText).toHaveBeenCalledWith(0, 'Bonjour')
     })
 
-    it('tells the text of a suggestion, which holds it, even without the selection', async () => {
+    it('tells the text of a suggestion, which holds it', async () => {
       const recordSentText = jest.fn()
       const { adapter } = setup({
         events: [{ object: 'done' }],
         options: {
           prepareQuery,
           preparePrompt,
-          hasSelection: false,
           text: 'Bonjour',
           recordSentText
         }
@@ -745,7 +736,6 @@ describe('makeChatAdapter', () => {
     })
 
     it.each([
-      ['the selection is off', { hasSelection: false }],
       ['the app gives no text', { text: '' }],
       ['the text is blank', { text: ' \n' }]
     ])('tells nothing when %s', async (name, options) => {
@@ -798,11 +788,10 @@ describe('makeChatAdapter', () => {
     })
   })
 
-  it('posts the message to the conversation of the moment, and stops it there', async () => {
+  it('posts the message to the conversation, and stops it there', async () => {
     const controller = new AbortController()
     const { adapter, fetchJSON } = setup({
-      events: [{ object: 'delta', content: 'Bonjour' }],
-      getConversationId: () => 'fresh'
+      events: [{ object: 'delta', content: 'Bonjour' }]
     })
 
     const running = run(adapter, [userMessage('Fix it')], controller.signal)
@@ -811,8 +800,8 @@ describe('makeChatAdapter', () => {
     await running
 
     expect(fetchJSON.mock.calls.map(call => call[1])).toEqual([
-      '/ai/chat/conversations/fresh',
-      '/ai/chat/conversations/fresh/cancel'
+      '/ai/chat/conversations/c1',
+      '/ai/chat/conversations/c1/cancel'
     ])
   })
 })
@@ -955,55 +944,6 @@ describe('makeChat', () => {
     expect(getText(results.at(-1))).toBe('Hi')
   })
 
-  it('sends each request to a fresh conversation, with the text, when the conversation is off', async () => {
-    const sent = []
-    const chat = makeChat({
-      client: {
-        stackClient: {
-          fetchJSON: jest.fn(async (method, path, body) => {
-            chat.events.push({ _id: 'q1', object: 'done' })
-            sent.push([path, body.q])
-            return {
-              data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
-            }
-          })
-        }
-      },
-      conversationId: 'c1',
-      makeFreshConversationId: jest
-        .fn()
-        .mockReturnValueOnce('n1')
-        .mockReturnValueOnce('n2')
-    })
-    const request = {
-      prepareQuery: (text, { isFirstOnText }) =>
-        isFirstOnText ? `${text} + the text` : text
-    }
-    chat.setRequest({ ...request, hasConversation: false })
-    const first = [userMessage('Fix it'), assistantMessage('Fixed')]
-    const second = [userMessage('Shorter'), assistantMessage('Short')]
-
-    await run(chat.adapter, [userMessage('Fix it')])
-    await run(chat.adapter, [...first, userMessage('Shorter')])
-    chat.setRequest(request)
-    await run(chat.adapter, [...first, ...second, userMessage('Translate')])
-    await run(chat.adapter, [
-      ...first,
-      ...second,
-      userMessage('Translate'),
-      assistantMessage('Translated'),
-      userMessage('Again')
-    ])
-
-    expect(sent).toEqual([
-      ['/ai/chat/conversations/n1', 'Fix it + the text'],
-      ['/ai/chat/conversations/n2', 'Shorter + the text'],
-      // The conversation has not had the text yet
-      ['/ai/chat/conversations/c1', 'Translate + the text'],
-      ['/ai/chat/conversations/c1', 'Again']
-    ])
-  })
-
   describe('the first message that sends the text', () => {
     function makeSendingChat() {
       const sent = []
@@ -1015,7 +955,9 @@ describe('makeChat', () => {
               chat.events.push({ _id: 'q1', object: 'done' })
               sent.push(body.q)
               return {
-                data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
+                data: {
+                  attributes: { messages: [{ id: 'q1', role: 'user' }] }
+                }
               }
             })
           }
@@ -1025,57 +967,17 @@ describe('makeChat', () => {
       return { chat, sent }
     }
 
-    const prepareQuery = (text, { isFirstOnText, hasSelection = true }) =>
-      isFirstOnText && hasSelection ? `${text} + the text` : text
-    const first = [userMessage('Fix it'), assistantMessage('Fixed')]
+    const prepareQuery = (text, { isFirstOnText }) =>
+      isFirstOnText ? `${text} + the text` : text
 
-    it('sends the selection with the next request once it is checked again', async () => {
-      const { chat, sent } = makeSendingChat()
-      chat.setRequest({ prepareQuery, hasSelection: false })
-
-      await run(chat.adapter, [userMessage('Fix it')])
-      chat.setRequest({ prepareQuery })
-      await run(chat.adapter, [...first, userMessage('Shorter')])
-      await run(chat.adapter, [
-        ...first,
-        userMessage('Shorter'),
-        assistantMessage('Short'),
-        userMessage('Again')
-      ])
-
-      expect(sent).toEqual(['Fix it', 'Shorter + the text', 'Again'])
-    })
-
-    it('tells the text with the request that sends it', async () => {
-      const { chat } = makeSendingChat()
-      const recordSentText = jest.fn()
-      chat.setRequest({
-        prepareQuery,
-        text: 'Bonjour',
-        recordSentText,
-        hasSelection: false
-      })
-
-      await run(chat.adapter, [userMessage('Fix it')])
-      expect(recordSentText).not.toHaveBeenCalled()
-      chat.setRequest({ prepareQuery, text: 'Bonjour', recordSentText })
-      await run(chat.adapter, [...first, userMessage('Shorter')])
-      await run(chat.adapter, [
-        ...first,
-        userMessage('Shorter'),
-        assistantMessage('Short'),
-        userMessage('Again')
-      ])
-
-      expect(recordSentText.mock.calls).toEqual([[1, 'Bonjour']])
-    })
-
-    it('counts a chip, which holds the text, even without the selection', async () => {
+    it('counts a chip, which holds the text', async () => {
       const { chat, sent } = makeSendingChat()
       chat.setRequest({
         prepareQuery,
-        preparePrompt: name => ({ q: `${name}: the text`, instructions: null }),
-        hasSelection: false
+        preparePrompt: name => ({
+          q: `${name}: the text`,
+          instructions: null
+        })
       })
 
       await run(chat.adapter, [userMessage('Summarize')], undefined, {

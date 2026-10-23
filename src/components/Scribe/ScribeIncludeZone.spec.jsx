@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 
 import { CozyProvider, createMockClient } from 'cozy-client'
@@ -41,47 +41,30 @@ function renderZone({
     </CozyProvider>
   )
 
-  const group = screen.getByRole('group', { name: 'Include' })
-  return name => within(group).queryByRole('checkbox', { name })
+  return name => screen.queryByRole('checkbox', { name })
 }
 
 describe('ScribeIncludeZone', () => {
-  it('offers the three toggles with their defaults', () => {
+  it('offers the document, unchecked at first', () => {
     const getToggle = renderZone()
     expect(getToggle('Document')).not.toBeChecked()
-    expect(getToggle('Conversation')).toBeChecked()
-    expect(getToggle('Selection')).toBeChecked()
+    expect(getToggle('Conversation')).toBe(null)
+    expect(getToggle('Selection')).toBe(null)
 
     fireEvent.click(getToggle('Document'))
-    fireEvent.click(getToggle('Conversation'))
-    fireEvent.click(getToggle('Selection'))
 
     expect(getToggle('Document')).toBeChecked()
-    expect(getToggle('Conversation')).not.toBeChecked()
-    expect(getToggle('Selection')).not.toBeChecked()
   })
 
-  it('hides the selection toggle without a text', () => {
-    const getToggle = renderZone({ text: '' })
+  it('shows nothing when the app cannot give its document', () => {
+    renderZone({ requestDocument: null })
 
-    expect(getToggle('Document')).toBeInTheDocument()
-    expect(getToggle('Conversation')).toBeInTheDocument()
-    expect(getToggle('Selection')).toBe(null)
-  })
-
-  it('hides the document toggle when the app cannot give its document', () => {
-    const getToggle = renderZone({ requestDocument: null })
-
-    expect(getToggle('Document')).toBe(null)
-    expect(getToggle('Conversation')).toBeInTheDocument()
-    expect(getToggle('Selection')).toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Include' })).toBe(null)
   })
 
   it('does not change what is included while an answer is written', () => {
     const getToggle = renderZone({ isRunning: true })
 
     expect(getToggle('Document')).toBeDisabled()
-    expect(getToggle('Conversation')).toBeDisabled()
-    expect(getToggle('Selection')).toBeDisabled()
   })
 })

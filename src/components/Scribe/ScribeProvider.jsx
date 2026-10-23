@@ -79,10 +79,8 @@ export function ScribeProvider({
   // The answers come from the LLM alone until the user asks for their
   // documents
   const [hasDocuments, setHasDocuments] = useState(documents)
-  // What a request includes, in the zone above the composer
+  // Whether a typed request includes the whole document of the app
   const [hasDocument, setHasDocument] = useState(false)
-  const [hasConversation, setHasConversation] = useState(true)
-  const [hasSelection, setHasSelection] = useState(true)
   // The text each request sent, by the index of the request among the
   // requests of the user: the app may give another text afterwards
   const [sentTexts, setSentTexts] = useState({})
@@ -111,8 +109,6 @@ export function ScribeProvider({
       preparePrompt,
       hasDocuments,
       hasDocument,
-      hasConversation,
-      hasSelection,
       text,
       recordSentText,
       requestDocument,
@@ -125,8 +121,6 @@ export function ScribeProvider({
       preparePrompt,
       hasDocuments,
       hasDocument,
-      hasConversation,
-      hasSelection,
       text,
       recordSentText,
       requestDocument,
@@ -141,14 +135,6 @@ export function ScribeProvider({
     request,
     textIndex: countRequests(messages)
   })
-
-  // Another text checks the selection again. Read while rendering, as React
-  // advises for a state derived from a prop.
-  const [givenText, setGivenText] = useState(text)
-  if (givenText !== text) {
-    setGivenText(text)
-    setHasSelection(true)
-  }
 
   const textRef = useRef(text)
   useEffect(() => {
@@ -167,10 +153,6 @@ export function ScribeProvider({
       isDocumentAvailable: requestDocument !== null,
       hasDocument,
       setHasDocument,
-      hasConversation,
-      setHasConversation,
-      hasSelection,
-      setHasSelection,
       text,
       sentTexts,
       handCall,
@@ -185,8 +167,6 @@ export function ScribeProvider({
       hasDocuments,
       requestDocument,
       hasDocument,
-      hasConversation,
-      hasSelection,
       text,
       sentTexts,
       handCall,

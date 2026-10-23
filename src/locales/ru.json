@@ -23,9 +23,7 @@
     "panel": "Панель Scribe",
     "include": {
       "title": "Включить",
-      "document": "Документ",
-      "conversation": "Разговор",
-      "selection": "Выделение"
+      "document": "Документ"
     },
     "document": {
       "truncated": "Документ слишком длинный — ассистенту отправлена только его часть.",
