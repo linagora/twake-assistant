@@ -281,13 +281,12 @@ export function makeScribePreparePrompt(content) {
  *
  * @param {string} content - the text of the app
  * @param {Function} t - translation function
- * @returns {(text: string, options: { isFirstOnText: boolean, hasSelection?: boolean, document?: string|null }) => string}
- * `hasSelection` false leaves the text of the app out
+ * @returns {(text: string, options: { isFirstOnText: boolean, document?: string|null }) => string}
  */
 export function makeScribePrepareQuery(content, t) {
-  return (text, { isFirstOnText, hasSelection = true, document = null }) => {
+  return (text, { isFirstOnText, document = null }) => {
     const request =
-      isFirstOnText && hasSelection && content !== ''
+      isFirstOnText && content !== ''
         ? `${text}\n\n${t('scribe.content')}\n"""\n${content}\n"""`
         : text
     return document

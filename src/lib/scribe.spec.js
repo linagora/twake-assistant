@@ -252,12 +252,6 @@ describe('makeScribePrepareQuery', () => {
     ).toBe('[Full document]\nHello\n[End of full document]\n\nShorter')
   })
 
-  it('leaves out the text of the app when the selection is off', () => {
-    expect(
-      prepareQuery('Translate', { isFirstOnText: true, hasSelection: false })
-    ).toBe('Translate')
-  })
-
   it('joins no text when the app gives none', () => {
     expect(
       makeScribePrepareQuery('', mockT)('Translate', { isFirstOnText: true })

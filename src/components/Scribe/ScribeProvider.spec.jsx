@@ -218,16 +218,6 @@ describe('ScribeProvider', () => {
     })
   })
 
-  it('checks the selection again when the app gives another text', () => {
-    const { getScribe, rerenderWith } = setup({ text: 'Bonjour' })
-    act(() => getScribe().setHasSelection(false))
-    expect(getScribe().hasSelection).toBe(false)
-
-    rerenderWith({ text: 'Au revoir' })
-
-    expect(getScribe().hasSelection).toBe(true)
-  })
-
   it('sends the document before the text when it is included', async () => {
     const requestDocument = jest.fn(async () => ({
       document: 'The whole note',
@@ -264,64 +254,20 @@ describe('ScribeProvider', () => {
     expect(results.at(-1).metadata.custom.documentNotice).toBe(undefined)
   })
 
-  it('sends a fresh conversation for each request when the conversation is off', async () => {
-    const scribe = setup({ prepareQuery: scribePrepareQuery, text: 'Bonjour' })
-    answerAtOnce(scribe)
-    act(() => scribe.getScribe().setHasConversation(false))
-
-    await run([userMessage('Fix it')])
-    mockMessages = [userMessage('Fix it'), { role: 'assistant' }]
-    await run([...mockMessages, userMessage('Shorter')])
-
-    const calls = scribe.client.stackClient.fetchJSON.mock.calls
-    const paths = calls.map(call => call[1])
-    expect(paths[0]).not.toBe(paths[1])
-    expect(paths).not.toContain('/ai/chat/conversations/c1')
-    // A fresh conversation does not hold the text
-    expect(calls[1][2].q).toBe('Shorter\n\nText:\n"""\nBonjour\n"""')
-  })
-
-  it('sends the text without the selection when it is off', async () => {
-    const scribe = setup({ prepareQuery: scribePrepareQuery, text: 'Bonjour' })
-    answerAtOnce(scribe)
-    act(() => scribe.getScribe().setHasSelection(false))
-
-    await run([userMessage('Fix it')])
-
-    expect(scribe.client.stackClient.fetchJSON.mock.calls[0][2].q).toBe(
-      'Fix it'
-    )
-  })
-
-  it('sends the selection with the next request once it is checked again', async () => {
-    const scribe = setup({ prepareQuery: scribePrepareQuery, text: 'Bonjour' })
-    answerAtOnce(scribe)
-    act(() => scribe.getScribe().setHasSelection(false))
-
-    await run([userMessage('Fix it')])
-    act(() => scribe.getScribe().setHasSelection(true))
-    mockMessages = [userMessage('Fix it'), { role: 'assistant' }]
-    await run([...mockMessages, userMessage('Shorter')])
-
-    expect(
-      scribe.client.stackClient.fetchJSON.mock.calls.map(call => call[2].q)
-    ).toEqual(['Fix it', 'Shorter\n\nText:\n"""\nBonjour\n"""'])
-  })
-
   it('keeps the text sent with each request, whatever the app gives next', async () => {
     const scribe = setup({ prepareQuery: scribePrepareQuery, text: 'Bonjour' })
     answerAtOnce(scribe)
     expect(scribe.getScribe().sentTexts).toEqual({})
-    act(() => scribe.getScribe().setHasSelection(false))
 
     await run([userMessage('Fix it')])
-    expect(scribe.getScribe().sentTexts).toEqual({})
-    act(() => scribe.getScribe().setHasSelection(true))
     mockMessages = [userMessage('Fix it'), { role: 'assistant' }]
     await run([...mockMessages, userMessage('Shorter')])
-    scribe.rerenderWith({ prepareQuery: scribePrepareQuery, text: 'Au revoir' })
+    scribe.rerenderWith({
+      prepareQuery: scribePrepareQuery,
+      text: 'Au revoir'
+    })
 
-    expect(scribe.getScribe().sentTexts).toEqual({ 1: 'Bonjour' })
+    expect(scribe.getScribe().sentTexts).toEqual({ 0: 'Bonjour' })
   })
 
   it('keeps the text of a suggestion as sent with its request', async () => {

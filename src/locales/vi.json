@@ -23,9 +23,7 @@
     "panel": "Bảng Scribe",
     "include": {
       "title": "Bao gồm",
-      "document": "Tài liệu",
-      "conversation": "Cuộc trò chuyện",
-      "selection": "Vùng chọn"
+      "document": "Tài liệu"
     },
     "document": {
       "truncated": "Tài liệu quá dài — chỉ một phần được gửi đến trợ lý.",

@@ -23,9 +23,7 @@
     "panel": "Panel de Scribe",
     "include": {
       "title": "Incluir",
-      "document": "Documento",
-      "conversation": "Conversación",
-      "selection": "Selección"
+      "document": "Documento"
     },
     "document": {
       "truncated": "Documento demasiado largo — solo se envió una parte al asistente.",

@@ -9,23 +9,16 @@ import { useScribe } from '@/components/Scribe/ScribeProvider'
 import styles from '@/components/Scribe/styles.styl'
 
 /**
- * What the next request includes: the whole document when the app can give
- * it, the conversation so far, and the text of the app when there is one
+ * Whether the next request includes the whole document, when the app can
+ * give it. The conversation and the text of the app always go with it.
  */
 export function ScribeIncludeZone() {
   const { t } = useI18n()
-  const {
-    text,
-    isDocumentAvailable,
-    hasDocument,
-    setHasDocument,
-    hasConversation,
-    setHasConversation,
-    hasSelection,
-    setHasSelection
-  } = useScribe()
+  const { isDocumentAvailable, hasDocument, setHasDocument } = useScribe()
   const isRunning = useThread(state => state.isRunning)
   const titleId = useId()
+
+  if (!isDocumentAvailable) return null
 
   return (
     <div className="u-mv-half">
@@ -43,31 +36,13 @@ export function ScribeIncludeZone() {
         aria-labelledby={titleId}
         className={`${styles['scribe-include']} u-flex u-flex-wrap u-flex-items-center`}
       >
-        {isDocumentAvailable && (
-          <Checkbox
-            size="small"
-            label={t('scribe.include.document')}
-            checked={hasDocument}
-            disabled={isRunning}
-            onChange={event => setHasDocument(event.target.checked)}
-          />
-        )}
         <Checkbox
           size="small"
-          label={t('scribe.include.conversation')}
-          checked={hasConversation}
+          label={t('scribe.include.document')}
+          checked={hasDocument}
           disabled={isRunning}
-          onChange={event => setHasConversation(event.target.checked)}
+          onChange={event => setHasDocument(event.target.checked)}
         />
-        {text !== '' && (
-          <Checkbox
-            size="small"
-            label={t('scribe.include.selection')}
-            checked={hasSelection}
-            disabled={isRunning}
-            onChange={event => setHasSelection(event.target.checked)}
-          />
-        )}
       </div>
     </div>
   )

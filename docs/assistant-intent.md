@@ -464,7 +464,7 @@ Set `content` to the text the user wants to work on:
 
 - Prompts about the text are offered above the composer, in the empty conversation and after each request: correct, improve (make it shorter, expand context, emojify, transform to bullets), change tone (more professional, more casual, more polite), translate (into French, English, German, Spanish, Italian, Russian or Vietnamese, each language once the bundled catalogue has its prompt: German, Spanish and Italian do not have one yet), and summarize.
 - The user can also type any request about the text.
-- The text is joined to the first message of the conversation only. The next messages are sent as they are: the conversation already holds the text and the previous answers, so a follow-up such as "shorter" works on the last answer. The user changes what a request includes above the composer (see [What a request includes](#what-a-request-includes)).
+- The text is joined to the first message of the conversation only. The next messages are sent as they are: the conversation already holds the text and the previous answers, so a follow-up such as "shorter" works on the last answer. The user may add the whole document above the composer (see [What a request includes](#what-a-request-includes)).
 
 ### The prompts
 
@@ -500,18 +500,15 @@ I kept the time you gave.
 The calling app sends new data to the open assistant, with another `content`, when the user selects another text: `sendData(data)` on the started intent of `cozy-interapp`, or new `data` given to `IntentIframe`. They travel in a `data` message (see [Protocol](#protocol)), and replace the whole configuration: send the `answerActions`, `documentAvailable` and the `theme` again with the new `content`. The theme and the layout do not change while the assistant is open. The assistant keeps its conversation:
 
 - the next message, typed or from a prompt, gets the new text joined to it, and the messages after it are sent as they are;
-- the action buttons follow the new `answerActions`, under every answer;
-- the Selection box is checked again (see [What a request includes](#what-a-request-includes)).
+- the action buttons follow the new `answerActions`, under every answer.
 
 Send new data for another text only, not for a cursor that moves: the next message would be about the same text again.
 
 ### What a request includes
 
-Above the composer, under "Include", up to three boxes choose what goes with the next request. They do not change while an answer is written.
+Each request goes to the conversation of the scribe, and the text of the app goes with the first request about it. Above the composer, under "Include", a box adds the document; it does not change while an answer is written.
 
 - **Document**, shown only with `documentAvailable`, unchecked at first. A typed request then asks the app for its whole document, with a DocumentRequest (see [Result](#result)), and waits for the next data that hold a `document`, 8 seconds at most. The document goes before the request, between a `[Full document]` and an `[End of full document]` line; the conversation shows the request alone. When the app gives `document: null`, or nothing in time, the request is sent without it, and the answer tells that the document could not be read. With `documentTruncated`, the answer tells that only part of it was sent. Stop ends the wait at once, and nothing is sent. A prompt of the catalogue never asks for the document: it is about the text.
-- **Conversation**, checked at first. Unchecked, each request goes to a new conversation of its own, without the previous messages, and gets the text joined to it; the scribe still shows the whole exchange. Once checked again, the next request goes back to the conversation of the scribe, with the text if that conversation does not have it yet.
-- **Selection**, shown only with a `content`, checked at first and again whenever the app gives another text. Unchecked, a typed request is sent without the text, and the text goes with the next request sent with the box checked. A prompt of the catalogue keeps the text in its query.
 
 An app that cannot read its document answers at once with `document: null`: the request would wait 8 seconds otherwise. An app that never answers a DocumentRequest leaves `documentAvailable` out.
 
