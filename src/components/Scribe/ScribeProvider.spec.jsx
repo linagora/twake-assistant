@@ -266,8 +266,19 @@ describe('ScribeProvider', () => {
       prepareQuery: scribePrepareQuery,
       text: 'Au revoir'
     })
-
     expect(scribe.getScribe().sentTexts).toEqual({ 0: 'Bonjour' })
+
+    mockMessages = [
+      ...mockMessages,
+      userMessage('Shorter'),
+      { role: 'assistant' }
+    ]
+    await run([...mockMessages, userMessage('Translate')])
+
+    expect(scribe.getScribe().sentTexts).toEqual({
+      0: 'Bonjour',
+      2: 'Au revoir'
+    })
   })
 
   it('keeps the text of a suggestion as sent with its request', async () => {
