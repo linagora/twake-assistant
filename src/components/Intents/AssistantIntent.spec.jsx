@@ -238,7 +238,7 @@ describe('AssistantIntent', () => {
     expect(suggestions.map(suggestion => suggestion.name)).toContain('correct')
     expect(capabilities[0].confirm).toBe(false)
     expect(capabilities[0].action.examples).toEqual([
-      { message: 'Add a slide after this one', needs_documents: false }
+      'Add a slide after this one'
     ])
     expect(documents).toBe(false)
   })

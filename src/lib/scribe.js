@@ -377,9 +377,8 @@ export function makeScribeCapabilities(
     // The router picks a capability from its examples: the request of a chip
     // that asks for it is one, so that the chip gets the capability
     const requests = findRequestsFor(suggestions, name)
-      .filter(message => !examples.some(example => example.message === message))
-      .map(message => ({ message, needs_documents: false }))
-      .filter(example => findExampleError(example) === null)
+      .filter(message => !examples.includes(message))
+      .filter(message => findExampleError(message) === null)
     const hasContent = action.content !== undefined
 
     return {

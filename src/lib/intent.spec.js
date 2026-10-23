@@ -79,7 +79,7 @@ describe('getIntentConfig', () => {
           action: {
             name: 'insert_slide',
             description: 'add a slide',
-            examples: [{ message: 'Add a slide', needs_documents: false }],
+            examples: ['Add a slide'],
             parameters,
             instructions: 'Short titles'
           }
@@ -175,7 +175,7 @@ describe('getIntentConfig', () => {
       ])
     })
 
-    it('reads whether an example needs the documents as a boolean', () => {
+    it('sends the examples to the stack as their messages', () => {
       const [capability] = getIntentConfig({
         capabilities: [
           {
@@ -189,8 +189,8 @@ describe('getIntentConfig', () => {
       }).capabilities
 
       expect(capability.action.examples).toEqual([
-        { message: 'Add a slide', needs_documents: false },
-        { message: 'Add a closing slide', needs_documents: false }
+        'Add a slide',
+        'Add a closing slide'
       ])
     })
 
