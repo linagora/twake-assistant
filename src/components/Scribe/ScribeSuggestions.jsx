@@ -1,4 +1,8 @@
-import { useComposerRuntime, useThreadRuntime } from '@assistant-ui/react'
+import {
+  useComposerRuntime,
+  useThread,
+  useThreadRuntime
+} from '@assistant-ui/react'
 import React, { useRef, useState } from 'react'
 
 import { Icon } from '@linagora/twake-icons'
@@ -16,7 +20,7 @@ const CHIP_CLASSES = { icon: styles['scribe-suggestion-icon'] }
  * A prompt about the text of the app: the chip sends it, or opens a menu of
  * prompts
  */
-function SuggestionChip({ suggestion, onSend }) {
+function SuggestionChip({ suggestion, isDisabled, onSend }) {
   const chipRef = useRef(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -46,6 +50,7 @@ function SuggestionChip({ suggestion, onSend }) {
           </Typography>
         }
         clickable
+        disabled={isDisabled}
         {...(suggestion.options && {
           'aria-haspopup': 'menu',
           'aria-expanded': isMenuOpen
@@ -77,13 +82,15 @@ function SuggestionChip({ suggestion, onSend }) {
 
 /**
  * The prompts about the text of the app: under the welcome of an empty
- * conversation, and above the composer when the app gives another text.
+ * conversation, and above the composer after each request about the text.
+ * Off while an answer runs: another request would cut it.
  * `inputRef` is the input of the composer, focused once a draft fills it.
  */
 export function ScribeSuggestions({ inputRef }) {
   const { suggestions } = useScribe()
   const threadRuntime = useThreadRuntime()
   const composerRuntime = useComposerRuntime()
+  const isRunning = useThread(state => state.isRunning)
 
   if (suggestions.length === 0) return null
 
@@ -117,6 +124,7 @@ export function ScribeSuggestions({ inputRef }) {
         <SuggestionChip
           key={suggestion.name}
           suggestion={suggestion}
+          isDisabled={isRunning}
           onSend={handleSend}
         />
       ))}
