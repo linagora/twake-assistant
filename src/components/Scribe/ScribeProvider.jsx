@@ -34,7 +34,7 @@ function sendAsItIs(text) {
  * @param {object} props
  * @param {string} props.conversationId
  * @param {import('@/lib/scribe').Suggestion[]} [props.suggestions] - the
- * prompts offered above the composer of an empty conversation
+ * prompts offered above the composer
  * @param {import('@/lib/scribe').AnswerAction[]} [props.answerActions] - the
  * buttons under each answer
  * @param {import('@/lib/scribe').ScribeCapability[]} [props.capabilities] -
@@ -142,19 +142,13 @@ export function ScribeProvider({
     textIndex: countRequests(messages)
   })
 
-  // The text, and the number of requests of the user when it was given: the
-  // prompts are offered until the next request. Read while rendering, as
-  // React advises for a state derived from a prop.
-  const [given, setGiven] = useState(() => ({
-    text,
-    start: countRequests(messages)
-  }))
-  if (given.text !== text) {
-    const start = countRequests(runtime.thread.getState().messages)
-    setGiven({ text, start })
+  // Another text checks the selection again. Read while rendering, as React
+  // advises for a state derived from a prop.
+  const [givenText, setGivenText] = useState(text)
+  if (givenText !== text) {
+    setGivenText(text)
     setHasSelection(true)
   }
-  const textStart = given.start
 
   const textRef = useRef(text)
   useEffect(() => {
@@ -181,7 +175,6 @@ export function ScribeProvider({
       sentTexts,
       handCall,
       isCallHanded,
-      textStart,
       layout,
       onCancel
     }),
@@ -198,7 +191,6 @@ export function ScribeProvider({
       sentTexts,
       handCall,
       isCallHanded,
-      textStart,
       layout,
       onCancel
     ]

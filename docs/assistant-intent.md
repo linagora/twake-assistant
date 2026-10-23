@@ -462,7 +462,7 @@ Set `content` to the text the user wants to work on:
 }
 ```
 
-- Prompts about the text are offered above the composer of the empty conversation: correct, improve (make it shorter, expand context, emojify, transform to bullets), change tone (more professional, more casual, more polite), translate (into French, English, German, Spanish, Italian, Russian or Vietnamese, each language once the bundled catalogue has its prompt: German, Spanish and Italian do not have one yet), and summarize.
+- Prompts about the text are offered above the composer, in the empty conversation and after each request: correct, improve (make it shorter, expand context, emojify, transform to bullets), change tone (more professional, more casual, more polite), translate (into French, English, German, Spanish, Italian, Russian or Vietnamese, each language once the bundled catalogue has its prompt: German, Spanish and Italian do not have one yet), and summarize.
 - The user can also type any request about the text.
 - The text is joined to the first message of the conversation only. The next messages are sent as they are: the conversation already holds the text and the previous answers, so a follow-up such as "shorter" works on the last answer. The user changes what a request includes above the composer (see [What a request includes](#what-a-request-includes)).
 
@@ -500,7 +500,6 @@ I kept the time you gave.
 The calling app sends new data to the open assistant, with another `content`, when the user selects another text: `sendData(data)` on the started intent of `cozy-interapp`, or new `data` given to `IntentIframe`. They travel in a `data` message (see [Protocol](#protocol)), and replace the whole configuration: send the `answerActions`, `documentAvailable` and the `theme` again with the new `content`. The theme and the layout do not change while the assistant is open. The assistant keeps its conversation:
 
 - the next message, typed or from a prompt, gets the new text joined to it, and the messages after it are sent as they are;
-- the prompts are offered again above the composer until that message;
 - the action buttons follow the new `answerActions`, under every answer;
 - the Selection box is checked again (see [What a request includes](#what-a-request-includes)).
 
@@ -552,7 +551,7 @@ Set `suggestions` to choose the chips above the composer. Without it, a scribe w
 - A chip with a `capability` sends `message` as the request of the user. The assistant adds the request to the examples of the capability, so that the LLM proposes the capability for it (see [Capabilities](#capabilities)). The LLM still decides: with a text that the request does not fit, it may answer instead.
 - A chip with a `message` alone sends it as the request of the user, with `instructions` as the system message when given, and with the instructions of the scribe otherwise.
 - A chip with `options` opens a menu of them.
-- The chips are offered until the first request about the text, and again when the app gives another text (see [Another text while the assistant is open](#another-text-while-the-assistant-is-open)). Without a text, they are offered until the first request.
+- With a text, the chips stay above the composer after each request. Without a text, they are offered until the first request.
 
 The chips are the only prompts the app can change. The messages the user types are sent as they are.
 
