@@ -551,7 +551,7 @@ Set `suggestions` to choose the chips above the composer. Without it, a scribe w
 - A chip with a `capability` sends `message` as the request of the user. The assistant adds the request to the examples of the capability, so that the LLM proposes the capability for it (see [Capabilities](#capabilities)). The LLM still decides: with a text that the request does not fit, it may answer instead.
 - A chip with a `message` alone sends it as the request of the user, with `instructions` as the system message when given, and with the instructions of the scribe otherwise.
 - A chip with `options` opens a menu of them.
-- With a text, the chips stay above the composer after each request. Without a text, they are offered until the first request.
+- With a text, the chips stay above the composer after each request, off while an answer runs. Without a text, they are offered until the first request.
 
 The chips are the only prompts the app can change. The messages the user types are sent as they are.
 

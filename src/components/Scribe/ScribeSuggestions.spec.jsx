@@ -10,8 +10,10 @@ import en from '@/locales/en.json'
 
 const mockThread = { append: jest.fn() }
 const mockComposer = { setText: jest.fn() }
+let mockIsRunning = false
 
 jest.mock('@assistant-ui/react', () => ({
+  useThread: selector => selector({ isRunning: mockIsRunning }),
   useThreadRuntime: () => mockThread,
   useComposerRuntime: () => mockComposer
 }))
@@ -32,7 +34,22 @@ function renderSuggestions(suggestions, inputRef) {
 }
 
 describe('ScribeSuggestions', () => {
-  beforeEach(() => jest.clearAllMocks())
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockIsRunning = false
+  })
+
+  it('turns the chips off while an answer runs', () => {
+    mockIsRunning = true
+    renderSuggestions([
+      { name: 'correct', label: 'Correct', request: 'Correct the text.' }
+    ])
+
+    expect(screen.getByRole('button', { name: 'Correct' })).toHaveAttribute(
+      'aria-disabled',
+      'true'
+    )
+  })
 
   it('sends the request of a chip, with its prompt of the catalogue', () => {
     renderSuggestions([
