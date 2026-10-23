@@ -35,6 +35,8 @@ function sendAsItIs(text) {
  * @param {string} props.conversationId
  * @param {import('@/lib/scribe').Suggestion[]} [props.suggestions] - the
  * prompts offered above the composer
+ * @param {import('@/lib/scribe').Suggestion[]} [props.documentsSuggestions] -
+ * those offered in place of `suggestions` while the documents are on
  * @param {import('@/lib/scribe').AnswerAction[]} [props.answerActions] - the
  * buttons under each answer
  * @param {import('@/lib/scribe').ScribeCapability[]} [props.capabilities] -
@@ -62,6 +64,7 @@ function sendAsItIs(text) {
 export function ScribeProvider({
   conversationId,
   suggestions = [],
+  documentsSuggestions = null,
   answerActions = [],
   capabilities = [],
   documents = false,
@@ -159,7 +162,10 @@ export function ScribeProvider({
 
   const value = useMemo(
     () => ({
-      suggestions,
+      suggestions:
+        hasDocuments && documentsSuggestions
+          ? documentsSuggestions
+          : suggestions,
       answerActions,
       capabilities,
       hasDocuments,
@@ -180,6 +186,7 @@ export function ScribeProvider({
     }),
     [
       suggestions,
+      documentsSuggestions,
       answerActions,
       capabilities,
       hasDocuments,

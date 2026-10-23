@@ -240,6 +240,7 @@ describe('AssistantIntent', () => {
 
     const {
       suggestions,
+      documentsSuggestions,
       prepareQuery,
       instructions,
       documents,
@@ -249,6 +250,12 @@ describe('AssistantIntent', () => {
       'translate',
       'correct',
       'write'
+    ])
+    expect(documentsSuggestions.map(suggestion => suggestion.name)).toEqual([
+      'summarize',
+      'find_decision',
+      'translate',
+      'key_points'
     ])
     expect(prepareQuery('Fix', { isFirstOnText: true })).toBe('Fix')
     expect(
@@ -412,10 +419,12 @@ describe('AssistantIntent', () => {
     })
     renderIntent()
 
-    const { suggestions, documents } = await findScribeProps()
+    const { suggestions, documentsSuggestions, documents } =
+      await findScribeProps()
     expect(suggestions).toEqual([
       { name: 'joke', label: 'Joke', request: 'Tell a joke' }
     ])
+    expect(documentsSuggestions).toBe(null)
     expect(documents).toBe(false)
   })
 

@@ -517,7 +517,7 @@ An app that cannot read its document answers at once with `document: null`: the 
 
 ## Suggestions
 
-Set `suggestions` to choose the chips above the composer. Without it, a scribe with a text offers the default menu, the prompts of the catalogue (see [The prompts](#the-prompts)), and a scribe without a text offers short actions (translate, correct, help me write): each one puts the start of a request in the composer, for the user to complete before sending it.
+Set `suggestions` to choose the chips above the composer. Without it, a scribe with a text offers the default menu, the prompts of the catalogue (see [The prompts](#the-prompts)), and a scribe without a text offers short actions: each one puts the start of a request in the composer, for the user to complete before sending it. While the documents of the user are on, they are those of the welcome of the assistant on a folder (summarize, find a decision, translate, key points from last week); with the LLM alone, translate, correct and help me write.
 
 ```json
 {

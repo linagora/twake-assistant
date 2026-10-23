@@ -3,6 +3,7 @@ import {
   useThread,
   useThreadRuntime
 } from '@assistant-ui/react'
+import cx from 'classnames'
 import React, { useRef, useState } from 'react'
 
 import { Icon } from '@linagora/twake-icons'
@@ -86,7 +87,7 @@ function SuggestionChip({ suggestion, isDisabled, onSend }) {
  * Off while an answer runs: another request would cut it.
  * `inputRef` is the input of the composer, focused once a draft fills it.
  */
-export function ScribeSuggestions({ inputRef }) {
+export function ScribeSuggestions({ inputRef, className }) {
   const { suggestions } = useScribe()
   const threadRuntime = useThreadRuntime()
   const composerRuntime = useComposerRuntime()
@@ -119,7 +120,7 @@ export function ScribeSuggestions({ inputRef }) {
   }
 
   return (
-    <div className={styles['scribe-suggestions']}>
+    <div className={cx(styles['scribe-suggestions'], className)}>
       {suggestions.map(suggestion => (
         <SuggestionChip
           key={suggestion.name}
