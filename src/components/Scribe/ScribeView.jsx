@@ -87,15 +87,8 @@ function useComposerDraft(draftRef) {
 function ScribeConversation({ isHidden, hasText, draftRef }) {
   const { t } = useI18n()
   const isEmpty = useThread(state => state.messages.length === 0)
-  const requestCount = useThread(
-    state => state.messages.filter(message => message.role === 'user').length
-  )
-  // The prompts are about the text: offered again when the app gives another.
-  // Without a text, only in the welcome: not over a past conversation opened
-  // again.
-  const { textStart, hasDocuments } = useScribe()
+  const { hasDocuments } = useScribe()
   const inputRef = useRef(null)
-  const hasNewText = requestCount === textStart
   const { welcome, placeholder } = getScribeWording(t, {
     hasText,
     hasDocuments
@@ -129,9 +122,9 @@ function ScribeConversation({ isHidden, hasText, draftRef }) {
         <ThreadPrimitive.Messages components={MESSAGE_COMPONENTS} />
       </ThreadPrimitive.Viewport>
       <div className={styles['scribe-footer']}>
-        {hasText && !isEmpty && hasNewText && (
-          <ScribeSuggestions inputRef={inputRef} />
-        )}
+        {/* Without a text, the prompts stay in the welcome: not over a past
+            conversation opened again */}
+        {hasText && !isEmpty && <ScribeSuggestions inputRef={inputRef} />}
         <ScribeSelectionChip />
         <ScribeIncludeZone />
         <ScribeComposer placeholder={placeholder} inputRef={inputRef} />

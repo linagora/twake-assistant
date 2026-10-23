@@ -11,6 +11,8 @@ import en from '@/locales/en.json'
 import { buildConversationByIdQuery } from '@/queries'
 
 let mockThread = { messages: [], isRunning: false }
+// The requests sent since the scribe opened, after the messages it was given
+let mockSentMessages = []
 const mockComposer = {
   text: '',
   getState: () => ({ text: mockComposer.text }),
@@ -41,7 +43,9 @@ jest.mock('@assistant-ui/react', () => {
     AssistantRuntimeProvider: ({ children }) => children,
     useLocalRuntime: (adapter, { initialMessages }) => {
       mockThread = {
-        messages: initialMessages.map(toThreadMessage),
+        messages: [...initialMessages, ...mockSentMessages].map(
+          toThreadMessage
+        ),
         isRunning: false
       }
       return { thread: { getState: () => mockThread } }
@@ -173,6 +177,7 @@ describe('ScribeView', () => {
     jest.clearAllMocks()
     jest.restoreAllMocks()
     mockComposer.text = ''
+    mockSentMessages = []
     global.ResizeObserver = class {
       constructor(callback) {
         mockObserveSize = callback
@@ -200,6 +205,29 @@ describe('ScribeView', () => {
     expect(
       screen.queryByRole('textbox', { name: en.scribe.placeholder })
     ).toBeInTheDocument()
+  })
+
+  it('keeps the prompts above the composer after the requests about the text', async () => {
+    const props = {
+      text: 'A text',
+      conversation: 'c1',
+      suggestions: [{ name: 'fix', label: 'Fix', request: 'Fix the text.' }]
+    }
+    const client = makeClient({ conversation: pastConversation })
+    const { rerender } = renderScribe(props, client)
+    expect(await screen.findByText('Fix the first text')).toBeInTheDocument()
+
+    mockSentMessages = [{ id: 'q3', role: 'user', content: 'Shorter' }]
+    rerender(
+      <CozyProvider client={client}>
+        <I18n lang="en" polyglot={initTranslation('en', () => en)}>
+          <ScribeView {...props} />
+        </I18n>
+      </CozyProvider>
+    )
+
+    expect(screen.getByText('Shorter')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Fix' })).toBeInTheDocument()
   })
 
   it('shows the panel row before the composer in the compact layout', () => {

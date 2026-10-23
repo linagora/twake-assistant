@@ -95,10 +95,10 @@ describe('ScribeProvider', () => {
     mockMessages = []
   })
 
-  it('joins a new text of the app to the next message, and offers its prompts again', async () => {
+  it('joins a new text of the app to the next message', async () => {
     const prepareQuery = (text, { isFirstOnText }) =>
       isFirstOnText ? `${text} <text>` : text
-    const { client, emit, getScribe, rerenderWith } = setup({
+    const { client, emit, rerenderWith } = setup({
       prepareQuery,
       text: 'Bonjour'
     })
@@ -108,14 +108,11 @@ describe('ScribeProvider', () => {
         data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
       }
     })
-    expect(getScribe().textStart).toBe(0)
-
     await run([userMessage('Fix it')])
     mockMessages = [userMessage('Fix it'), { role: 'assistant' }]
     rerenderWith({ prepareQuery, text: 'Au revoir' })
     await run([...mockMessages, userMessage('Translate')])
 
-    expect(getScribe().textStart).toBe(1)
     expect(
       client.stackClient.fetchJSON.mock.calls.map(call => call[2].q)
     ).toEqual(['Fix it <text>', 'Translate <text>'])
