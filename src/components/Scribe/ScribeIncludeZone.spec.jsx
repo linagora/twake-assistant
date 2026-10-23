@@ -16,11 +16,7 @@ jest.mock('@assistant-ui/react', () => ({
   useThread: selector => selector(mockThread)
 }))
 
-function renderZone({
-  text = 'Bonjour',
-  isRunning = false,
-  requestDocument = jest.fn()
-} = {}) {
+function renderZone({ isRunning = false, requestDocument = jest.fn() } = {}) {
   mockThread = { messages: [], isRunning }
   const client = createMockClient({})
   client.plugins = {
@@ -30,11 +26,7 @@ function renderZone({
   render(
     <CozyProvider client={client}>
       <I18n lang="en" polyglot={initTranslation('en', () => en)}>
-        <ScribeProvider
-          conversationId="c1"
-          text={text}
-          requestDocument={requestDocument}
-        >
+        <ScribeProvider conversationId="c1" requestDocument={requestDocument}>
           <ScribeIncludeZone />
         </ScribeProvider>
       </I18n>
