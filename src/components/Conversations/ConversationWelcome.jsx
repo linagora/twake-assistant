@@ -2,14 +2,7 @@ import { useComposerRuntime } from '@assistant-ui/react'
 import cx from 'classnames'
 import React from 'react'
 
-import {
-  CheckList,
-  FileTypeFolder,
-  Globe,
-  Icon,
-  Text,
-  TextInfo
-} from '@linagora/twake-icons'
+import { FileTypeFolder, Icon } from '@linagora/twake-icons'
 import Button from 'cozy-ui/transpiled/react/Buttons'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
@@ -20,14 +13,21 @@ import styles from './styles.styl'
 import { useSelectedAssistant } from '../Assistant/AssistantMenu'
 import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedAssistantKnowledgeBase'
 
-// The short actions on the folder: each one starts a prompt the user
-// completes. The icons are those of the same prompts in the scribe.
-const ACTIONS = [
-  { name: 'summarize', icon: Text },
-  { name: 'find_decision', icon: TextInfo },
-  { name: 'translate', icon: Globe },
-  { name: 'key_points', icon: CheckList }
-]
+import { FOLDER_ACTIONS as ACTIONS } from '@/lib/scribe'
+
+/** The folder the answers come from, at the end of a subtitle */
+export const WelcomeFolderName = ({ folderName }) => (
+  <>
+    <Icon
+      icon={FileTypeFolder}
+      size={16}
+      preserveColor
+      aria-hidden="true"
+      className="u-mh-half"
+    />
+    {folderName}
+  </>
+)
 
 /**
  * The welcome of an empty conversation: the assistant and its folder, with
@@ -90,14 +90,7 @@ export const ConversationWelcome = ({ inputRef }) => {
                 ? 'assistant.welcome.subtitle'
                 : 'assistant.welcome.folder_subtitle'
             )}
-            <Icon
-              icon={FileTypeFolder}
-              size={16}
-              preserveColor
-              aria-hidden="true"
-              className="u-mh-half"
-            />
-            {folderName}
+            <WelcomeFolderName folderName={folderName} />
           </>
         ) : (
           t('assistant.welcome.default_subtitle')

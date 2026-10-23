@@ -21,6 +21,7 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
 import DocumentAssistant from '@/assets/illu-document-assistant.svg'
+import { WelcomeFolderName } from '@/components/Conversations/ConversationWelcome'
 import { ScribeAnswer } from '@/components/Scribe/ScribeAnswer'
 import { ScribeComposer } from '@/components/Scribe/ScribeComposer'
 import { ScribeHistory } from '@/components/Scribe/ScribeHistory'
@@ -81,8 +82,8 @@ function useComposerDraft(draftRef) {
 }
 
 // Hidden, not unmounted, under the history: an answer goes on. Without a
-// text, the app opened it on the user's documents, like the file list of
-// Drive: the answers come from the whole Drive.
+// text, the app opened it as the assistant, like the file list of Drive: on
+// the user's documents, the answers come from the whole Drive.
 function ScribeConversation({ isHidden, hasText, draftRef }) {
   const { t } = useI18n()
   const isEmpty = useThread(state => state.messages.length === 0)
@@ -92,6 +93,7 @@ function ScribeConversation({ isHidden, hasText, draftRef }) {
     hasText,
     hasDocuments
   })
+  const isOnDrive = !hasText && hasDocuments
   useComposerDraft(draftRef)
 
   return (
@@ -111,11 +113,19 @@ function ScribeConversation({ isHidden, hasText, draftRef }) {
               variant="body2"
               component="h2"
               color="textSecondary"
-              className="u-ta-center u-mt-1-half u-mb-1 u-o-70"
+              className="u-ta-center u-mt-1-half u-mb-1 u-o-70 u-flex u-flex-wrap u-flex-items-center u-flex-justify-center"
             >
               {welcome}
+              {isOnDrive && (
+                <WelcomeFolderName
+                  folderName={t('assistant.twake_knowledges.drive')}
+                />
+              )}
             </Typography>
-            <ScribeSuggestions inputRef={inputRef} />
+            <ScribeSuggestions
+              inputRef={inputRef}
+              className="u-flex-justify-center"
+            />
           </div>
         )}
         <ThreadPrimitive.Messages components={MESSAGE_COMPONENTS} />

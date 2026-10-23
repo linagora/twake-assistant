@@ -10,6 +10,7 @@ import { ScribeView } from '@/components/Scribe/ScribeView'
 import { makeDocumentRequest } from '@/lib/documentRequest'
 import { getIntentConfig } from '@/lib/intent'
 import {
+  FOLDER_ACTIONS,
   makeScribeAnswerActions,
   makeScribeCapabilities,
   makeScribePreparePrompt,
@@ -82,6 +83,12 @@ function Scribe({ service, config }) {
         : makeScribeShortActions(t),
     [content, suggestions, scribeCapabilities, t]
   )
+  // Not over the chips of the app nor the menu of a text
+  const documentsSuggestions = useMemo(
+    () =>
+      content || suggestions ? null : makeScribeShortActions(t, FOLDER_ACTIONS),
+    [content, suggestions, t]
+  )
   // Without a text, a request may still include the document
   const prepareQuery = useMemo(
     () => makeScribePrepareQuery(content, t),
@@ -106,6 +113,7 @@ function Scribe({ service, config }) {
       answerActions={scribeActions}
       capabilities={scribeCapabilities}
       suggestions={scribeSuggestions}
+      documentsSuggestions={documentsSuggestions}
       prepareQuery={prepareQuery}
       preparePrompt={preparePrompt}
       requestDocument={requestDocument}

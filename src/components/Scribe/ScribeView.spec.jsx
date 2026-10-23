@@ -207,6 +207,53 @@ describe('ScribeView', () => {
     ).toBeInTheDocument()
   })
 
+  it('welcomes without a text as the assistant, on the Drive while its files are used', () => {
+    renderScribe({
+      documents: true,
+      suggestions: [{ name: 'fix', label: 'Fix', draft: 'Fix ' }],
+      documentsSuggestions: [
+        {
+          name: 'find_decision',
+          label: en.assistant.welcome.actions.find_decision.label,
+          draft: 'Find '
+        }
+      ]
+    })
+    expect(
+      screen.queryByText(`${en.assistant.welcome.folder_subtitle}Drive`)
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', {
+        name: en.assistant.welcome.actions.find_decision.label
+      })
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Fix' })).toBe(null)
+    expect(
+      screen.queryByRole('textbox', {
+        name: en.assistant.search.placeholder_folder
+      })
+    ).toBeInTheDocument()
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: en.scribe.documents.replace('%{folder}', 'Drive')
+      })
+    )
+
+    expect(
+      screen.queryByText(en.assistant.welcome.default_subtitle)
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Fix' })).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', {
+        name: en.assistant.welcome.actions.find_decision.label
+      })
+    ).toBe(null)
+    expect(
+      screen.queryByRole('textbox', { name: en.assistant.search.placeholder })
+    ).toBeInTheDocument()
+  })
+
   it('keeps the prompts above the composer after the requests about the text', async () => {
     const props = {
       text: 'A text',

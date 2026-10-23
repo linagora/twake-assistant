@@ -72,6 +72,15 @@ const SHORT_ACTIONS = [
   { name: 'write', icon: Pen }
 ]
 
+// The short actions on a folder. The icons are those of the same prompts in
+// the scribe.
+export const FOLDER_ACTIONS = [
+  { name: 'summarize', icon: Text },
+  { name: 'find_decision', icon: TextInfo },
+  { name: 'translate', icon: Globe },
+  { name: 'key_points', icon: CheckList }
+]
+
 /**
  * @typedef {object} Suggestion
  * @property {string} name
@@ -121,10 +130,11 @@ function makeDefaultMenu(t) {
  * request in the composer
  *
  * @param {Function} t - translation function
+ * @param {object[]} [actions] - those on the Drive: FOLDER_ACTIONS
  * @returns {Suggestion[]}
  */
-export function makeScribeShortActions(t) {
-  return SHORT_ACTIONS.map(({ name, icon }) => ({
+export function makeScribeShortActions(t, actions = SHORT_ACTIONS) {
+  return actions.map(({ name, icon }) => ({
     name,
     icon,
     label: t(`assistant.welcome.actions.${name}.label`),
@@ -212,8 +222,8 @@ export function makeScribeSuggestions(t, config = null, capabilities = []) {
 }
 
 /**
- * The welcome and the placeholder of the scribe. Without a text, they say
- * where the answers come from.
+ * The welcome and the placeholder of the scribe. Without a text, they are
+ * those of the assistant.
  */
 export function getScribeWording(t, { hasText, hasDocuments }) {
   if (hasText) {
@@ -224,14 +234,13 @@ export function getScribeWording(t, { hasText, hasDocuments }) {
   }
   if (!hasDocuments) {
     return {
-      welcome: t('scribe.welcome_llm'),
-      placeholder: t('scribe.placeholder_llm')
+      welcome: t('assistant.welcome.default_subtitle'),
+      placeholder: t('assistant.search.placeholder')
     }
   }
-  const folder = t('assistant.twake_knowledges.drive')
   return {
-    welcome: t('scribe.welcome_documents', { folder }),
-    placeholder: t('scribe.placeholder_documents', { folder })
+    welcome: t('assistant.welcome.folder_subtitle'),
+    placeholder: t('assistant.search.placeholder_folder')
   }
 }
 

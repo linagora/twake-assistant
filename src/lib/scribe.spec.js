@@ -667,8 +667,8 @@ describe('getScribeWording', () => {
     expect(
       getScribeWording(mockT, { hasText: false, hasDocuments: true })
     ).toEqual({
-      welcome: 'Ask me a question about Drive files',
-      placeholder: 'Ask anything from Drive files'
+      welcome: 'Answers are based only on files from',
+      placeholder: 'Ask your Drive'
     })
   })
 
@@ -676,8 +676,8 @@ describe('getScribeWording', () => {
     expect(
       getScribeWording(mockT, { hasText: false, hasDocuments: false })
     ).toEqual({
-      welcome: 'Ask me a question',
-      placeholder: 'Ask anything to Twake AI'
+      welcome: 'What would you like to work on today?',
+      placeholder: 'Ask Twake AI'
     })
   })
 })
