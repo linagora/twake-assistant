@@ -130,11 +130,11 @@
   },
   "assistant": {
     "search": {
-      "placeholder": "Describe a task",
+      "placeholder": "Ask Twake AI",
       "send": "Send",
       "noItem": "No results",
       "notEnough": "Your query must contain at least 3 characters",
-      "placeholder_folder": "Ask anything from your Drive",
+      "placeholder_folder": "Ask your Drive",
       "stop": "Stop"
     },
     "websearch": {

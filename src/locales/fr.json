@@ -130,11 +130,11 @@
   },
   "assistant": {
     "search": {
-      "placeholder": "Décrivez une tâche",
+      "placeholder": "Demander à Twake AI",
       "send": "Envoyer",
       "noItem": "Aucun résultat",
       "notEnough": "Votre recherche doit contenir au moins 3 caractères",
-      "placeholder_folder": "Posez vos questions sur votre Drive",
+      "placeholder_folder": "Demandez à votre Drive",
       "stop": "Arrêter"
     },
     "websearch": {
