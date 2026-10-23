@@ -132,7 +132,8 @@ describe('findChatActionError', () => {
 
 describe('findExampleError', () => {
   it('takes an example with a message', () => {
-    expect(findExampleError({ message: 'Add a slide' })).toBe(null)
-    expect(findExampleError({ message: '  ' })).not.toBe(null)
+    expect(findExampleError('Add a slide')).toBe(null)
+    expect(findExampleError('  ')).not.toBe(null)
+    expect(findExampleError(undefined)).not.toBe(null)
   })
 })

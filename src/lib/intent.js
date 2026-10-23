@@ -22,8 +22,9 @@ function isAnswerAction(action) {
   return isText(action?.name)
 }
 
-function readExample({ message, needs_documents: needsDocuments }) {
-  return { message, needs_documents: needsDocuments === true }
+// The stack takes the examples as texts: needs_documents is left out
+function readExample({ message }) {
+  return message
 }
 
 function readCapability({

@@ -448,7 +448,7 @@ describe('makeScribeCapabilities', () => {
           confirm: false,
           action: {
             ...action,
-            examples: [{ message: 'Add a slide', needs_documents: false }]
+            examples: ['Add a slide']
           }
         }
       ],
@@ -482,8 +482,8 @@ describe('makeScribeCapabilities', () => {
 
     expect(insertSlide.confirm).toBe(false)
     expect(insertSlide.action.examples).toEqual([
-      { message: 'Add a slide', needs_documents: false },
-      { message: 'Nouvelle diapositive après celle-ci', needs_documents: false }
+      'Add a slide',
+      'Nouvelle diapositive après celle-ci'
     ])
   })
 

@@ -18,11 +18,11 @@ function isFilled(text) {
 /**
  * Why the stack would refuse an example of an action
  *
- * @param {{ message: string }} example
+ * @param {string} message - the request of the example
  * @returns {string|null} the reason, null for an example it takes
  */
-export function findExampleError(example) {
-  return isFilled(example?.message) ? null : 'an example has no message'
+export function findExampleError(message) {
+  return isFilled(message) ? null : 'an example has no message'
 }
 
 function findParamError(name, schema) {
@@ -84,7 +84,9 @@ export function findChatActionError(definition) {
   }
   if (examples !== undefined) {
     if (!Array.isArray(examples)) return 'examples is not a list'
-    const error = examples.map(findExampleError).find(Boolean)
+    const error = examples
+      .map(example => findExampleError(example?.message))
+      .find(Boolean)
     if (error) return error
   }
   if (isObject(parameters) === isObject(content)) {

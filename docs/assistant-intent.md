@@ -133,8 +133,9 @@ interface Capability {
   description: string
 
   /**
-   * Requests for which the LLM picks the capability, each with whether it
-   * needs the documents of the user (false when absent).
+   * Requests for which the LLM picks the capability. `needs_documents` is
+   * not sent to the stack: the documents are used when the user asks for
+   * them, whatever the capability.
    */
   examples?: { message: string; needs_documents?: boolean }[]
 
