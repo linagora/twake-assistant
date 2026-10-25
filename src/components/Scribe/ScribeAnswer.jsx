@@ -23,6 +23,7 @@ import styles from '@/components/Scribe/styles.styl'
 import { useDone } from '@/components/Scribe/useDone'
 import { useIsInLatestExchange } from '@/components/Scribe/useLatestExchange'
 import { RETRYABLE_KINDS } from '@/lib/chatErrors'
+import { showHtmlTables } from '@/lib/htmlTables'
 import { getRunningLabel } from '@/lib/scribe'
 import { hasInsertBlocks, splitAnswerBlocks } from '@/lib/scribeBlocks'
 
@@ -174,17 +175,19 @@ export function ScribeAnswer() {
         waitingIndicator={
           <ScribeLoader size={layout === 'compact' ? 40 : 20} />
         }
-        content={parts?.map((part, index) =>
-          part.type === 'block' ? (
-            <ScribeBlockCard key={index} text={part.text}>
-              {isComplete && part.text.trim() !== '' && (
-                <ScribeAnswerActions text={part.text} />
-              )}
-            </ScribeBlockCard>
-          ) : (
-            <Markdown key={index} content={part.text} />
-          )
-        )}
+        content={
+          parts?.map((part, index) =>
+            part.type === 'block' ? (
+              <ScribeBlockCard key={index} text={part.text}>
+                {isComplete && part.text.trim() !== '' && (
+                  <ScribeAnswerActions text={part.text} />
+                )}
+              </ScribeBlockCard>
+            ) : (
+              <Markdown key={index} content={showHtmlTables(part.text)} />
+            )
+          ) ?? <Markdown content={showHtmlTables(text)} />
+        }
         data-testid="scribe-answer"
       >
         {canRetry && (

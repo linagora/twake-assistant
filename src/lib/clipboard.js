@@ -1,5 +1,7 @@
 import { marked } from 'marked'
 
+import { showHtmlTables } from '@/lib/htmlTables'
+
 function toHtml(markdown) {
   const html = marked.parse(markdown, { async: false }).trim()
   const paragraph = /^<p>([\s\S]*)<\/p>$/.exec(html)
@@ -8,13 +10,15 @@ function toHtml(markdown) {
 }
 
 /**
- * Puts an answer, in Markdown, on the clipboard as HTML and as plain text:
- * the clipboard may be missing (plain HTTP) or limited to text (old browsers)
+ * Puts an answer, in Markdown, on the clipboard as HTML and as plain text,
+ * as it is shown: its tables as tables, not as the HTML of the app. The
+ * clipboard may be missing (plain HTTP) or limited to text (old browsers).
  *
- * @param {string} text
+ * @param {string} answer
  * @returns {Promise<boolean>} whether there was a clipboard to write to
  */
-export async function copyAnswer(text) {
+export async function copyAnswer(answer) {
+  const text = showHtmlTables(answer).trim()
   const clipboard = navigator.clipboard
 
   if (typeof ClipboardItem !== 'undefined' && clipboard?.write) {

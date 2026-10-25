@@ -1,11 +1,13 @@
 import { MessagePrimitive, useMessage, useThread } from '@assistant-ui/react'
 import React from 'react'
 
+import Markdown from 'cozy-ui/transpiled/react/Markdown'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import styles from '@/components/Scribe/styles.styl'
 import { useIsInLatestExchange } from '@/components/Scribe/useLatestExchange'
+import { showHtmlTables } from '@/lib/htmlTables'
 
 function RequestText({ text }) {
   return <Typography>{text}</Typography>
@@ -42,11 +44,12 @@ export function ScribeRequest() {
       {quote !== null && (
         <Typography
           data-testid="scribe-quote"
+          component="div"
           variant="body2"
           color="textSecondary"
           className={`${styles['scribe-quote']} u-mb-half`}
         >
-          {quote}
+          <Markdown content={showHtmlTables(quote)} />
         </Typography>
       )}
       <MessagePrimitive.Parts components={PART_COMPONENTS} />

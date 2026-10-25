@@ -4,14 +4,14 @@ const INSERT_INFO = 'insert'
 
 const FENCE = /^(`{3,}|~{3,})\s*(.*?)\s*$/
 
-function readFence(line) {
+export function readFence(line) {
   const match = line.match(FENCE)
   return match ? { marker: match[1], info: match[2] } : null
 }
 
 // As in CommonMark: a fence of the same character, as long at least, and
 // without an info string
-function isClosing(line, marker) {
+export function isClosing(line, marker) {
   const fence = readFence(line)
   return (
     fence !== null &&
