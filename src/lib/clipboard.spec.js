@@ -68,6 +68,23 @@ describe('copyAnswer', () => {
     )
   })
 
+  it('copies a table of the app in its fence as a table', async () => {
+    const write = jest.fn().mockResolvedValue()
+    defineClipboard({ write })
+
+    await copyAnswer(
+      '```\n<table><tr><td>a</td><td>**b**</td></tr></table>\n```'
+    )
+
+    const [[item]] = write.mock.calls[0]
+    expect(await readBlob(item.items['text/plain'])).toBe(
+      '| a | **b** |\n| --- | --- |'
+    )
+    expect(await readBlob(item.items['text/html'])).toMatch(
+      /^<table>[\s\S]*<th>a<\/th>[\s\S]*<strong>b<\/strong>[\s\S]*<\/table>$/
+    )
+  })
+
   it('falls back to writeText without ClipboardItem', async () => {
     const write = jest.fn()
     const writeText = jest.fn().mockResolvedValue()

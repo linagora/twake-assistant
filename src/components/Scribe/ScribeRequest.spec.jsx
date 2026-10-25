@@ -62,6 +62,18 @@ describe('ScribeRequest', () => {
     )
   })
 
+  it('quotes a table of the text as a table', () => {
+    const first = request('q1', 'Translate')
+    renderRequest(first, [first], {
+      sentTexts: {
+        0: '<table>\n  <tr>\n   <td>\n\n**Ventes**\n\n</td>\n  </tr>\n</table>'
+      }
+    })
+
+    expect(screen.getByRole('table')).toHaveTextContent('Ventes')
+    expect(screen.queryByText(/<table>/)).toBe(null)
+  })
+
   it('quotes the text on the request that sent it, not on the first of the conversation', () => {
     const messages = [
       request('q1', 'Fix it'),

@@ -40,6 +40,8 @@ $gutter = 1rem
 
 .scribe-quote
     display -webkit-box
+    // The clamp does not count the lines of a table
+    max-height 7.5em
     padding 4px 8px
     overflow hidden
     border-left 3px solid var(--primaryColor)
@@ -47,6 +49,31 @@ $gutter = 1rem
     font-style italic
     -webkit-box-orient vertical
     -webkit-line-clamp 3
+    // The request keeps the lines of its text; the Markdown lays out its own
+    // blocks
+    white-space normal
+
+    // The Markdown of cozy-ui gives its blocks the look of a body text, and
+    // a margin set as important
+    p,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6
+        margin 0 !important
+        font inherit
+        color inherit
+
+    table
+        border-collapse collapse
+
+    th,
+    td
+        padding 0 .5rem
+        border 1px solid var(--dividerColor)
+        text-align left
 
 .scribe-capability
     margin-top .5rem

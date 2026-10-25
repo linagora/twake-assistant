@@ -127,6 +127,19 @@ describe('ScribeAnswer', () => {
     expect(actions[0].onClick).not.toHaveBeenCalled()
   })
 
+  it('shows a table of the app in its fence as a table, and gives it back as it came', () => {
+    const text =
+      '```\n<table>\n  <tr>\n   <td>\n\nMétrique\n\n</td>\n   <td>\n\nValeur\n\n</td>\n  </tr>\n</table>\n```'
+    renderAnswer(answer(text, 'complete'), actions)
+
+    expect(screen.getByRole('table')).toHaveTextContent('MétriqueValeur')
+    expect(screen.queryByText(/<table>/)).toBe(null)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Insert' }))
+
+    expect(actions[0].onClick).toHaveBeenCalledWith(text)
+  })
+
   it('offers to copy a whole answer, before the actions of the app', () => {
     renderAnswer(answer('Bonjour', 'complete'), actions)
 
