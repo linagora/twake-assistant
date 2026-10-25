@@ -26,12 +26,26 @@ describe('copyAnswer', () => {
 
   afterEach(() => {
     delete navigator.clipboard
+    delete document.execCommand
     global.ClipboardItem = originalClipboardItem
   })
 
+  // jsdom has no copy command: it fires the copy event as a browser does
+  const defineCopyCommand = isAllowed => {
+    const clipboardData = { setData: jest.fn() }
+    document.execCommand = jest.fn(() => {
+      if (!isAllowed) return false
+      const event = new Event('copy', { cancelable: true })
+      event.clipboardData = clipboardData
+      document.dispatchEvent(event)
+      return true
+    })
+    return clipboardData
+  }
+
   it('writes the answer as HTML and text', async () => {
     const write = jest.fn().mockResolvedValue()
-    defineClipboard({ write, writeText: jest.fn() })
+    defineClipboard({ write })
 
     await expect(copyAnswer('a **b**')).resolves.toBe(true)
 
@@ -68,41 +82,64 @@ describe('copyAnswer', () => {
     )
   })
 
-  it('falls back to writeText without ClipboardItem', async () => {
+  it('copies with the copy command without ClipboardItem', async () => {
     const write = jest.fn()
-    const writeText = jest.fn().mockResolvedValue()
     delete global.ClipboardItem
-    defineClipboard({ write, writeText })
+    defineClipboard({ write })
+    const clipboardData = defineCopyCommand(true)
 
     await expect(copyAnswer('a **b**')).resolves.toBe(true)
 
     expect(write).not.toHaveBeenCalled()
-    expect(writeText).toHaveBeenCalledWith('a **b**')
+    expect(clipboardData.setData).toHaveBeenCalledWith('text/plain', 'a **b**')
   })
 
-  it('falls back to writeText without write', async () => {
-    const writeText = jest.fn().mockResolvedValue()
-    defineClipboard({ writeText })
+  it('copies with the copy command without write', async () => {
+    defineClipboard({})
+    const clipboardData = defineCopyCommand(true)
 
     await expect(copyAnswer('a **b**')).resolves.toBe(true)
 
-    expect(writeText).toHaveBeenCalledWith('a **b**')
+    expect(document.execCommand).toHaveBeenCalledWith('copy')
+    expect(clipboardData.setData.mock.calls).toEqual([
+      ['text/html', 'a <strong>b</strong>'],
+      ['text/plain', 'a **b**']
+    ])
   })
 
-  it('writes nothing, and tells it, without a way to write', async () => {
-    defineClipboard({})
+  it('copies with the copy command without a clipboard', async () => {
+    defineCopyCommand(true)
+
+    await expect(copyAnswer('a **b**')).resolves.toBe(true)
+  })
+
+  it('copies with the copy command when the write is refused', async () => {
+    defineClipboard({
+      write: jest.fn().mockRejectedValue(new Error('NotAllowedError'))
+    })
+    const clipboardData = defineCopyCommand(true)
+
+    await expect(copyAnswer('a **b**')).resolves.toBe(true)
+
+    expect(clipboardData.setData).toHaveBeenCalledWith('text/plain', 'a **b**')
+  })
+
+  it('tells nothing was copied when the copy command is refused too', async () => {
+    defineClipboard({
+      write: jest.fn().mockRejectedValue(new Error('NotAllowedError'))
+    })
+    defineCopyCommand(false)
 
     await expect(copyAnswer('a **b**')).resolves.toBe(false)
   })
 
-  it('writes nothing, and tells it, without a clipboard', async () => {
-    await expect(copyAnswer('a **b**')).resolves.toBe(false)
-  })
+  it('lets no copy listener behind', async () => {
+    const clipboardData = defineCopyCommand(true)
+    await copyAnswer('a')
+    clipboardData.setData.mockClear()
 
-  it('lets a refused write reject', async () => {
-    const error = new Error('NotAllowedError')
-    defineClipboard({ write: jest.fn().mockRejectedValue(error) })
+    document.dispatchEvent(new Event('copy'))
 
-    await expect(copyAnswer('a **b**')).rejects.toBe(error)
+    expect(clipboardData.setData).not.toHaveBeenCalled()
   })
 })
