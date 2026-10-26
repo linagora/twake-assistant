@@ -1,6 +1,6 @@
 {
-  "name": "apptemplate",
-  "version": "0.1.0",
+  "name": "assistant",
+  "version": "1.0.0",
   "engines": {
     "node": "24.x"
   },
@@ -20,15 +20,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cozy/cozy-app-template.git"
+    "url": "git+https://github.com/linagora/twake-assistant.git"
   },
   "author": "",
   "contributors": [],
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/cozy/cozy-app-template/issues"
+    "url": "https://github.com/linagora/twake-assistant/issues"
   },
-  "homepage": "https://github.com/cozy/cozy-app-template#README",
+  "homepage": "https://github.com/linagora/twake-assistant#README",
   "devDependencies": {
     "@babel/core": "7.29.7",
     "@babel/polyfill": "^7.12.1",
