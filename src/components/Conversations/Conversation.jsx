@@ -11,9 +11,6 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
 import { useI18n } from 'twake-i18n'
 
-import ConversationComposer from './ConversationComposer'
-import { ConversationWelcome } from './ConversationWelcome'
-import styles from './styles.styl'
 import useConversation from '../../hooks/useConversation'
 import { useAssistant } from '../AssistantProvider'
 import KnowledgeBaseChip from '../KnowledgeBase/KnowledgeBaseChip'
@@ -22,6 +19,9 @@ import { useIsConversationAssistantGone } from '../KnowledgeBase/useIsConversati
 import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedAssistantKnowledgeBase'
 import AssistantMessage from '../Messages/AssistantMessage'
 import UserMessage from '../Messages/UserMessage'
+import ConversationComposer from './ConversationComposer'
+import { ConversationWelcome } from './ConversationWelcome'
+import styles from './styles.styl'
 
 const Conversation = ({ className }) => {
   const { t } = useI18n()

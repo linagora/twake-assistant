@@ -9,9 +9,9 @@ import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
 import { useCozyTheme } from 'cozy-ui/transpiled/react/providers/CozyTheme'
 import { useI18n } from 'twake-i18n'
 
-import styles from './styles.styl'
 import { useSelectedAssistant } from '../Assistant/AssistantMenu'
 import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedAssistantKnowledgeBase'
+import styles from './styles.styl'
 
 import { FOLDER_ACTIONS as ACTIONS } from '@/lib/scribe'
 

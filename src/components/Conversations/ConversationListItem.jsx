@@ -6,9 +6,9 @@ import ListItemSecondaryAction from 'cozy-ui/transpiled/react/ListItemSecondaryA
 import ListItemText from 'cozy-ui/transpiled/react/ListItemText'
 import { useI18n } from 'twake-i18n'
 
+import { getNameOfConversation } from '../helpers'
 import ConversationActions from './ConversationActions'
 import styles from './styles.styl'
-import { getNameOfConversation } from '../helpers'
 
 const ConversationListItem = ({
   conversation,

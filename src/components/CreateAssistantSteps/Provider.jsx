@@ -6,12 +6,12 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useCozyTheme } from 'cozy-ui-plus/dist/providers/CozyTheme'
 import { useI18n } from 'twake-i18n'
 
-import { getProviderName } from './helpers'
-import styles from './styles.styl'
 import GeminiLogo from '../../assets/gemini.svg'
 import MetaLogo from '../../assets/meta.svg'
 import MistralLogo from '../../assets/mistral.svg'
 import OpenAILogo from '../../assets/open_ai.svg'
+import { getProviderName } from './helpers'
+import styles from './styles.styl'
 
 const ICONS = {
   TwakeWorkplace,

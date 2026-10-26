@@ -3,8 +3,8 @@ import React from 'react'
 
 import CozyTheme from 'cozy-ui/transpiled/react/providers/CozyTheme'
 
-import Conversation from './Conversation'
 import { useIsConversationAssistantGone } from '../KnowledgeBase/useIsConversationAssistantGone'
+import Conversation from './Conversation'
 
 const mockCreateNewConversation = jest.fn()
 
