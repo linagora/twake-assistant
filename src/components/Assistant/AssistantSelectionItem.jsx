@@ -9,8 +9,8 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
 import { useI18n } from 'twake-i18n'
 
-import styles from './styles.styl'
 import AssistantAvatar from '../Assistant/AssistantAvatar'
+import styles from './styles.styl'
 
 const AssistantSelectionItem = ({
   assistant,

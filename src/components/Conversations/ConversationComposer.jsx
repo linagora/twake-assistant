@@ -5,13 +5,13 @@ import React, { useCallback, useState } from 'react'
 import flag from 'cozy-flags'
 import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
 
+import { useAssistant } from '../AssistantProvider'
+import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedAssistantKnowledgeBase'
+import TwakeKnowledgeSelector from '../TwakeKnowledges/TwakeKnowledgeSelector'
 import ConversationBar from './ConversationBar'
 import { ConversationComposerRoot } from './ConversationComposerRoot'
 import { ConversationSendButton } from './ConversationSendButton'
 import styles from './styles.styl'
-import { useAssistant } from '../AssistantProvider'
-import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedAssistantKnowledgeBase'
-import TwakeKnowledgeSelector from '../TwakeKnowledges/TwakeKnowledgeSelector'
 
 /**
  * A new conversation shows its sources in a row above the prompt, in a

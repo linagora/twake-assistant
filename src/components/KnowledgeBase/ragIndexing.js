@@ -1,14 +1,14 @@
 import {
+  ASSISTANTS_DOCTYPE,
+  buildAllAssistantsQuery,
+  FILES_DOCTYPE
+} from '../queries'
+import {
   getKnowledgeBase,
   hasKnowledgeBaseRelationship,
   withKnowledgeBase,
   withRootFolderIfMissing
 } from './knowledgeBase'
-import {
-  ASSISTANTS_DOCTYPE,
-  buildAllAssistantsQuery,
-  FILES_DOCTYPE
-} from '../queries'
 
 export const RAG_INDEX_WORKER = 'rag-index'
 export const RAG_INDEX_FILES_DEBOUNCE = '30s'

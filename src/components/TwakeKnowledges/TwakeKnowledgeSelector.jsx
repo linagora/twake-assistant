@@ -4,9 +4,9 @@ import React from 'react'
 import { Globe, Mail } from '@linagora/twake-icons'
 import { useI18n } from 'twake-i18n'
 
-import SourceButton from './SourceButton'
 import KnowledgeBaseChip from '../KnowledgeBase/KnowledgeBaseChip'
 import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedAssistantKnowledgeBase'
+import SourceButton from './SourceButton'
 
 /**
  * The sources of the answers, in the composer of a new conversation: the
