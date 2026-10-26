@@ -19,3 +19,7 @@ build/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# AI
+.claude
+.playwright-mcp
