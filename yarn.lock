@@ -6917,63 +6917,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apptemplate@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "apptemplate@workspace:."
-  dependencies:
-    "@assistant-ui/react": "npm:^0.12.5"
-    "@babel/core": "npm:7.29.7"
-    "@babel/polyfill": "npm:^7.12.1"
-    "@babel/runtime": "npm:7.29.7"
-    "@linagora/twake-icons": "npm:^2.13.0"
-    "@rsbuild/core": "npm:2.2.14"
-    "@testing-library/dom": "npm:10.4.2"
-    "@testing-library/jest-dom": "npm:6.10.0"
-    "@testing-library/react": "npm:16.3.3"
-    babel-jest: "npm:30.5.2"
-    babel-preset-cozy-app: "npm:^2.8.4"
-    classnames: "npm:^2.5.1"
-    core-js: "npm:3.50.0"
-    cozy-app-publish: "npm:^0.41.0"
-    cozy-bar: "npm:^35.4.11"
-    cozy-client: "npm:^60.37.1"
-    cozy-dataproxy-lib: "npm:^4.15.7"
-    cozy-device-helper: "npm:^4.0.3"
-    cozy-flags: "npm:^4.9.1"
-    cozy-intent: "npm:^2.31.1"
-    cozy-interapp: "npm:^0.21.0"
-    cozy-logger: "npm:^1.18.1"
-    cozy-minilog: "npm:^3.10.1"
-    cozy-pouch-link: "npm:^60.37.1"
-    cozy-realtime: "npm:^5.9.4"
-    cozy-search: "npm:^2.11.0"
-    cozy-tsconfig: "npm:^2.0.0"
-    cozy-ui: "npm:^142.1.0"
-    cozy-ui-plus: "npm:^13.0.8"
-    identity-obj-proxy: "npm:3.0.0"
-    jest: "npm:30.5.2"
-    jest-environment-jsdom: "npm:30.5.2"
-    lodash: "npm:^4.17.21"
-    lottie-react: "npm:^2.4.1"
-    marked: "npm:^18.1.1"
-    mime-types: "npm:2.1.35"
-    prop-types: "npm:15.8.1"
-    react: "npm:18.2.0"
-    react-dom: "npm:18.2.0"
-    react-router-dom: "npm:6.30.6"
-    remark-gfm: "npm:^1.0.0"
-    remark-parse: "npm:^9.0.0"
-    rsbuild-config-cozy-app: "npm:^0.9.0"
-    rslint-config-cozy-app: "npm:^0.2.0"
-    rstack: "npm:0.8.5"
-    stylint: "npm:1.5.9"
-    stylus-config-cozy-app: "npm:^0.1.0"
-    twake-i18n: "npm:^0.5.0"
-    typescript: "npm:5.9.3"
-    unified: "npm:^9.0.0"
-  languageName: unknown
-  linkType: soft
-
 "argparse@npm:^1.0.7":
   version: 1.0.10
   resolution: "argparse@npm:1.0.10"
@@ -7203,6 +7146,63 @@ __metadata:
   checksum: 10c0/e7c56610279806730bec28ca6fdae6b502803cf2eae567a040fb2f7a6eb5f776f4f2ce7dd5326403ed306d80742ec46736811658eb7740bf8959f97cab43acdf
   languageName: node
   linkType: hard
+
+"assistant@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "assistant@workspace:."
+  dependencies:
+    "@assistant-ui/react": "npm:^0.12.5"
+    "@babel/core": "npm:7.29.7"
+    "@babel/polyfill": "npm:^7.12.1"
+    "@babel/runtime": "npm:7.29.7"
+    "@linagora/twake-icons": "npm:^2.13.0"
+    "@rsbuild/core": "npm:2.2.14"
+    "@testing-library/dom": "npm:10.4.2"
+    "@testing-library/jest-dom": "npm:6.10.0"
+    "@testing-library/react": "npm:16.3.3"
+    babel-jest: "npm:30.5.2"
+    babel-preset-cozy-app: "npm:^2.8.4"
+    classnames: "npm:^2.5.1"
+    core-js: "npm:3.50.0"
+    cozy-app-publish: "npm:^0.41.0"
+    cozy-bar: "npm:^35.4.11"
+    cozy-client: "npm:^60.37.1"
+    cozy-dataproxy-lib: "npm:^4.15.7"
+    cozy-device-helper: "npm:^4.0.3"
+    cozy-flags: "npm:^4.9.1"
+    cozy-intent: "npm:^2.31.1"
+    cozy-interapp: "npm:^0.21.0"
+    cozy-logger: "npm:^1.18.1"
+    cozy-minilog: "npm:^3.10.1"
+    cozy-pouch-link: "npm:^60.37.1"
+    cozy-realtime: "npm:^5.9.4"
+    cozy-search: "npm:^2.11.0"
+    cozy-tsconfig: "npm:^2.0.0"
+    cozy-ui: "npm:^142.1.0"
+    cozy-ui-plus: "npm:^13.0.8"
+    identity-obj-proxy: "npm:3.0.0"
+    jest: "npm:30.5.2"
+    jest-environment-jsdom: "npm:30.5.2"
+    lodash: "npm:^4.17.21"
+    lottie-react: "npm:^2.4.1"
+    marked: "npm:^18.1.1"
+    mime-types: "npm:2.1.35"
+    prop-types: "npm:15.8.1"
+    react: "npm:18.2.0"
+    react-dom: "npm:18.2.0"
+    react-router-dom: "npm:6.30.6"
+    remark-gfm: "npm:^1.0.0"
+    remark-parse: "npm:^9.0.0"
+    rsbuild-config-cozy-app: "npm:^0.9.0"
+    rslint-config-cozy-app: "npm:^0.2.0"
+    rstack: "npm:0.8.5"
+    stylint: "npm:1.5.9"
+    stylus-config-cozy-app: "npm:^0.1.0"
+    twake-i18n: "npm:^0.5.0"
+    typescript: "npm:5.9.3"
+    unified: "npm:^9.0.0"
+  languageName: unknown
+  linkType: soft
 
 "async-each@npm:^1.0.0":
   version: 1.0.6
