@@ -21,11 +21,6 @@ jest.mock('cozy-ui/transpiled/react/providers/Breakpoints', () => {
 jest.mock('cozy-ui/transpiled/react/providers/CozyTheme', () => ({
   useCozyTheme: () => ({ isLight: true })
 }))
-jest.mock('../Assistant/AssistantMenu', () => ({
-  useSelectedAssistant: () => ({
-    selectedAssistant: { _id: 'meeting', name: 'Meeting assistant' }
-  })
-}))
 jest.mock('../KnowledgeBase/useSelectedAssistantKnowledgeBase', () => ({
   useSelectedAssistantKnowledgeBase: () => mockKnowledgeBase()
 }))
@@ -37,6 +32,7 @@ describe('ConversationWelcome', () => {
 
   it('names the assistant and its folder, and starts a prompt from a short action', () => {
     mockKnowledgeBase.mockReturnValue({
+      assistant: { _id: 'meeting', name: 'Meeting assistant' },
       hasFolder: true,
       folderName: 'Meeting recordings'
     })
@@ -65,6 +61,7 @@ describe('ConversationWelcome', () => {
 
   it('says the answers come from any file of the whole Drive', () => {
     mockKnowledgeBase.mockReturnValue({
+      assistant: { _id: 'meeting', name: 'Meeting assistant' },
       hasFolder: true,
       isRoot: true,
       folderName: 'Drive'
