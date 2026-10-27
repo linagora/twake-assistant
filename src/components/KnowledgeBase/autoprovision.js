@@ -1,5 +1,6 @@
 import flag from 'cozy-flags'
 
+import { logWarning } from './logWarning'
 import { AUTOPROVISION_FLAG, ensureProvisionedAssistants } from './provisioning'
 import {
   createRagIndexTriggers,
@@ -7,10 +8,8 @@ import {
   migrateKnowledgeBases
 } from './ragIndexing'
 
-const warn = (...args) => {
-  // eslint-disable-next-line no-console
-  console.warn('assistant autoprovision:', ...args)
-}
+const warn = (message, detail) =>
+  logWarning(`assistant autoprovision: ${message}`, detail)
 
 let pending = null
 

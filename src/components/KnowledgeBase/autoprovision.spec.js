@@ -5,6 +5,7 @@ import {
   autoprovisionEntries,
   resetAutoprovisionForTests
 } from './autoprovision'
+import { logWarning } from './logWarning'
 import { ensureProvisionedAssistants } from './provisioning'
 import {
   createRagIndexTriggers,
@@ -13,6 +14,7 @@ import {
 } from './ragIndexing'
 
 jest.mock('cozy-flags', () => jest.fn())
+jest.mock('./logWarning', () => ({ logWarning: jest.fn() }))
 jest.mock('./provisioning', () => ({
   AUTOPROVISION_FLAG: 'cozy.assistant.autoprovision',
   ensureProvisionedAssistants: jest.fn()
@@ -26,22 +28,17 @@ jest.mock('./ragIndexing', () => ({
 const client = { id: 'client' }
 const entries = [{ name: 'Docs', dirName: 'Docs' }]
 const assistants = [{ _id: 'legacy' }]
-let warnSpy
 
 beforeEach(() => {
   resetAutoprovisionForTests()
   flag.mockReset()
-  warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+  logWarning.mockReset()
   createRagIndexTriggers.mockReset().mockResolvedValue(['io.cozy.files'])
   fetchAssistants.mockReset().mockResolvedValue(assistants)
   migrateKnowledgeBases.mockReset().mockResolvedValue([])
   ensureProvisionedAssistants
     .mockReset()
     .mockResolvedValue({ created: ['docs'], ensured: [], skipped: [] })
-})
-
-afterEach(() => {
-  warnSpy.mockRestore()
 })
 
 describe('autoprovisionEntries', () => {
@@ -136,9 +133,8 @@ describe('autoprovisionAssistants', () => {
     })
     await autoprovisionAssistants(client)
 
-    expect(warnSpy).toHaveBeenCalledWith(
-      'assistant autoprovision:',
-      'skipped entries',
+    expect(logWarning).toHaveBeenCalledWith(
+      'assistant autoprovision: skipped entries',
       [{ id: 'docs', reason: 'nope' }]
     )
   })
@@ -147,9 +143,8 @@ describe('autoprovisionAssistants', () => {
     flag.mockReturnValue(entries)
     ensureProvisionedAssistants.mockRejectedValue(new Error('boom'))
     await expect(autoprovisionAssistants(client)).resolves.toBeNull()
-    expect(warnSpy).toHaveBeenCalledWith(
-      'assistant autoprovision:',
-      'failed',
+    expect(logWarning).toHaveBeenCalledWith(
+      'assistant autoprovision: failed',
       expect.any(Error)
     )
   })
