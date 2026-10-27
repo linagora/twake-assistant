@@ -217,7 +217,7 @@
       "unavailable": "Ordner nicht verfügbar"
     },
     "welcome": {
-      "title": "Ihr %{name}",
+      "title": "Ihr %{name}-Assistent",
       "default_title": "Ihr Twake-Assistent",
       "subtitle": "Die Antworten stützen sich auf alle Dateien aus",
       "folder_subtitle": "Die Antworten stützen sich nur auf die Dateien aus",

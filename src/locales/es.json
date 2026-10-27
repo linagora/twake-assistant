@@ -217,7 +217,7 @@
       "unavailable": "Carpeta no disponible"
     },
     "welcome": {
-      "title": "Su %{name}",
+      "title": "Su asistente %{name}",
       "default_title": "Su asistente Twake",
       "subtitle": "Las respuestas se basan en cualquier archivo de",
       "folder_subtitle": "Las respuestas se basan solo en los archivos de",

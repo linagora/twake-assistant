@@ -217,7 +217,7 @@
       "unavailable": "Dossier indisponible"
     },
     "welcome": {
-      "title": "Votre %{name}",
+      "title": "Votre assistant %{name}",
       "default_title": "Votre assistant Twake",
       "subtitle": "Les réponses s'appuient sur tous les fichiers de",
       "folder_subtitle": "Les réponses s'appuient uniquement sur les fichiers de",

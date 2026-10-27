@@ -217,7 +217,7 @@
       "unavailable": "Cartella non disponibile"
     },
     "welcome": {
-      "title": "Il tuo %{name}",
+      "title": "Il tuo assistente %{name}",
       "default_title": "Il tuo assistente Twake",
       "subtitle": "Le risposte si basano su qualsiasi file di",
       "folder_subtitle": "Le risposte si basano solo sui file di",

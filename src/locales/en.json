@@ -217,7 +217,7 @@
       "unavailable": "Folder unavailable"
     },
     "welcome": {
-      "title": "Your %{name}",
+      "title": "Your %{name} assistant",
       "default_title": "Your Twake assistant",
       "subtitle": "Answers are based on any files from",
       "folder_subtitle": "Answers are based only on files from",
