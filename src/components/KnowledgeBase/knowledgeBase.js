@@ -5,6 +5,7 @@ import {
   EMAIL_DOCTYPE,
   FILES_DOCTYPE
 } from '../queries'
+import { logWarning } from './logWarning'
 import { createRagIndexTriggers } from './ragIndexing'
 
 /** The root folder of the instance: the assistant covers the whole Drive. */
@@ -127,7 +128,6 @@ export const saveKnowledgeBase = async (
       : knowledgeBaseOrUpdater
   await client.save(withKnowledgeBase(assistant, knowledgeBase))
   await createRagIndexTriggers(client).catch(error => {
-    // eslint-disable-next-line no-console
-    console.warn('cannot set up the rag-index triggers', error)
+    logWarning('cannot set up the rag-index triggers', error)
   })
 }

@@ -13,6 +13,7 @@ import {
   isRootDirId,
   saveKnowledgeBase
 } from './knowledgeBase'
+import { logWarning } from './logWarning'
 
 export const AUTOPROVISION_FLAG = 'cozy.assistant.autoprovision'
 
@@ -60,10 +61,8 @@ const isLiveDirectory = file =>
   !file.trashed &&
   !(file.path || '').startsWith('/.cozy_trash')
 
-const warn = (...args) => {
-  // eslint-disable-next-line no-console
-  console.warn('assistant provisioning:', ...args)
-}
+const warn = (message, detail) =>
+  logWarning(`assistant provisioning: ${message}`, detail)
 
 const statLiveDirectory = async (stat, label) => {
   try {

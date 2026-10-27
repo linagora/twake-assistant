@@ -340,7 +340,6 @@ describe('saveKnowledgeBase', () => {
   })
 
   it('saves the knowledge base even when the triggers cannot be created', async () => {
-    jest.spyOn(console, 'warn').mockImplementation(() => {})
     createRagIndexTriggers.mockRejectedValueOnce(new Error('forbidden'))
     const client = {
       query: jest.fn().mockResolvedValue({ data: { _id: 'assistant-1' } }),
