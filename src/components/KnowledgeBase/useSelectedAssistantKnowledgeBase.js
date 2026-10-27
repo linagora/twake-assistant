@@ -80,6 +80,7 @@ export const useSelectedAssistantKnowledgeBase = () => {
       : (folder?.name ?? '…')
 
   return {
+    assistant: assistant ?? null,
     dirId,
     folder: folder ?? null,
     folderName,

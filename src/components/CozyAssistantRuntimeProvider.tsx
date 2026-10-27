@@ -5,7 +5,7 @@
 
 import { AssistantRuntimeProvider } from '@assistant-ui/react'
 import type { ThreadMessageLike } from '@assistant-ui/react'
-import React, { useMemo, useEffect, ReactNode } from 'react'
+import React, { useMemo, useLayoutEffect, ReactNode } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 
 import { useQuery, isQueryLoading } from 'cozy-client'
@@ -85,8 +85,9 @@ const ConversationLoader = ({
   })
 
   // Again on every conversation: the user may have left the knowledge base
-  // of the assistant in the previous one, which selected the sentinel
-  useEffect(() => {
+  // of the assistant in the previous one, which selected the sentinel.
+  // Before the paint, or the welcome would show the sentinel for a frame
+  useLayoutEffect(() => {
     if (resolvedAssistantId) setSelectedAssistantId(resolvedAssistantId)
   }, [conversationId, resolvedAssistantId, setSelectedAssistantId])
 

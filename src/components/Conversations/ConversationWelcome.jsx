@@ -9,7 +9,6 @@ import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
 import { useCozyTheme } from 'cozy-ui/transpiled/react/providers/CozyTheme'
 import { useI18n } from 'twake-i18n'
 
-import { useSelectedAssistant } from '../Assistant/AssistantMenu'
 import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedAssistantKnowledgeBase'
 import styles from './styles.styl'
 
@@ -39,8 +38,10 @@ export const ConversationWelcome = ({ inputRef }) => {
   const { isLight } = useCozyTheme()
   const { isMobile } = useBreakpoints()
   const composerRuntime = useComposerRuntime()
-  const { selectedAssistant } = useSelectedAssistant()
-  const { hasFolder, folderName, isRoot } = useSelectedAssistantKnowledgeBase()
+  // The name from the same document as the folder: the list of assistants
+  // may load later, and the title would flash the sentinel's name
+  const { assistant, hasFolder, folderName, isRoot } =
+    useSelectedAssistantKnowledgeBase()
 
   const handleAction = action => {
     composerRuntime.setText(
@@ -72,7 +73,7 @@ export const ConversationWelcome = ({ inputRef }) => {
         })}
       >
         {hasFolder
-          ? t('assistant.welcome.title', { name: selectedAssistant.name })
+          ? t('assistant.welcome.title', { name: assistant.name })
           : t('assistant.welcome.default_title')}
       </Typography>
       <Typography
