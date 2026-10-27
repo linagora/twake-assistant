@@ -72,6 +72,69 @@ describe('ScribeCapabilityCard', () => {
     ).toEqual(['Delay', 'Budget'])
   })
 
+  it('shows a param with a title as the title and the value', () => {
+    const draft = {
+      ...capability,
+      name: 'create_draft',
+      label: 'Create the draft',
+      action: {
+        name: 'create_draft',
+        parameters: {
+          type: 'object',
+          properties: {
+            to: { type: 'array', items: { type: 'string' }, title: 'To' },
+            subject: { type: 'string', title: 'Subject' },
+            body: { type: 'string', title: 'Message' }
+          }
+        }
+      }
+    }
+
+    renderCard(
+      {
+        to: ['paul@example.com', 'anna@example.com'],
+        subject: 'Meeting',
+        body: 'See you **tomorrow**'
+      },
+      { capability: draft }
+    )
+
+    expect(screen.getAllByRole('term').map(term => term.textContent)).toEqual([
+      'To',
+      'Subject',
+      'Message'
+    ])
+    expect(
+      screen.getAllByRole('definition').map(value => value.textContent)
+    ).toEqual([
+      'paul@example.com, anna@example.com',
+      'Meeting',
+      'See you tomorrow'
+    ])
+    expect(screen.getByText('tomorrow').tagName).toBe('STRONG')
+  })
+
+  it('leaves out an empty param with a title', () => {
+    const draft = {
+      ...capability,
+      action: {
+        name: 'create_draft',
+        parameters: {
+          type: 'object',
+          properties: {
+            cc: { type: 'array', items: { type: 'string' }, title: 'Cc' },
+            subject: { type: 'string', title: 'Subject' }
+          }
+        }
+      }
+    }
+
+    renderCard({ cc: [], subject: 'Meeting' }, { capability: draft })
+
+    expect(screen.queryByText('Cc')).toBe(null)
+    expect(screen.queryByText('Subject')).toBeInTheDocument()
+  })
+
   it('leaves out an empty param', () => {
     renderCard({ title: '', bullets: [] })
 

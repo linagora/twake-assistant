@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import { Check } from '@linagora/twake-icons'
 import Button from 'cozy-ui/transpiled/react/Buttons'
+import Markdown from 'cozy-ui/transpiled/react/Markdown'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
@@ -14,6 +15,35 @@ function getParamNames(capability, params) {
     ...names,
     ...Object.keys(params).filter(name => !names.includes(name))
   ]
+}
+
+function getParamTitle(capability, name) {
+  const title = capability.action.parameters?.properties?.[name]?.title
+  return typeof title === 'string' && title.trim() !== '' ? title : null
+}
+
+function TitledParam({ title, value }) {
+  const text = Array.isArray(value)
+    ? value.filter(item => typeof item === 'string' && item !== '').join(', ')
+    : value
+  if (typeof text !== 'string' || text === '') return null
+
+  return (
+    <dl className="u-flex u-m-0 u-mt-half">
+      <dt className="u-w-4 u-flex-shrink-0">
+        <Typography variant="body2" color="textSecondary" component="span">
+          {title}
+        </Typography>
+      </dt>
+      <dd className="u-m-0 u-ov-hidden u-breakword">
+        {Array.isArray(value) ? (
+          <Typography component="span">{text}</Typography>
+        ) : (
+          <Markdown content={text} />
+        )}
+      </dd>
+    </dl>
+  )
 }
 
 function ParamValue({ name, value }) {
@@ -73,9 +103,14 @@ export function ScribeCapabilityCard({
       className={styles['scribe-capability']}
       data-testid="scribe-capability"
     >
-      {getParamNames(capability, params).map(name => (
-        <ParamValue key={name} name={name} value={params[name]} />
-      ))}
+      {getParamNames(capability, params).map(name => {
+        const title = getParamTitle(capability, name)
+        return title === null ? (
+          <ParamValue key={name} name={name} value={params[name]} />
+        ) : (
+          <TitledParam key={name} title={title} value={params[name]} />
+        )
+      })}
       {isDone ? (
         <div role="status" className={styles['scribe-capability-done']}>
           <Check width={16} height={16} aria-hidden="true" />
