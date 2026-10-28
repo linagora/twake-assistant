@@ -9,6 +9,7 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
 import { useAssistant } from '../AssistantProvider'
+import { useDefaultAssistantId } from '../KnowledgeBase/useDefaultAssistantId'
 import { DEFAULT_ASSISTANT } from '../constants'
 import { buildAssistantsQuery } from '../queries'
 import AssistantSelectionItem from './AssistantSelectionItem'
@@ -43,6 +44,9 @@ const AssistantMenu = ({ anchorRef, open, onClose, onSelect }) => {
     setSelectedAssistantId
   } = useAssistant()
   const { assistants, selectedAssistant } = useSelectedAssistant()
+  // A configured default replaces the sentinel, which stays reachable by
+  // removing the knowledge base of a conversation
+  const showSentinel = useDefaultAssistantId() === null
 
   const handleSelect = assistantId => {
     setSelectedAssistantId(assistantId)
@@ -76,13 +80,15 @@ const AssistantMenu = ({ anchorRef, open, onClose, onSelect }) => {
           setIsOpenEditAssistant={setIsOpenEditAssistant}
         />
       ))}
-      <AssistantSelectionItem
-        assistant={DEFAULT_ASSISTANT}
-        onClose={onClose}
-        onSelect={() => handleSelect(DEFAULT_ASSISTANT._id)}
-        selectedAssistant={selectedAssistant}
-        disableActions={true}
-      />
+      {showSentinel && (
+        <AssistantSelectionItem
+          assistant={DEFAULT_ASSISTANT}
+          onClose={onClose}
+          onSelect={() => handleSelect(DEFAULT_ASSISTANT._id)}
+          selectedAssistant={selectedAssistant}
+          disableActions={true}
+        />
+      )}
       <ActionsMenuItem
         onClick={handleCreate}
         className={cx(styles['menu-item'], styles['create-item'])}
