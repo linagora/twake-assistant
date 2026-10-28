@@ -2,6 +2,7 @@ import { models } from 'cozy-client'
 import flag from 'cozy-flags'
 
 import { getSelectedProviderById } from '../CreateAssistantSteps/helpers'
+import { DEFAULT_ASSISTANT } from '../constants'
 import {
   ACCOUNTS_DOCTYPE,
   ASSISTANTS_DOCTYPE,
@@ -34,16 +35,33 @@ export const assistantIdFromName = name =>
     .replace(/^-+|-+$/g, '')
 
 /**
+ * The _id of the assistant of a flag entry: its `id` when set, to point at
+ * an assistant created outside the flag, else derived from its name. Empty
+ * when invalid: CouchDB reserves the ids starting with "_", and the
+ * sentinel's id has no document behind it.
+ * @returns {string}
+ */
+const getEntryAssistantId = entry => {
+  const id = entry?.id ?? null
+  if (id === null) return assistantIdFromName(entry?.name)
+  return typeof id === 'string' &&
+    !id.startsWith('_') &&
+    id !== DEFAULT_ASSISTANT._id
+    ? id
+    : ''
+}
+
+/**
  * The assistant new conversations start on: the first entry of the
- * autoprovision flag marked `default: true`, by its derived id. Null when
- * none is configured; the sentinel assistant is used then.
+ * autoprovision flag marked `default: true`. Null when none is configured;
+ * the sentinel assistant is used then.
  */
 export const getDefaultProvisionedAssistantId = () => {
   const entries = flag(AUTOPROVISION_FLAG)
   if (!Array.isArray(entries)) return null
   for (const entry of entries) {
     if (entry?.default !== true) continue
-    const id = assistantIdFromName(entry.name)
+    const id = getEntryAssistantId(entry)
     if (id) return id
   }
   return null
@@ -201,8 +219,8 @@ const createProvisionedAssistant = async (client, id, entry, dirId) => {
 }
 
 const validate = entry => {
-  const id = assistantIdFromName(entry?.name)
-  if (!id) return { id: '', reason: 'invalid name' }
+  const id = getEntryAssistantId(entry)
+  if (!id) return { id: '', reason: 'invalid id or name' }
   if (!entry.dirId && !entry.dirName) {
     return { id, reason: 'dirId or dirName is required' }
   }
@@ -212,11 +230,11 @@ const validate = entry => {
 /**
  * Provisions the assistants described by the cozy.assistant.autoprovision
  * flag. Idempotent: an existing assistant is left alone, or gets the flag's
- * folder back when it lost it or fell back to the root. Two entries whose
- * names derive to the same id would fight over one assistant: the second
- * one is skipped.
+ * folder back when it lost it or fell back to the root. Two entries with
+ * the same id (explicit or derived from the name) would fight over one
+ * assistant: the second one is skipped.
  * @param {import('cozy-client').CozyClient} client
- * @param {Array<{name: string, dirName?: string, dirId?: string, autoCreateFolder?: boolean, prompt?: string, icon?: string|null, default?: boolean}>} configs - The flag entries.
+ * @param {Array<{name: string, id?: string, dirName?: string, dirId?: string, autoCreateFolder?: boolean, prompt?: string, icon?: string|null, default?: boolean}>} configs - The flag entries.
  * @param {object} [options]
  * @param {Array<object>} [options.assistants] - Every assistant of the instance, when already fetched: spares one query per entry.
  * @returns {Promise<{created: string[], ensured: string[], skipped: {id: string, reason: string}[]}>}
