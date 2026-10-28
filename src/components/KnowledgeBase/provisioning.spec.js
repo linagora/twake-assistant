@@ -815,10 +815,41 @@ describe('ensureProvisionedAssistants', () => {
 
     expect(result.created).toEqual(['second'])
     expect(result.skipped).toEqual([
-      { id: '', reason: 'invalid name' },
+      { id: '', reason: 'invalid id or name' },
       { id: 'no-folder', reason: 'dirId or dirName is required' },
       { id: 'first', reason: 'boom' }
     ])
+  })
+
+  it('leaves alone an existing assistant named by an explicit id', async () => {
+    const { client } = makeClient()
+    const result = await ensureProvisionedAssistants(
+      client,
+      [
+        {
+          name: 'Twake Agent',
+          id: 'twake_assistant',
+          dirId: 'io.cozy.files.root-dir'
+        },
+        { name: 'Bad', id: '_bad', dirName: 'Bad' }
+      ],
+      {
+        assistants: [
+          {
+            _id: 'twake_assistant',
+            knowledgeBase: [
+              { doctype: 'io.cozy.files', dirId: 'io.cozy.files.root-dir' }
+            ]
+          }
+        ]
+      }
+    )
+    expect(result).toEqual({
+      created: [],
+      ensured: ['twake_assistant'],
+      skipped: [{ id: '', reason: 'invalid id or name' }]
+    })
+    expect(client.save).not.toHaveBeenCalled()
   })
 
   it('returns an empty result for an absent or empty flag', async () => {
@@ -856,5 +887,14 @@ describe('getDefaultProvisionedAssistantId', () => {
     ])
     expect(getDefaultProvisionedAssistantId()).toBe('mes-documents')
     expect(flag).toHaveBeenCalledWith('cozy.assistant.autoprovision')
+  })
+
+  it('takes the explicit id of an entry over its name, unless invalid', () => {
+    flag.mockReturnValue([
+      { name: 'X', id: '_design', dirName: 'X', default: true },
+      { name: 'Y', id: 'default_ai_assistant', dirName: 'Y', default: true },
+      { name: 'Twake Agent', id: 'twake_assistant', default: true }
+    ])
+    expect(getDefaultProvisionedAssistantId()).toBe('twake_assistant')
   })
 })

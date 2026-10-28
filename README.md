@@ -36,7 +36,8 @@ request needs one. See
   is retried later, unless it sets `autoCreateFolder: true`: the `dirName`
   folder is then created or, for a magic folder, a folder at the root named
   after `name` (`dirName` if none), referenced by its app, which then uses
-  it.
+  it. The assistant's id derives from `name`, unless the entry sets `id`,
+  to point at an assistant created outside the flag.
 
 ## Develop
 
