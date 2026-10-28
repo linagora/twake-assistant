@@ -15,6 +15,7 @@ import { useI18n } from 'twake-i18n'
 
 import { useAssistant } from '../AssistantProvider'
 import styles from '../CreateAssistantSteps/styles.styl'
+import { useDefaultAssistantId } from '../KnowledgeBase/useDefaultAssistantId'
 import { DEFAULT_ASSISTANT } from '../constants'
 import { buildAssistantByIdWithProviderQuery } from '../queries'
 
@@ -29,6 +30,7 @@ const DeleteAssistantDialog = ({ open, onClose }) => {
   } = useAssistant()
   const { showAlert } = useAlert()
   const [isDeleting, setIsDeleting] = useState(false)
+  const defaultId = useDefaultAssistantId()
 
   const assistantQuery =
     buildAssistantByIdWithProviderQuery(assistantIdInAction)
@@ -48,7 +50,11 @@ const DeleteAssistantDialog = ({ open, onClose }) => {
       )
       await client.destroy(assistantDoc)
       if (selectedAssistantId === assistantDoc._id) {
-        setSelectedAssistantId(DEFAULT_ASSISTANT._id)
+        setSelectedAssistantId(
+          defaultId && defaultId !== assistantDoc._id
+            ? defaultId
+            : DEFAULT_ASSISTANT._id
+        )
       }
       const provider = included?.[0]
       if (provider) {

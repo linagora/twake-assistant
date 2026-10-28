@@ -37,7 +37,9 @@ request needs one. See
   folder is then created or, for a magic folder, a folder at the root named
   after `name` (`dirName` if none), referenced by its app, which then uses
   it. The assistant's id derives from `name`, unless the entry sets `id`,
-  to point at an assistant created outside the flag.
+  to point at an assistant created outside the flag. The first entry with
+  `default: true` is the one new conversations start on, and it replaces
+  the built-in assistant in the menu.
 
 ## Develop
 
