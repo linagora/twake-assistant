@@ -249,6 +249,7 @@ interface ParameterSchema {
   type: 'string' | 'array'
   items?: { type: 'string' }
   description?: string
+  title?: string
   /**
    * Only the values the user wrote in the conversation are kept, so that
    * the content of a document cannot add one, like a recipient.
