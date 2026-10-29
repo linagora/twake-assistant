@@ -23,10 +23,11 @@ function getParamTitle(capability, name) {
 }
 
 function TitledParam({ title, value }) {
+  const { t } = useI18n()
   const text = Array.isArray(value)
     ? value.filter(item => typeof item === 'string' && item !== '').join(', ')
-    : value
-  if (typeof text !== 'string' || text === '') return null
+    : getParamText(value, t)
+  if (text === null || text === '') return null
 
   return (
     <dl className="u-flex u-m-0 u-mt-half">
@@ -36,17 +37,27 @@ function TitledParam({ title, value }) {
         </Typography>
       </dt>
       <dd className="u-m-0 u-ov-hidden u-breakword">
-        {Array.isArray(value) ? (
-          <Typography component="span">{text}</Typography>
-        ) : (
+        {typeof value === 'string' ? (
           <Markdown content={text} />
+        ) : (
+          <Typography component="span">{text}</Typography>
         )}
       </dd>
     </dl>
   )
 }
 
+function getParamText(value, t) {
+  if (typeof value === 'string') return value === '' ? null : value
+  if (typeof value === 'number') return String(value)
+  if (typeof value === 'boolean') {
+    return t(value ? 'scribe.capabilities.yes' : 'scribe.capabilities.no')
+  }
+  return null
+}
+
 function ParamValue({ name, value }) {
+  const { t } = useI18n()
   if (Array.isArray(value)) {
     const items = value.filter(item => typeof item === 'string' && item !== '')
     if (items.length === 0) return null
@@ -59,14 +70,15 @@ function ParamValue({ name, value }) {
       </ul>
     )
   }
-  if (typeof value !== 'string' || value === '') return null
+  const text = getParamText(value, t)
+  if (text === null) return null
 
   return name === 'title' ? (
     <Typography className={styles['scribe-capability-title']}>
-      {value}
+      {text}
     </Typography>
   ) : (
-    <Typography className="u-mt-half">{value}</Typography>
+    <Typography className="u-mt-half">{text}</Typography>
   )
 }
 

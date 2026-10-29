@@ -35,7 +35,9 @@
     },
     "capabilities": {
       "run": "Áp dụng",
-      "done": "Đã xong"
+      "done": "Đã xong",
+      "yes": "Có",
+      "no": "Không"
     },
     "suggestions": {
       "summarize": {

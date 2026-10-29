@@ -28,6 +28,22 @@ describe('findChatActionError', () => {
     expect(findChatActionError({ ...createDocument, content: {} })).toBe(null)
   })
 
+  it('takes numbers, integers and booleans, as cozy-stack does', () => {
+    expect(
+      findChatActionError({
+        ...insertSlide,
+        parameters: {
+          type: 'object',
+          properties: {
+            limit: { type: 'integer' },
+            score: { type: 'number' },
+            unread: { type: 'boolean' }
+          }
+        }
+      })
+    ).toBe(null)
+  })
+
   it.each([
     ['a name the stack does not allow', { name: 'insertSlide' }],
     ['the reserved name', { name: 'search' }],
@@ -54,20 +70,29 @@ describe('findChatActionError', () => {
       }
     ],
     [
-      'a param that is a number',
-      {
-        parameters: {
-          type: 'object',
-          properties: { count: { type: 'number' } }
-        }
-      }
-    ],
-    [
       'a list of numbers',
       {
         parameters: {
           type: 'object',
           properties: { counts: { type: 'array', items: { type: 'number' } } }
+        }
+      }
+    ],
+    [
+      'an integer with items',
+      {
+        parameters: {
+          type: 'object',
+          properties: { limit: { type: 'integer', items: { type: 'string' } } }
+        }
+      }
+    ],
+    [
+      'a nested param',
+      {
+        parameters: {
+          type: 'object',
+          properties: { filter: { type: 'object' } }
         }
       }
     ],

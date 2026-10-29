@@ -35,7 +35,9 @@
     },
     "capabilities": {
       "run": "Применить",
-      "done": "Готово"
+      "done": "Готово",
+      "yes": "Да",
+      "no": "Нет"
     },
     "suggestions": {
       "summarize": {
