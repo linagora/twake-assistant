@@ -405,7 +405,9 @@ export function makeChatMessages(messages, t) {
             isPast: true,
             ...(text.trim() === '' && !message.action && { isEmpty: true }),
             ...(message.sources?.length > 0 && { sources: message.sources }),
-            ...(message.action && { action: message.action })
+            ...(message.action && {
+              action: { ...message.action, messageId: message.id }
+            })
           }
         }
       }

@@ -351,7 +351,11 @@ describe('makeChatMessages', () => {
         metadata: {
           custom: {
             isPast: true,
-            action: { name: 'create_folder', params: { name: 'X' } }
+            action: {
+              name: 'create_folder',
+              params: { name: 'X' },
+              messageId: 'm4'
+            }
           }
         }
       }

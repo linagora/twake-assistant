@@ -82,6 +82,15 @@ function getMessageId(response) {
   return message.id
 }
 
+// The call keeps the id of the message the stack saves it on: the result of
+// the call goes back to the stack with it
+function readAction(event) {
+  if (!event.action) return null
+  return typeof event.message_id === 'string'
+    ? { ...event.action, messageId: event.message_id }
+    : event.action
+}
+
 function getDocumentNotice(doc) {
   if (doc === null) return 'unavailable'
   return doc.isTruncated ? 'truncated' : null
@@ -282,7 +291,7 @@ export function makeChatAdapter({
         )) {
           if (event.object === 'error') throw new ChatEventError(event.message)
           if (event.object === 'sources') sources = event.content
-          if (event.object === 'action') action = event.action ?? null
+          if (event.object === 'action') action = readAction(event)
           if (event.object === 'reasoning') {
             reasoning.add(event)
             yield { content: getContent() }

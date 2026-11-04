@@ -518,6 +518,22 @@ describe('makeChatAdapter', () => {
     expect(results.at(-1).metadata.custom).toEqual({ action })
   })
 
+  it('keeps the id of the message the stack saves the call on', async () => {
+    const action = { name: 'search_emails', params: { from: 'Claire' } }
+    const { adapter } = setup({
+      events: [
+        { object: 'action', action, message_id: 'answer-1' },
+        { object: 'done' }
+      ]
+    })
+
+    const results = await run(adapter, [userMessage('Find her emails')])
+
+    expect(results.at(-1).metadata.custom).toEqual({
+      action: { ...action, messageId: 'answer-1' }
+    })
+  })
+
   it('gives the call the LLM proposes after an answer', async () => {
     const action = { name: 'insert_slide', params: { title: 'Risks' } }
     const { adapter } = setup({
