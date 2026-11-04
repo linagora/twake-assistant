@@ -100,7 +100,7 @@ export function ScribeCapabilityCard({
   const [isDone, setIsDone] = useState(() => isCallHanded(messageId))
 
   const hand = () => {
-    handCall(messageId, () => capability.onClick(params, text, callId))
+    handCall(messageId, () => capability.onClick(params, text, callId), callId)
     setIsDone(true)
   }
 

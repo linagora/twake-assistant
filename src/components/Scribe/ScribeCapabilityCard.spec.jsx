@@ -32,11 +32,11 @@ const capability = {
 function makeScribe() {
   const handed = new Set()
   return {
-    handCall: (messageId, hand) => {
+    handCall: jest.fn((messageId, hand) => {
       if (handed.has(messageId)) return
       handed.add(messageId)
       hand()
-    },
+    }),
     isCallHanded: messageId => handed.has(messageId)
   }
 }
@@ -249,5 +249,11 @@ describe('ScribeCapabilityCard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Insert the slide' }))
 
     expect(capability.onClick).toHaveBeenCalledWith(params, '', 'answer-1')
+    // The provider waits for its result with it
+    expect(useScribe().handCall).toHaveBeenCalledWith(
+      'a1',
+      expect.any(Function),
+      'answer-1'
+    )
   })
 })
