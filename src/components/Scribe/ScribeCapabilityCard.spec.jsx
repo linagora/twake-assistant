@@ -135,6 +135,48 @@ describe('ScribeCapabilityCard', () => {
     expect(screen.queryByText('Subject')).toBeInTheDocument()
   })
 
+  it('shows a number and a boolean, and leaves out an unknown one', () => {
+    renderCard({
+      title: 'Risks',
+      count: 5,
+      urgent: true,
+      done: false,
+      score: null
+    })
+
+    expect(screen.queryByText('5')).toBeInTheDocument()
+    expect(screen.queryByText('Yes')).toBeInTheDocument()
+    expect(screen.queryByText('No')).toBeInTheDocument()
+    expect(screen.queryByText('null')).toBe(null)
+  })
+
+  it('shows a number and a boolean with their title', () => {
+    const search = {
+      ...capability,
+      action: {
+        name: 'search_emails',
+        parameters: {
+          type: 'object',
+          properties: {
+            limit: { type: 'integer', title: 'At most' },
+            unread: { type: 'boolean', title: 'Unread' },
+            after: { type: 'integer', title: 'After' }
+          }
+        }
+      }
+    }
+
+    renderCard({ limit: 5, unread: false, after: null }, { capability: search })
+
+    expect(screen.getAllByRole('term').map(term => term.textContent)).toEqual([
+      'At most',
+      'Unread'
+    ])
+    expect(
+      screen.getAllByRole('definition').map(value => value.textContent)
+    ).toEqual(['5', 'No'])
+  })
+
   it('leaves out an empty param', () => {
     renderCard({ title: '', bullets: [] })
 

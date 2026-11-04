@@ -211,8 +211,9 @@ interface Capability {
 
   /**
    * The JSON schema of the parameters the LLM fills: an `object` with at
-   * least one property, each a string or an array of strings, with a
-   * `description`, and named with a letter, then letters, digits and `_`.
+   * least one property, each a string, a number, an integer, a boolean or an
+   * array of strings, with a `description`, and named with a letter, then
+   * letters, digits and `_`.
    * `required` lists the ones without which the capability is not
    * proposed, among the properties. Either `parameters` or `content`.
    */
@@ -246,13 +247,17 @@ interface Capability {
 }
 
 interface ParameterSchema {
-  type: 'string' | 'array'
+  type: 'string' | 'number' | 'integer' | 'boolean' | 'array'
+  /**
+   * For an `array` only: its items are strings.
+   */
   items?: { type: 'string' }
   description?: string
   title?: string
   /**
-   * Only the values the user wrote in the conversation are kept, so that
-   * the content of a document cannot add one, like a recipient.
+   * For a string or an array of strings: only the values the user wrote in
+   * the conversation are kept, so that the content of a document cannot add
+   * one, like a recipient.
    */
   'x-user-written'?: boolean
 }
@@ -677,10 +682,11 @@ interface CapabilityCall {
   capability: string
 
   /**
-   * The parameters the LLM filled, every one of the schema: `""` or `[]`
-   * when unknown. For a capability with a content: `{ title }`.
+   * The parameters the LLM filled, every one of the schema, with its type:
+   * `""`, `[]` or `null` (for a number, an integer or a boolean) when
+   * unknown. For a capability with a content: `{ title }`.
    */
-  params: Record<string, string | string[]>
+  params: Record<string, string | string[] | number | boolean | null>
 
   /**
    * For a capability with a content: the content the assistant wrote,

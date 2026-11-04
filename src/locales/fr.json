@@ -35,7 +35,9 @@
     },
     "capabilities": {
       "run": "Appliquer",
-      "done": "Fait"
+      "done": "Fait",
+      "yes": "Oui",
+      "no": "Non"
     },
     "suggestions": {
       "summarize": {

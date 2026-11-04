@@ -4,6 +4,7 @@
 // before the message is sent.
 const ACTION_NAME = /^[a-z][a-z0-9_]*$/
 const PARAM_NAME = /^[a-zA-Z][a-zA-Z0-9_]*$/
+const SCALAR_TYPES = ['string', 'integer', 'number', 'boolean']
 // The stack routes a plain request as this action
 const RESERVED_NAME = 'search'
 
@@ -27,10 +28,11 @@ export function findExampleError(message) {
 
 function findParamError(name, schema) {
   if (!PARAM_NAME.test(name)) return `invalid param name ${name}`
-  const isString = schema?.type === 'string' && schema.items === undefined
+  const isScalar =
+    SCALAR_TYPES.includes(schema?.type) && schema.items === undefined
   const isList = schema?.type === 'array' && schema.items?.type === 'string'
-  if (!isString && !isList) {
-    return `param ${name} is neither a string nor a list of strings`
+  if (!isScalar && !isList) {
+    return `param ${name} must be a string, a number, an integer, a boolean or a list of strings`
   }
   if (
     schema.description !== undefined &&
