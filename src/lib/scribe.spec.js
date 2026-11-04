@@ -598,6 +598,22 @@ describe('makeScribeCapabilities', () => {
     })
   })
 
+  it('hands the id of the call, for its result', () => {
+    const onCall = jest.fn()
+    const [insertSlide] = makeScribeCapabilities(
+      [{ name: 'insert_slide', label: 'Insert the slide', action }],
+      mockT,
+      onCall
+    )
+
+    insertSlide.onClick({ title: 'Risks' }, '', 'answer-1')
+    expect(onCall).toHaveBeenCalledWith({
+      capability: 'insert_slide',
+      params: { title: 'Risks' },
+      callId: 'answer-1'
+    })
+  })
+
   it('gives the router the requests of the suggestions as examples', () => {
     const [insertSlide] = makeScribeCapabilities(
       [

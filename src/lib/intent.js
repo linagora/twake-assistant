@@ -142,10 +142,12 @@ function readSuggestion(suggestion) {
  *   rules: string|null,
  *   document: string|null|undefined,
  *   documentTruncated: boolean,
- *   documentAvailable: boolean
+ *   documentAvailable: boolean,
+ *   capabilityResults: boolean
  * }} `suggestions` is null when the app leaves the scribe its default menu.
  * `document` is null when the app cannot read its document, and undefined
- * when the data do not answer a request for it.
+ * when the data do not answer a request for it. `capabilityResults` tells
+ * whether the app gives back the results of the calls of its capabilities.
  */
 export function getIntentConfig(data) {
   const {
@@ -162,7 +164,8 @@ export function getIntentConfig(data) {
     rules,
     document,
     documentTruncated,
-    documentAvailable
+    documentAvailable,
+    capabilityResults
   } = data ?? {}
 
   return {
@@ -189,6 +192,7 @@ export function getIntentConfig(data) {
     document:
       typeof document === 'string' || document === null ? document : undefined,
     documentTruncated: documentTruncated === true,
-    documentAvailable: documentAvailable === true
+    documentAvailable: documentAvailable === true,
+    capabilityResults: capabilityResults === true
   }
 }

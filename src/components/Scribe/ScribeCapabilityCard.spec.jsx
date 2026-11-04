@@ -192,7 +192,7 @@ describe('ScribeCapabilityCard', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Insert the slide' }))
 
-    expect(capability.onClick).toHaveBeenCalledWith(params, '')
+    expect(capability.onClick).toHaveBeenCalledWith(params, '', null)
     expect(screen.queryByRole('button')).toBe(null)
     expect(screen.getByRole('status').textContent).toBe('Done')
   })
@@ -204,7 +204,8 @@ describe('ScribeCapabilityCard', () => {
 
     expect(capability.onClick).toHaveBeenCalledWith(
       { title: 'Report' },
-      '# Report\n\nAll is well.'
+      '# Report\n\nAll is well.',
+      null
     )
   })
 
@@ -215,7 +216,7 @@ describe('ScribeCapabilityCard', () => {
     })
 
     expect(capability.onClick).toHaveBeenCalledTimes(1)
-    expect(capability.onClick).toHaveBeenCalledWith(params, '')
+    expect(capability.onClick).toHaveBeenCalledWith(params, '', null)
     expect(screen.queryByRole('button')).toBe(null)
     expect(screen.getByRole('status').textContent).toBe('Done')
 
@@ -238,6 +239,15 @@ describe('ScribeCapabilityCard', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Insert the slide' }))
 
-    expect(capability.onClick).toHaveBeenCalledWith(params, '')
+    expect(capability.onClick).toHaveBeenCalledWith(params, '', null)
+  })
+
+  it('hands the id of the message of the stack with the call', () => {
+    const params = { title: 'Risks' }
+    renderCard(params, { callId: 'answer-1' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Insert the slide' }))
+
+    expect(capability.onClick).toHaveBeenCalledWith(params, '', 'answer-1')
   })
 })

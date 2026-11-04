@@ -208,6 +208,7 @@ export function ScribeAnswer() {
             capability={capability}
             params={action.params ?? {}}
             text={text}
+            callId={action.messageId ?? null}
             isPast={isPast}
           />
         )}
