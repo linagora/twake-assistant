@@ -405,7 +405,9 @@ export function makeChatMessages(messages, t) {
             isPast: true,
             ...(text.trim() === '' && !message.action && { isEmpty: true }),
             ...(message.sources?.length > 0 && { sources: message.sources }),
-            ...(message.action && { action: message.action })
+            ...(message.action && {
+              action: { ...message.action, messageId: message.id }
+            })
           }
         }
       }
@@ -460,14 +462,14 @@ export function makeScribeAnswerActions(answerActions, t, onAction) {
  * @property {boolean} hasContent - whether the call takes the answer as its
  * text
  * @property {object} action - its definition as a chat action of cozy-stack
- * @property {(params: object, text?: string) => void} onClick
+ * @property {(params: object, text?: string, callId?: string|null) => void} onClick
  */
 
 /**
  * @param {import('@/lib/intent').Capability[]} capabilities
  * @param {Function} t - translation function
  * @param {Function} onCall - called with the result of the intent,
- * { capability, params, text, format }
+ * { capability, params, text, format, callId }
  * @param {import('@/lib/intent').SuggestionConfig[]|null} [suggestions]
  * @returns {ScribeCapability[]}
  */
@@ -497,11 +499,12 @@ export function makeScribeCapabilities(
           examples: [...examples, ...requests]
         })
       },
-      onClick: (params, text = '') =>
+      onClick: (params, text = '', callId = null) =>
         onCall({
           capability: name,
           params,
-          ...(hasContent && { text, format: 'markdown' })
+          ...(hasContent && { text, format: 'markdown' }),
+          ...(callId && { callId })
         })
     }
   })

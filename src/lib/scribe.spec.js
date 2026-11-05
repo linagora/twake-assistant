@@ -351,7 +351,11 @@ describe('makeChatMessages', () => {
         metadata: {
           custom: {
             isPast: true,
-            action: { name: 'create_folder', params: { name: 'X' } }
+            action: {
+              name: 'create_folder',
+              params: { name: 'X' },
+              messageId: 'm4'
+            }
           }
         }
       }
@@ -591,6 +595,22 @@ describe('makeScribeCapabilities', () => {
       params: { title: 'Report' },
       text: '# Report\n\nAll is well.',
       format: 'markdown'
+    })
+  })
+
+  it('hands the id of the call, for its result', () => {
+    const onCall = jest.fn()
+    const [insertSlide] = makeScribeCapabilities(
+      [{ name: 'insert_slide', label: 'Insert the slide', action }],
+      mockT,
+      onCall
+    )
+
+    insertSlide.onClick({ title: 'Risks' }, '', 'answer-1')
+    expect(onCall).toHaveBeenCalledWith({
+      capability: 'insert_slide',
+      params: { title: 'Risks' },
+      callId: 'answer-1'
     })
   })
 

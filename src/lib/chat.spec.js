@@ -518,6 +518,76 @@ describe('makeChatAdapter', () => {
     expect(results.at(-1).metadata.custom).toEqual({ action })
   })
 
+  it('keeps the id of the message the stack saves the call on', async () => {
+    const action = { name: 'search_emails', params: { from: 'Claire' } }
+    const { adapter } = setup({
+      events: [
+        { object: 'action', action, message_id: 'answer-1' },
+        { object: 'done' }
+      ]
+    })
+
+    const results = await run(adapter, [userMessage('Find her emails')])
+
+    expect(results.at(-1).metadata.custom).toEqual({
+      action: { ...action, messageId: 'answer-1' }
+    })
+  })
+
+  it('sends the result of a call the app gives, for the LLM to go on', async () => {
+    const actions = [{ name: 'search_emails', description: 'search' }]
+    const result = { messageID: 'answer-1', ok: true, content: '3 emails' }
+    const events = new ChatEventStream()
+    // The stack saves the result as a message of its own: the events of
+    // the answer come with its id
+    const fetchJSON = jest.fn(async () => {
+      events.push({ _id: 'r1', object: 'delta', content: 'Found 3' })
+      events.push({ _id: 'r1', object: 'done' })
+      return {
+        data: {
+          attributes: {
+            messages: [
+              { id: 'q1', role: 'user' },
+              { id: 'answer-1', role: 'assistant' },
+              { id: 'r1', role: 'tool' }
+            ]
+          }
+        }
+      }
+    })
+    const prepareQuery = jest.fn(text => text)
+    const requestDocument = jest.fn()
+    const adapter = makeChatAdapter({
+      client: { stackClient: { fetchJSON } },
+      conversationId: 'c1',
+      events,
+      getRequest: () => ({
+        prepareQuery,
+        hasDocuments: false,
+        hasDocument: true,
+        requestDocument,
+        instructions: 'Scribe',
+        actions
+      })
+    })
+
+    const results = await run(
+      adapter,
+      [userMessage('Find her emails'), assistantMessage('')],
+      undefined,
+      { custom: { result } }
+    )
+
+    expect(fetchJSON).toHaveBeenCalledWith(
+      'POST',
+      '/ai/chat/conversations/c1',
+      { result, documents: false, instructions: 'Scribe', actions }
+    )
+    expect(prepareQuery).not.toHaveBeenCalled()
+    expect(requestDocument).not.toHaveBeenCalled()
+    expect(getText(results.at(-1))).toBe('Found 3')
+  })
+
   it('gives the call the LLM proposes after an answer', async () => {
     const action = { name: 'insert_slide', params: { title: 'Risks' } }
     const { adapter } = setup({

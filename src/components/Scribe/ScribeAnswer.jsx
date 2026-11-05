@@ -1,4 +1,5 @@
 import {
+  useAuiState,
   useMessage,
   useMessageRuntime,
   useThread,
@@ -134,11 +135,18 @@ export function ScribeAnswer() {
   // Only the last answer of the current conversation: asking an earlier one
   // again would hide what follows it, and a past request has lost its prompt
   const isLast = useMessage(message => message.isLast)
+  // An answer to the result of a call: the stack takes a result once
+  const isAfterResult = useAuiState(
+    ({ message, thread }) =>
+      thread.messages.find(({ id }) => id === message.parentId)?.role ===
+      'assistant'
+  )
   const canRetry =
     ((isError && !isAssistantGone && RETRYABLE_KINDS.includes(errorKind)) ||
       hasNoAnswer) &&
     isLast &&
-    !isPast
+    !isPast &&
+    !isAfterResult
   const threadRuntime = useThreadRuntime()
   const messageRuntime = useMessageRuntime()
   const handleRetry = () => {
@@ -208,6 +216,7 @@ export function ScribeAnswer() {
             capability={capability}
             params={action.params ?? {}}
             text={text}
+            callId={action.messageId ?? null}
             isPast={isPast}
           />
         )}

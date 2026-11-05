@@ -9,7 +9,11 @@ import React, {
   useState
 } from 'react'
 
+import Minilog from 'cozy-minilog'
+
 import { useChatRuntime } from '@/hooks/useChatRuntime'
+
+const log = Minilog('🤖 [Scribe]')
 
 const ScribeContext = createContext(null)
 
@@ -21,6 +25,19 @@ const NO_MESSAGES = []
 
 function countRequests(messages) {
   return messages.filter(message => message.role === 'user').length
+}
+
+// The LLM goes on with the result the app gives for the call of a message,
+// unless the user asked something else meanwhile: the result is late then
+function goOnWithResult(thread, messageId, callId, result) {
+  if (!result || !thread) return false
+  const { messages, isRunning } = thread.getState()
+  if (isRunning || messages.at(-1)?.id !== messageId) return false
+  thread.startRun({
+    parentId: messageId,
+    runConfig: { custom: { result: { messageID: callId, ...result } } }
+  })
+  return true
 }
 
 function sendAsItIs(text) {
@@ -56,6 +73,9 @@ function sendAsItIs(text) {
  * When the app gives another one, the next request is about it.
  * @param {Function} [props.requestDocument] - asks the app for its whole
  * document, for a typed request that includes it: no Document box without it
+ * @param {Function} [props.waitForResult] - waits for the result the app
+ * gives for a call, by the id of the call: the LLM goes on with it. Without
+ * it, the app gives no result.
  * @param {import('@assistant-ui/react').ThreadMessageLike[]} [props.messages] -
  * the messages of a past conversation: the next request is about the text
  * @param {'panel'|'compact'} [props.layout] - see ScribeView
@@ -74,6 +94,7 @@ export function ScribeProvider({
   rules = null,
   text = '',
   requestDocument = null,
+  waitForResult = null,
   messages = NO_MESSAGES,
   layout = 'panel',
   onCancel = null,
@@ -97,11 +118,22 @@ export function ScribeProvider({
   // A call without confirmation is handed when its card mounts: the ids of
   // their messages keep a card that mounts again from handing it twice
   const handedCallsRef = useRef(new Set())
-  const handCall = useCallback((messageId, hand) => {
-    if (handedCallsRef.current.has(messageId)) return
-    handedCallsRef.current.add(messageId)
-    hand()
-  }, [])
+  const runtimeRef = useRef(null)
+  const handCall = useCallback(
+    (messageId, hand, callId = null) => {
+      if (handedCallsRef.current.has(messageId)) return
+      handedCallsRef.current.add(messageId)
+      // It waits before the call goes: the app may answer at once
+      const waiting = waitForResult && callId ? waitForResult(callId) : null
+      hand()
+      waiting
+        ?.then(result =>
+          goOnWithResult(runtimeRef.current?.thread, messageId, callId, result)
+        )
+        .catch(error => log.error('Cannot go on with the result', error))
+    },
+    [waitForResult]
+  )
   const isCallHanded = useCallback(
     messageId => handedCallsRef.current.has(messageId),
     []
@@ -138,6 +170,9 @@ export function ScribeProvider({
     request,
     textIndex: countRequests(messages)
   })
+  useEffect(() => {
+    runtimeRef.current = runtime
+  }, [runtime])
 
   const textRef = useRef(text)
   useEffect(() => {

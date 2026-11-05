@@ -25,7 +25,8 @@ describe('getIntentConfig', () => {
       rules: null,
       document: undefined,
       documentTruncated: false,
-      documentAvailable: false
+      documentAvailable: false,
+      capabilityResults: false
     })
   })
 
@@ -44,7 +45,8 @@ describe('getIntentConfig', () => {
       rules: null,
       document: undefined,
       documentTruncated: false,
-      documentAvailable: false
+      documentAvailable: false,
+      capabilityResults: false
     })
   })
 
@@ -69,7 +71,8 @@ describe('getIntentConfig', () => {
       rules: null,
       document: undefined,
       documentTruncated: false,
-      documentAvailable: false
+      documentAvailable: false,
+      capabilityResults: false
     })
     expect(getIntentConfig({ answerActions: null }).answerActions).toEqual([])
     expect(getIntentConfig({ answerActions: 'insert' }).answerActions).toEqual(
@@ -361,6 +364,16 @@ describe('getIntentConfig', () => {
     expect(
       getIntentConfig({ documentAvailable: 'true' }).documentAvailable
     ).toBe(false)
+  })
+
+  it('reads whether the app gives back the results of the calls', () => {
+    expect(getIntentConfig({ capabilityResults: true }).capabilityResults).toBe(
+      true
+    )
+    expect(
+      getIntentConfig({ capabilityResults: 'true' }).capabilityResults
+    ).toBe(false)
+    expect(getIntentConfig({}).capabilityResults).toBe(false)
   })
 
   describe('documents', () => {

@@ -155,6 +155,47 @@ interface AssistantIntentConfig {
    * Defaults to false.
    */
   documentTruncated?: boolean
+
+  /**
+   * Whether the app gives back the result of each call of its
+   * capabilities, with `capabilityResult`: the LLM then goes on with it
+   * (see "The result of a call").
+   * Defaults to false: a call is done once it is handed to the app.
+   */
+  capabilityResults?: boolean
+
+  /**
+   * The result of a call, for an app that sets `capabilityResults`: new
+   * data with the rest of the configuration, and this field.
+   * Absent, or for another call, means the data do not give the result of
+   * the call the assistant waits for.
+   */
+  capabilityResult?: CapabilityResult
+}
+```
+
+### CapabilityResult
+
+```ts
+interface CapabilityResult {
+  /**
+   * The `callId` of the call (see Result).
+   */
+  callId: string
+
+  /**
+   * Whether the app could run the call. A result without a boolean `ok` is
+   * left out.
+   */
+  ok: boolean
+
+  /**
+   * What the call gave, for the LLM, as text (plain text, Markdown or
+   * JSON): the emails found, the id of what was created, or why the call
+   * failed. The stack keeps 8000 characters of it at most.
+   * Defaults to `''`.
+   */
+  content?: string
 }
 ```
 
@@ -339,7 +380,8 @@ When no config is provided, the assistant uses:
   rules: undefined,
   documentAvailable: false,
   document: undefined,
-  documentTruncated: false
+  documentTruncated: false,
+  capabilityResults: false
 }
 ```
 
@@ -600,6 +642,28 @@ Set `capabilities` to let the assistant call what the app can do:
 4. The call is handed to the app in a `result` message (see [Result](#result)) when the user clicks the button, or at once when the capability has `confirm: false`. The card then says it is done. The assistant does not run anything: the app does, in its own way.
 5. The assistant stays open. A call is handed once: the user asks again for another one.
 
+### The result of a call
+
+An app that sets `capabilityResults: true` gives back the result of each call: the LLM goes on with it, to answer from what the call found, or to propose another call. It is how a capability that reads, like a search, gets an answer.
+
+1. The call comes with a `callId` (see [Result](#result)): the id of the message of the stack that holds it.
+2. The app runs the call, and sends new data with its whole configuration and `capabilityResult: { callId, ok, content }`. The assistant waits 30 seconds at most, for the result of this `callId` only.
+3. The assistant sends the result to the stack in place of a request, `result: { messageID, ok, content }` with the `callId` as `messageID` (see the documentation of the chat of cozy-stack), with the capabilities. The stack saves it as a message of the `tool` role, and the LLM answers, or proposes another call. The stack stops after 5 results for one request of the user: the LLM then answers.
+4. The result is not shown to the user, nor in a past conversation: only the answer of the LLM is.
+
+A result is left out when it comes late: after 30 seconds, or once the user asked something else. The stack takes one result per call: the answer to a result has no "Try again" button.
+
+The result is material for the LLM, not a request: the stack tells the LLM that the app gave it, and that the instructions found in it are not for the LLM. It never fills a parameter the user must write (`x-user-written`), like the recipients of an email.
+
+Give a result for a call with `confirm: false` at least: the user does not see such a call, and waits for its answer. An app that cannot run a call gives `ok: false` and why in `content`: the LLM tells the user.
+
+```jsonc
+// the call
+{ "capability": "search_emails", "params": { "from": "Claire" }, "callId": "0192f0a5-7c1e-7b3a-9f00-4d2c8e1a6b57" }
+// its result, in new data
+{ "capabilities": [ … ], "capabilityResults": true, "capabilityResult": { "callId": "0192f0a5-7c1e-7b3a-9f00-4d2c8e1a6b57", "ok": true, "content": "3 emails from Claire: …" } }
+```
+
 ### A capability with a content
 
 For a capability with `content`, the assistant writes the content as its answer, in Markdown, with the description and the instructions of the capability, from the documents of the user when the request needs them (a report from the files of the user) or from the conversation (a document on a subject, a summary of the conversation). The content starts with a `# title` line: the call gets `{ "title" }` as its parameters, and the whole content as its `text`. A content without a title is given as a plain answer, without a call.
@@ -608,7 +672,7 @@ For a capability with `content`, the assistant writes the content as its answer,
 
 - `description` tells the router what the capability does and when to pick it, and when not to: name the requests it is for, and the ones that are answers. The router reads the whole conversation: a capability picked by mistake costs the user an answer.
 - `examples` are requests the router should pick the capability for, as the user writes them, in any language. The requests of the suggestions for the capability are added to them.
-- `parameters` take strings and arrays of strings only. Describe each one for the LLM: its language, its length, what it must not contain. Every parameter is present in the call, `""` or `[]` when unknown.
+- `parameters` take strings, arrays of strings, numbers, integers and booleans. Describe each one for the LLM: its language, its length, what it must not contain. Every parameter is present in the call, `""`, `[]` or `null` when unknown.
 - `instructions` tell the LLM how to fill the parameters or write the content: the language, what to keep from the text of the app, what not to invent.
 - `confirm: false` is for what the user can undo in the app, like a slide or a table in the editor. A call that creates something the user cannot take back, like a file, keeps the confirmation.
 - The number of the capabilities, of their examples and parameters, and the length of their texts are up to the app: neither the assistant nor the stack limits them. They are all sent with each message, to the router and to the LLM: what fits depends on the LLM.
@@ -698,6 +762,13 @@ interface CapabilityCall {
    * Format of `text`, when given.
    */
   format?: 'markdown'
+
+  /**
+   * The id of the call, which the app gives back with its result, for an
+   * app that sets `capabilityResults` (see "The result of a call").
+   * Absent when the stack gave no id to the call.
+   */
+  callId?: string
 }
 
 interface PanelRequest {
@@ -779,7 +850,7 @@ Examples:
 
 The label of the action or of the capability is not sent back, only its name. The calling app checks what it gets: a capability it did not declare, or parameters it cannot use, are left alone.
 
-The app does not report the outcome of a call back to the assistant yet: the card says the call is done once it is handed over. An outcome message, with the URL of what was created or an error, is a planned extension of the protocol.
+The card says the call is done once it is handed over. An app that sets `capabilityResults` gives back its result, and the LLM goes on with it (see [The result of a call](#the-result-of-a-call)).
 
 ## End of the intent
 
@@ -818,7 +889,7 @@ The messages of the assistant intent, in order. They all go through `window.post
 | 3 | Assistant → app | `intent-{id}:readyToUse` | none, once | `onReadyToUse` option of `start()` |
 | 4 | Assistant → app | `intent-{id}:result` | `result: AssistantIntentResult`, an answer, a call or a request, any number of times | `service.sendResult()`, `onResult` option of `start()` |
 | 5 | Assistant → app | `intent-{id}:resize` | `dimensions: { height }`, the height of a compact scribe in pixels, when it shows and each time it changes | `service.resizeClient()`, `cozy-interapp` sets it as the height of the element of the intent (the frame of `IntentIframe`) |
-| 6 | App → assistant | `intent-{id}:data` | `data: AssistantIntentConfig`, any number of times: another text, or the `document` a DocumentRequest asks for | `sendData()` of the started intent, `service.onData()` |
+| 6 | App → assistant | `intent-{id}:data` | `data: AssistantIntentConfig`, any number of times: another text, the `document` a DocumentRequest asks for, or the `capabilityResult` of a call | `sendData()` of the started intent, `service.onData()` |
 | 7 | Assistant → app | `intent-{id}:cancel` | none, when the user closes the scribe or the page of the assistant is unloaded | `service.cancel()`, the intent promise resolves with `null` |
 
 The user ends the exchange from the scribe, or the calling app ends it itself, by stopping the intent or removing its iframe (see [End of the intent](#end-of-the-intent)). The assistant never sends `done` nor `error`, and sends `resize` in the compact layout only.
@@ -846,6 +917,8 @@ The messages of an exchange, one per line:
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:resize", "dimensions": { "height": 212 } }
 // 6. new data: another text
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "Merci de confirmer", "answerActions": [{ "name": "insert" }, { "name": "replace" }], "theme": { "type": "light" }, "documentAvailable": true } }
+// 6. new data: the result of a call
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "", "capabilities": [ … ], "capabilityResults": true, "capabilityResult": { "callId": "0192f0a5-7c1e-7b3a-9f00-4d2c8e1a6b57", "ok": true, "content": "3 emails from Claire: …" } } }
 // 6. new data: the document
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "Merci de confirmer", "answerActions": [{ "name": "insert" }, { "name": "replace" }], "theme": { "type": "light" }, "documentAvailable": true, "document": "Compte rendu\n\nMerci de confirmer", "documentTruncated": false } }
 ```

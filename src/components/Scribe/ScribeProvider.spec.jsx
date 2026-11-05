@@ -12,11 +12,20 @@ let mockAdapter = null
 
 let mockMessages = []
 
+let mockIsRunning = false
+
+const mockStartRun = jest.fn()
+
 jest.mock('@assistant-ui/react', () => ({
   AssistantRuntimeProvider: ({ children }) => children,
   useLocalRuntime: adapter => {
     mockAdapter = adapter
-    return { thread: { getState: () => ({ messages: mockMessages }) } }
+    return {
+      thread: {
+        getState: () => ({ messages: mockMessages, isRunning: mockIsRunning }),
+        startRun: mockStartRun
+      }
+    }
   }
 }))
 jest.mock('cozy-minilog', () => () => ({ error: jest.fn() }))
@@ -93,6 +102,8 @@ const scribePrepareQuery = makeScribePrepareQuery(
 describe('ScribeProvider', () => {
   beforeEach(() => {
     mockMessages = []
+    mockIsRunning = false
+    mockStartRun.mockClear()
   })
 
   it('joins a new text of the app to the next message', async () => {
@@ -319,5 +330,90 @@ describe('ScribeProvider', () => {
       'summarize: Bonjour'
     )
     expect(results.at(-1).metadata.custom.documentNotice).toBe(undefined)
+  })
+
+  describe('results of the calls', () => {
+    // The app gives the result when the test says so
+    function setupResults() {
+      let giveResult = null
+      const waitForResult = jest.fn(
+        () => new Promise(resolve => (giveResult = resolve))
+      )
+      const scribe = setup({ waitForResult })
+      return { ...scribe, waitForResult, giveResult: r => giveResult(r) }
+    }
+
+    it('waits for the result before the call goes, then goes on with it', async () => {
+      const { getScribe, waitForResult, giveResult } = setupResults()
+      const hand = jest.fn(() => {
+        expect(waitForResult).toHaveBeenCalledWith('answer-1')
+      })
+      mockMessages = [userMessage('Find her emails'), { id: 'a1' }]
+
+      act(() => getScribe().handCall('a1', hand, 'answer-1'))
+      await act(async () => giveResult({ ok: true, content: '3 emails' }))
+
+      expect(hand).toHaveBeenCalledTimes(1)
+      expect(mockStartRun).toHaveBeenCalledWith({
+        parentId: 'a1',
+        runConfig: {
+          custom: {
+            result: { messageID: 'answer-1', ok: true, content: '3 emails' }
+          }
+        }
+      })
+    })
+
+    it('leaves a late result out', async () => {
+      const { getScribe, giveResult } = setupResults()
+      mockMessages = [{ id: 'a1' }, userMessage('Something else'), { id: 'a2' }]
+
+      act(() => getScribe().handCall('a1', jest.fn(), 'answer-1'))
+      await act(async () => giveResult({ ok: true, content: '3 emails' }))
+
+      expect(mockStartRun).not.toHaveBeenCalled()
+    })
+
+    it('leaves out a result while an answer is written', async () => {
+      const { getScribe, giveResult } = setupResults()
+      mockMessages = [{ id: 'a1' }]
+      mockIsRunning = true
+
+      act(() => getScribe().handCall('a1', jest.fn(), 'answer-1'))
+      await act(async () => giveResult({ ok: true, content: '3 emails' }))
+
+      expect(mockStartRun).not.toHaveBeenCalled()
+    })
+
+    it('does not go on when the app gives no result in time', async () => {
+      const { getScribe, giveResult } = setupResults()
+      mockMessages = [{ id: 'a1' }]
+
+      act(() => getScribe().handCall('a1', jest.fn(), 'answer-1'))
+      await act(async () => giveResult(null))
+
+      expect(mockStartRun).not.toHaveBeenCalled()
+    })
+
+    it('waits for no result of a call without an id, or once a call is handed', () => {
+      const { getScribe, waitForResult } = setupResults()
+      const hand = jest.fn()
+
+      act(() => getScribe().handCall('a1', hand))
+      act(() => getScribe().handCall('a1', hand, 'answer-1'))
+
+      expect(hand).toHaveBeenCalledTimes(1)
+      expect(waitForResult).not.toHaveBeenCalled()
+    })
+
+    it('hands a call without waiting when the app gives no result', () => {
+      const { getScribe } = setup()
+      const hand = jest.fn()
+
+      act(() => getScribe().handCall('a1', hand, 'answer-1'))
+
+      expect(hand).toHaveBeenCalledTimes(1)
+      expect(mockStartRun).not.toHaveBeenCalled()
+    })
   })
 })
