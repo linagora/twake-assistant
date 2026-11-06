@@ -637,7 +637,7 @@ Set `capabilities` to let the assistant call what the app can do:
 ### How a capability is called
 
 1. The assistant sends the capabilities with each message, as the `actions` of the chat of cozy-stack (`POST /ai/chat/conversations/:id`, see its documentation): their definitions are given to the LLM as the tools of function calling are. The stack knows nothing of them but these definitions, and never runs one.
-2. The router of the stack decides, from the conversation, whether the message is a plain request or one of the capabilities. For a plain request the answer comes as usual. For a capability, the LLM fills its parameters from the conversation, from the text of the app and from the documents of the user when the request needs them, and the stack proposes the call. A capability whose required parameters cannot be filled is not proposed: the message is answered instead.
+2. The stack gives the capabilities to the LLM as its tools. The LLM answers a plain request as usual, or calls a capability with its parameters, filled from the conversation, from the text of the app and from the documents of the user when the request needs them: the stack proposes the call. A call whose required parameters cannot be filled is not proposed: the message is answered instead.
 3. The assistant shows the call in a card: the parameters the LLM filled, or the title of the content it wrote, and the button of the capability. A call the LLM proposes after an answer is shown under it.
 4. The call is handed to the app in a `result` message (see [Result](#result)) when the user clicks the button, or at once when the capability has `confirm: false`. The card then says it is done. The assistant does not run anything: the app does, in its own way.
 5. The assistant stays open. A call is handed once: the user asks again for another one.
@@ -670,12 +670,12 @@ For a capability with `content`, the assistant writes the content as its answer,
 
 ### Writing a capability
 
-- `description` tells the router what the capability does and when to pick it, and when not to: name the requests it is for, and the ones that are answers. The router reads the whole conversation: a capability picked by mistake costs the user an answer.
-- `examples` are requests the router should pick the capability for, as the user writes them, in any language. The requests of the suggestions for the capability are added to them.
+- `description` tells the LLM what the capability does and when to call it, and when not to: name the requests it is for, and the ones that are answers. A capability called by mistake costs the user an answer.
+- `examples` are requests the LLM should call the capability for, as the user writes them, in any language. The requests of the suggestions for the capability are added to them.
 - `parameters` take strings, arrays of strings, numbers, integers and booleans. Describe each one for the LLM: its language, its length, what it must not contain. Every parameter is present in the call, `""`, `[]` or `null` when unknown.
 - `instructions` tell the LLM how to fill the parameters or write the content: the language, what to keep from the text of the app, what not to invent.
 - `confirm: false` is for what the user can undo in the app, like a slide or a table in the editor. A call that creates something the user cannot take back, like a file, keeps the confirmation.
-- The number of the capabilities, of their examples and parameters, and the length of their texts are up to the app: neither the assistant nor the stack limits them. They are all sent with each message, to the router and to the LLM: what fits depends on the LLM.
+- The number of the capabilities, of their examples and parameters, and the length of their texts are up to the app: neither the assistant nor the stack limits them. They are all sent with each message to the LLM, as its tools: what fits depends on the LLM.
 
 The capabilities are those of the calling app: it declares what it can run, and runs what it gets. The assistant has no catalogue of them.
 
