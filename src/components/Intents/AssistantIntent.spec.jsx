@@ -452,6 +452,7 @@ describe('AssistantIntent', () => {
     capabilities[0].onClick({ title: 'Risks', bullets: [] })
 
     expect(mockService.sendResult).toHaveBeenCalledWith({
+      tool: 'insert_slide',
       capability: 'insert_slide',
       params: { title: 'Risks', bullets: [] }
     })
