@@ -194,7 +194,7 @@ describe('ScribeProvider', () => {
     )
   })
 
-  it('offers the capabilities of the app to the LLM, and gives them to the scribe', async () => {
+  it('offers the tools of the app to the LLM, and gives them to the scribe', async () => {
     const action = { name: 'insert_slide', description: 'add a slide' }
     const capabilities = [
       { name: 'insert_slide', label: 'Insert', action, onClick: jest.fn() }
@@ -210,7 +210,7 @@ describe('ScribeProvider', () => {
     await run([userMessage('Add a slide')])
 
     expect(getScribe().capabilities).toBe(capabilities)
-    expect(client.stackClient.fetchJSON.mock.calls[0][2].actions).toEqual([
+    expect(client.stackClient.fetchJSON.mock.calls[0][2].tools).toEqual([
       action
     ])
   })

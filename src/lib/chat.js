@@ -158,8 +158,8 @@ function makeAnswer() {
  * @property {(name: string) => { q: string, instructions: string|null }|null} [preparePrompt] -
  * the query and the instructions of a prompt of the catalogue, for a message
  * sent by a suggestion
- * @property {object[]} actions - the capabilities of the app, as chat actions
- * of cozy-stack
+ * @property {object[]} actions - the tools of the app, the `tools` of the
+ * chat of cozy-stack
  * @property {string|null} [assistantId] - the assistant that answers, the one
  * of the stack without it
  * @property {boolean} [websearch] - whether the answer may come from the web
@@ -281,7 +281,7 @@ export function makeChatAdapter({
             // The LLM answers alone, unless the user asks for their documents
             ...(!hasDocuments && { documents: false }),
             ...(system && { instructions: system }),
-            ...(actions?.length > 0 && { actions }),
+            ...(actions?.length > 0 && { tools: actions }),
             ...(assistantId && { assistantID: assistantId }),
             ...(websearch && { websearch: true })
           }
