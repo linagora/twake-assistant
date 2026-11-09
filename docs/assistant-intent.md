@@ -15,7 +15,7 @@ type = 'io.cozy.ai.chat.conversations'
 
 The service renders the AI assistant in the frame of the calling app, on a new conversation. The frame can be a modal or a side panel: the assistant adapts to the width it is given.
 
-The assistant opens as a **scribe**, whatever its configuration: an assistant that works for the calling app. It works on a text of the app and hands its answers back for the app to insert them, and it calls the **capabilities** of the app, what the app can do beside taking an answer, when a request of the user needs one. The scribe is made for a side panel: it has no sidebar and no choice of the assistant. Its header starts a new conversation, lists the past conversations to open, rename or delete one of them, and closes the scribe. Its compact layout, without the header, fits a popover (see `layout` in [AssistantIntentConfig](#assistantintentconfig)).
+The assistant opens as a **scribe**, whatever its configuration: an assistant that works for the calling app. It works on a text of the app and hands its answers back for the app to insert them, and it calls the **tools** of the app, what the app can do beside taking an answer, when a request of the user needs one. The scribe is made for a side panel: it has no sidebar and no choice of the assistant. Its header starts a new conversation, lists the past conversations to open, rename or delete one of them, and closes the scribe. Its compact layout, without the header, fits a popover (see `layout` in [AssistantIntentConfig](#assistantintentconfig)).
 
 Unlike a picker, this intent does not end with a result. The assistant stays open for as many requests as the user makes, and each answer the user picks is sent to the calling app while the intent goes on. The user closes it from the header of the scribe or, in the compact layout, which has no header, with Escape in the composer; or the calling app closes it.
 
@@ -62,13 +62,14 @@ interface AssistantIntentConfig {
    * create a folder, write a document. The assistant offers them to the LLM,
    * which proposes one when a request of the user needs it, with its
    * parameters filled. The app runs it.
-   * Absent or empty means no capability.
+   * Absent or empty means no tool. `capabilities` is the former name of
+   * this field, still read.
    */
-  capabilities?: Capability[]
+  tools?: Tool[]
 
   /**
    * The suggestions above the composer: the prompts of the assistant, the
-   * capabilities of the app, or requests of the app, in its words.
+   * tools of the app, or requests of the app, in its words.
    * Absent means the default menu of the scribe.
    */
   suggestions?: Suggestion[]
@@ -158,30 +159,33 @@ interface AssistantIntentConfig {
 
   /**
    * Whether the app gives back the result of each call of its
-   * capabilities, with `capabilityResult`: the LLM then goes on with it
+   * tools, with `toolResult`: the LLM then goes on with it
    * (see "The result of a call").
    * Defaults to false: a call is done once it is handed to the app.
+   * `capabilityResults` is the former name of this field, still read.
    */
-  capabilityResults?: boolean
+  toolResults?: boolean
 
   /**
-   * The result of a call, for an app that sets `capabilityResults`: new
+   * The result of a call, for an app that sets `toolResults`: new
    * data with the rest of the configuration, and this field.
    * Absent, or for another call, means the data do not give the result of
-   * the call the assistant waits for.
+   * the call the assistant waits for. `capabilityResult` is the former name
+   * of this field, still read.
    */
-  capabilityResult?: CapabilityResult
+  toolResult?: ToolResult
 }
 ```
 
-### CapabilityResult
+### ToolResult
 
 ```ts
-interface CapabilityResult {
+interface ToolResult {
   /**
-   * The `callId` of the call (see Result).
+   * The `messageId` of the call (see Result): the id of the message of the
+   * stack that holds it.
    */
-  callId: string
+  messageId: string
 
   /**
    * Whether the app could run the call. A result without a boolean `ok` is
@@ -218,16 +222,15 @@ interface AnswerAction {
 }
 ```
 
-### Capability
+### Tool
 
-A capability is a function of the calling app, described for the LLM as a tool of function calling is: what it does, when to pick it, and the parameters it takes. The description, the examples and the instructions are for the LLM: write them in English, whatever the language of the user. The label is for the user: resolve it in your app locale.
+A tool is a function of the calling app, described for the LLM as a tool of function calling is: what it does, when to pick it, and the parameters it takes. The description, the examples and the instructions are for the LLM: write them in English, whatever the language of the user. The label is for the user: resolve it in your app locale.
 
 ```ts
-interface Capability {
+interface Tool {
   /**
-   * Name of the capability: a lowercase letter, then lowercase letters,
-   * digits and `_`. `search` is reserved, and two capabilities cannot share
-   * a name. Sent back with the call.
+   * Name of the tool: a lowercase letter, then lowercase letters, digits
+   * and `_`. Two tools cannot share a name. Sent back with the call.
    */
   name: string
 
@@ -239,14 +242,14 @@ interface Capability {
   label?: string
 
   /**
-   * What the capability does, and when to pick it, for the LLM.
+   * What the tool does, and when to pick it, for the LLM.
    */
   description: string
 
   /**
-   * Requests for which the LLM picks the capability. `needs_documents` is
+   * Requests for which the LLM picks the tool. `needs_documents` is
    * not sent to the stack: the documents are used when the user asks for
-   * them, whatever the capability.
+   * them, whatever the tool.
    */
   examples?: { message: string; needs_documents?: boolean }[]
 
@@ -255,7 +258,7 @@ interface Capability {
    * least one property, each a string, a number, an integer, a boolean or an
    * array of strings, with a `description`, and named with a letter, then
    * letters, digits and `_`.
-   * `required` lists the ones without which the capability is not
+   * `required` lists the ones without which the tool is not
    * proposed, among the properties. Either `parameters` or `content`.
    */
   parameters?: {
@@ -265,7 +268,7 @@ interface Capability {
   }
 
   /**
-   * For a capability whose content the assistant writes, like a document:
+   * For a tool whose content the assistant writes, like a document:
    * the content is written as the answer, in Markdown starting with a
    * `# title` line, and the call gets the title as its only parameter and
    * the content as its text. `max_tokens` bounds the content (1024 by
@@ -306,7 +309,7 @@ interface ParameterSchema {
 
 ### Suggestion
 
-A suggestion is a chip above the composer, offered until the first request about the text. It sends a prompt of the catalogue of the assistant, a request for a capability of the app, or a request of the app in its own words; or it opens a menu of them.
+A suggestion is a chip above the composer, offered until the first request about the text. It sends a prompt of the catalogue of the assistant, a request for a tool of the app, or a request of the app in its own words; or it opens a menu of them.
 
 ```ts
 interface Suggestion {
@@ -320,7 +323,7 @@ interface Suggestion {
    * Label of the chip or of the menu item.
    * Resolve it in your app locale before sending it.
    * When absent: the label of the prompt in the assistant, the label of the
-   * capability, or the name.
+   * tool, or the name.
    */
   label?: string
 
@@ -335,11 +338,12 @@ interface Suggestion {
   prompt?: string
 
   /**
-   * A capability of the app, by its name: the chip sends `message` as the
+   * A tool of the app, by its name: the chip sends `message` as the
    * request of the user, and the request is given to the LLM as an example
-   * of the capability, so that it proposes it.
+   * of the tool, so that it proposes it. `capability` is the former name of
+   * this field, still read.
    */
-  capability?: string
+  tool?: string
 
   /**
    * The request sent, and shown in the conversation. Required without a
@@ -369,7 +373,7 @@ When no config is provided, the assistant uses:
 {
   content: '',
   answerActions: [],
-  capabilities: [],
+  tools: [],
   suggestions: undefined,
   documents: undefined,
   theme: { type: undefined },
@@ -381,17 +385,17 @@ When no config is provided, the assistant uses:
   documentAvailable: false,
   document: undefined,
   documentTruncated: false,
-  capabilityResults: false
+  toolResults: false
 }
 ```
 
-A field that is missing, `null` or of another type falls back to its default, except `document`, whose `null` means that the app cannot read its document. An entry of `answerActions` without a non-empty string `name` is left out. A capability the stack would refuse is left out, since the stack refuses the whole message for it: an invalid or reserved name, the name of another capability, no description, an example without a message, both `parameters` and `content` or neither, parameters that are not a schema as described in [Capability](#capability), a negative `max_tokens`. The reason is written in the console of the browser, as `Capability <name> left out: <reason>`. Nothing is cut: the assistant does not limit the number of the capabilities nor the length of their texts. A suggestion that sends nothing, without `prompt` nor `message`, is left out, and so is a menu with no item left. The assistant never fails on a configuration it cannot read: it opens with what it understands.
+A field that is missing, `null` or of another type falls back to its default, except `document`, whose `null` means that the app cannot read its document. An entry of `answerActions` without a non-empty string `name` is left out. A tool the stack would refuse is left out, since the stack refuses the whole message for it: an invalid or reserved name, the name of another tool, no description, an example without a message, both `parameters` and `content` or neither, parameters that are not a schema as described in [Tool](#tool), a negative `max_tokens`. The reason is written in the console of the browser, as `Tool <name> left out: <reason>`. Nothing is cut: the assistant does not limit the number of the tools nor the length of their texts. A suggestion that sends nothing, without `prompt` nor `message`, is left out, and so is a menu with no item left. The assistant never fails on a configuration it cannot read: it opens with what it understands.
 
-For instance, with these capabilities, the assistant keeps `insert_slide` and leaves the two others out:
+For instance, with these tools, the assistant keeps `insert_slide` and leaves the two others out:
 
 ```json
 {
-  "capabilities": [
+  "tools": [
     {
       "name": "insert_slide",
       "label": "Insert the slide",
@@ -459,8 +463,8 @@ For instance, with these capabilities, the assistant keeps `insert_slide` and le
 The console of the browser then shows:
 
 ```text
-Capability search left out: the name search is reserved
-Capability insert_table left out: invalid param name column-names
+Tool search left out: the name search is reserved
+Tool insert_table left out: invalid param name column-names
 ```
 
 Default labels:
@@ -479,14 +483,14 @@ The configuration picks what the scribe offers. There is no mode option.
 
 | Configuration | What the assistant shows | User's documents |
 | --- | --- | --- |
-| None of `content`, `answerActions`, `capabilities`, `suggestions` | The scribe alone, with its short actions, without prompts, actions nor cards | Optional, on by default |
+| None of `content`, `answerActions`, `tools`, `suggestions` | The scribe alone, with its short actions, without prompts, actions nor cards | Optional, on by default |
 | `content` only | The prompts about the text | Optional, off by default |
 | `answerActions` only | The short actions, and the action buttons under each answer | Optional, on by default |
 | `content` and `answerActions` | The full scribe: prompts and action buttons | Optional, off by default |
-| `capabilities`, with or without the others | The cards of the calls the LLM proposes | Optional, off with a `content`, on without |
+| `tools`, with or without the others | The cards of the calls the LLM proposes | Optional, off with a `content`, on without |
 | `suggestions`, with or without the others | The chips of the app above the composer | Optional, off with a `content`, on without |
 
-In a scribe with a text, the answers come from the LLM alone, without the documents of the user and without sources. The user turns the Drive source of the composer on for a request that needs their documents: the documents an answer comes from are then listed under it. Without a text, the scribe works from the documents of the user at first: the app that opens the assistant on its capabilities, like the file list of Drive, expects answers about them. `documents` sets the start the app wants either way.
+In a scribe with a text, the answers come from the LLM alone, without the documents of the user and without sources. The user turns the Drive source of the composer on for a request that needs their documents: the documents an answer comes from are then listed under it. Without a text, the scribe works from the documents of the user at first: the app that opens the assistant on its tools, like the file list of Drive, expects answers about them. `documents` sets the start the app wants either way.
 
 A scribe with a text also tells the LLM, in a system message, how its answers go into a document: a request to write or change a text is answered with each text meant for the document in an insert block (see [Insert blocks](#insert-blocks)), and a question about the text is answered normally. Without a text, the LLM gets no such instructions.
 
@@ -570,7 +574,7 @@ Set `suggestions` to choose the chips above the composer. Without it, a scribe w
     { "name": "catalogue" },
     {
       "name": "new_slide",
-      "capability": "insert_slide",
+      "tool": "insert_slide",
       "label": "New slide",
       "message": "Add a new slide after this one, about the text"
     },
@@ -593,20 +597,20 @@ Set `suggestions` to choose the chips above the composer. Without it, a scribe w
 
 - The chips come in the order of the list. `{ "name": "catalogue" }` puts the default menu in its place.
 - A chip with a `prompt` sends that prompt of the catalogue on the text, as the default menu does. Its label and the request shown are those of the assistant, unless the app gives `label` and `message`.
-- A chip with a `capability` sends `message` as the request of the user. The assistant adds the request to the examples of the capability, so that the LLM proposes the capability for it (see [Capabilities](#capabilities)). The LLM still decides: with a text that the request does not fit, it may answer instead.
+- A chip with a `tool` sends `message` as the request of the user. The assistant adds the request to the examples of the tool, so that the LLM proposes the tool for it (see [Tools](#tools)). The LLM still decides: with a text that the request does not fit, it may answer instead.
 - A chip with a `message` alone sends it as the request of the user, with `instructions` as the system message when given, and with the instructions of the scribe otherwise.
 - A chip with `options` opens a menu of them.
 - With a text, the chips stay above the composer after each request, off while an answer runs. Without a text, they are offered until the first request.
 
 The chips are the only prompts the app can change. The messages the user types are sent as they are.
 
-## Capabilities
+## Tools
 
-Set `capabilities` to let the assistant call what the app can do:
+Set `tools` to let the assistant call what the app can do:
 
 ```json
 {
-  "capabilities": [
+  "tools": [
     {
       "name": "insert_slide",
       "label": "Insert the slide",
@@ -634,21 +638,21 @@ Set `capabilities` to let the assistant call what the app can do:
 }
 ```
 
-### How a capability is called
+### How a tool is called
 
-1. The assistant sends the capabilities with each message, as the `actions` of the chat of cozy-stack (`POST /ai/chat/conversations/:id`, see its documentation): their definitions are given to the LLM as the tools of function calling are. The stack knows nothing of them but these definitions, and never runs one.
-2. The stack gives the capabilities to the LLM as its tools. The LLM answers a plain request as usual, or calls a capability with its parameters, filled from the conversation, from the text of the app and from the documents of the user when the request needs them: the stack proposes the call. A call whose required parameters cannot be filled is not proposed: the message is answered instead.
-3. The assistant shows the call in a card: the parameters the LLM filled, or the title of the content it wrote, and the button of the capability. A call the LLM proposes after an answer is shown under it.
-4. The call is handed to the app in a `result` message (see [Result](#result)) when the user clicks the button, or at once when the capability has `confirm: false`. The card then says it is done. The assistant does not run anything: the app does, in its own way.
+1. The assistant sends the tools with each message, as the `tools` of the chat of cozy-stack (`POST /ai/chat/conversations/:id`, see its documentation): their definitions are given to the LLM as the tools of function calling are. The stack knows nothing of them but these definitions, and never runs one.
+2. The stack gives the tools to the LLM as its tools. The LLM answers a plain request as usual, or calls a tool with its parameters, filled from the conversation, from the text of the app and from the documents of the user when the request needs them: the stack proposes the call. A call whose required parameters cannot be filled is not proposed: the message is answered instead.
+3. The assistant shows the call in a card: the parameters the LLM filled, or the title of the content it wrote, and the button of the tool. A call the LLM proposes after an answer is shown under it.
+4. The call is handed to the app in a `result` message (see [Result](#result)) when the user clicks the button, or at once when the tool has `confirm: false`. The card then says it is done. The assistant does not run anything: the app does, in its own way.
 5. The assistant stays open. A call is handed once: the user asks again for another one.
 
 ### The result of a call
 
-An app that sets `capabilityResults: true` gives back the result of each call: the LLM goes on with it, to answer from what the call found, or to propose another call. It is how a capability that reads, like a search, gets an answer.
+An app that sets `toolResults: true` gives back the result of each call: the LLM goes on with it, to answer from what the call found, or to propose another call. It is how a tool that reads, like a search, gets an answer.
 
-1. The call comes with a `callId` (see [Result](#result)): the id of the message of the stack that holds it.
-2. The app runs the call, and sends new data with its whole configuration and `capabilityResult: { callId, ok, content }`. The assistant waits 30 seconds at most, for the result of this `callId` only.
-3. The assistant sends the result to the stack in place of a request, `result: { messageID, ok, content }` with the `callId` as `messageID` (see the documentation of the chat of cozy-stack), with the capabilities. The stack saves it as a message of the `tool` role, and the LLM answers, or proposes another call. The stack stops after 5 results for one request of the user: the LLM then answers.
+1. The call comes with a `messageId` (see [Result](#result)): the id of the message of the stack that holds it.
+2. The app runs the call, and sends new data with its whole configuration and `toolResult: { messageId, ok, content }`. The assistant waits 30 seconds at most, for the result of this `messageId` only.
+3. The assistant sends the result to the stack in place of a request, `result: { messageID, ok, content }` with the `messageId` as `messageID` (see the documentation of the chat of cozy-stack), with the tools. The stack saves it as a message of the `tool` role, and the LLM answers, or proposes another call. The stack stops after 5 results for one request of the user: the LLM then answers.
 4. The result is not shown to the user, nor in a past conversation: only the answer of the LLM is.
 
 A result is left out when it comes late: after 30 seconds, or once the user asked something else. The stack takes one result per call: the answer to a result has no "Try again" button.
@@ -659,25 +663,25 @@ Give a result for a call with `confirm: false` at least: the user does not see s
 
 ```jsonc
 // the call
-{ "capability": "search_emails", "params": { "from": "Claire" }, "callId": "0192f0a5-7c1e-7b3a-9f00-4d2c8e1a6b57" }
+{ "tool": "search_emails", "params": { "from": "Claire" }, "messageId": "0192f0a5-7c1e-7b3a-9f00-4d2c8e1a6b57" }
 // its result, in new data
-{ "capabilities": [ … ], "capabilityResults": true, "capabilityResult": { "callId": "0192f0a5-7c1e-7b3a-9f00-4d2c8e1a6b57", "ok": true, "content": "3 emails from Claire: …" } }
+{ "tools": [ … ], "toolResults": true, "toolResult": { "messageId": "0192f0a5-7c1e-7b3a-9f00-4d2c8e1a6b57", "ok": true, "content": "3 emails from Claire: …" } }
 ```
 
-### A capability with a content
+### A tool with a content
 
-For a capability with `content`, the assistant writes the content as its answer, in Markdown, with the description and the instructions of the capability, from the documents of the user when the request needs them (a report from the files of the user) or from the conversation (a document on a subject, a summary of the conversation). The content starts with a `# title` line: the call gets `{ "title" }` as its parameters, and the whole content as its `text`. A content without a title is given as a plain answer, without a call.
+For a tool with `content`, the assistant writes the content as its answer, in Markdown, with the description and the instructions of the tool, from the documents of the user when the request needs them (a report from the files of the user) or from the conversation (a document on a subject, a summary of the conversation). The content starts with a `# title` line: the call gets `{ "title" }` as its parameters, and the whole content as its `text`. A content without a title is given as a plain answer, without a call.
 
-### Writing a capability
+### Writing a tool
 
-- `description` tells the LLM what the capability does and when to call it, and when not to: name the requests it is for, and the ones that are answers. A capability called by mistake costs the user an answer.
-- `examples` are requests the LLM should call the capability for, as the user writes them, in any language. The requests of the suggestions for the capability are added to them.
+- `description` tells the LLM what the tool does and when to call it, and when not to: name the requests it is for, and the ones that are answers. A tool called by mistake costs the user an answer.
+- `examples` are requests the LLM should call the tool for, as the user writes them, in any language. The requests of the suggestions for the tool are added to them.
 - `parameters` take strings, arrays of strings, numbers, integers and booleans. Describe each one for the LLM: its language, its length, what it must not contain. Every parameter is present in the call, `""`, `[]` or `null` when unknown.
 - `instructions` tell the LLM how to fill the parameters or write the content: the language, what to keep from the text of the app, what not to invent.
 - `confirm: false` is for what the user can undo in the app, like a slide or a table in the editor. A call that creates something the user cannot take back, like a file, keeps the confirmation.
-- The number of the capabilities, of their examples and parameters, and the length of their texts are up to the app: neither the assistant nor the stack limits them. They are all sent with each message to the LLM, as its tools: what fits depends on the LLM.
+- The number of the tools, of their examples and parameters, and the length of their texts are up to the app: neither the assistant nor the stack limits them. They are all sent with each message to the LLM, as its tools: what fits depends on the LLM.
 
-The capabilities are those of the calling app: it declares what it can run, and runs what it gets. The assistant has no catalogue of them.
+The tools are those of the calling app: it declares what it can run, and runs what it gets. The assistant has no catalogue of them.
 
 ## Answer actions
 
@@ -699,7 +703,7 @@ Set `answerActions` to get the answers of the assistant back:
 
 ## Result
 
-On each click on an action button, on each call of a capability, when the user goes on from a compact scribe to a panel, and when a typed request includes the document, the assistant sends a `result` message. The intent goes on.
+On each click on an action button, on each call of a tool, when the user goes on from a compact scribe to a panel, and when a typed request includes the document, the assistant sends a `result` message. The intent goes on.
 
 ```ts
 {
@@ -712,12 +716,12 @@ On each click on an action button, on each call of a capability, when the user g
 
 ### AssistantIntentResult
 
-A result is an answer, for an action button, a call, for a capability, or a request of the scribe to the app. The calling app tells them apart by their field: `answerAction`, `capability` or `request`, and the requests by its value.
+A result is an answer, for an action button, a call, for a tool, or a request of the scribe to the app. The calling app tells them apart by their field: `answerAction`, `tool` or `request`, and the requests by its value.
 
 ```ts
 type AssistantIntentResult =
   | AnswerResult
-  | CapabilityCall
+  | ToolCall
   | PanelRequest
   | DocumentRequest
 
@@ -739,21 +743,27 @@ interface AnswerResult {
   format: 'markdown'
 }
 
-interface CapabilityCall {
+interface ToolCall {
   /**
-   * Name of the capability called, among the configured `capabilities`.
+   * Name of the tool called, among the configured `tools`.
+   */
+  tool: string
+
+  /**
+   * The same name, under the former name of the field, for the apps written
+   * with it.
    */
   capability: string
 
   /**
    * The parameters the LLM filled, every one of the schema, with its type:
    * `""`, `[]` or `null` (for a number, an integer or a boolean) when
-   * unknown. For a capability with a content: `{ title }`.
+   * unknown. For a tool with a content: `{ title }`.
    */
   params: Record<string, string | string[] | number | boolean | null>
 
   /**
-   * For a capability with a content: the content the assistant wrote,
+   * For a tool with a content: the content the assistant wrote,
    * starting with its `# title` line.
    */
   text?: string
@@ -765,10 +775,11 @@ interface CapabilityCall {
 
   /**
    * The id of the call, which the app gives back with its result, for an
-   * app that sets `capabilityResults` (see "The result of a call").
-   * Absent when the stack gave no id to the call.
+   * app that sets `toolResults` (see "The result of a call"): the id of the
+   * message of the stack that holds the call. Absent when the stack gave no
+   * id to the call.
    */
-  callId?: string
+  messageId?: string
 }
 
 interface PanelRequest {
@@ -821,6 +832,7 @@ Examples:
 {
   "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result",
   "result": {
+    "tool": "insert_slide",
     "capability": "insert_slide",
     "params": {
       "title": "Risques du lancement",
@@ -848,9 +860,9 @@ Examples:
 }
 ```
 
-The label of the action or of the capability is not sent back, only its name. The calling app checks what it gets: a capability it did not declare, or parameters it cannot use, are left alone.
+The label of the action or of the tool is not sent back, only its name. The calling app checks what it gets: a tool it did not declare, or parameters it cannot use, are left alone.
 
-The card says the call is done once it is handed over. An app that sets `capabilityResults` gives back its result, and the LLM goes on with it (see [The result of a call](#the-result-of-a-call)).
+The card says the call is done once it is handed over. An app that sets `toolResults` gives back its result, and the LLM goes on with it (see [The result of a call](#the-result-of-a-call)).
 
 ## End of the intent
 
@@ -889,7 +901,7 @@ The messages of the assistant intent, in order. They all go through `window.post
 | 3 | Assistant → app | `intent-{id}:readyToUse` | none, once | `onReadyToUse` option of `start()` |
 | 4 | Assistant → app | `intent-{id}:result` | `result: AssistantIntentResult`, an answer, a call or a request, any number of times | `service.sendResult()`, `onResult` option of `start()` |
 | 5 | Assistant → app | `intent-{id}:resize` | `dimensions: { height }`, the height of a compact scribe in pixels, when it shows and each time it changes | `service.resizeClient()`, `cozy-interapp` sets it as the height of the element of the intent (the frame of `IntentIframe`) |
-| 6 | App → assistant | `intent-{id}:data` | `data: AssistantIntentConfig`, any number of times: another text, the `document` a DocumentRequest asks for, or the `capabilityResult` of a call | `sendData()` of the started intent, `service.onData()` |
+| 6 | App → assistant | `intent-{id}:data` | `data: AssistantIntentConfig`, any number of times: another text, the `document` a DocumentRequest asks for, or the `toolResult` of a call | `sendData()` of the started intent, `service.onData()` |
 | 7 | Assistant → app | `intent-{id}:cancel` | none, when the user closes the scribe or the page of the assistant is unloaded | `service.cancel()`, the intent promise resolves with `null` |
 
 The user ends the exchange from the scribe, or the calling app ends it itself, by stopping the intent or removing its iframe (see [End of the intent](#end-of-the-intent)). The assistant never sends `done` nor `error`, and sends `resize` in the compact layout only.
@@ -908,7 +920,7 @@ The messages of an exchange, one per line:
 // 4. a result: an answer
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result", "result": { "answerAction": "insert", "text": "Bonjour à tous.", "format": "markdown" } }
 // 4. a result: a call
-{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result", "result": { "capability": "insert_slide", "params": { "title": "Risques", "bullets": ["Charge du support"] } } }
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result", "result": { "tool": "insert_slide", "capability": "insert_slide", "params": { "title": "Risques", "bullets": ["Charge du support"] } } }
 // 4. a result: a compact scribe goes on in a panel
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:result", "result": { "request": "panel", "draft": "Plus court", "conversation": "1792483200000-48213" } }
 // 4. a result: a typed request includes the document
@@ -918,7 +930,7 @@ The messages of an exchange, one per line:
 // 6. new data: another text
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "Merci de confirmer", "answerActions": [{ "name": "insert" }, { "name": "replace" }], "theme": { "type": "light" }, "documentAvailable": true } }
 // 6. new data: the result of a call
-{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "", "capabilities": [ … ], "capabilityResults": true, "capabilityResult": { "callId": "0192f0a5-7c1e-7b3a-9f00-4d2c8e1a6b57", "ok": true, "content": "3 emails from Claire: …" } } }
+{ "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "", "tools": [ … ], "toolResults": true, "toolResult": { "messageId": "0192f0a5-7c1e-7b3a-9f00-4d2c8e1a6b57", "ok": true, "content": "3 emails from Claire: …" } } }
 // 6. new data: the document
 { "type": "intent-2245b8f41dc4c0d1e13f69b75028fe07:data", "data": { "content": "Merci de confirmer", "answerActions": [{ "name": "insert" }, { "name": "replace" }], "theme": { "type": "light" }, "documentAvailable": true, "document": "Compte rendu\n\nMerci de confirmer", "documentTruncated": false } }
 ```
@@ -1004,14 +1016,14 @@ scribe.then(() => closePanel())
 scribe.stop()
 ```
 
-## Opening the assistant on capabilities
+## Opening the assistant on tools
 
 The file list of Drive opens the assistant on the documents of the user, with what it can do in the folder:
 
 ```js
 const assistant = intents
   .create('OPEN', 'io.cozy.ai.chat.conversations', {
-    capabilities: [
+    tools: [
       {
         name: 'create_folder',
         label: t('assistant.createFolder'),
@@ -1034,8 +1046,8 @@ const assistant = intents
   })
   .start(element, {
     onResult: result => {
-      if (result.capability === 'create_folder') createFolder(result.params.name)
-      if (result.capability === 'create_document') createDocument(result.params.title, result.text)
+      if (result.tool === 'create_folder') createFolder(result.params.name)
+      if (result.tool === 'create_document') createDocument(result.params.title, result.text)
     }
   })
 ```
@@ -1046,4 +1058,4 @@ const assistant = intents
 - To give another text, or the document, while the assistant is open, `cozy-interapp` 0.21.0 or later in the calling app, for the `data` message (`sendData()` on the started intent). With an older one, the assistant keeps the first text, and a request that includes the document waits 8 seconds and goes without it.
 - For the `onResult` prop and new `data` given to `IntentIframe` and `IntentDialogOpener`, `cozy-ui-plus` 14.0.0 or later, which requires `cozy-interapp` 0.21.0.
 - For the scribe, a cozy-stack that knows the `documents` and `instructions` options of `POST /ai/chat/conversations/:id`.
-- For the capabilities, a cozy-stack that knows the `actions` of `POST /ai/chat/conversations/:id` and proposes them with the `action` event of the chat. With an older one, the message is refused and the scribe shows an error.
+- For the tools, a cozy-stack that knows the `tools` of `POST /ai/chat/conversations/:id` and proposes them with the `action` event of the chat. With an older one, the message is refused and the scribe shows an error.
