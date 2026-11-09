@@ -57,8 +57,8 @@ function findCapabilityError(capability, names) {
   return names.has(capability.name) ? 'another capability has its name' : null
 }
 
-// The stack refuses a whole message for one action it cannot take: such a
-// capability is left out, and the app can see why in the console
+// The stack refuses a whole message for one tool it cannot take: such a
+// tool is left out, and the app can see why in the console
 function readCapabilities(capabilities) {
   const names = new Set()
   return capabilities
@@ -84,8 +84,16 @@ function isSuggestion(suggestion) {
 }
 
 function readSuggestion(suggestion) {
-  const { name, label, prompt, capability, message, instructions, options } =
-    suggestion
+  const {
+    name,
+    label,
+    prompt,
+    tool,
+    capability,
+    message,
+    instructions,
+    options
+  } = suggestion
   if (name === DEFAULT_MENU_SUGGESTION) return { name }
   if (Array.isArray(options)) {
     return {
@@ -98,7 +106,8 @@ function readSuggestion(suggestion) {
     name,
     label: readText(label),
     prompt: readText(prompt),
-    capability: readText(capability),
+    // `capability` is the former name of `tool`
+    capability: readText(tool ?? capability),
     message: readText(message),
     instructions: readText(instructions)
   }
@@ -131,7 +140,7 @@ function readSuggestion(suggestion) {
  * @returns {{
  *   content: string,
  *   answerActions: { name: string, label: string|null }[],
- *   capabilities: Capability[],
+ *   tools: Capability[],
  *   suggestions: SuggestionConfig[]|null,
  *   documents: boolean|null,
  *   theme: { type: 'light'|'dark'|null },
@@ -143,16 +152,18 @@ function readSuggestion(suggestion) {
  *   document: string|null|undefined,
  *   documentTruncated: boolean,
  *   documentAvailable: boolean,
- *   capabilityResults: boolean
+ *   toolResults: boolean
  * }} `suggestions` is null when the app leaves the scribe its default menu.
  * `document` is null when the app cannot read its document, and undefined
- * when the data do not answer a request for it. `capabilityResults` tells
- * whether the app gives back the results of the calls of its capabilities.
+ * when the data do not answer a request for it. `toolResults` tells whether
+ * the app gives back the results of the calls of its tools. `capabilities`
+ * and `capabilityResults` are the former names of `tools` and `toolResults`.
  */
 export function getIntentConfig(data) {
   const {
     content,
     answerActions,
+    tools,
     capabilities,
     suggestions,
     documents,
@@ -165,8 +176,10 @@ export function getIntentConfig(data) {
     document,
     documentTruncated,
     documentAvailable,
+    toolResults,
     capabilityResults
   } = data ?? {}
+  const toolsData = Array.isArray(tools) ? tools : capabilities
 
   return {
     content: typeof content === 'string' ? content : '',
@@ -176,9 +189,7 @@ export function getIntentConfig(data) {
           label: readText(label)
         }))
       : [],
-    capabilities: Array.isArray(capabilities)
-      ? readCapabilities(capabilities)
-      : [],
+    tools: Array.isArray(toolsData) ? readCapabilities(toolsData) : [],
     suggestions: Array.isArray(suggestions)
       ? suggestions.filter(isSuggestion).map(readSuggestion)
       : null,
@@ -193,6 +204,6 @@ export function getIntentConfig(data) {
       typeof document === 'string' || document === null ? document : undefined,
     documentTruncated: documentTruncated === true,
     documentAvailable: documentAvailable === true,
-    capabilityResults: capabilityResults === true
+    toolResults: (toolResults ?? capabilityResults) === true
   }
 }
