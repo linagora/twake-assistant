@@ -16,24 +16,39 @@ jest.mock('@assistant-ui/react', () => ({
   useThread: selector => selector(mockThread)
 }))
 
-function renderZone({ isRunning = false, requestDocument = jest.fn() } = {}) {
+function renderZone({
+  isRunning = false,
+  requestDocument = jest.fn(),
+  text = ''
+} = {}) {
   mockThread = { messages: [], isRunning }
   const client = createMockClient({})
   client.plugins = {
     realtime: { subscribe: jest.fn(), unsubscribe: jest.fn() }
   }
 
-  render(
+  const makeZone = zoneText => (
     <CozyProvider client={client}>
       <I18n lang="en" polyglot={initTranslation('en', () => en)}>
-        <ScribeProvider conversationId="c1" requestDocument={requestDocument}>
+        <ScribeProvider
+          conversationId="c1"
+          requestDocument={requestDocument}
+          text={zoneText}
+        >
           <ScribeIncludeZone />
         </ScribeProvider>
       </I18n>
     </CozyProvider>
   )
+  const { rerender } = render(makeZone(text))
 
-  return name => screen.queryByRole('checkbox', { name })
+  const getToggle = name => screen.queryByRole('checkbox', { name })
+  getToggle.select = nextText => rerender(makeZone(nextText))
+  return getToggle
+}
+
+function querySelection() {
+  return screen.queryByRole('note', { name: 'Selection' })
 }
 
 describe('ScribeIncludeZone', () => {
@@ -58,5 +73,27 @@ describe('ScribeIncludeZone', () => {
     const getToggle = renderZone({ isRunning: true })
 
     expect(getToggle('Document')).toBeDisabled()
+  })
+
+  it('quotes no selection without a text', () => {
+    renderZone()
+
+    expect(querySelection()).toBe(null)
+  })
+
+  it('quotes the text the next request is about, as the user selects another', () => {
+    const getToggle = renderZone({ text: 'First paragraph' })
+    expect(querySelection()).toHaveTextContent('First paragraph')
+
+    getToggle.select('Second paragraph')
+
+    expect(querySelection()).toHaveTextContent('Second paragraph')
+  })
+
+  it('quotes the text when the app cannot give its document', () => {
+    const getToggle = renderZone({ text: 'A slide', requestDocument: null })
+
+    expect(querySelection()).toHaveTextContent('A slide')
+    expect(getToggle('Document')).toBe(null)
   })
 })

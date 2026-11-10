@@ -317,10 +317,18 @@ describe('ScribeView', () => {
     }
   )
 
-  it('shows neither the text of the app nor the zone without the document', () => {
+  it('quotes the text of the app above the composer without the document', () => {
     renderScribe({ text: 'Bonjour le monde' })
 
-    expect(screen.queryByText('Bonjour le monde')).toBe(null)
+    expect(screen.getByRole('note', { name: 'Selection' })).toHaveTextContent(
+      'Bonjour le monde'
+    )
+    expect(screen.queryByRole('checkbox', { name: 'Document' })).toBe(null)
+  })
+
+  it('shows no zone without a text nor the document', () => {
+    renderScribe()
+
     expect(screen.queryByRole('group', { name: 'Include' })).toBe(null)
   })
 

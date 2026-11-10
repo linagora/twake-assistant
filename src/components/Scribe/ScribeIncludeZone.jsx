@@ -2,23 +2,26 @@ import { useThread } from '@assistant-ui/react'
 import React, { useId } from 'react'
 
 import Checkbox from 'cozy-ui/transpiled/react/Checkbox'
+import Markdown from 'cozy-ui/transpiled/react/Markdown'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import styles from '@/components/Scribe/styles.styl'
+import { showHtmlTables } from '@/lib/htmlTables'
 
 /**
- * Whether the next request includes the whole document, when the app can
- * give it. The conversation and the text of the app always go with it.
+ * What the next request is about: the text of the app, quoted, and the whole
+ * document when the app can give it. The app gives another text as the user
+ * selects one, with no button to show it was taken: the quote says so.
  */
 export function ScribeIncludeZone() {
   const { t } = useI18n()
-  const { isDocumentAvailable, hasDocument, setHasDocument } = useScribe()
+  const { text, isDocumentAvailable, hasDocument, setHasDocument } = useScribe()
   const isRunning = useThread(state => state.isRunning)
   const titleId = useId()
 
-  if (!isDocumentAvailable) return null
+  if (!text && !isDocumentAvailable) return null
 
   return (
     <div className="u-mv-half">
@@ -36,13 +39,27 @@ export function ScribeIncludeZone() {
         aria-labelledby={titleId}
         className={`${styles['scribe-include']} u-flex u-flex-wrap u-flex-items-center`}
       >
-        <Checkbox
-          size="small"
-          label={t('scribe.include.document')}
-          checked={hasDocument}
-          disabled={isRunning}
-          onChange={event => setHasDocument(event.target.checked)}
-        />
+        {text && (
+          <Typography
+            component="div"
+            variant="body2"
+            color="textSecondary"
+            role="note"
+            aria-label={t('scribe.include.selection')}
+            className={`${styles['scribe-quote']} ${styles['scribe-quote--short']} u-w-100 u-mv-half`}
+          >
+            <Markdown content={showHtmlTables(text)} />
+          </Typography>
+        )}
+        {isDocumentAvailable && (
+          <Checkbox
+            size="small"
+            label={t('scribe.include.document')}
+            checked={hasDocument}
+            disabled={isRunning}
+            onChange={event => setHasDocument(event.target.checked)}
+          />
+        )}
       </div>
     </div>
   )
