@@ -19,7 +19,8 @@
     "panel": "Bảng Scribe",
     "include": {
       "title": "Bao gồm",
-      "document": "Tài liệu"
+      "document": "Tài liệu",
+      "selection": "Vùng chọn"
     },
     "document": {
       "truncated": "Tài liệu quá dài — chỉ một phần được gửi đến trợ lý.",

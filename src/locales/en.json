@@ -19,7 +19,8 @@
     "panel": "Scribe panel",
     "include": {
       "title": "Include",
-      "document": "Document"
+      "document": "Document",
+      "selection": "Selection"
     },
     "document": {
       "truncated": "Document too long — only part of it was sent to the assistant.",

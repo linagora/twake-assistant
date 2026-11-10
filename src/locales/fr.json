@@ -19,7 +19,8 @@
     "panel": "Panneau Scribe",
     "include": {
       "title": "Inclure",
-      "document": "Document"
+      "document": "Document",
+      "selection": "Sélection"
     },
     "document": {
       "truncated": "Document trop long — seule une partie a été envoyée à l'assistant.",

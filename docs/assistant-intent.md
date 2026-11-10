@@ -512,7 +512,9 @@ Send new data for another text only, not for a cursor that moves: the next messa
 
 ### What a request includes
 
-Each request goes to the conversation of the scribe, and the text of the app goes with the first request about it. Above the composer, under "Include", a box adds the document; it does not change while an answer is written.
+Each request goes to the conversation of the scribe, and the text of the app goes with the first request about it. Above the composer, under "Include", the scribe quotes the text of the app on two lines, and a box adds the document; the box does not change while an answer is written.
+
+- **Selection**, the quote of the text the next request is about, shown only with a `content`. It changes with each text the app gives: the app may give another one without a sign of its own, as Drive, whose buttons are hidden while its panel is open.
 
 - **Document**, shown only with `documentAvailable`, unchecked at first. A typed request then asks the app for its whole document, with a DocumentRequest (see [Result](#result)), and waits for the next data that hold a `document`, 8 seconds at most. The document goes before the request, between a `[Full document]` and an `[End of full document]` line; the conversation shows the request alone. When the app gives `document: null`, or nothing in time, the request is sent without it, and the answer tells that the document could not be read. With `documentTruncated`, the answer tells that only part of it was sent. Stop ends the wait at once, and nothing is sent. A prompt of the catalogue never asks for the document: it is about the text.
 
