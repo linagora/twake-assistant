@@ -92,6 +92,7 @@ export function ScribeCapabilityCard({
   capability,
   params,
   text,
+  callId = null,
   isPast = false
 }) {
   const { t } = useI18n()
@@ -99,7 +100,7 @@ export function ScribeCapabilityCard({
   const [isDone, setIsDone] = useState(() => isCallHanded(messageId))
 
   const hand = () => {
-    handCall(messageId, () => capability.onClick(params, text))
+    handCall(messageId, () => capability.onClick(params, text, callId), callId)
     setIsDone(true)
   }
 

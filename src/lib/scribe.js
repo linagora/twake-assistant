@@ -405,7 +405,9 @@ export function makeChatMessages(messages, t) {
             isPast: true,
             ...(text.trim() === '' && !message.action && { isEmpty: true }),
             ...(message.sources?.length > 0 && { sources: message.sources }),
-            ...(message.action && { action: message.action })
+            ...(message.action && {
+              action: { ...message.action, messageId: message.id }
+            })
           }
         }
       }
@@ -460,14 +462,15 @@ export function makeScribeAnswerActions(answerActions, t, onAction) {
  * @property {boolean} hasContent - whether the call takes the answer as its
  * text
  * @property {object} action - its definition as a chat action of cozy-stack
- * @property {(params: object, text?: string) => void} onClick
+ * @property {(params: object, text?: string, messageId?: string|null) => void} onClick
  */
 
 /**
  * @param {import('@/lib/intent').Capability[]} capabilities
  * @param {Function} t - translation function
  * @param {Function} onCall - called with the result of the intent,
- * { capability, params, text, format }
+ * { tool, capability, params, text, format, messageId }: `capability` is the
+ * former name of `tool`, kept for the apps written with it
  * @param {import('@/lib/intent').SuggestionConfig[]|null} [suggestions]
  * @returns {ScribeCapability[]}
  */
@@ -479,8 +482,8 @@ export function makeScribeCapabilities(
 ) {
   return capabilities.map(({ name, label, confirm, action }) => {
     const examples = action.examples ?? []
-    // The router picks a capability from its examples: the request of a chip
-    // that asks for it is one, so that the chip gets the capability
+    // The LLM calls a tool for its examples: the request of a chip that asks
+    // for it is one, so that the chip gets the tool
     const requests = findRequestsFor(suggestions, name)
       .filter(message => !examples.includes(message))
       .filter(message => findExampleError(message) === null)
@@ -497,11 +500,13 @@ export function makeScribeCapabilities(
           examples: [...examples, ...requests]
         })
       },
-      onClick: (params, text = '') =>
+      onClick: (params, text = '', messageId = null) =>
         onCall({
+          tool: name,
           capability: name,
           params,
-          ...(hasContent && { text, format: 'markdown' })
+          ...(hasContent && { text, format: 'markdown' }),
+          ...(messageId && { messageId })
         })
     }
   })

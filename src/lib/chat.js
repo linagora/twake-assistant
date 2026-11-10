@@ -73,13 +73,25 @@ function findLastUserText(messages) {
 }
 
 // The stack answers with the conversation: its last message is the one just
-// sent, whose id is the one of the events of its answer
+// sent, a request of the user or the result of a call given by the app,
+// whose id is the one of the events of its answer
 function getMessageId(response) {
   const messages = response?.data?.attributes?.messages ?? []
-  const message = messages.findLast(message => message.role === 'user')
+  const message = messages.findLast(
+    message => message.role === 'user' || message.role === 'tool'
+  )
   if (!message?.id) throw new Error('No message in the conversation')
 
   return message.id
+}
+
+// The call keeps the id of the message the stack saves it on: the result of
+// the call goes back to the stack with it
+function readAction(event) {
+  if (!event.action) return null
+  return typeof event.message_id === 'string'
+    ? { ...event.action, messageId: event.message_id }
+    : event.action
 }
 
 function getDocumentNotice(doc) {
@@ -146,8 +158,8 @@ function makeAnswer() {
  * @property {(name: string) => { q: string, instructions: string|null }|null} [preparePrompt] -
  * the query and the instructions of a prompt of the catalogue, for a message
  * sent by a suggestion
- * @property {object[]} actions - the capabilities of the app, as chat actions
- * of cozy-stack
+ * @property {object[]} actions - the tools of the app, the `tools` of the
+ * chat of cozy-stack
  * @property {string|null} [assistantId] - the assistant that answers, the one
  * of the stack without it
  * @property {boolean} [websearch] - whether the answer may come from the web
@@ -205,9 +217,12 @@ export function makeChatAdapter({
       // A prompt of the catalogue, from a suggestion, brings its own query
       // and instructions, about the text of the app only
       const custom = runConfig?.custom ?? {}
+      // The result of a call the app gives: the LLM goes on with it, in
+      // place of a request of the user
+      const result = custom.result ?? null
       const prompt = custom.prompt ? preparePrompt?.(custom.prompt) : null
       const isDocumentIncluded =
-        hasDocument && Boolean(requestDocument) && !custom.prompt
+        hasDocument && Boolean(requestDocument) && !custom.prompt && !result
       let doc = null
       if (isDocumentIncluded) {
         // The app may take seconds to answer, or never: Stop does not wait
@@ -221,13 +236,14 @@ export function makeChatAdapter({
           return
         }
       }
-      const query =
-        prompt?.q ??
-        prepareQuery(text, {
-          isFirstOnText,
-          document: doc?.document ?? null
-        })
-      const isTextSent = Boolean(prompt) || isFirstOnText
+      const query = result
+        ? null
+        : (prompt?.q ??
+          prepareQuery(text, {
+            isFirstOnText,
+            document: doc?.document ?? null
+          }))
+      const isTextSent = !result && (Boolean(prompt) || isFirstOnText)
       if (isTextSent && appText?.trim()) recordSentText?.(index, appText)
       const documentNotice = isDocumentIncluded ? getDocumentNotice(doc) : null
       // assistant-ui sets the custom metadata of the answer anew at each
@@ -261,11 +277,11 @@ export function makeChatAdapter({
           'POST',
           `/ai/chat/conversations/${conversationId}`,
           {
-            q: query,
+            ...(result ? { result } : { q: query }),
             // The LLM answers alone, unless the user asks for their documents
             ...(!hasDocuments && { documents: false }),
             ...(system && { instructions: system }),
-            ...(actions?.length > 0 && { actions }),
+            ...(actions?.length > 0 && { tools: actions }),
             ...(assistantId && { assistantID: assistantId }),
             ...(websearch && { websearch: true })
           }
@@ -282,7 +298,7 @@ export function makeChatAdapter({
         )) {
           if (event.object === 'error') throw new ChatEventError(event.message)
           if (event.object === 'sources') sources = event.content
-          if (event.object === 'action') action = event.action ?? null
+          if (event.object === 'action') action = readAction(event)
           if (event.object === 'reasoning') {
             reasoning.add(event)
             yield { content: getContent() }

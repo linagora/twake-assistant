@@ -19,6 +19,8 @@ jest.mock('@assistant-ui/react', () => ({
       <div className={className}>{children}</div>
     )
   },
+  useAuiState: selector =>
+    selector({ message: mockMessage, thread: mockThread }),
   useMessage: selector => selector(mockMessage),
   useThread: selector => selector(mockThread),
   useMessageRuntime: () => ({
@@ -396,6 +398,19 @@ describe('ScribeAnswer', () => {
       actions
     )
 
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
+  })
+
+  it('does not offer to try again an answer to the result of a call', () => {
+    // The stack takes the result of a call once
+    mockThread = { messages: [{ id: 'call', role: 'assistant' }] }
+
+    renderAnswer(
+      { ...answer('', 'incomplete', { isError: true }), parentId: 'call' },
+      actions
+    )
+
+    expect(screen.queryByRole('alert')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
   })
 

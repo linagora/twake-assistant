@@ -7,6 +7,7 @@ import { useI18n } from 'twake-i18n'
 
 import { IntentProviders } from '@/components/IntentProviders'
 import { ScribeView } from '@/components/Scribe/ScribeView'
+import { makeCapabilityResults } from '@/lib/capabilityResults'
 import { makeDocumentRequest } from '@/lib/documentRequest'
 import { getIntentConfig } from '@/lib/intent'
 import {
@@ -41,13 +42,14 @@ function Scribe({ service, config }) {
   const {
     content,
     answerActions,
-    capabilities,
+    tools,
     suggestions,
     documents,
     draft,
     conversation,
     rules,
-    documentAvailable
+    documentAvailable,
+    toolResults
   } = config
 
   // The assistant is rendered: an app that waits for it can show the intent
@@ -69,12 +71,12 @@ function Scribe({ service, config }) {
   const scribeCapabilities = useMemo(
     () =>
       makeScribeCapabilities(
-        capabilities,
+        tools,
         t,
         result => service.sendResult(result),
         suggestions
       ),
-    [service, capabilities, suggestions, t]
+    [service, tools, suggestions, t]
   )
   const scribeSuggestions = useMemo(
     () =>
@@ -102,6 +104,10 @@ function Scribe({ service, config }) {
     () => (documentAvailable ? makeDocumentRequest(service) : null),
     [service, documentAvailable]
   )
+  const waitForResult = useMemo(
+    () => (toolResults ? makeCapabilityResults(service) : null),
+    [service, toolResults]
+  )
   const handleClose = useCallback(() => service.cancel(), [service])
   const handleResize = useCallback(
     size => service.resizeClient?.(size),
@@ -117,6 +123,7 @@ function Scribe({ service, config }) {
       prepareQuery={prepareQuery}
       preparePrompt={preparePrompt}
       requestDocument={requestDocument}
+      waitForResult={waitForResult}
       documents={documents ?? content === ''}
       text={content}
       instructions={content ? t('scribe.instructions') : undefined}

@@ -14,7 +14,7 @@ describe('getIntentConfig', () => {
         { name: 'insert', label: 'Insérer' },
         { name: 'copy', label: null }
       ],
-      capabilities: [],
+      tools: [],
       suggestions: null,
       documents: null,
       theme: { type: 'dark' },
@@ -25,7 +25,8 @@ describe('getIntentConfig', () => {
       rules: null,
       document: undefined,
       documentTruncated: false,
-      documentAvailable: false
+      documentAvailable: false,
+      toolResults: false
     })
   })
 
@@ -33,7 +34,7 @@ describe('getIntentConfig', () => {
     expect(getIntentConfig(data)).toEqual({
       content: '',
       answerActions: [],
-      capabilities: [],
+      tools: [],
       suggestions: null,
       documents: null,
       theme: { type: null },
@@ -44,7 +45,8 @@ describe('getIntentConfig', () => {
       rules: null,
       document: undefined,
       documentTruncated: false,
-      documentAvailable: false
+      documentAvailable: false,
+      toolResults: false
     })
   })
 
@@ -58,7 +60,7 @@ describe('getIntentConfig', () => {
     ).toEqual({
       content: '',
       answerActions: [],
-      capabilities: [],
+      tools: [],
       suggestions: null,
       documents: null,
       theme: { type: null },
@@ -69,7 +71,8 @@ describe('getIntentConfig', () => {
       rules: null,
       document: undefined,
       documentTruncated: false,
-      documentAvailable: false
+      documentAvailable: false,
+      toolResults: false
     })
     expect(getIntentConfig({ answerActions: null }).answerActions).toEqual([])
     expect(getIntentConfig({ answerActions: 'insert' }).answerActions).toEqual(
@@ -92,10 +95,18 @@ describe('getIntentConfig', () => {
       instructions: 'Short titles'
     }
 
-    it('reads a capability as a chat action, and the label of its button', () => {
+    it('reads the tools, under their name or their former one', () => {
+      expect(getIntentConfig({ tools: [insertSlide] }).tools).toHaveLength(1)
       expect(
-        getIntentConfig({ capabilities: [insertSlide] }).capabilities
-      ).toEqual([
+        getIntentConfig({ capabilities: [insertSlide] }).tools
+      ).toHaveLength(1)
+      expect(
+        getIntentConfig({ tools: [insertSlide], capabilities: [] }).tools
+      ).toHaveLength(1, 'tools wins')
+    })
+
+    it('reads a capability as a chat action, and the label of its button', () => {
+      expect(getIntentConfig({ capabilities: [insertSlide] }).tools).toEqual([
         {
           name: 'insert_slide',
           label: 'Insert the slide',
@@ -117,7 +128,7 @@ describe('getIntentConfig', () => {
           capabilities: [
             { name: 'add_row', description: 'add a row', parameters }
           ]
-        }).capabilities
+        }).tools
       ).toEqual([
         {
           name: 'add_row',
@@ -139,9 +150,9 @@ describe('getIntentConfig', () => {
             null,
             'insert_slide'
           ]
-        }).capabilities
+        }).tools
       ).toEqual([])
-      expect(getIntentConfig({ capabilities: {} }).capabilities).toEqual([])
+      expect(getIntentConfig({ capabilities: {} }).tools).toEqual([])
     })
 
     it('reads a capability whose content the assistant writes', () => {
@@ -155,7 +166,7 @@ describe('getIntentConfig', () => {
               confirm: true
             }
           ]
-        }).capabilities
+        }).tools
       ).toEqual([
         {
           name: 'create_document',
@@ -177,14 +188,14 @@ describe('getIntentConfig', () => {
             { ...insertSlide, content: {} },
             { name: 'noop', description: 'nothing' }
           ]
-        }).capabilities
+        }).tools
       ).toEqual([])
     })
 
     it('hands a call without a confirmation when the app says so', () => {
       const [capability] = getIntentConfig({
         capabilities: [{ ...insertSlide, confirm: false }]
-      }).capabilities
+      }).tools
 
       expect(capability.confirm).toBe(false)
     })
@@ -192,7 +203,7 @@ describe('getIntentConfig', () => {
     it('leaves out a capability with the same name as another one', () => {
       const capabilities = getIntentConfig({
         capabilities: [insertSlide, { ...insertSlide, label: 'Again' }]
-      }).capabilities
+      }).tools
 
       expect(capabilities.map(capability => capability.label)).toEqual([
         'Insert the slide'
@@ -210,7 +221,7 @@ describe('getIntentConfig', () => {
             ]
           }
         ]
-      }).capabilities
+      }).tools
 
       expect(capability.action.examples).toEqual([
         'Add a slide',
@@ -224,7 +235,7 @@ describe('getIntentConfig', () => {
         name: `action_${index}`
       }))
 
-      expect(getIntentConfig({ capabilities }).capabilities).toHaveLength(12)
+      expect(getIntentConfig({ capabilities }).tools).toHaveLength(12)
     })
   })
 
@@ -361,6 +372,12 @@ describe('getIntentConfig', () => {
     expect(
       getIntentConfig({ documentAvailable: 'true' }).documentAvailable
     ).toBe(false)
+  })
+
+  it('reads whether the app gives back the results of the calls', () => {
+    expect(getIntentConfig({ toolResults: true }).toolResults).toBe(true)
+    expect(getIntentConfig({ toolResults: 'true' }).toolResults).toBe(false)
+    expect(getIntentConfig({}).toolResults).toBe(false)
   })
 
   describe('documents', () => {

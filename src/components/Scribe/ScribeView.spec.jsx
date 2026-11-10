@@ -93,6 +93,11 @@ jest.mock('@assistant-ui/react', () => {
         />
       )
     },
+    useAuiState: selector =>
+      selector({
+        message: useContext(MessageContext),
+        thread: mockThread
+      }),
     useThread: selector => selector(mockThread),
     useThreadRuntime: () => ({ append: jest.fn(), getState: () => mockThread }),
     useMessage: selector => selector(useContext(MessageContext)),
