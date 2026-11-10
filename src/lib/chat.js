@@ -281,7 +281,9 @@ export function makeChatAdapter({
             // The LLM answers alone, unless the user asks for their documents
             ...(!hasDocuments && { documents: false }),
             ...(system && { instructions: system }),
-            ...(actions?.length > 0 && { tools: actions }),
+            // Stacks older than `tools` read only `actions`: drop it once every
+            // stack takes `tools`
+            ...(actions?.length > 0 && { tools: actions, actions }),
             ...(assistantId && { assistantID: assistantId }),
             ...(websearch && { websearch: true })
           }
