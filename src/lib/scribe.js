@@ -502,6 +502,105 @@ export function getCallReason(capability, params) {
     : null
 }
 
+/**
+ * @typedef {object} ScribeStep
+ * @property {string} label - what the LLM says it does, or the tool
+ * @property {string} tool - the name of the tool it calls
+ * @property {string[]} details - the params it fills, as "name: value"
+ */
+
+const MAX_DETAIL_LENGTH = 80
+
+function getDetailText(value) {
+  if (Array.isArray(value)) {
+    return value
+      .filter(item => typeof item === 'string' && item !== '')
+      .join(', ')
+  }
+  if (typeof value === 'string') return value.trim()
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value)
+  }
+  return ''
+}
+
+/**
+ * The params of a call, but its reason, as "name: value", the ones it left
+ * empty out
+ * @param {object} params
+ * @returns {string[]}
+ */
+export function getStepDetails(params) {
+  return Object.entries(params)
+    .filter(([name]) => name !== REASON_PARAM)
+    .map(([name, value]) => [name, getDetailText(value)])
+    .filter(([, text]) => text !== '')
+    .map(([name, text]) =>
+      text.length > MAX_DETAIL_LENGTH
+        ? `${name}: ${text.slice(0, MAX_DETAIL_LENGTH)}…`
+        : `${name}: ${text}`
+    )
+}
+
+/**
+ * The step of a call the assistant hands at once, of a tool of the app
+ * @param {ScribeCapability} capability
+ * @param {object} params
+ * @returns {ScribeStep}
+ */
+export function makeStep(capability, params) {
+  return {
+    label: getCallReason(capability, params) ?? capability.name,
+    tool: capability.name,
+    details: getStepDetails(params)
+  }
+}
+
+/**
+ * The step of a message: a call of a tool of the app that needs no
+ * confirmation, handed at once, or not at all in a past conversation
+ * @param {object} message - a message of the thread
+ * @param {ScribeCapability[]} capabilities
+ * @returns {ScribeStep|null} null when the message is not a step
+ */
+export function getStep(message, capabilities) {
+  const action = message?.metadata?.custom?.action
+  if (!action) return null
+  const capability = capabilities.find(({ name }) => name === action.name)
+  if (!capability || capability.confirm) return null
+  return makeStep(capability, action.params ?? {})
+}
+
+/**
+ * The steps that follow one another around a message, in their order: the
+ * first one shows them all, and stays as the next ones come, so that the
+ * list it unfolds stays open
+ * @param {object[]} messages - the messages of the thread
+ * @param {string} messageId
+ * @param {(message: object) => ScribeStep|null} getMessageStep
+ * @returns {{ isFirst: boolean, steps: ScribeStep[] }|null}
+ */
+export function findStepGroup(messages, messageId, getMessageStep) {
+  const index = messages.findIndex(({ id }) => id === messageId)
+  if (index === -1) return null
+  const step = getMessageStep(messages[index])
+  if (step === null) return null
+  const steps = [step]
+  let first = index
+  while (first > 0) {
+    const previous = getMessageStep(messages[first - 1])
+    if (previous === null) break
+    steps.unshift(previous)
+    first--
+  }
+  for (let i = index + 1; i < messages.length; i++) {
+    const next = getMessageStep(messages[i])
+    if (next === null) break
+    steps.push(next)
+  }
+  return { isFirst: first === index, steps }
+}
+
 function withoutReason(params) {
   // eslint-disable-next-line no-unused-vars
   const { [REASON_PARAM]: reason, ...appParams } = params

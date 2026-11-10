@@ -7,8 +7,9 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
 import { useScribe } from '@/components/Scribe/ScribeProvider'
+import { ScribeToolStep } from '@/components/Scribe/ScribeToolStep'
 import styles from '@/components/Scribe/styles.styl'
-import { REASON_PARAM } from '@/lib/scribe'
+import { makeStep, REASON_PARAM } from '@/lib/scribe'
 
 // The reason of the LLM tells the user what a step does: not a param to show
 function getParamNames(capability, params) {
@@ -87,7 +88,10 @@ function ParamValue({ name, value }) {
 /**
  * A call of a capability the LLM proposes, handed to the app on the click of
  * the user, or at once when the capability needs no confirmation. A call of a
- * past conversation waits for the click: it was made on another text.
+ * past conversation waits for the click: it was made on another text. One
+ * without confirmation is not handed again then.
+ * A call handed at once is a step: `steps` tells whether it is the first of
+ * the steps that follow one another, which shows them all as one line.
  */
 export function ScribeCapabilityCard({
   messageId,
@@ -95,7 +99,8 @@ export function ScribeCapabilityCard({
   params,
   text,
   callId = null,
-  isPast = false
+  isPast = false,
+  steps = null
 }) {
   const { t } = useI18n()
   const { handCall, isCallHanded } = useScribe()
@@ -112,6 +117,15 @@ export function ScribeCapabilityCard({
     // handing the call twice
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Nothing to review in a call without confirmation: one line tells what is
+  // done, also in a past conversation, where it is not handed again
+  if (!capability.confirm) {
+    if (steps && !steps.isFirst) return null
+    return (
+      <ScribeToolStep steps={steps?.steps ?? [makeStep(capability, params)]} />
+    )
+  }
 
   return (
     <div

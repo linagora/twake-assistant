@@ -109,6 +109,29 @@ $gutter = 1rem
 .scribe-check
     color var(--successColor)
 
+.scribe-tool-step
+    margin-top .25rem
+
+// Nested: a single class loses to the centred content of the ButtonBase of
+// cozy-ui
+.scribe-tool-step .scribe-tool-toggle
+    display flex
+    align-items center
+    justify-content flex-start
+    text-align left
+
+.scribe-tool-history
+    margin .25rem 0 0
+    padding-left 1.25rem
+    list-style none
+
+    li
+        margin-top .25rem
+
+.scribe-tool-call
+    margin .125rem 0 0 1.375rem !important
+    word-break break-word
+
 .scribe-loader
     flex-shrink 0
     width 20px

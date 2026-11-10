@@ -9,6 +9,9 @@ import {
   makeScribeAnswerActions,
   makeScribeCapabilities,
   getCallReason,
+  getStep,
+  getStepDetails,
+  findStepGroup,
   makeChatMessages,
   makeScribePreparePrompt,
   makeScribePrepareQuery,
@@ -764,5 +767,101 @@ describe('getScribeWording', () => {
       welcome: 'What would you like to work on today?',
       placeholder: 'Ask Twake AI'
     })
+  })
+})
+
+describe('getStep', () => {
+  const search = { name: 'search', confirm: false, hasReason: true }
+  const draft = { name: 'draft', confirm: true, hasReason: true }
+  const message = (action, custom = {}) => ({
+    metadata: { custom: { action, ...custom } }
+  })
+
+  it('tells the reason of a call handed at once, its tool and its params', () => {
+    expect(
+      getStep(
+        message({
+          name: 'search',
+          params: { text: 'Atelier', limit: null, reason: 'I search.' }
+        }),
+        [search]
+      )
+    ).toEqual({
+      label: 'I search.',
+      tool: 'search',
+      details: ['text: Atelier']
+    })
+    expect(getStep(message({ name: 'search' }), [search])).toEqual({
+      label: 'search',
+      tool: 'search',
+      details: []
+    })
+  })
+
+  it('takes no answer, call to confirm or unknown tool for a step', () => {
+    expect(getStep({ metadata: { custom: {} } }, [search])).toBe(null)
+    expect(getStep(message({ name: 'draft' }), [draft])).toBe(null)
+    expect(getStep(message({ name: 'other' }), [search])).toBe(null)
+  })
+
+  it('takes a call of a past conversation for a step too', () => {
+    expect(
+      getStep(message({ name: 'search' }, { isPast: true }), [search])
+    ).toEqual({ label: 'search', tool: 'search', details: [] })
+  })
+})
+
+describe('getStepDetails', () => {
+  it('writes the params the LLM filled, but its reason, as name: value', () => {
+    expect(
+      getStepDetails({
+        inMailboxes: ['inbox', 'sent'],
+        unread: false,
+        limit: 5,
+        from: '',
+        page: null,
+        reason: 'I search.'
+      })
+    ).toEqual(['inMailboxes: inbox, sent', 'unread: false', 'limit: 5'])
+  })
+
+  it('cuts a long value', () => {
+    const [detail] = getStepDetails({ text: 'a'.repeat(100) })
+
+    expect(detail).toBe(`text: ${'a'.repeat(80)}…`)
+  })
+})
+
+describe('findStepGroup', () => {
+  const step = label => ({ label, tool: 'tool', details: [] })
+  const messages = [
+    { id: 'q', step: null },
+    { id: 's1', step: step('I search.') },
+    { id: 's2', step: step('I read the first email.') },
+    { id: 's3', step: step('I read the second email.') },
+    { id: 'd', step: null }
+  ]
+  const getMessageStep = message => message.step
+
+  it('gives the first step all the steps, in their order', () => {
+    const all = [
+      step('I search.'),
+      step('I read the first email.'),
+      step('I read the second email.')
+    ]
+
+    expect(findStepGroup(messages, 's1', getMessageStep)).toEqual({
+      isFirst: true,
+      steps: all
+    })
+    expect(findStepGroup(messages, 's3', getMessageStep)).toEqual({
+      isFirst: false,
+      steps: all
+    })
+  })
+
+  it('takes a message that is not a step for none', () => {
+    expect(findStepGroup(messages, 'd', getMessageStep)).toBe(null)
+    expect(findStepGroup(messages, 'unknown', getMessageStep)).toBe(null)
   })
 })

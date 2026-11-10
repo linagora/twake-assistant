@@ -217,15 +217,71 @@ describe('ScribeCapabilityCard', () => {
 
     expect(capability.onClick).toHaveBeenCalledTimes(1)
     expect(capability.onClick).toHaveBeenCalledWith(params, '', null)
-    expect(screen.queryByRole('button')).toBe(null)
-    expect(screen.getByRole('status').textContent).toBe('Done')
+    expect(screen.queryByRole('button', { name: 'Insert the slide' })).toBe(
+      null
+    )
 
     rerender()
     unmount()
     renderCard(params, { capability: { ...capability, confirm: false } })
 
     expect(capability.onClick).toHaveBeenCalledTimes(1)
-    expect(screen.getByRole('status').textContent).toBe('Done')
+  })
+
+  it('shows a call without confirmation as one line with the reason of the LLM', () => {
+    renderCard(
+      { title: 'Risks', bullets: ['Delay'], reason: 'I add the risks.' },
+      { capability: { ...capability, confirm: false, hasReason: true } }
+    )
+
+    expect(screen.getByRole('status').textContent).toBe('I add the risks.')
+    expect(screen.queryByText('Risks')).toBe(null)
+    expect(screen.queryByRole('listitem')).toBe(null)
+  })
+
+  it('names a call without confirmation and without reason by its tool', () => {
+    renderCard(
+      { title: 'Risks' },
+      { capability: { ...capability, confirm: false, hasReason: true } }
+    )
+
+    expect(screen.getByRole('status').textContent).toBe('insert_slide')
+  })
+
+  it('hands the call of a next step, and shows nothing of it', () => {
+    const params = { title: 'Risks', reason: 'I add the risks.' }
+    const { container } = renderCard(params, {
+      capability: { ...capability, confirm: false, hasReason: true },
+      steps: {
+        isFirst: false,
+        steps: [
+          { label: 'I add the risks.', tool: 'insert_slide', details: [] }
+        ]
+      }
+    })
+
+    expect(capability.onClick).toHaveBeenCalledWith(params, '', null)
+    expect(container.textContent).toBe('')
+  })
+
+  it('shows the first step with the last of the steps that follow one another', () => {
+    renderCard(
+      { title: 'Risks', reason: 'I add the risks.' },
+      {
+        capability: { ...capability, confirm: false, hasReason: true },
+        steps: {
+          isFirst: true,
+          steps: [
+            { label: 'I read the plan.', tool: 'read_plan', details: [] },
+            { label: 'I add the risks.', tool: 'insert_slide', details: [] }
+          ]
+        }
+      }
+    )
+
+    expect(screen.getByRole('button', { expanded: false }).textContent).toBe(
+      'I add the risks.'
+    )
   })
 
   it('keeps the reason of the LLM out of the card of a call to confirm', () => {
@@ -238,18 +294,31 @@ describe('ScribeCapabilityCard', () => {
     expect(screen.queryByText('I add the risks.')).toBe(null)
   })
 
-  it('waits for the user on a call of a past conversation', () => {
+  it('waits for the user on a call to confirm of a past conversation', () => {
     const params = { title: 'Risks' }
-    renderCard(params, {
-      capability: { ...capability, confirm: false },
-      isPast: true
-    })
+    renderCard(params, { isPast: true })
 
     expect(capability.onClick).not.toHaveBeenCalled()
 
     fireEvent.click(screen.getByRole('button', { name: 'Insert the slide' }))
 
     expect(capability.onClick).toHaveBeenCalledWith(params, '', null)
+  })
+
+  it('shows a step of a past conversation as its line, without handing it again', () => {
+    renderCard(
+      { title: 'Risks', reason: 'I add the risks.' },
+      {
+        capability: { ...capability, confirm: false, hasReason: true },
+        isPast: true
+      }
+    )
+
+    expect(capability.onClick).not.toHaveBeenCalled()
+    expect(screen.queryByRole('button', { name: 'Insert the slide' })).toBe(
+      null
+    )
+    expect(screen.getByRole('status').textContent).toBe('I add the risks.')
   })
 
   it('hands the id of the message of the stack with the call', () => {
