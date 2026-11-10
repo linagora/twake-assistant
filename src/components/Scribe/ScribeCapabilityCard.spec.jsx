@@ -228,6 +228,16 @@ describe('ScribeCapabilityCard', () => {
     expect(screen.getByRole('status').textContent).toBe('Done')
   })
 
+  it('keeps the reason of the LLM out of the card of a call to confirm', () => {
+    renderCard(
+      { title: 'Risks', reason: 'I add the risks.' },
+      { capability: { ...capability, hasReason: true } }
+    )
+
+    expect(screen.getByText('Risks')).toBeInTheDocument()
+    expect(screen.queryByText('I add the risks.')).toBe(null)
+  })
+
   it('waits for the user on a call of a past conversation', () => {
     const params = { title: 'Risks' }
     renderCard(params, {

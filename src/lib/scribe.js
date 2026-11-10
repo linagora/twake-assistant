@@ -461,9 +461,52 @@ export function makeScribeAnswerActions(answerActions, t, onAction) {
  * @property {boolean} confirm
  * @property {boolean} hasContent - whether the call takes the answer as its
  * text
+ * @property {boolean} hasReason - whether the LLM writes why it calls it in
+ * the `reason` param, which the app does not get
  * @property {object} action - its definition as a chat action of cozy-stack
  * @property {(params: object, text?: string, messageId?: string|null) => void} onClick
  */
+
+export const REASON_PARAM = 'reason'
+
+const REASON_SCHEMA = {
+  type: 'string',
+  description:
+    'One short sentence for the user, in the language of the user, that tells what you do with this call and why, like: I search the emails of the customer to find what was done.'
+}
+
+// The LLM tells the user what it does through a param it must fill: a model
+// that calls a tool writes no text next to the call. A tool of the app that
+// has a param of this name keeps it as it is.
+function withReason(parameters) {
+  if (!parameters?.properties || parameters.properties[REASON_PARAM]) {
+    return null
+  }
+  return {
+    ...parameters,
+    properties: { ...parameters.properties, [REASON_PARAM]: REASON_SCHEMA },
+    required: [...(parameters.required ?? []), REASON_PARAM]
+  }
+}
+
+/**
+ * The sentence of the LLM that tells why it calls the tool, or null
+ * @param {ScribeCapability} capability
+ * @param {object} params - the params of the call
+ * @returns {string|null}
+ */
+export function getCallReason(capability, params) {
+  const reason = capability.hasReason ? params?.[REASON_PARAM] : null
+  return typeof reason === 'string' && reason.trim() !== ''
+    ? reason.trim()
+    : null
+}
+
+function withoutReason(params) {
+  // eslint-disable-next-line no-unused-vars
+  const { [REASON_PARAM]: reason, ...appParams } = params
+  return appParams
+}
 
 /**
  * @param {import('@/lib/intent').Capability[]} capabilities
@@ -488,14 +531,18 @@ export function makeScribeCapabilities(
       .filter(message => !examples.includes(message))
       .filter(message => findExampleError(message) === null)
     const hasContent = action.content !== undefined
+    const parameters = hasContent ? null : withReason(action.parameters)
+    const hasReason = parameters !== null
 
     return {
       name,
       label: label ?? t('scribe.capabilities.run'),
       confirm,
       hasContent,
+      hasReason,
       action: {
         ...action,
+        ...(hasReason && { parameters }),
         ...(requests.length > 0 && {
           examples: [...examples, ...requests]
         })
@@ -504,7 +551,7 @@ export function makeScribeCapabilities(
         onCall({
           tool: name,
           capability: name,
-          params,
+          params: hasReason ? withoutReason(params) : params,
           ...(hasContent && { text, format: 'markdown' }),
           ...(messageId && { messageId })
         })

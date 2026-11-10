@@ -8,6 +8,7 @@ import {
   getScribeWording,
   makeScribeAnswerActions,
   makeScribeCapabilities,
+  getCallReason,
   makeChatMessages,
   makeScribePreparePrompt,
   makeScribePrepareQuery,
@@ -572,6 +573,67 @@ describe('makeScribeCapabilities', () => {
       capability: 'insert_slide',
       params: { title: 'Risks', bullets: ['Delay'] }
     })
+  })
+
+  it('asks the LLM for the reason of each call, and keeps it from the app', () => {
+    const onCall = jest.fn()
+    const parameters = {
+      type: 'object',
+      properties: { title: { type: 'string' } },
+      required: ['title']
+    }
+    const [insertSlide] = makeScribeCapabilities(
+      [
+        { name: 'insert_slide', label: null, action: { ...action, parameters } }
+      ],
+      mockT,
+      onCall
+    )
+
+    expect(insertSlide.hasReason).toBe(true)
+    expect(insertSlide.action.parameters).toEqual({
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        reason: expect.objectContaining({ type: 'string' })
+      },
+      required: ['title', 'reason']
+    })
+    insertSlide.onClick({ title: 'Risks', reason: 'I add the risks.' })
+    expect(onCall).toHaveBeenCalledWith({
+      tool: 'insert_slide',
+      capability: 'insert_slide',
+      params: { title: 'Risks' }
+    })
+    expect(
+      getCallReason(insertSlide, {
+        title: 'Risks',
+        reason: ' I add the risks. '
+      })
+    ).toBe('I add the risks.')
+  })
+
+  it('leaves a reason param of the app as it is', () => {
+    const onCall = jest.fn()
+    const parameters = {
+      type: 'object',
+      properties: { reason: { type: 'string' } }
+    }
+    const [refuse] = makeScribeCapabilities(
+      [{ name: 'refuse', label: null, action: { ...action, parameters } }],
+      mockT,
+      onCall
+    )
+
+    expect(refuse.hasReason).toBe(false)
+    expect(refuse.action.parameters).toEqual(parameters)
+    refuse.onClick({ reason: 'Too late' })
+    expect(onCall).toHaveBeenCalledWith({
+      tool: 'refuse',
+      capability: 'refuse',
+      params: { reason: 'Too late' }
+    })
+    expect(getCallReason(refuse, { reason: 'Too late' })).toBe(null)
   })
 
   it('hands the content the assistant wrote with the call', () => {

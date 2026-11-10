@@ -445,11 +445,19 @@ describe('AssistantIntent', () => {
         description: 'add a slide',
         parameters: {
           type: 'object',
-          properties: { title: { type: 'string' } }
+          properties: {
+            title: { type: 'string' },
+            reason: expect.objectContaining({ type: 'string' })
+          },
+          required: ['reason']
         }
       }
     ])
-    capabilities[0].onClick({ title: 'Risks', bullets: [] })
+    capabilities[0].onClick({
+      title: 'Risks',
+      bullets: [],
+      reason: 'I add the risks.'
+    })
 
     expect(mockService.sendResult).toHaveBeenCalledWith({
       tool: 'insert_slide',

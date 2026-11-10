@@ -8,13 +8,15 @@ import { useI18n } from 'twake-i18n'
 
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import styles from '@/components/Scribe/styles.styl'
+import { REASON_PARAM } from '@/lib/scribe'
 
+// The reason of the LLM tells the user what a step does: not a param to show
 function getParamNames(capability, params) {
   const names = Object.keys(capability.action.parameters?.properties ?? {})
   return [
     ...names,
     ...Object.keys(params).filter(name => !names.includes(name))
-  ]
+  ].filter(name => !capability.hasReason || name !== REASON_PARAM)
 }
 
 function getParamTitle(capability, name) {
