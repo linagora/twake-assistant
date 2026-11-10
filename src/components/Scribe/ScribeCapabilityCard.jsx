@@ -32,9 +32,11 @@ function TitledParam({ title, value }) {
     : getParamText(value, t)
   if (text === null || text === '') return null
 
+  // The title above its value: the panel is narrow, a column of titles
+  // would leave the values little room
   return (
-    <dl className="u-flex u-m-0 u-mt-half">
-      <dt className="u-w-4 u-flex-shrink-0">
+    <dl className="u-m-0 u-mt-half">
+      <dt>
         <Typography variant="body2" color="textSecondary" component="span">
           {title}
         </Typography>
