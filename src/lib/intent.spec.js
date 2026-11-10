@@ -80,7 +80,7 @@ describe('getIntentConfig', () => {
     )
   })
 
-  describe('capabilities', () => {
+  describe('tools', () => {
     const parameters = {
       type: 'object',
       properties: { title: { type: 'string' } },
@@ -105,8 +105,8 @@ describe('getIntentConfig', () => {
       ).toHaveLength(1, 'tools wins')
     })
 
-    it('reads a capability as a chat action, and the label of its button', () => {
-      expect(getIntentConfig({ capabilities: [insertSlide] }).tools).toEqual([
+    it('reads a tool as a chat action, and the label of its button', () => {
+      expect(getIntentConfig({ tools: [insertSlide] }).tools).toEqual([
         {
           name: 'insert_slide',
           label: 'Insert the slide',
@@ -125,9 +125,7 @@ describe('getIntentConfig', () => {
     it('leaves out what the app does not give', () => {
       expect(
         getIntentConfig({
-          capabilities: [
-            { name: 'add_row', description: 'add a row', parameters }
-          ]
+          tools: [{ name: 'add_row', description: 'add a row', parameters }]
         }).tools
       ).toEqual([
         {
@@ -139,10 +137,10 @@ describe('getIntentConfig', () => {
       ])
     })
 
-    it('leaves out a capability the stack would refuse', () => {
+    it('leaves out a tool the stack would refuse', () => {
       expect(
         getIntentConfig({
-          capabilities: [
+          tools: [
             { ...insertSlide, name: 'insertSlide' },
             { ...insertSlide, name: 'search' },
             { ...insertSlide, description: '' },
@@ -152,13 +150,13 @@ describe('getIntentConfig', () => {
           ]
         }).tools
       ).toEqual([])
-      expect(getIntentConfig({ capabilities: {} }).tools).toEqual([])
+      expect(getIntentConfig({ tools: {} }).tools).toEqual([])
     })
 
-    it('reads a capability whose content the assistant writes', () => {
+    it('reads a tool whose content the assistant writes', () => {
       expect(
         getIntentConfig({
-          capabilities: [
+          tools: [
             {
               name: 'create_document',
               description: 'write a document',
@@ -181,10 +179,10 @@ describe('getIntentConfig', () => {
       ])
     })
 
-    it('leaves out a capability with both params and content, or neither', () => {
+    it('leaves out a tool with both params and content, or neither', () => {
       expect(
         getIntentConfig({
-          capabilities: [
+          tools: [
             { ...insertSlide, content: {} },
             { name: 'noop', description: 'nothing' }
           ]
@@ -193,26 +191,24 @@ describe('getIntentConfig', () => {
     })
 
     it('hands a call without a confirmation when the app says so', () => {
-      const [capability] = getIntentConfig({
-        capabilities: [{ ...insertSlide, confirm: false }]
+      const [tool] = getIntentConfig({
+        tools: [{ ...insertSlide, confirm: false }]
       }).tools
 
-      expect(capability.confirm).toBe(false)
+      expect(tool.confirm).toBe(false)
     })
 
-    it('leaves out a capability with the same name as another one', () => {
-      const capabilities = getIntentConfig({
-        capabilities: [insertSlide, { ...insertSlide, label: 'Again' }]
+    it('leaves out a tool with the same name as another one', () => {
+      const tools = getIntentConfig({
+        tools: [insertSlide, { ...insertSlide, label: 'Again' }]
       }).tools
 
-      expect(capabilities.map(capability => capability.label)).toEqual([
-        'Insert the slide'
-      ])
+      expect(tools.map(tool => tool.label)).toEqual(['Insert the slide'])
     })
 
     it('sends the examples to the stack as their messages', () => {
-      const [capability] = getIntentConfig({
-        capabilities: [
+      const [tool] = getIntentConfig({
+        tools: [
           {
             ...insertSlide,
             examples: [
@@ -223,23 +219,33 @@ describe('getIntentConfig', () => {
         ]
       }).tools
 
-      expect(capability.action.examples).toEqual([
+      expect(tool.action.examples).toEqual([
         'Add a slide',
         'Add a closing slide'
       ])
     })
 
-    it('keeps as many capabilities as the app gives', () => {
-      const capabilities = Array.from({ length: 12 }, (_, index) => ({
+    it('keeps as many tools as the app gives', () => {
+      const tools = Array.from({ length: 12 }, (_, index) => ({
         ...insertSlide,
         name: `action_${index}`
       }))
 
-      expect(getIntentConfig({ capabilities }).tools).toHaveLength(12)
+      expect(getIntentConfig({ tools }).tools).toHaveLength(12)
     })
   })
 
   describe('suggestions', () => {
+    it('reads the tool of a suggestion under its former name', () => {
+      const [suggestion] = getIntentConfig({
+        suggestions: [
+          { name: 'new_slide', capability: 'insert_slide', message: 'Add one' }
+        ]
+      }).suggestions
+
+      expect(suggestion.tool).toBe('insert_slide')
+    })
+
     it('reads the suggestions of the app, and the default menu among them', () => {
       expect(
         getIntentConfig({
@@ -248,7 +254,7 @@ describe('getIntentConfig', () => {
             { name: 'fix', prompt: 'correct-grammar', label: 'Fix' },
             {
               name: 'new_slide',
-              capability: 'insert_slide',
+              tool: 'insert_slide',
               label: 'New slide',
               message: 'Add a slide'
             },
@@ -271,7 +277,7 @@ describe('getIntentConfig', () => {
           name: 'fix',
           label: 'Fix',
           prompt: 'correct-grammar',
-          capability: null,
+          tool: null,
           message: null,
           instructions: null
         },
@@ -279,7 +285,7 @@ describe('getIntentConfig', () => {
           name: 'new_slide',
           label: 'New slide',
           prompt: null,
-          capability: 'insert_slide',
+          tool: 'insert_slide',
           message: 'Add a slide',
           instructions: null
         },
@@ -291,7 +297,7 @@ describe('getIntentConfig', () => {
               name: 'joke',
               label: null,
               prompt: null,
-              capability: null,
+              tool: null,
               message: 'Tell a joke about the text',
               instructions: 'Be funny'
             }

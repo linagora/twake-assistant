@@ -3,15 +3,15 @@ import React from 'react'
 
 import { I18n, initTranslation } from 'twake-i18n'
 
-import { ScribeCapabilityCard } from '@/components/Scribe/ScribeCapabilityCard'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
+import { ScribeToolCard } from '@/components/Scribe/ScribeToolCard'
 import en from '@/locales/en.json'
 
 jest.mock('@/components/Scribe/ScribeProvider', () => ({
   useScribe: jest.fn()
 }))
 
-const capability = {
+const tool = {
   name: 'insert_slide',
   label: 'Insert the slide',
   confirm: true,
@@ -44,9 +44,9 @@ function makeScribe() {
 function renderCard(params, props = {}) {
   const tree = () => (
     <I18n lang="en" polyglot={initTranslation('en', () => en)}>
-      <ScribeCapabilityCard
+      <ScribeToolCard
         messageId="a1"
-        capability={capability}
+        tool={tool}
         params={params}
         text=""
         {...props}
@@ -57,9 +57,9 @@ function renderCard(params, props = {}) {
   return { ...result, rerender: () => result.rerender(tree()) }
 }
 
-describe('ScribeCapabilityCard', () => {
+describe('ScribeToolCard', () => {
   beforeEach(() => {
-    capability.onClick.mockClear()
+    tool.onClick.mockClear()
     useScribe.mockReturnValue(makeScribe())
   })
 
@@ -74,7 +74,7 @@ describe('ScribeCapabilityCard', () => {
 
   it('shows a param with a title as the title and the value', () => {
     const draft = {
-      ...capability,
+      ...tool,
       name: 'create_draft',
       label: 'Create the draft',
       action: {
@@ -96,7 +96,7 @@ describe('ScribeCapabilityCard', () => {
         subject: 'Meeting',
         body: 'See you **tomorrow**'
       },
-      { capability: draft }
+      { tool: draft }
     )
 
     expect(screen.getAllByRole('term').map(term => term.textContent)).toEqual([
@@ -116,7 +116,7 @@ describe('ScribeCapabilityCard', () => {
 
   it('leaves out an empty param with a title', () => {
     const draft = {
-      ...capability,
+      ...tool,
       action: {
         name: 'create_draft',
         parameters: {
@@ -129,7 +129,7 @@ describe('ScribeCapabilityCard', () => {
       }
     }
 
-    renderCard({ cc: [], subject: 'Meeting' }, { capability: draft })
+    renderCard({ cc: [], subject: 'Meeting' }, { tool: draft })
 
     expect(screen.queryByText('Cc')).toBe(null)
     expect(screen.queryByText('Subject')).toBeInTheDocument()
@@ -152,7 +152,7 @@ describe('ScribeCapabilityCard', () => {
 
   it('shows a number and a boolean with their title', () => {
     const search = {
-      ...capability,
+      ...tool,
       action: {
         name: 'search_emails',
         parameters: {
@@ -166,7 +166,7 @@ describe('ScribeCapabilityCard', () => {
       }
     }
 
-    renderCard({ limit: 5, unread: false, after: null }, { capability: search })
+    renderCard({ limit: 5, unread: false, after: null }, { tool: search })
 
     expect(screen.getAllByRole('term').map(term => term.textContent)).toEqual([
       'At most',
@@ -192,7 +192,7 @@ describe('ScribeCapabilityCard', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Insert the slide' }))
 
-    expect(capability.onClick).toHaveBeenCalledWith(params, '', null)
+    expect(tool.onClick).toHaveBeenCalledWith(params, '', null)
     expect(screen.queryByRole('button')).toBe(null)
     expect(screen.getByRole('status').textContent).toBe('Done')
   })
@@ -202,7 +202,7 @@ describe('ScribeCapabilityCard', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Insert the slide' }))
 
-    expect(capability.onClick).toHaveBeenCalledWith(
+    expect(tool.onClick).toHaveBeenCalledWith(
       { title: 'Report' },
       '# Report\n\nAll is well.',
       null
@@ -212,34 +212,34 @@ describe('ScribeCapabilityCard', () => {
   it('hands the call at once, and once, when the app does not ask for a confirmation', () => {
     const params = { title: 'Risks', bullets: ['Delay'] }
     const { rerender, unmount } = renderCard(params, {
-      capability: { ...capability, confirm: false }
+      tool: { ...tool, confirm: false }
     })
 
-    expect(capability.onClick).toHaveBeenCalledTimes(1)
-    expect(capability.onClick).toHaveBeenCalledWith(params, '', null)
+    expect(tool.onClick).toHaveBeenCalledTimes(1)
+    expect(tool.onClick).toHaveBeenCalledWith(params, '', null)
     expect(screen.queryByRole('button')).toBe(null)
     expect(screen.getByRole('status').textContent).toBe('Done')
 
     rerender()
     unmount()
-    renderCard(params, { capability: { ...capability, confirm: false } })
+    renderCard(params, { tool: { ...tool, confirm: false } })
 
-    expect(capability.onClick).toHaveBeenCalledTimes(1)
+    expect(tool.onClick).toHaveBeenCalledTimes(1)
     expect(screen.getByRole('status').textContent).toBe('Done')
   })
 
   it('waits for the user on a call of a past conversation', () => {
     const params = { title: 'Risks' }
     renderCard(params, {
-      capability: { ...capability, confirm: false },
+      tool: { ...tool, confirm: false },
       isPast: true
     })
 
-    expect(capability.onClick).not.toHaveBeenCalled()
+    expect(tool.onClick).not.toHaveBeenCalled()
 
     fireEvent.click(screen.getByRole('button', { name: 'Insert the slide' }))
 
-    expect(capability.onClick).toHaveBeenCalledWith(params, '', null)
+    expect(tool.onClick).toHaveBeenCalledWith(params, '', null)
   })
 
   it('hands the id of the message of the stack with the call', () => {
@@ -248,7 +248,7 @@ describe('ScribeCapabilityCard', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Insert the slide' }))
 
-    expect(capability.onClick).toHaveBeenCalledWith(params, '', 'answer-1')
+    expect(tool.onClick).toHaveBeenCalledWith(params, '', 'answer-1')
     // The provider waits for its result with it
     expect(useScribe().handCall).toHaveBeenCalledWith(
       'a1',

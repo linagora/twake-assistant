@@ -485,7 +485,7 @@ describe('makeChatAdapter', () => {
     })
   })
 
-  it('offers the capabilities of the app to the LLM', async () => {
+  it('offers the tools of the app to the LLM', async () => {
     const actions = [{ name: 'insert_slide', description: 'add a slide' }]
     const { adapter, fetchJSON } = setup({
       events: [{ object: 'done' }],

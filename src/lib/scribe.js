@@ -171,15 +171,15 @@ export function getRunningLabel(prompt, t) {
 /**
  * The chips above the composer: the default menu, or the suggestions of the
  * app. A suggestion without a label takes the one of its prompt in the
- * default menu, or of its capability.
+ * default menu, or of its tool.
  *
  * @param {Function} t - translation function
  * @param {import('@/lib/intent').SuggestionConfig[]|null} [config] - null
  * for the default menu
- * @param {{ name: string, label: string }[]} [capabilities]
+ * @param {{ name: string, label: string }[]} [tools]
  * @returns {Suggestion[]}
  */
-export function makeScribeSuggestions(t, config = null, capabilities = []) {
+export function makeScribeSuggestions(t, config = null, tools = []) {
   const defaults = makeDefaultMenu(t)
   if (config === null) return defaults
 
@@ -203,12 +203,10 @@ export function makeScribeSuggestions(t, config = null, capabilities = []) {
         prompt: suggestion.prompt
       }
     }
-    const capability = capabilities.find(
-      item => item.name === suggestion.capability
-    )
+    const tool = tools.find(item => item.name === suggestion.tool)
     return {
       name: suggestion.name,
-      label: suggestion.label ?? capability?.label ?? suggestion.name,
+      label: suggestion.label ?? tool?.label ?? suggestion.name,
       request: suggestion.message,
       ...(suggestion.instructions && { instructions: suggestion.instructions })
     }
@@ -247,7 +245,7 @@ export function getScribeWording(t, { hasText, hasDocuments }) {
 function findRequestsFor(suggestions, name) {
   return (suggestions ?? []).flatMap(suggestion => {
     if (suggestion.options) return findRequestsFor(suggestion.options, name)
-    return suggestion.capability === name && suggestion.message
+    return suggestion.tool === name && suggestion.message
       ? [suggestion.message]
       : []
   })
@@ -455,7 +453,7 @@ export function makeScribeAnswerActions(answerActions, t, onAction) {
 }
 
 /**
- * @typedef {object} ScribeCapability
+ * @typedef {object} ScribeTool
  * @property {string} name
  * @property {string} label
  * @property {boolean} confirm
@@ -466,21 +464,16 @@ export function makeScribeAnswerActions(answerActions, t, onAction) {
  */
 
 /**
- * @param {import('@/lib/intent').Capability[]} capabilities
+ * @param {import('@/lib/intent').Tool[]} tools
  * @param {Function} t - translation function
  * @param {Function} onCall - called with the result of the intent,
  * { tool, capability, params, text, format, messageId }: `capability` is the
  * former name of `tool`, kept for the apps written with it
  * @param {import('@/lib/intent').SuggestionConfig[]|null} [suggestions]
- * @returns {ScribeCapability[]}
+ * @returns {ScribeTool[]}
  */
-export function makeScribeCapabilities(
-  capabilities,
-  t,
-  onCall,
-  suggestions = null
-) {
-  return capabilities.map(({ name, label, confirm, action }) => {
+export function makeScribeTools(tools, t, onCall, suggestions = null) {
+  return tools.map(({ name, label, confirm, action }) => {
     const examples = action.examples ?? []
     // The LLM calls a tool for its examples: the request of a chip that asks
     // for it is one, so that the chip gets the tool
@@ -491,7 +484,7 @@ export function makeScribeCapabilities(
 
     return {
       name,
-      label: label ?? t('scribe.capabilities.run'),
+      label: label ?? t('scribe.tools.run'),
       confirm,
       hasContent,
       action: {

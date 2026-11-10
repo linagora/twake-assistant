@@ -25,7 +25,7 @@ function readToolResult(data, messageId) {
  * listens at once, so that it is called before the call is handed to the
  * app. null when the app does not give the result in time.
  */
-export function makeCapabilityResults({ onData }) {
+export function makeToolResults({ onData }) {
   return messageId =>
     new Promise(resolve => {
       let timeout = null
