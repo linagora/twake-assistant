@@ -162,7 +162,6 @@ interface AssistantIntentConfig {
    * tools, with `toolResult`: the LLM then goes on with it
    * (see "The result of a call").
    * Defaults to false: a call is done once it is handed to the app.
-   * `capabilityResults` is the former name of this field, still read.
    */
   toolResults?: boolean
 
@@ -170,8 +169,7 @@ interface AssistantIntentConfig {
    * The result of a call, for an app that sets `toolResults`: new
    * data with the rest of the configuration, and this field.
    * Absent, or for another call, means the data do not give the result of
-   * the call the assistant waits for. `capabilityResult` is the former name
-   * of this field, still read.
+   * the call the assistant waits for.
    */
   toolResult?: ToolResult
 }

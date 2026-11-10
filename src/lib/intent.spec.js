@@ -378,10 +378,6 @@ describe('getIntentConfig', () => {
     expect(getIntentConfig({ toolResults: true }).toolResults).toBe(true)
     expect(getIntentConfig({ toolResults: 'true' }).toolResults).toBe(false)
     expect(getIntentConfig({}).toolResults).toBe(false)
-    expect(getIntentConfig({ capabilityResults: true }).toolResults).toBe(
-      true,
-      'the former name'
-    )
   })
 
   describe('documents', () => {

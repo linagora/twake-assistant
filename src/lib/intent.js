@@ -157,7 +157,7 @@ function readSuggestion(suggestion) {
  * `document` is null when the app cannot read its document, and undefined
  * when the data do not answer a request for it. `toolResults` tells whether
  * the app gives back the results of the calls of its tools. `capabilities`
- * and `capabilityResults` are the former names of `tools` and `toolResults`.
+ * is the former name of `tools`.
  */
 export function getIntentConfig(data) {
   const {
@@ -176,8 +176,7 @@ export function getIntentConfig(data) {
     document,
     documentTruncated,
     documentAvailable,
-    toolResults,
-    capabilityResults
+    toolResults
   } = data ?? {}
   const toolsData = Array.isArray(tools) ? tools : capabilities
 
@@ -204,6 +203,6 @@ export function getIntentConfig(data) {
       typeof document === 'string' || document === null ? document : undefined,
     documentTruncated: documentTruncated === true,
     documentAvailable: documentAvailable === true,
-    toolResults: (toolResults ?? capabilityResults) === true
+    toolResults: toolResults === true
   }
 }

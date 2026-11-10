@@ -37,15 +37,6 @@ describe('makeCapabilityResults', () => {
     expect(listeners.size).toBe(0)
   })
 
-  it('resolves with a result given under its former name', async () => {
-    const { waitForResult, sendData } = setup()
-
-    const result = waitForResult('m4')
-    sendData({ capabilityResult: { messageId: 'm4', ok: true, content: 'A' } })
-
-    await expect(result).resolves.toEqual({ ok: true, content: 'A' })
-  })
-
   it('resolves with a result that says the call failed', async () => {
     const { waitForResult, sendData } = setup()
 

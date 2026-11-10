@@ -2,10 +2,9 @@
 const RESULT_TIMEOUT = 30000
 
 // The result the data give for the call of this message, or null when they
-// give none, as the data of another text selected meanwhile. `capabilityResult`
-// is the former name of `toolResult`
+// give none, as the data of another text selected meanwhile
 function readToolResult(data, messageId) {
-  const result = data?.toolResult ?? data?.capabilityResult
+  const result = data?.toolResult
   if (result?.messageId !== messageId || typeof result.ok !== 'boolean') {
     return null
   }
