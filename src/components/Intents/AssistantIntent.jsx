@@ -42,14 +42,14 @@ function Scribe({ service, config }) {
   const {
     content,
     answerActions,
-    capabilities,
+    tools,
     suggestions,
     documents,
     draft,
     conversation,
     rules,
     documentAvailable,
-    capabilityResults
+    toolResults
   } = config
 
   // The assistant is rendered: an app that waits for it can show the intent
@@ -71,12 +71,12 @@ function Scribe({ service, config }) {
   const scribeCapabilities = useMemo(
     () =>
       makeScribeCapabilities(
-        capabilities,
+        tools,
         t,
         result => service.sendResult(result),
         suggestions
       ),
-    [service, capabilities, suggestions, t]
+    [service, tools, suggestions, t]
   )
   const scribeSuggestions = useMemo(
     () =>
@@ -105,8 +105,8 @@ function Scribe({ service, config }) {
     [service, documentAvailable]
   )
   const waitForResult = useMemo(
-    () => (capabilityResults ? makeCapabilityResults(service) : null),
-    [service, capabilityResults]
+    () => (toolResults ? makeCapabilityResults(service) : null),
+    [service, toolResults]
   )
   const handleClose = useCallback(() => service.cancel(), [service])
   const handleResize = useCallback(

@@ -497,7 +497,7 @@ describe('makeChatAdapter', () => {
     expect(fetchJSON.mock.calls[0][2]).toEqual({
       q: 'Add a slide',
       documents: false,
-      actions
+      tools: actions
     })
   })
 
@@ -581,7 +581,7 @@ describe('makeChatAdapter', () => {
     expect(fetchJSON).toHaveBeenCalledWith(
       'POST',
       '/ai/chat/conversations/c1',
-      { result, documents: false, instructions: 'Scribe', actions }
+      { result, documents: false, instructions: 'Scribe', tools: actions }
     )
     expect(prepareQuery).not.toHaveBeenCalled()
     expect(requestDocument).not.toHaveBeenCalled()

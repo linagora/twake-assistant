@@ -30,7 +30,7 @@ describe('makeCapabilityResults', () => {
     const result = waitForResult('m4')
     sendData({
       content: '',
-      capabilityResult: { callId: 'm4', ok: true, content: '3 emails' }
+      toolResult: { messageId: 'm4', ok: true, content: '3 emails' }
     })
 
     await expect(result).resolves.toEqual({ ok: true, content: '3 emails' })
@@ -41,7 +41,7 @@ describe('makeCapabilityResults', () => {
     const { waitForResult, sendData } = setup()
 
     const result = waitForResult('m4')
-    sendData({ capabilityResult: { callId: 'm4', ok: false } })
+    sendData({ toolResult: { messageId: 'm4', ok: false } })
 
     await expect(result).resolves.toEqual({ ok: false, content: '' })
   })
@@ -51,10 +51,10 @@ describe('makeCapabilityResults', () => {
 
     const result = waitForResult('m4')
     sendData({ content: 'Another text' })
-    sendData({ capabilityResult: { callId: 'm2', ok: true, content: 'Old' } })
-    sendData({ capabilityResult: { callId: 'm4', ok: 'yes' } })
+    sendData({ toolResult: { messageId: 'm2', ok: true, content: 'Old' } })
+    sendData({ toolResult: { messageId: 'm4', ok: 'yes' } })
     expect(await isPending(result)).toBe(true)
-    sendData({ capabilityResult: { callId: 'm4', ok: true, content: 'New' } })
+    sendData({ toolResult: { messageId: 'm4', ok: true, content: 'New' } })
 
     await expect(result).resolves.toEqual({ ok: true, content: 'New' })
   })
@@ -64,8 +64,8 @@ describe('makeCapabilityResults', () => {
 
     const first = waitForResult('m2')
     const second = waitForResult('m4')
-    sendData({ capabilityResult: { callId: 'm4', ok: true, content: 'B' } })
-    sendData({ capabilityResult: { callId: 'm2', ok: true, content: 'A' } })
+    sendData({ toolResult: { messageId: 'm4', ok: true, content: 'B' } })
+    sendData({ toolResult: { messageId: 'm2', ok: true, content: 'A' } })
 
     await expect(first).resolves.toEqual({ ok: true, content: 'A' })
     await expect(second).resolves.toEqual({ ok: true, content: 'B' })

@@ -568,6 +568,7 @@ describe('makeScribeCapabilities', () => {
     expect(insertSlide.hasContent).toBe(false)
     insertSlide.onClick({ title: 'Risks', bullets: ['Delay'] }, 'ignored')
     expect(onCall).toHaveBeenCalledWith({
+      tool: 'insert_slide',
       capability: 'insert_slide',
       params: { title: 'Risks', bullets: ['Delay'] }
     })
@@ -591,6 +592,7 @@ describe('makeScribeCapabilities', () => {
     expect(createDocument.hasContent).toBe(true)
     createDocument.onClick({ title: 'Report' }, '# Report\n\nAll is well.')
     expect(onCall).toHaveBeenCalledWith({
+      tool: 'create_document',
       capability: 'create_document',
       params: { title: 'Report' },
       text: '# Report\n\nAll is well.',
@@ -598,7 +600,7 @@ describe('makeScribeCapabilities', () => {
     })
   })
 
-  it('hands the id of the call, for its result', () => {
+  it('hands the id of the message of the stack, for the result of the call', () => {
     const onCall = jest.fn()
     const [insertSlide] = makeScribeCapabilities(
       [{ name: 'insert_slide', label: 'Insert the slide', action }],
@@ -608,9 +610,10 @@ describe('makeScribeCapabilities', () => {
 
     insertSlide.onClick({ title: 'Risks' }, '', 'answer-1')
     expect(onCall).toHaveBeenCalledWith({
+      tool: 'insert_slide',
       capability: 'insert_slide',
       params: { title: 'Risks' },
-      callId: 'answer-1'
+      messageId: 'answer-1'
     })
   })
 
