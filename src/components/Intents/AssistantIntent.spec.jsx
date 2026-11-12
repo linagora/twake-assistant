@@ -106,7 +106,7 @@ describe('AssistantIntent', () => {
     mockService.getData.mockReturnValue(null)
     renderIntent()
 
-    const { text, documents, suggestions, answerActions, capabilities } =
+    const { text, documents, suggestions, answerActions, tools } =
       await findScribeProps()
     expect(text).toBe('')
     expect(documents).toBe(true)
@@ -116,7 +116,7 @@ describe('AssistantIntent', () => {
       'Help me write'
     ])
     expect(answerActions).toEqual([])
-    expect(capabilities).toEqual([])
+    expect(tools).toEqual([])
     expect(mockCreateService).toHaveBeenCalledWith('intent-1', window)
   })
 
@@ -375,7 +375,7 @@ describe('AssistantIntent', () => {
   it('offers the suggestions of the app, and gives the router their requests', async () => {
     mockService.getData.mockReturnValue({
       content: 'Bonjour',
-      capabilities: [
+      tools: [
         {
           name: 'insert_slide',
           description: 'add a slide',
@@ -390,7 +390,7 @@ describe('AssistantIntent', () => {
         { name: 'catalogue' },
         {
           name: 'new_slide',
-          capability: 'insert_slide',
+          tool: 'insert_slide',
           label: 'New slide',
           message: 'Add a slide after this one'
         }
@@ -398,17 +398,15 @@ describe('AssistantIntent', () => {
     })
     renderIntent()
 
-    const { suggestions, capabilities, documents } = await findScribeProps()
+    const { suggestions, tools, documents } = await findScribeProps()
     expect(suggestions.at(-1)).toEqual({
       name: 'new_slide',
       label: 'New slide',
       request: 'Add a slide after this one'
     })
     expect(suggestions.map(suggestion => suggestion.name)).toContain('correct')
-    expect(capabilities[0].confirm).toBe(false)
-    expect(capabilities[0].action.examples).toEqual([
-      'Add a slide after this one'
-    ])
+    expect(tools[0].confirm).toBe(false)
+    expect(tools[0].action.examples).toEqual(['Add a slide after this one'])
     expect(documents).toBe(false)
   })
 
@@ -428,18 +426,18 @@ describe('AssistantIntent', () => {
     expect(documents).toBe(false)
   })
 
-  it('hands the call of a capability the user confirms to the app', async () => {
+  it('hands the call of a tool the user confirms to the app', async () => {
     const insertSlide = {
       name: 'insert_slide',
       label: 'Insert the slide',
       description: 'add a slide',
       parameters: { type: 'object', properties: { title: { type: 'string' } } }
     }
-    mockService.getData.mockReturnValue({ capabilities: [insertSlide] })
+    mockService.getData.mockReturnValue({ tools: [insertSlide] })
     renderIntent()
 
-    const { capabilities } = await findScribeProps()
-    expect(capabilities.map(capability => capability.action)).toEqual([
+    const { tools } = await findScribeProps()
+    expect(tools.map(tool => tool.action)).toEqual([
       {
         name: 'insert_slide',
         description: 'add a slide',
@@ -449,7 +447,7 @@ describe('AssistantIntent', () => {
         }
       }
     ])
-    capabilities[0].onClick({ title: 'Risks', bullets: [] })
+    tools[0].onClick({ title: 'Risks', bullets: [] })
 
     expect(mockService.sendResult).toHaveBeenCalledWith({
       tool: 'insert_slide',

@@ -27,7 +27,7 @@ function readExample({ message }) {
   return message
 }
 
-function readCapability({
+function readTool({
   name,
   label,
   description,
@@ -51,27 +51,27 @@ function readCapability({
   }
 }
 
-function findCapabilityError(capability, names) {
-  const error = findChatActionError(capability)
+function findToolError(tool, names) {
+  const error = findChatActionError(tool)
   if (error) return error
-  return names.has(capability.name) ? 'another capability has its name' : null
+  return names.has(tool.name) ? 'another tool has its name' : null
 }
 
 // The stack refuses a whole message for one tool it cannot take: such a
 // tool is left out, and the app can see why in the console
-function readCapabilities(capabilities) {
+function readTools(tools) {
   const names = new Set()
-  return capabilities
-    .filter(capability => {
-      const error = findCapabilityError(capability, names)
+  return tools
+    .filter(tool => {
+      const error = findToolError(tool, names)
       if (error) {
-        log.warn(`Capability ${capability?.name} left out: ${error}`)
+        log.warn(`Tool ${tool?.name} left out: ${error}`)
         return false
       }
-      names.add(capability.name)
+      names.add(tool.name)
       return true
     })
-    .map(readCapability)
+    .map(readTool)
 }
 
 function isSuggestion(suggestion) {
@@ -107,14 +107,14 @@ function readSuggestion(suggestion) {
     label: readText(label),
     prompt: readText(prompt),
     // `capability` is the former name of `tool`
-    capability: readText(tool ?? capability),
+    tool: readText(tool ?? capability),
     message: readText(message),
     instructions: readText(instructions)
   }
 }
 
 /**
- * @typedef {object} Capability
+ * @typedef {object} Tool
  * @property {string} name
  * @property {string|null} label - the button of the card of a call
  * @property {boolean} confirm - whether the user confirms a call first
@@ -126,7 +126,7 @@ function readSuggestion(suggestion) {
  * @property {string} name
  * @property {string|null} [label]
  * @property {string|null} [prompt] - a prompt of the catalogue
- * @property {string|null} [capability] - the capability the message asks for
+ * @property {string|null} [tool] - the tool the message asks for
  * @property {string|null} [message]
  * @property {string|null} [instructions]
  * @property {SuggestionConfig[]} [options] - the items of a menu
@@ -140,7 +140,7 @@ function readSuggestion(suggestion) {
  * @returns {{
  *   content: string,
  *   answerActions: { name: string, label: string|null }[],
- *   tools: Capability[],
+ *   tools: Tool[],
  *   suggestions: SuggestionConfig[]|null,
  *   documents: boolean|null,
  *   theme: { type: 'light'|'dark'|null },
@@ -188,7 +188,7 @@ export function getIntentConfig(data) {
           label: readText(label)
         }))
       : [],
-    tools: Array.isArray(toolsData) ? readCapabilities(toolsData) : [],
+    tools: Array.isArray(toolsData) ? readTools(toolsData) : [],
     suggestions: Array.isArray(suggestions)
       ? suggestions.filter(isSuggestion).map(readSuggestion)
       : null,

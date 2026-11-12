@@ -33,7 +33,7 @@
       "insert": "Insert",
       "replace": "Replace"
     },
-    "capabilities": {
+    "tools": {
       "run": "Apply",
       "done": "Done",
       "yes": "Yes",

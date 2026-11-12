@@ -1,6 +1,6 @@
 // The rules of cozy-stack on the actions of its chat (ValidateActions in
 // model/rag/router.go). The stack refuses a whole message for one action
-// that breaks them, with a 400: a capability that breaks one is left out
+// that breaks them, with a 400: a tool that breaks one is left out
 // before the message is sent.
 const ACTION_NAME = /^[a-z][a-z0-9_]*$/
 const PARAM_NAME = /^[a-zA-Z][a-zA-Z0-9_]*$/

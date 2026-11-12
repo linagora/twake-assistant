@@ -33,7 +33,7 @@
       "insert": "Вставить",
       "replace": "Заменить"
     },
-    "capabilities": {
+    "tools": {
       "run": "Применить",
       "done": "Готово",
       "yes": "Да",

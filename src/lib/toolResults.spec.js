@@ -1,4 +1,4 @@
-import { makeCapabilityResults } from '@/lib/capabilityResults'
+import { makeToolResults } from '@/lib/toolResults'
 
 function setup() {
   const listeners = new Set()
@@ -10,7 +10,7 @@ function setup() {
   }
 
   return {
-    waitForResult: makeCapabilityResults(service),
+    waitForResult: makeToolResults(service),
     listeners,
     sendData: data => listeners.forEach(listener => listener(data))
   }
@@ -21,7 +21,7 @@ async function isPending(promise) {
   return (await Promise.race([promise, pending])) === pending
 }
 
-describe('makeCapabilityResults', () => {
+describe('makeToolResults', () => {
   afterEach(() => jest.useRealTimers())
 
   it('resolves with the result the app gives for the call', async () => {

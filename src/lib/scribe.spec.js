@@ -7,7 +7,7 @@ import {
   getScribeRequest,
   getScribeWording,
   makeScribeAnswerActions,
-  makeScribeCapabilities,
+  makeScribeTools,
   makeChatMessages,
   makeScribePreparePrompt,
   makeScribePrepareQuery,
@@ -88,7 +88,7 @@ describe('makeScribeSuggestions', () => {
 })
 
 describe('makeScribeSuggestions with the suggestions of the app', () => {
-  const capabilities = [{ name: 'insert_slide', label: 'Insert the slide' }]
+  const tools = [{ name: 'insert_slide', label: 'Insert the slide' }]
 
   it('puts the default menu where the app asks for it', () => {
     const suggestions = makeScribeSuggestions(
@@ -96,13 +96,13 @@ describe('makeScribeSuggestions with the suggestions of the app', () => {
       [
         {
           name: 'new_slide',
-          capability: 'insert_slide',
+          tool: 'insert_slide',
           label: 'New slide',
           message: 'Add a slide after this one'
         },
         { name: 'catalogue' }
       ],
-      capabilities
+      tools
     )
 
     expect(suggestions[0]).toEqual({
@@ -138,11 +138,11 @@ describe('makeScribeSuggestions with the suggestions of the app', () => {
     })
   })
 
-  it('names a request for a capability after the capability', () => {
+  it('names a request for a tool after the tool', () => {
     const [newSlide] = makeScribeSuggestions(
       mockT,
-      [{ name: 'new_slide', capability: 'insert_slide', message: 'Add one' }],
-      capabilities
+      [{ name: 'new_slide', tool: 'insert_slide', message: 'Add one' }],
+      tools
     )
 
     expect(newSlide).toEqual({
@@ -552,12 +552,12 @@ describe('makeScribeAnswerActions', () => {
   })
 })
 
-describe('makeScribeCapabilities', () => {
+describe('makeScribeTools', () => {
   const action = { name: 'insert_slide', description: 'add a slide' }
 
   it('hands the call and its params to the app', () => {
     const onCall = jest.fn()
-    const [insertSlide] = makeScribeCapabilities(
+    const [insertSlide] = makeScribeTools(
       [{ name: 'insert_slide', label: 'Insert the slide', action }],
       mockT,
       onCall
@@ -576,7 +576,7 @@ describe('makeScribeCapabilities', () => {
 
   it('hands the content the assistant wrote with the call', () => {
     const onCall = jest.fn()
-    const [createDocument] = makeScribeCapabilities(
+    const [createDocument] = makeScribeTools(
       [
         {
           name: 'create_document',
@@ -602,7 +602,7 @@ describe('makeScribeCapabilities', () => {
 
   it('hands the id of the message of the stack, for the result of the call', () => {
     const onCall = jest.fn()
-    const [insertSlide] = makeScribeCapabilities(
+    const [insertSlide] = makeScribeTools(
       [{ name: 'insert_slide', label: 'Insert the slide', action }],
       mockT,
       onCall
@@ -618,7 +618,7 @@ describe('makeScribeCapabilities', () => {
   })
 
   it('gives the router the requests of the suggestions as examples', () => {
-    const [insertSlide] = makeScribeCapabilities(
+    const [insertSlide] = makeScribeTools(
       [
         {
           name: 'insert_slide',
@@ -636,7 +636,7 @@ describe('makeScribeCapabilities', () => {
         { name: 'catalogue' },
         {
           name: 'new_slide',
-          capability: 'insert_slide',
+          tool: 'insert_slide',
           message: 'Nouvelle diapositive après celle-ci'
         },
         {
@@ -644,13 +644,13 @@ describe('makeScribeCapabilities', () => {
           options: [
             {
               name: 'again',
-              capability: 'insert_slide',
+              tool: 'insert_slide',
               message: 'Add a slide'
             },
-            { name: 'other', capability: 'other', message: 'Other' },
+            { name: 'other', tool: 'other', message: 'Other' },
             {
               name: 'empty',
-              capability: 'insert_slide',
+              tool: 'insert_slide',
               message: ' '
             }
           ]
@@ -665,8 +665,8 @@ describe('makeScribeCapabilities', () => {
     ])
   })
 
-  it('has a label for a capability the app does not name', () => {
-    const [insertSlide] = makeScribeCapabilities(
+  it('has a label for a tool the app does not name', () => {
+    const [insertSlide] = makeScribeTools(
       [{ name: 'insert_slide', label: null, action }],
       mockT,
       jest.fn()

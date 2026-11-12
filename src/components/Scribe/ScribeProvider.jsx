@@ -56,7 +56,7 @@ function sendAsItIs(text) {
  * those offered in place of `suggestions` while the documents are on
  * @param {import('@/lib/scribe').AnswerAction[]} [props.answerActions] - the
  * buttons under each answer
- * @param {import('@/lib/scribe').ScribeCapability[]} [props.capabilities] -
+ * @param {import('@/lib/scribe').ScribeTool[]} [props.tools] -
  * what the app can do, offered to the LLM: it may propose one of them in
  * place of an answer
  * @param {boolean} [props.documents] - whether the answers come from the
@@ -86,7 +86,7 @@ export function ScribeProvider({
   suggestions = [],
   documentsSuggestions = null,
   answerActions = [],
-  capabilities = [],
+  tools = [],
   documents = false,
   prepareQuery = sendAsItIs,
   preparePrompt = null,
@@ -149,7 +149,7 @@ export function ScribeProvider({
       requestDocument,
       instructions,
       rules,
-      actions: capabilities.map(capability => capability.action)
+      actions: tools.map(tool => tool.action)
     }),
     [
       prepareQuery,
@@ -161,7 +161,7 @@ export function ScribeProvider({
       requestDocument,
       instructions,
       rules,
-      capabilities
+      tools
     ]
   )
   const { chat, runtime } = useChatRuntime({
@@ -188,7 +188,7 @@ export function ScribeProvider({
           ? documentsSuggestions
           : suggestions,
       answerActions,
-      capabilities,
+      tools,
       hasDocuments,
       setHasDocuments,
       isDocumentAvailable: requestDocument !== null,
@@ -205,7 +205,7 @@ export function ScribeProvider({
       suggestions,
       documentsSuggestions,
       answerActions,
-      capabilities,
+      tools,
       hasDocuments,
       requestDocument,
       hasDocument,

@@ -7,18 +7,18 @@ import { useI18n } from 'twake-i18n'
 
 import { IntentProviders } from '@/components/IntentProviders'
 import { ScribeView } from '@/components/Scribe/ScribeView'
-import { makeCapabilityResults } from '@/lib/capabilityResults'
 import { makeDocumentRequest } from '@/lib/documentRequest'
 import { getIntentConfig } from '@/lib/intent'
 import {
   FOLDER_ACTIONS,
   makeScribeAnswerActions,
-  makeScribeCapabilities,
+  makeScribeTools,
   makeScribePreparePrompt,
   makeScribePrepareQuery,
   makeScribeShortActions,
   makeScribeSuggestions
 } from '@/lib/scribe'
+import { makeToolResults } from '@/lib/toolResults'
 
 const log = Minilog('🤖 [AssistantIntent]')
 
@@ -68,9 +68,9 @@ function Scribe({ service, config }) {
       ),
     [service, answerActions, t]
   )
-  const scribeCapabilities = useMemo(
+  const scribeTools = useMemo(
     () =>
-      makeScribeCapabilities(
+      makeScribeTools(
         tools,
         t,
         result => service.sendResult(result),
@@ -81,9 +81,9 @@ function Scribe({ service, config }) {
   const scribeSuggestions = useMemo(
     () =>
       content || suggestions
-        ? makeScribeSuggestions(t, suggestions, scribeCapabilities)
+        ? makeScribeSuggestions(t, suggestions, scribeTools)
         : makeScribeShortActions(t),
-    [content, suggestions, scribeCapabilities, t]
+    [content, suggestions, scribeTools, t]
   )
   // Not over the chips of the app nor the menu of a text
   const documentsSuggestions = useMemo(
@@ -105,7 +105,7 @@ function Scribe({ service, config }) {
     [service, documentAvailable]
   )
   const waitForResult = useMemo(
-    () => (toolResults ? makeCapabilityResults(service) : null),
+    () => (toolResults ? makeToolResults(service) : null),
     [service, toolResults]
   )
   const handleClose = useCallback(() => service.cancel(), [service])
@@ -117,7 +117,7 @@ function Scribe({ service, config }) {
   return (
     <ScribeView
       answerActions={scribeActions}
-      capabilities={scribeCapabilities}
+      tools={scribeTools}
       suggestions={scribeSuggestions}
       documentsSuggestions={documentsSuggestions}
       prepareQuery={prepareQuery}

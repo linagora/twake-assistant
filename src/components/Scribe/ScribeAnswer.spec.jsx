@@ -32,10 +32,10 @@ jest.mock('@assistant-ui/react', () => ({
 jest.mock('@/components/Scribe/ScribeProvider', () => ({
   useScribe: jest.fn()
 }))
-jest.mock('@/components/Scribe/ScribeCapabilityCard', () => ({
-  ScribeCapabilityCard: ({ messageId, capability, params, text }) => (
-    <div data-testid="capability">
-      {messageId} {capability.name} {params.title} {text}
+jest.mock('@/components/Scribe/ScribeToolCard', () => ({
+  ScribeToolCard: ({ messageId, tool, params, text }) => (
+    <div data-testid="tool">
+      {messageId} {tool.name} {params.title} {text}
     </div>
   )
 }))
@@ -62,9 +62,9 @@ const answer = (text, status, custom = {}) => ({
   metadata: { custom }
 })
 
-function renderAnswer(message, answerActions = [], capabilities = []) {
+function renderAnswer(message, answerActions = [], tools = []) {
   mockMessage = message
-  useScribe.mockReturnValue({ answerActions, capabilities })
+  useScribe.mockReturnValue({ answerActions, tools })
 
   return render(
     <I18n lang="en" polyglot={initTranslation('en', () => en)}>
@@ -512,14 +512,14 @@ describe('ScribeAnswer', () => {
     expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
   })
 
-  describe('the call of a capability the LLM proposes', () => {
+  describe('the call of a tool the LLM proposes', () => {
     const insertSlide = { name: 'insert_slide', label: 'Insert' }
     const action = { name: 'insert_slide', params: { title: 'Risks' } }
 
     it('shows it in place of an answer, without the actions of the answer', () => {
       renderAnswer(answer('', 'complete', { action }), actions, [insertSlide])
 
-      expect(screen.getByTestId('capability').textContent).toBe(
+      expect(screen.getByTestId('tool').textContent).toBe(
         'a1 insert_slide Risks '
       )
       expect(screen.queryByText(en.chat.errors.empty_response)).toBe(null)
@@ -531,7 +531,7 @@ describe('ScribeAnswer', () => {
         insertSlide
       ])
 
-      expect(screen.getByTestId('capability').textContent).toBe(
+      expect(screen.getByTestId('tool').textContent).toBe(
         'a1 insert_slide Risks Here'
       )
       expect(
@@ -544,13 +544,13 @@ describe('ScribeAnswer', () => {
         insertSlide
       ])
 
-      expect(screen.queryByTestId('capability')).toBe(null)
+      expect(screen.queryByTestId('tool')).toBe(null)
     })
 
-    it('leaves out a call of a capability the app does not have', () => {
+    it('leaves out a call of a tool the app does not have', () => {
       renderAnswer(answer('', 'complete', { action }), [], [])
 
-      expect(screen.queryByTestId('capability')).toBe(null)
+      expect(screen.queryByTestId('tool')).toBe(null)
       expect(
         screen.queryByText(en.chat.errors.empty_response)
       ).toBeInTheDocument()

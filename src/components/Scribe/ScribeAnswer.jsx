@@ -16,10 +16,10 @@ import { useI18n } from 'twake-i18n'
 
 import { Answer, getErrorKind, getText } from '@/components/Messages/Answer'
 import { ScribeBlockCard } from '@/components/Scribe/ScribeBlockCard'
-import { ScribeCapabilityCard } from '@/components/Scribe/ScribeCapabilityCard'
 import { ScribeCopyButton } from '@/components/Scribe/ScribeCopyButton'
 import { ScribeLoader } from '@/components/Scribe/ScribeLoader'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
+import { ScribeToolCard } from '@/components/Scribe/ScribeToolCard'
 import styles from '@/components/Scribe/styles.styl'
 import { useDone } from '@/components/Scribe/useDone'
 import { useIsInLatestExchange } from '@/components/Scribe/useLatestExchange'
@@ -104,7 +104,7 @@ function ScribeAnswerActions({ text, ...props }) {
  */
 export function ScribeAnswer() {
   const { t } = useI18n()
-  const { capabilities, layout } = useScribe()
+  const { tools, layout } = useScribe()
   const isInLatestExchange = useIsInLatestExchange()
   const messageId = useMessage(message => message.id)
   const text = useMessage(getText)
@@ -117,8 +117,7 @@ export function ScribeAnswer() {
     message => message.metadata?.custom?.isPast === true
   )
   // A past conversation may hold a call of another app: not shown then
-  const capability =
-    action && capabilities.find(capability => capability.name === action.name)
+  const tool = action && tools.find(tool => tool.name === action.name)
   const isError = useMessage(
     message => message.metadata?.custom?.isError === true
   )
@@ -178,7 +177,7 @@ export function ScribeAnswer() {
     <>
       <DocumentNotice notice={documentNotice} />
       <Answer
-        isCallShown={!!capability}
+        isCallShown={!!tool}
         waitingLabel={getRunningLabel(parentPrompt, t)}
         waitingIndicator={
           <ScribeLoader size={layout === 'compact' ? 40 : 20} />
@@ -210,10 +209,10 @@ export function ScribeAnswer() {
         {canAct && !parts && (
           <ScribeAnswerActions text={text} data-scribe-card="answer" />
         )}
-        {capability && status === 'complete' && (
-          <ScribeCapabilityCard
+        {tool && status === 'complete' && (
+          <ScribeToolCard
             messageId={messageId}
-            capability={capability}
+            tool={tool}
             params={action.params ?? {}}
             text={text}
             callId={action.messageId ?? null}

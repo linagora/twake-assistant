@@ -9,16 +9,16 @@ import { useI18n } from 'twake-i18n'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import styles from '@/components/Scribe/styles.styl'
 
-function getParamNames(capability, params) {
-  const names = Object.keys(capability.action.parameters?.properties ?? {})
+function getParamNames(tool, params) {
+  const names = Object.keys(tool.action.parameters?.properties ?? {})
   return [
     ...names,
     ...Object.keys(params).filter(name => !names.includes(name))
   ]
 }
 
-function getParamTitle(capability, name) {
-  const title = capability.action.parameters?.properties?.[name]?.title
+function getParamTitle(tool, name) {
+  const title = tool.action.parameters?.properties?.[name]?.title
   return typeof title === 'string' && title.trim() !== '' ? title : null
 }
 
@@ -51,7 +51,7 @@ function getParamText(value, t) {
   if (typeof value === 'string') return value === '' ? null : value
   if (typeof value === 'number') return String(value)
   if (typeof value === 'boolean') {
-    return t(value ? 'scribe.capabilities.yes' : 'scribe.capabilities.no')
+    return t(value ? 'scribe.tools.yes' : 'scribe.tools.no')
   }
   return null
 }
@@ -63,7 +63,7 @@ function ParamValue({ name, value }) {
     if (items.length === 0) return null
 
     return (
-      <ul className={styles['scribe-capability-list']}>
+      <ul className={styles['scribe-tool-list']}>
         {items.map((item, index) => (
           <li key={index}>{item}</li>
         ))}
@@ -74,22 +74,20 @@ function ParamValue({ name, value }) {
   if (text === null) return null
 
   return name === 'title' ? (
-    <Typography className={styles['scribe-capability-title']}>
-      {text}
-    </Typography>
+    <Typography className={styles['scribe-tool-title']}>{text}</Typography>
   ) : (
     <Typography className="u-mt-half">{text}</Typography>
   )
 }
 
 /**
- * A call of a capability the LLM proposes, handed to the app on the click of
- * the user, or at once when the capability needs no confirmation. A call of a
+ * A call of a tool the LLM proposes, handed to the app on the click of
+ * the user, or at once when the tool needs no confirmation. A call of a
  * past conversation waits for the click: it was made on another text.
  */
-export function ScribeCapabilityCard({
+export function ScribeToolCard({
   messageId,
-  capability,
+  tool,
   params,
   text,
   callId = null,
@@ -100,24 +98,21 @@ export function ScribeCapabilityCard({
   const [isDone, setIsDone] = useState(() => isCallHanded(messageId))
 
   const hand = () => {
-    handCall(messageId, () => capability.onClick(params, text, callId), callId)
+    handCall(messageId, () => tool.onClick(params, text, callId), callId)
     setIsDone(true)
   }
 
   useEffect(() => {
-    if (!capability.confirm && !isPast) hand()
+    if (!tool.confirm && !isPast) hand()
     // Once, when the card mounts: handCall keeps a card that mounts again from
     // handing the call twice
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
-    <div
-      className={styles['scribe-capability']}
-      data-testid="scribe-capability"
-    >
-      {getParamNames(capability, params).map(name => {
-        const title = getParamTitle(capability, name)
+    <div className={styles['scribe-tool']} data-testid="scribe-tool">
+      {getParamNames(tool, params).map(name => {
+        const title = getParamTitle(tool, name)
         return title === null ? (
           <ParamValue key={name} name={name} value={params[name]} />
         ) : (
@@ -125,21 +120,21 @@ export function ScribeCapabilityCard({
         )
       })}
       {isDone ? (
-        <div role="status" className={styles['scribe-capability-done']}>
+        <div role="status" className={styles['scribe-tool-done']}>
           <Check width={16} height={16} aria-hidden="true" />
           <Typography
             variant="body2"
             color="textSecondary"
             className="u-ml-half"
           >
-            {t('scribe.capabilities.done')}
+            {t('scribe.tools.done')}
           </Typography>
         </div>
       ) : (
         <Button
           size="small"
           className="u-mt-half"
-          label={capability.label}
+          label={tool.label}
           onClick={hand}
         />
       )}

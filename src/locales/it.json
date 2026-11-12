@@ -33,7 +33,7 @@
       "insert": "Inserisci",
       "replace": "Sostituisci"
     },
-    "capabilities": {
+    "tools": {
       "run": "Applica",
       "done": "Fatto",
       "yes": "Sì",
