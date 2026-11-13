@@ -29,12 +29,12 @@ function StepLine({ label }) {
   )
 }
 
-// The tool a step calls and the params it fills, as the LLM wrote them: the
-// tool once only, when the step has no reason and its line is the tool
-function StepTool({ label, tool, details }) {
-  const parts = label === tool ? details : [tool, ...details]
-  if (parts.length === 0) return null
+// The tool a step calls and the params it fills, as the LLM wrote them
+function getToolText({ tool, details }) {
+  return [tool, ...details].join(' · ')
+}
 
+function StepTool({ step }) {
   return (
     <Typography
       variant="caption"
@@ -42,8 +42,20 @@ function StepTool({ label, tool, details }) {
       component="p"
       className={styles['scribe-tool-call']}
     >
-      {parts.join(' · ')}
+      {getToolText(step)}
     </Typography>
+  )
+}
+
+// In the unfolded list, a step without label is its tool and params alone
+function StepItem({ step }) {
+  if (step.label === null) return <StepLine label={getToolText(step)} />
+
+  return (
+    <>
+      <StepLine label={step.label} />
+      <StepTool step={step} />
+    </>
   )
 }
 
@@ -60,42 +72,41 @@ export function ScribeToolStep({ steps }) {
   const { t } = useI18n()
   const [isOpen, setIsOpen] = useState(false)
   const last = steps[steps.length - 1]
+  const count = t('scribe.capabilities.steps', { smart_count: steps.length })
+  // Without label, the line counts the steps, as unfolded
+  const lastLine = last.label ?? count
 
   return (
     <div className={styles['scribe-tool-step']} data-testid="scribe-tool-step">
-      {/* A status: a screen reader tells each new step */}
-      <div role="status">
-        <ButtonBase
-          aria-expanded={isOpen}
-          onClick={() => setIsOpen(value => !value)}
-          className={styles['scribe-tool-toggle']}
-        >
-          {/* Unfolded, the list tells each step: the line counts them */}
-          {isOpen ? (
-            <Typography variant="body2" color="textSecondary" component="span">
-              {t('scribe.capabilities.steps', { smart_count: steps.length })}
-            </Typography>
-          ) : (
-            <StepLine label={last.label} />
-          )}
-          <Icon
-            icon={Right}
-            size={12}
-            rotate={isOpen ? 90 : 0}
-            className="u-ml-half"
-          />
-        </ButtonBase>
-      </div>
+      {/* Apart from the toggle: a screen reader tells each new step, and not
+          the line that changes as the user unfolds the steps */}
+      <span role="status" className="u-visuallyhidden">
+        {lastLine}
+      </span>
+      <ButtonBase
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen(value => !value)}
+        className={styles['scribe-tool-toggle']}
+      >
+        {isOpen ? (
+          <Typography variant="body2" color="textSecondary" component="span">
+            {count}
+          </Typography>
+        ) : (
+          <StepLine label={lastLine} />
+        )}
+        <Icon
+          icon={Right}
+          size={12}
+          rotate={isOpen ? 90 : 0}
+          className="u-ml-half"
+        />
+      </ButtonBase>
       <Collapse in={isOpen} mountOnEnter unmountOnExit>
         <ol className={styles['scribe-tool-history']}>
           {steps.map((step, index) => (
             <li key={index}>
-              <StepLine label={step.label} />
-              <StepTool
-                label={step.label}
-                tool={step.tool}
-                details={step.details}
-              />
+              <StepItem step={step} />
             </li>
           ))}
         </ol>

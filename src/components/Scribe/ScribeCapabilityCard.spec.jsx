@@ -28,6 +28,12 @@ const capability = {
   onClick: jest.fn()
 }
 
+const ADD_RISKS = {
+  label: 'I add the risks.',
+  tool: 'insert_slide',
+  details: []
+}
+
 // The scribe hands a call once per message, as the provider does
 function makeScribe() {
   const handed = new Set()
@@ -228,24 +234,18 @@ describe('ScribeCapabilityCard', () => {
     expect(capability.onClick).toHaveBeenCalledTimes(1)
   })
 
-  it('shows a call without confirmation as one line with the reason of the LLM', () => {
+  it('shows a call without confirmation as the line of its step', () => {
     renderCard(
       { title: 'Risks', bullets: ['Delay'], reason: 'I add the risks.' },
-      { capability: { ...capability, confirm: false, hasReason: true } }
+      {
+        capability: { ...capability, confirm: false, hasReason: true },
+        steps: { isFirst: true, steps: [ADD_RISKS] }
+      }
     )
 
     expect(screen.getByRole('status').textContent).toBe('I add the risks.')
     expect(screen.queryByText('Risks')).toBe(null)
     expect(screen.queryByRole('listitem')).toBe(null)
-  })
-
-  it('names a call without confirmation and without reason by its tool', () => {
-    renderCard(
-      { title: 'Risks' },
-      { capability: { ...capability, confirm: false, hasReason: true } }
-    )
-
-    expect(screen.getByRole('status').textContent).toBe('insert_slide')
   })
 
   it('hands the call of a next step, and shows nothing of it', () => {
@@ -310,7 +310,8 @@ describe('ScribeCapabilityCard', () => {
       { title: 'Risks', reason: 'I add the risks.' },
       {
         capability: { ...capability, confirm: false, hasReason: true },
-        isPast: true
+        isPast: true,
+        steps: { isFirst: true, steps: [ADD_RISKS] }
       }
     )
 

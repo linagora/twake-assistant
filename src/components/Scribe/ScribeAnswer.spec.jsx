@@ -547,6 +547,17 @@ describe('ScribeAnswer', () => {
       expect(screen.queryByTestId('capability')).toBe(null)
     })
 
+    it('shows only the card of a next step, even with blank text', () => {
+      const step = { ...insertSlide, confirm: false }
+      const first = { ...answer('', 'complete', { action }), id: 's0' }
+      const next = answer('\n', 'complete', { action })
+      mockThread = { messages: [first, next] }
+
+      const { container } = renderAnswer(next, actions, [step])
+
+      expect(container.firstChild).toBe(screen.getByTestId('capability'))
+    })
+
     it('leaves out a call of a capability the app does not have', () => {
       renderAnswer(answer('', 'complete', { action }), [], [])
 

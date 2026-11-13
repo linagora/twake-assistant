@@ -224,7 +224,7 @@ interface AnswerAction {
 
 A tool is a function of the calling app, described for the LLM as a tool of function calling is: what it does, when to pick it, and the parameters it takes. The description, the examples and the instructions are for the LLM: write them in English, whatever the language of the user. The label is for the user: resolve it in your app locale.
 
-The assistant adds a required `reason` param to each tool with parameters: the LLM writes in it, in the language of the user, what it does with the call and why. The assistant shows it as the line of a call without confirmation, and never hands it to the app. A tool that has a param named `reason` keeps it as it is, and gets no reason.
+The assistant adds a required `reason` param to each tool with parameters: the LLM writes in it, in the language of the user, what it does with the call and why. The assistant shows it as the line of a call without confirmation, and never hands it to the app. A tool that has a param named `reason` keeps it as it is, and gets no reason. Without a reason, the line shows the `label` of the tool, or else counts the steps: never the name of the tool, written for the LLM.
 
 ```ts
 interface Tool {

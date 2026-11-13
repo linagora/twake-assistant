@@ -9,7 +9,7 @@ import { useI18n } from 'twake-i18n'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import { ScribeToolStep } from '@/components/Scribe/ScribeToolStep'
 import styles from '@/components/Scribe/styles.styl'
-import { makeStep, REASON_PARAM } from '@/lib/scribe'
+import { REASON_PARAM } from '@/lib/scribe'
 
 // The reason of the LLM tells the user what a step does: not a param to show
 function getParamNames(capability, params) {
@@ -32,8 +32,6 @@ function TitledParam({ title, value }) {
     : getParamText(value, t)
   if (text === null || text === '') return null
 
-  // The title above its value: the panel is narrow, a column of titles
-  // would leave the values little room
   return (
     <dl className="u-m-0 u-mt-half">
       <dt>
@@ -123,10 +121,7 @@ export function ScribeCapabilityCard({
   // Nothing to review in a call without confirmation: one line tells what is
   // done, also in a past conversation, where it is not handed again
   if (!capability.confirm) {
-    if (steps && !steps.isFirst) return null
-    return (
-      <ScribeToolStep steps={steps?.steps ?? [makeStep(capability, params)]} />
-    )
+    return steps?.isFirst ? <ScribeToolStep steps={steps.steps} /> : null
   }
 
   return (

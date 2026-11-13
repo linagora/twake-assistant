@@ -578,6 +578,20 @@ describe('makeScribeCapabilities', () => {
     })
   })
 
+  it('names a step by the label of the app only', () => {
+    const [labelled, unlabelled] = makeScribeCapabilities(
+      [
+        { name: 'insert_slide', label: 'Insert the slide', action },
+        { name: 'search_emails', label: null, action }
+      ],
+      mockT,
+      jest.fn()
+    )
+
+    expect(labelled.stepLabel).toBe('Insert the slide')
+    expect(unlabelled.stepLabel).toBe(null)
+  })
+
   it('asks the LLM for the reason of each call, and keeps it from the app', () => {
     const onCall = jest.fn()
     const parameters = {
@@ -792,10 +806,18 @@ describe('getStep', () => {
       details: ['text: Atelier']
     })
     expect(getStep(message({ name: 'search' }), [search])).toEqual({
-      label: 'search',
+      label: null,
       tool: 'search',
       details: []
     })
+  })
+
+  it('names a step without reason by the step label of its tool', () => {
+    expect(
+      getStep(message({ name: 'search' }), [
+        { ...search, stepLabel: 'Search the emails' }
+      ])
+    ).toEqual({ label: 'Search the emails', tool: 'search', details: [] })
   })
 
   it('takes no answer, call to confirm or unknown tool for a step', () => {
@@ -807,41 +829,57 @@ describe('getStep', () => {
   it('takes a call of a past conversation for a step too', () => {
     expect(
       getStep(message({ name: 'search' }, { isPast: true }), [search])
-    ).toEqual({ label: 'search', tool: 'search', details: [] })
+    ).toEqual({ label: null, tool: 'search', details: [] })
   })
 })
 
 describe('getStepDetails', () => {
   it('writes the params the LLM filled, but its reason, as name: value', () => {
     expect(
-      getStepDetails({
-        inMailboxes: ['inbox', 'sent'],
-        unread: false,
-        limit: 5,
-        from: '',
-        page: null,
-        reason: 'I search.'
-      })
+      getStepDetails(
+        {
+          inMailboxes: ['inbox', 'sent'],
+          unread: false,
+          limit: 5,
+          from: '',
+          page: null,
+          reason: 'I search.'
+        },
+        true
+      )
     ).toEqual(['inMailboxes: inbox, sent', 'unread: false', 'limit: 5'])
   })
 
+  it('keeps the reason param of a tool', () => {
+    expect(
+      getStepDetails({ id: 'm1', reason: 'Not available that day' }, false)
+    ).toEqual(['id: m1', 'reason: Not available that day'])
+  })
+
   it('cuts a long value', () => {
-    const [detail] = getStepDetails({ text: 'a'.repeat(100) })
+    const [detail] = getStepDetails({ text: 'a'.repeat(100) }, true)
 
     expect(detail).toBe(`text: ${'a'.repeat(80)}…`)
   })
 })
 
 describe('findStepGroup', () => {
-  const step = label => ({ label, tool: 'tool', details: [] })
-  const messages = [
-    { id: 'q', step: null },
-    { id: 's1', step: step('I search.') },
-    { id: 's2', step: step('I read the first email.') },
-    { id: 's3', step: step('I read the second email.') },
-    { id: 'd', step: null }
+  const capabilities = [
+    { name: 'search', confirm: false, hasReason: true },
+    { name: 'draft', confirm: true, hasReason: true }
   ]
-  const getMessageStep = message => message.step
+  const call = (id, name, reason) => ({
+    id,
+    metadata: { custom: { action: { name, params: { reason } } } }
+  })
+  const messages = [
+    { id: 'q', metadata: { custom: {} } },
+    call('s1', 'search', 'I search.'),
+    call('s2', 'search', 'I read the first email.'),
+    call('s3', 'search', 'I read the second email.'),
+    call('d', 'draft', 'I write the draft.')
+  ]
+  const step = label => ({ label, tool: 'search', details: [] })
 
   it('gives the first step all the steps, in their order', () => {
     const all = [
@@ -850,18 +888,19 @@ describe('findStepGroup', () => {
       step('I read the second email.')
     ]
 
-    expect(findStepGroup(messages, 's1', getMessageStep)).toEqual({
+    expect(findStepGroup(messages, 's1', capabilities)).toEqual({
       isFirst: true,
       steps: all
     })
-    expect(findStepGroup(messages, 's3', getMessageStep)).toEqual({
+    expect(findStepGroup(messages, 's3', capabilities)).toEqual({
       isFirst: false,
       steps: all
     })
   })
 
   it('takes a message that is not a step for none', () => {
-    expect(findStepGroup(messages, 'd', getMessageStep)).toBe(null)
-    expect(findStepGroup(messages, 'unknown', getMessageStep)).toBe(null)
+    expect(findStepGroup(messages, 'q', capabilities)).toBe(null)
+    expect(findStepGroup(messages, 'd', capabilities)).toBe(null)
+    expect(findStepGroup(messages, 'unknown', capabilities)).toBe(null)
   })
 })

@@ -504,7 +504,9 @@ export function getCallReason(capability, params) {
 
 /**
  * @typedef {object} ScribeStep
- * @property {string} label - what the LLM says it does, or the tool
+ * @property {string|null} label - what the LLM says it does, or the label
+ * of the app for the tool: null without either, never the name of the tool,
+ * written for the LLM
  * @property {string} tool - the name of the tool it calls
  * @property {string[]} details - the params it fills, as "name: value"
  */
@@ -525,14 +527,15 @@ function getDetailText(value) {
 }
 
 /**
- * The params of a call, but its reason, as "name: value", the ones it left
- * empty out
+ * The params of a call as "name: value", the ones it left empty out, and the
+ * reason the assistant asked the LLM for: a reason param of the tool stays
  * @param {object} params
+ * @param {boolean} hasReason - whether the assistant added the reason param
  * @returns {string[]}
  */
-export function getStepDetails(params) {
+export function getStepDetails(params, hasReason) {
   return Object.entries(params)
-    .filter(([name]) => name !== REASON_PARAM)
+    .filter(([name]) => !hasReason || name !== REASON_PARAM)
     .map(([name, value]) => [name, getDetailText(value)])
     .filter(([, text]) => text !== '')
     .map(([name, text]) =>
@@ -548,11 +551,11 @@ export function getStepDetails(params) {
  * @param {object} params
  * @returns {ScribeStep}
  */
-export function makeStep(capability, params) {
+function makeStep(capability, params) {
   return {
-    label: getCallReason(capability, params) ?? capability.name,
+    label: getCallReason(capability, params) ?? capability.stepLabel ?? null,
     tool: capability.name,
-    details: getStepDetails(params)
+    details: getStepDetails(params, capability.hasReason === true)
   }
 }
 
@@ -577,24 +580,24 @@ export function getStep(message, capabilities) {
  * list it unfolds stays open
  * @param {object[]} messages - the messages of the thread
  * @param {string} messageId
- * @param {(message: object) => ScribeStep|null} getMessageStep
+ * @param {ScribeCapability[]} capabilities
  * @returns {{ isFirst: boolean, steps: ScribeStep[] }|null}
  */
-export function findStepGroup(messages, messageId, getMessageStep) {
+export function findStepGroup(messages, messageId, capabilities) {
   const index = messages.findIndex(({ id }) => id === messageId)
   if (index === -1) return null
-  const step = getMessageStep(messages[index])
+  const step = getStep(messages[index], capabilities)
   if (step === null) return null
   const steps = [step]
   let first = index
   while (first > 0) {
-    const previous = getMessageStep(messages[first - 1])
+    const previous = getStep(messages[first - 1], capabilities)
     if (previous === null) break
     steps.unshift(previous)
     first--
   }
   for (let i = index + 1; i < messages.length; i++) {
-    const next = getMessageStep(messages[i])
+    const next = getStep(messages[i], capabilities)
     if (next === null) break
     steps.push(next)
   }
@@ -602,8 +605,7 @@ export function findStepGroup(messages, messageId, getMessageStep) {
 }
 
 function withoutReason(params) {
-  // eslint-disable-next-line no-unused-vars
-  const { [REASON_PARAM]: reason, ...appParams } = params
+  const { [REASON_PARAM]: _reason, ...appParams } = params
   return appParams
 }
 
@@ -636,6 +638,9 @@ export function makeScribeCapabilities(
     return {
       name,
       label: label ?? t('scribe.capabilities.run'),
+      // The line of a step without the reason of the LLM: the words of the
+      // app only, not the button label nor the name of the tool
+      stepLabel: label ?? null,
       confirm,
       hasContent,
       hasReason,

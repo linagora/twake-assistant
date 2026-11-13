@@ -172,14 +172,16 @@ export function ScribeAnswer() {
   const isComplete = status === 'complete'
   const canAct = isComplete && text.trim() !== ''
   // The steps that follow one another show as one line, the one of the first
-  const messages = useThread(state => state.messages)
-  const steps = useMemo(
-    () =>
-      findStepGroup(messages, messageId, message =>
-        getStep(message, capabilities)
-      ),
-    [messages, messageId, capabilities]
-  )
+  const isStep = useMessage(message => getStep(message, capabilities) !== null)
+  // A string, not the group: the selector of useThread must return the same
+  // value for the same state, and the answer renders again only when its
+  // group changes, not on each token of another answer
+  const stepGroup = useThread(state => {
+    if (!isStep) return null
+    const group = findStepGroup(state.messages, messageId, capabilities)
+    return group && JSON.stringify(group)
+  })
+  const steps = useMemo(() => stepGroup && JSON.parse(stepGroup), [stepGroup])
 
   if (layout === 'compact' && !isInLatestExchange) return null
 
@@ -197,7 +199,7 @@ export function ScribeAnswer() {
 
   // A next step: its card stays, to hand its call, and shows nothing: the
   // first one shows them all
-  if (steps && !steps.isFirst && text === '') return card
+  if (steps && !steps.isFirst && text.trim() === '') return card
 
   return (
     <>

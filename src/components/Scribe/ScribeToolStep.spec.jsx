@@ -31,6 +31,27 @@ describe('ScribeToolStep', () => {
     expect(screen.queryByRole('listitem')).toBe(null)
   })
 
+  it('keeps the toggle out of the status, which tells the new steps only', () => {
+    const { rerender } = renderSteps(STEPS.slice(0, 1))
+    const status = screen.getByRole('status')
+
+    expect(status.contains(screen.getByRole('button'))).toBe(false)
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'I search the emails.' })
+    )
+
+    expect(status.textContent).toBe('I search the emails.')
+
+    rerender(
+      <I18n lang="en" polyglot={initTranslation('en', () => en)}>
+        <ScribeToolStep steps={STEPS} />
+      </I18n>
+    )
+
+    expect(status.textContent).toBe('I read the email.')
+  })
+
   it('unfolds all the steps, in their order, with their tools, and counts them', () => {
     renderSteps(STEPS)
 
@@ -57,7 +78,9 @@ describe('ScribeToolStep', () => {
   it('has the arrow for one step too, to show its tool', () => {
     renderSteps(STEPS.slice(0, 1))
 
-    fireEvent.click(screen.getByRole('button', { name: 'I search the emails.' }))
+    fireEvent.click(
+      screen.getByRole('button', { name: 'I search the emails.' })
+    )
 
     expect(screen.getByRole('button', { name: '1 step' })).toBeInTheDocument()
     expect(
@@ -65,16 +88,19 @@ describe('ScribeToolStep', () => {
     ).toBeInTheDocument()
   })
 
-  it('names the tool once for a step without reason, as in a past conversation', () => {
+  it('counts the steps without label, and lists their tools only unfolded', () => {
     renderSteps([
-      { label: 'list_emails', tool: 'list_emails', details: [] },
-      { label: 'get_email_details', tool: 'get_email_details', details: ['id: 2'] }
+      { label: null, tool: 'list_emails', details: [] },
+      { label: null, tool: 'get_email_details', details: ['id: 2'] }
     ])
 
-    fireEvent.click(screen.getByRole('button', { name: 'get_email_details' }))
+    expect(screen.getByRole('status').textContent).toBe('2 steps')
+    expect(screen.queryByText('get_email_details')).toBe(null)
+
+    fireEvent.click(screen.getByRole('button', { name: '2 steps' }))
 
     expect(
       screen.getAllByRole('listitem').map(item => item.textContent)
-    ).toEqual(['list_emails', 'get_email_detailsid: 2'])
+    ).toEqual(['list_emails', 'get_email_details · id: 2'])
   })
 })
