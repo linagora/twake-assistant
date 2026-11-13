@@ -11,9 +11,9 @@ import styles from '@/components/Scribe/styles.styl'
 function StepLine({ label }) {
   return (
     <span className="u-flex u-flex-items-center">
-      <Check
-        width={14}
-        height={14}
+      <Icon
+        icon={Check}
+        size={14}
         className={styles['scribe-check']}
         aria-hidden="true"
       />

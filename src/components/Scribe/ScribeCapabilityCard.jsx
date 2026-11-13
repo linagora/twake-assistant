@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { Check } from '@linagora/twake-icons'
+import { Check, Icon } from '@linagora/twake-icons'
 import Button from 'cozy-ui/transpiled/react/Buttons'
 import Markdown from 'cozy-ui/transpiled/react/Markdown'
 import Typography from 'cozy-ui/transpiled/react/Typography'
@@ -139,7 +139,7 @@ export function ScribeCapabilityCard({
       })}
       {isDone ? (
         <div role="status" className={styles['scribe-capability-done']}>
-          <Check width={16} height={16} aria-hidden="true" />
+          <Icon icon={Check} size={16} aria-hidden="true" />
           <Typography
             variant="body2"
             color="textSecondary"
