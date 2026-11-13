@@ -8,6 +8,10 @@ import {
   getScribeWording,
   makeScribeAnswerActions,
   makeScribeCapabilities,
+  getCallReason,
+  getStep,
+  getStepDetails,
+  findStepGroup,
   makeChatMessages,
   makeScribePreparePrompt,
   makeScribePrepareQuery,
@@ -574,6 +578,81 @@ describe('makeScribeCapabilities', () => {
     })
   })
 
+  it('names a step by the label of the app only', () => {
+    const [labelled, unlabelled] = makeScribeCapabilities(
+      [
+        { name: 'insert_slide', label: 'Insert the slide', action },
+        { name: 'search_emails', label: null, action }
+      ],
+      mockT,
+      jest.fn()
+    )
+
+    expect(labelled.stepLabel).toBe('Insert the slide')
+    expect(unlabelled.stepLabel).toBe(null)
+  })
+
+  it('asks the LLM for the reason of each call, and keeps it from the app', () => {
+    const onCall = jest.fn()
+    const parameters = {
+      type: 'object',
+      properties: { title: { type: 'string' } },
+      required: ['title']
+    }
+    const [insertSlide] = makeScribeCapabilities(
+      [
+        { name: 'insert_slide', label: null, action: { ...action, parameters } }
+      ],
+      mockT,
+      onCall
+    )
+
+    expect(insertSlide.hasReason).toBe(true)
+    expect(insertSlide.action.parameters).toEqual({
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        reason: expect.objectContaining({ type: 'string' })
+      },
+      required: ['title', 'reason']
+    })
+    insertSlide.onClick({ title: 'Risks', reason: 'I add the risks.' })
+    expect(onCall).toHaveBeenCalledWith({
+      tool: 'insert_slide',
+      capability: 'insert_slide',
+      params: { title: 'Risks' }
+    })
+    expect(
+      getCallReason(insertSlide, {
+        title: 'Risks',
+        reason: ' I add the risks. '
+      })
+    ).toBe('I add the risks.')
+  })
+
+  it('leaves a reason param of the app as it is', () => {
+    const onCall = jest.fn()
+    const parameters = {
+      type: 'object',
+      properties: { reason: { type: 'string' } }
+    }
+    const [refuse] = makeScribeCapabilities(
+      [{ name: 'refuse', label: null, action: { ...action, parameters } }],
+      mockT,
+      onCall
+    )
+
+    expect(refuse.hasReason).toBe(false)
+    expect(refuse.action.parameters).toEqual(parameters)
+    refuse.onClick({ reason: 'Too late' })
+    expect(onCall).toHaveBeenCalledWith({
+      tool: 'refuse',
+      capability: 'refuse',
+      params: { reason: 'Too late' }
+    })
+    expect(getCallReason(refuse, { reason: 'Too late' })).toBe(null)
+  })
+
   it('hands the content the assistant wrote with the call', () => {
     const onCall = jest.fn()
     const [createDocument] = makeScribeCapabilities(
@@ -702,5 +781,126 @@ describe('getScribeWording', () => {
       welcome: 'What would you like to work on today?',
       placeholder: 'Ask Twake AI'
     })
+  })
+})
+
+describe('getStep', () => {
+  const search = { name: 'search', confirm: false, hasReason: true }
+  const draft = { name: 'draft', confirm: true, hasReason: true }
+  const message = (action, custom = {}) => ({
+    metadata: { custom: { action, ...custom } }
+  })
+
+  it('tells the reason of a call handed at once, its tool and its params', () => {
+    expect(
+      getStep(
+        message({
+          name: 'search',
+          params: { text: 'Atelier', limit: null, reason: 'I search.' }
+        }),
+        [search]
+      )
+    ).toEqual({
+      label: 'I search.',
+      tool: 'search',
+      details: ['text: Atelier']
+    })
+    expect(getStep(message({ name: 'search' }), [search])).toEqual({
+      label: null,
+      tool: 'search',
+      details: []
+    })
+  })
+
+  it('names a step without reason by the step label of its tool', () => {
+    expect(
+      getStep(message({ name: 'search' }), [
+        { ...search, stepLabel: 'Search the emails' }
+      ])
+    ).toEqual({ label: 'Search the emails', tool: 'search', details: [] })
+  })
+
+  it('takes no answer, call to confirm or unknown tool for a step', () => {
+    expect(getStep({ metadata: { custom: {} } }, [search])).toBe(null)
+    expect(getStep(message({ name: 'draft' }), [draft])).toBe(null)
+    expect(getStep(message({ name: 'other' }), [search])).toBe(null)
+  })
+
+  it('takes a call of a past conversation for a step too', () => {
+    expect(
+      getStep(message({ name: 'search' }, { isPast: true }), [search])
+    ).toEqual({ label: null, tool: 'search', details: [] })
+  })
+})
+
+describe('getStepDetails', () => {
+  it('writes the params the LLM filled, but its reason, as name: value', () => {
+    expect(
+      getStepDetails(
+        {
+          inMailboxes: ['inbox', 'sent'],
+          unread: false,
+          limit: 5,
+          from: '',
+          page: null,
+          reason: 'I search.'
+        },
+        true
+      )
+    ).toEqual(['inMailboxes: inbox, sent', 'unread: false', 'limit: 5'])
+  })
+
+  it('keeps the reason param of a tool', () => {
+    expect(
+      getStepDetails({ id: 'm1', reason: 'Not available that day' }, false)
+    ).toEqual(['id: m1', 'reason: Not available that day'])
+  })
+
+  it('cuts a long value', () => {
+    const [detail] = getStepDetails({ text: 'a'.repeat(100) }, true)
+
+    expect(detail).toBe(`text: ${'a'.repeat(80)}…`)
+  })
+})
+
+describe('findStepGroup', () => {
+  const capabilities = [
+    { name: 'search', confirm: false, hasReason: true },
+    { name: 'draft', confirm: true, hasReason: true }
+  ]
+  const call = (id, name, reason) => ({
+    id,
+    metadata: { custom: { action: { name, params: { reason } } } }
+  })
+  const messages = [
+    { id: 'q', metadata: { custom: {} } },
+    call('s1', 'search', 'I search.'),
+    call('s2', 'search', 'I read the first email.'),
+    call('s3', 'search', 'I read the second email.'),
+    call('d', 'draft', 'I write the draft.')
+  ]
+  const step = label => ({ label, tool: 'search', details: [] })
+
+  it('gives the first step all the steps, in their order', () => {
+    const all = [
+      step('I search.'),
+      step('I read the first email.'),
+      step('I read the second email.')
+    ]
+
+    expect(findStepGroup(messages, 's1', capabilities)).toEqual({
+      isFirst: true,
+      steps: all
+    })
+    expect(findStepGroup(messages, 's3', capabilities)).toEqual({
+      isFirst: false,
+      steps: all
+    })
+  })
+
+  it('takes a message that is not a step for none', () => {
+    expect(findStepGroup(messages, 'q', capabilities)).toBe(null)
+    expect(findStepGroup(messages, 'd', capabilities)).toBe(null)
+    expect(findStepGroup(messages, 'unknown', capabilities)).toBe(null)
   })
 })

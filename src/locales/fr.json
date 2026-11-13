@@ -38,7 +38,8 @@
       "run": "Appliquer",
       "done": "Fait",
       "yes": "Oui",
-      "no": "Non"
+      "no": "Non",
+      "steps": "%{smart_count} étape |||| %{smart_count} étapes"
     },
     "suggestions": {
       "summarize": {

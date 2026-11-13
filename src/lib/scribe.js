@@ -461,9 +461,153 @@ export function makeScribeAnswerActions(answerActions, t, onAction) {
  * @property {boolean} confirm
  * @property {boolean} hasContent - whether the call takes the answer as its
  * text
+ * @property {boolean} hasReason - whether the LLM writes why it calls it in
+ * the `reason` param, which the app does not get
  * @property {object} action - its definition as a chat action of cozy-stack
  * @property {(params: object, text?: string, messageId?: string|null) => void} onClick
  */
+
+export const REASON_PARAM = 'reason'
+
+const REASON_SCHEMA = {
+  type: 'string',
+  description:
+    'One short sentence for the user, in the language of the user, that tells what you do with this call and why, like: I search the emails of the customer to find what was done.'
+}
+
+// The LLM tells the user what it does through a param it must fill: a model
+// that calls a tool writes no text next to the call. A tool of the app that
+// has a param of this name keeps it as it is.
+function withReason(parameters) {
+  if (!parameters?.properties || parameters.properties[REASON_PARAM]) {
+    return null
+  }
+  return {
+    ...parameters,
+    properties: { ...parameters.properties, [REASON_PARAM]: REASON_SCHEMA },
+    required: [...(parameters.required ?? []), REASON_PARAM]
+  }
+}
+
+/**
+ * The sentence of the LLM that tells why it calls the tool, or null
+ * @param {ScribeCapability} capability
+ * @param {object} params - the params of the call
+ * @returns {string|null}
+ */
+export function getCallReason(capability, params) {
+  const reason = capability.hasReason ? params?.[REASON_PARAM] : null
+  return typeof reason === 'string' && reason.trim() !== ''
+    ? reason.trim()
+    : null
+}
+
+/**
+ * @typedef {object} ScribeStep
+ * @property {string|null} label - what the LLM says it does, or the label
+ * of the app for the tool: null without either, never the name of the tool,
+ * written for the LLM
+ * @property {string} tool - the name of the tool it calls
+ * @property {string[]} details - the params it fills, as "name: value"
+ */
+
+const MAX_DETAIL_LENGTH = 80
+
+function getDetailText(value) {
+  if (Array.isArray(value)) {
+    return value
+      .filter(item => typeof item === 'string' && item !== '')
+      .join(', ')
+  }
+  if (typeof value === 'string') return value.trim()
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value)
+  }
+  return ''
+}
+
+/**
+ * The params of a call as "name: value", the ones it left empty out, and the
+ * reason the assistant asked the LLM for: a reason param of the tool stays
+ * @param {object} params
+ * @param {boolean} hasReason - whether the assistant added the reason param
+ * @returns {string[]}
+ */
+export function getStepDetails(params, hasReason) {
+  return Object.entries(params)
+    .filter(([name]) => !hasReason || name !== REASON_PARAM)
+    .map(([name, value]) => [name, getDetailText(value)])
+    .filter(([, text]) => text !== '')
+    .map(([name, text]) =>
+      text.length > MAX_DETAIL_LENGTH
+        ? `${name}: ${text.slice(0, MAX_DETAIL_LENGTH)}…`
+        : `${name}: ${text}`
+    )
+}
+
+/**
+ * The step of a call the assistant hands at once, of a tool of the app
+ * @param {ScribeCapability} capability
+ * @param {object} params
+ * @returns {ScribeStep}
+ */
+function makeStep(capability, params) {
+  return {
+    label: getCallReason(capability, params) ?? capability.stepLabel ?? null,
+    tool: capability.name,
+    details: getStepDetails(params, capability.hasReason === true)
+  }
+}
+
+/**
+ * The step of a message: a call of a tool of the app that needs no
+ * confirmation, handed at once, or not at all in a past conversation
+ * @param {object} message - a message of the thread
+ * @param {ScribeCapability[]} capabilities
+ * @returns {ScribeStep|null} null when the message is not a step
+ */
+export function getStep(message, capabilities) {
+  const action = message?.metadata?.custom?.action
+  if (!action) return null
+  const capability = capabilities.find(({ name }) => name === action.name)
+  if (!capability || capability.confirm) return null
+  return makeStep(capability, action.params ?? {})
+}
+
+/**
+ * The steps that follow one another around a message, in their order: the
+ * first one shows them all, and stays as the next ones come, so that the
+ * list it unfolds stays open
+ * @param {object[]} messages - the messages of the thread
+ * @param {string} messageId
+ * @param {ScribeCapability[]} capabilities
+ * @returns {{ isFirst: boolean, steps: ScribeStep[] }|null}
+ */
+export function findStepGroup(messages, messageId, capabilities) {
+  const index = messages.findIndex(({ id }) => id === messageId)
+  if (index === -1) return null
+  const step = getStep(messages[index], capabilities)
+  if (step === null) return null
+  const steps = [step]
+  let first = index
+  while (first > 0) {
+    const previous = getStep(messages[first - 1], capabilities)
+    if (previous === null) break
+    steps.unshift(previous)
+    first--
+  }
+  for (let i = index + 1; i < messages.length; i++) {
+    const next = getStep(messages[i], capabilities)
+    if (next === null) break
+    steps.push(next)
+  }
+  return { isFirst: first === index, steps }
+}
+
+function withoutReason(params) {
+  const { [REASON_PARAM]: _reason, ...appParams } = params
+  return appParams
+}
 
 /**
  * @param {import('@/lib/intent').Capability[]} capabilities
@@ -488,14 +632,21 @@ export function makeScribeCapabilities(
       .filter(message => !examples.includes(message))
       .filter(message => findExampleError(message) === null)
     const hasContent = action.content !== undefined
+    const parameters = hasContent ? null : withReason(action.parameters)
+    const hasReason = parameters !== null
 
     return {
       name,
       label: label ?? t('scribe.capabilities.run'),
+      // The line of a step without the reason of the LLM: the words of the
+      // app only, not the button label nor the name of the tool
+      stepLabel: label ?? null,
       confirm,
       hasContent,
+      hasReason,
       action: {
         ...action,
+        ...(hasReason && { parameters }),
         ...(requests.length > 0 && {
           examples: [...examples, ...requests]
         })
@@ -504,7 +655,7 @@ export function makeScribeCapabilities(
         onCall({
           tool: name,
           capability: name,
-          params,
+          params: hasReason ? withoutReason(params) : params,
           ...(hasContent && { text, format: 'markdown' }),
           ...(messageId && { messageId })
         })

@@ -38,7 +38,8 @@
       "run": "Применить",
       "done": "Готово",
       "yes": "Да",
-      "no": "Нет"
+      "no": "Нет",
+      "steps": "%{smart_count} шаг |||| %{smart_count} шага |||| %{smart_count} шагов"
     },
     "suggestions": {
       "summarize": {

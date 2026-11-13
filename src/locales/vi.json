@@ -38,7 +38,8 @@
       "run": "Áp dụng",
       "done": "Đã xong",
       "yes": "Có",
-      "no": "Không"
+      "no": "Không",
+      "steps": "%{smart_count} bước"
     },
     "suggestions": {
       "summarize": {
