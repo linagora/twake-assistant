@@ -7,7 +7,11 @@ import {
   TextInfo
 } from '@linagora/twake-icons'
 
-import { removeSourceMarks, toPlainText } from '@/lib/chat'
+import {
+  removeQueryInstructions,
+  removeSourceMarks,
+  toPlainText
+} from '@/lib/chat'
 import { findExampleError } from '@/lib/chatActions'
 import { DEFAULT_MENU_SUGGESTION } from '@/lib/intent'
 import { removeInsertFences } from '@/lib/scribeBlocks'
@@ -341,11 +345,12 @@ function matchPrompt(query) {
  * query sent to the LLM: the prompt of a chip, or the request with the
  * document and the text of the app.
  *
- * @param {string} query - the content of the message kept by the stack
+ * @param {string} content - the content of the message kept by the stack
  * @param {Function} t - translation function
  * @returns {string}
  */
-export function getScribeRequest(query, t) {
+export function getScribeRequest(content, t) {
+  const query = removeQueryInstructions(content)
   const prompt = matchPrompt(query)?.prompt
   if (!prompt) {
     const request = query.replace(FULL_DOCUMENT, '')
@@ -361,7 +366,8 @@ export function getScribeRequest(query, t) {
   return known?.request ?? prompt.description
 }
 
-function getScribeSelection(query) {
+function getScribeSelection(content) {
+  const query = removeQueryInstructions(content)
   const matched = matchPrompt(query)
   const selection = matched
     ? matched.input
