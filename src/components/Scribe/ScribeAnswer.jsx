@@ -24,7 +24,7 @@ import styles from '@/components/Scribe/styles.styl'
 import { useDone } from '@/components/Scribe/useDone'
 import { useIsInLatestExchange } from '@/components/Scribe/useLatestExchange'
 import { RETRYABLE_KINDS } from '@/lib/chatErrors'
-import { showHtmlTables } from '@/lib/htmlTables'
+import { showHtmlTables, unfenceTables } from '@/lib/htmlTables'
 import { findStepGroup, getRunningLabel, getStep } from '@/lib/scribe'
 import { hasInsertBlocks, splitAnswerBlocks } from '@/lib/scribeBlocks'
 
@@ -32,7 +32,7 @@ function AnswerActionButton({ action, text }) {
   const [isDone, markDone] = useDone()
 
   const handleClick = () => {
-    action.onClick(text)
+    action.onClick(unfenceTables(text))
     markDone()
   }
 

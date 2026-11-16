@@ -9,6 +9,7 @@ import { useI18n } from 'twake-i18n'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import { ScribeToolStep } from '@/components/Scribe/ScribeToolStep'
 import styles from '@/components/Scribe/styles.styl'
+import { unfenceTables } from '@/lib/htmlTables'
 import { REASON_PARAM } from '@/lib/scribe'
 
 // The reason of the LLM tells the user what a step does: not a param to show
@@ -107,7 +108,11 @@ export function ScribeCapabilityCard({
   const [isDone, setIsDone] = useState(() => isCallHanded(messageId))
 
   const hand = () => {
-    handCall(messageId, () => capability.onClick(params, text, callId), callId)
+    handCall(
+      messageId,
+      () => capability.onClick(params, unfenceTables(text), callId),
+      callId
+    )
     setIsDone(true)
   }
 
