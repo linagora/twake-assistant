@@ -124,6 +124,11 @@
           "label": "Vietnamita",
           "request": "Traduci il testo in vietnamita.",
           "running": "Traduzione in vietnamita…"
+        },
+        "mongolian": {
+          "label": "Mongolo",
+          "request": "Traduci il testo in mongolo.",
+          "running": "Traduzione in mongolo…"
         }
       }
     }
