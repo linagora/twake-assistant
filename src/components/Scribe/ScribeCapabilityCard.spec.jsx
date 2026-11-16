@@ -215,6 +215,22 @@ describe('ScribeCapabilityCard', () => {
     )
   })
 
+  it('hands the content with its tables out of their fence', () => {
+    const table = '| a | b |\n|---|---|\n| c | d |'
+    renderCard(
+      { title: 'Report' },
+      { text: `Report:\n\`\`\`\n${table}\n\`\`\`` }
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Insert the slide' }))
+
+    expect(capability.onClick).toHaveBeenCalledWith(
+      { title: 'Report' },
+      `Report:\n\n${table}`,
+      null
+    )
+  })
+
   it('hands the call at once, and once, when the app does not ask for a confirmation', () => {
     const params = { title: 'Risks', bullets: ['Delay'] }
     const { rerender, unmount } = renderCard(params, {

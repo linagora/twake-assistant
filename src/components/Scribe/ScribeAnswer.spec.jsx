@@ -129,17 +129,34 @@ describe('ScribeAnswer', () => {
     expect(actions[0].onClick).not.toHaveBeenCalled()
   })
 
-  it('shows a table of the app in its fence as a table, and gives it back as it came', () => {
-    const text =
-      '```\n<table>\n  <tr>\n   <td>\n\nMétrique\n\n</td>\n   <td>\n\nValeur\n\n</td>\n  </tr>\n</table>\n```'
-    renderAnswer(answer(text, 'complete'), actions)
+  it('shows a table of the app in its fence as a table, and gives it back in HTML out of its fence', () => {
+    const table =
+      '<table>\n  <tr>\n   <td>\n\nMétrique\n\n</td>\n   <td>\n\nValeur\n\n</td>\n  </tr>\n</table>'
+    renderAnswer(answer(`\`\`\`\n${table}\n\`\`\``, 'complete'), actions)
 
     expect(screen.getByRole('table')).toHaveTextContent('MétriqueValeur')
     expect(screen.queryByText(/<table>/)).toBe(null)
 
     fireEvent.click(screen.getByRole('button', { name: 'Insert' }))
 
-    expect(actions[0].onClick).toHaveBeenCalledWith(text)
+    expect(actions[0].onClick).toHaveBeenCalledWith(table)
+  })
+
+  it('shows a GFM table in its fence as a table, and gives it back out of its fence', () => {
+    const table =
+      '| Type | Description |\n|------|-------------|\n| Hotline | 24/7 |'
+    renderAnswer(
+      answer(`Here is the table:\n\n\`\`\`\n${table}\n\`\`\``, 'complete'),
+      actions
+    )
+
+    expect(screen.getByRole('table')).toHaveTextContent('TypeDescription')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Insert' }))
+
+    expect(actions[0].onClick).toHaveBeenCalledWith(
+      `Here is the table:\n\n${table}`
+    )
   })
 
   it('offers to copy a whole answer, before the actions of the app', () => {

@@ -1,4 +1,4 @@
-import { showHtmlTables } from '@/lib/htmlTables'
+import { showHtmlTables, unfenceTables } from '@/lib/htmlTables'
 
 // As OnlyOffice gives a table, and the LLM answers with it
 const TABLE = `<table>
@@ -43,6 +43,31 @@ describe('showHtmlTables', () => {
     for (const info of ['', 'html', 'markdown']) {
       expect(showHtmlTables(`\`\`\`${info}\n${TABLE}\n\`\`\``).trim()).toBe(GFM)
     }
+  })
+
+  it('takes a GFM table alone out of its fence', () => {
+    // As Mistral writes it, its columns padded
+    const table =
+      '| Type       | Description |\n|------------|-------------|\n| Preventive | Two visits  |'
+    const text = `Here is the table:\n\n\`\`\`\n${table}\n\`\`\`\n\nDone.`
+    expect(showHtmlTables(text)).toBe(`Here is the table:\n\n${table}\n\nDone.`)
+    expect(showHtmlTables(`\`\`\`markdown\n${GFM}\n\`\`\``).trim()).toBe(GFM)
+  })
+
+  it('takes a GFM table out of a fence right after a sentence', () => {
+    expect(showHtmlTables(`Voici :\n\`\`\`\n${GFM}\n\`\`\``)).toBe(
+      `Voici :\n\n${GFM}`
+    )
+  })
+
+  it('leaves a fence of lines with pipes that are not a table', () => {
+    const text = '```\na | b\nc | d\n```'
+    expect(showHtmlTables(text)).toBe(text)
+  })
+
+  it('leaves a fence whose delimiter row does not match its header', () => {
+    const text = '```\n| a | b |\n|---|\n| c | d |\n```'
+    expect(showHtmlTables(text)).toBe(text)
   })
 
   it('leaves a fence that holds more than a table', () => {
@@ -105,5 +130,17 @@ describe('showHtmlTables', () => {
   it('leaves a text without a table as it is', () => {
     const text = 'Un **texte**\n\n```js\nconst a = 1\n```'
     expect(showHtmlTables(text)).toBe(text)
+  })
+})
+
+describe('unfenceTables', () => {
+  it('takes the tables alone out of their fence, the HTML ones still HTML', () => {
+    const text = `Voici :\n\n\`\`\`html\n${TABLE}\n\`\`\`\n\n\`\`\`\n${GFM}\n\`\`\``
+    expect(unfenceTables(text)).toBe(`Voici :\n\n${TABLE}\n\n${GFM}`)
+  })
+
+  it('leaves a text without a fenced table as it is', () => {
+    const text = `Un **texte**\n\n${TABLE}\n\n\`\`\`js\nconst a = 1\n\`\`\``
+    expect(unfenceTables(text)).toBe(text)
   })
 })

@@ -1,7 +1,7 @@
 // The app gives the tables of its text in HTML tags, as the Markdown of
 // OnlyOffice does, and the LLM answers with them, often in a fence: the
 // Markdown of cozy-ui draws GFM tables only. The text given back to the app
-// keeps its HTML.
+// keeps its HTML, out of the fence too: the app would write a block of code.
 
 import { isClosing, readFence } from '@/lib/scribeBlocks'
 
@@ -10,6 +10,8 @@ import { isClosing, readFence } from '@/lib/scribeBlocks'
 const TABLE_START = /^[ \t]*<table\b/im
 // The info strings of a fence that may hold a table alone
 const TABLE_FENCE_INFO = /^(?:html|markdown|md|text)?$/i
+const GFM_DELIMITER_ROW =
+  /^[ \t]*\|?[ \t]*:?-+:?[ \t]*(?:\|[ \t]*:?-+:?[ \t]*)*\|?[ \t]*$/
 
 function findCellText(cell) {
   cell.querySelectorAll('br').forEach(br => br.replaceWith(' '))
@@ -78,23 +80,38 @@ function replaceTables(text, replace) {
   )
 }
 
-const isTableAlone = body => replaceTables(body, () => '').trim() === ''
+// The cells of a row of a GFM table, between its unescaped pipes
+const countCells = line =>
+  line
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/(?<!\\)\|$/, '')
+    .split(/(?<!\\)\|/).length
 
-/**
- * The Markdown to show for a text: its HTML tables as GFM tables, out of
- * the fence that holds one alone. The tables of other fences stay code.
- *
- * @param {string} markdown
- * @returns {string}
- */
-export function showHtmlTables(markdown) {
+// The LLM also fences the GFM tables it writes: GFM draws one only when its
+// delimiter row has as many cells as its header
+function isGfmTable(body) {
+  const lines = body.trim().split('\n')
+  return (
+    lines.length >= 2 &&
+    GFM_DELIMITER_ROW.test(lines[1]) &&
+    countCells(lines[0]) === countCells(lines[1]) &&
+    lines.every(line => line.includes('|'))
+  )
+}
+
+const isTableAlone = body =>
+  replaceTables(body, () => '').trim() === '' || isGfmTable(body)
+
+function takeTablesOutOfFences(markdown, showTable) {
   const shown = []
   let prose = []
   let fence = null
+  let needsBlank = false
 
   const addProse = () => {
     if (prose.length > 0) {
-      shown.push(replaceTables(prose.join('\n'), makeGfmTable))
+      shown.push(replaceTables(prose.join('\n'), showTable))
     }
     prose = []
   }
@@ -103,7 +120,12 @@ export function showHtmlTables(markdown) {
       TABLE_FENCE_INFO.test(fence.info) &&
       isTableAlone(fence.lines.join('\n'))
     ) {
+      // Blank lines around it, or it joins the paragraph next to it; none at
+      // the end of the text, given back to the app as it is
+      const previous = prose.length > 0 ? prose.at(-1) : shown.at(-1)
+      if (previous !== undefined && previous.trim() !== '') prose.push('')
       prose.push(...fence.lines)
+      needsBlank = true
     } else {
       addProse()
       shown.push(fence.opening, ...fence.lines)
@@ -118,6 +140,8 @@ export function showHtmlTables(markdown) {
       else fence.lines.push(line)
       continue
     }
+    if (needsBlank && line.trim() !== '') prose.push('')
+    needsBlank = false
     const opening = readFence(line)
     if (opening) fence = { ...opening, opening: line, lines: [] }
     else prose.push(line)
@@ -126,4 +150,26 @@ export function showHtmlTables(markdown) {
   addProse()
 
   return shown.join('\n')
+}
+
+/**
+ * The Markdown to show for a text: its HTML tables as GFM tables, out of
+ * the fence that holds a table alone. The tables of other fences stay code.
+ *
+ * @param {string} markdown
+ * @returns {string}
+ */
+export function showHtmlTables(markdown) {
+  return takeTablesOutOfFences(markdown, makeGfmTable)
+}
+
+/**
+ * The text to give back to the app: its tables out of the fence that holds
+ * a table alone, its HTML tables still HTML
+ *
+ * @param {string} markdown
+ * @returns {string}
+ */
+export function unfenceTables(markdown) {
+  return takeTablesOutOfFences(markdown, table => table)
 }
