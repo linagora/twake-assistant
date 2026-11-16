@@ -54,6 +54,16 @@ describe('makeScribeSuggestions', () => {
       'change-tone-polite'
     ])
     expect(suggestions[5].label).toBe('Translate')
+    expect(suggestions[5].options.map(option => option.prompt)).toEqual([
+      'translate-french',
+      'translate-english',
+      'translate-german',
+      'translate-spanish',
+      'translate-italian',
+      'translate-russian',
+      'translate-vietnamese',
+      'translate-mongolian'
+    ])
   })
 
   it('leaves out the prompts the catalogue does not have yet, and a menu left empty', () => {

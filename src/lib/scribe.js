@@ -48,7 +48,8 @@ const SUGGESTIONS = [
       { name: 'spanish', prompt: 'translate-spanish' },
       { name: 'italian', prompt: 'translate-italian' },
       { name: 'russian', prompt: 'translate-russian' },
-      { name: 'vietnamese', prompt: 'translate-vietnamese' }
+      { name: 'vietnamese', prompt: 'translate-vietnamese' },
+      { name: 'mongolian', prompt: 'translate-mongolian' }
     ]
   }
 ]

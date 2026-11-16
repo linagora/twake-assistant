@@ -124,6 +124,11 @@
           "label": "Tiếng Việt",
           "request": "Dịch văn bản sang tiếng Việt.",
           "running": "Đang dịch sang tiếng Việt…"
+        },
+        "mongolian": {
+          "label": "Tiếng Mông Cổ",
+          "request": "Dịch văn bản sang tiếng Mông Cổ.",
+          "running": "Đang dịch sang tiếng Mông Cổ…"
         }
       }
     }

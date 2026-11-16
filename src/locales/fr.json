@@ -124,6 +124,11 @@
           "label": "Vietnamien",
           "request": "Traduis le texte en vietnamien.",
           "running": "Traduction en vietnamien…"
+        },
+        "mongolian": {
+          "label": "Mongol",
+          "request": "Traduis le texte en mongol.",
+          "running": "Traduction en mongol…"
         }
       }
     }
