@@ -291,6 +291,27 @@ describe('getScribeRequest', () => {
     expect(getScribeRequest(query, mockT)).toBe('Translate')
   })
 
+  it('shows the request and the text without the instructions', () => {
+    const instructions = '[Instructions]\nEdit only\n[End of instructions]\n\n'
+    const chip = makeScribePreparePrompt('Bonjour')('correct-grammar').q
+    const typed = 'Translate\n\nText:\n"""\nBonjour\n"""'
+
+    expect(getScribeRequest(instructions + chip, mockT)).toBe(
+      'Correct the grammar and spelling of the text.'
+    )
+    expect(
+      makeChatMessages(
+        [{ id: 'm1', role: 'user', content: instructions + typed }],
+        mockT
+      )[0]
+    ).toEqual({
+      id: 'm1',
+      role: 'user',
+      content: 'Translate',
+      metadata: { custom: { selection: 'Bonjour' } }
+    })
+  })
+
   it('shows the request without the document of the app', () => {
     const prepareQuery = makeScribePrepareQuery('Bonjour', mockT)
 

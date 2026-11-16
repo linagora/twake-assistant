@@ -1,6 +1,7 @@
 import {
   makeChat,
   makeChatAdapter,
+  removeQueryInstructions,
   removeSourceMarks,
   toPlainText
 } from '@/lib/chat'
@@ -133,6 +134,39 @@ describe('makeChatAdapter', () => {
       },
       { q: 'Fix it', documents: false, instructions: 'Scribe' }
     ])
+  })
+
+  it('puts the instructions in the query when the LLM alone gets tools', async () => {
+    const actions = [{ name: 'insert_table', description: 'add a table' }]
+    const { adapter, fetchJSON } = setup({
+      events: [{ object: 'done' }],
+      options: { instructions: 'Answer with the text only', actions }
+    })
+
+    await run(adapter, [userMessage('Fix it')])
+
+    expect(fetchJSON.mock.calls[0][2]).toEqual({
+      q: '[Instructions]\nAnswer with the text only\n[End of instructions]\n\nFix it',
+      documents: false,
+      tools: actions
+    })
+    expect(removeQueryInstructions(fetchJSON.mock.calls[0][2].q)).toBe('Fix it')
+  })
+
+  it('keeps the instructions apart with tools on the documents', async () => {
+    const actions = [{ name: 'insert_table', description: 'add a table' }]
+    const { adapter, fetchJSON } = setup({
+      events: [{ object: 'done' }],
+      options: { instructions: 'Scribe', actions, hasDocuments: true }
+    })
+
+    await run(adapter, [userMessage('Fix it')])
+
+    expect(fetchJSON.mock.calls[0][2]).toEqual({
+      q: 'Fix it',
+      instructions: 'Scribe',
+      tools: actions
+    })
   })
 
   it('sends the instructions of the scribe', async () => {
@@ -581,7 +615,8 @@ describe('makeChatAdapter', () => {
     expect(fetchJSON).toHaveBeenCalledWith(
       'POST',
       '/ai/chat/conversations/c1',
-      { result, documents: false, instructions: 'Scribe', tools: actions }
+      // The instructions came with the query the result follows
+      { result, documents: false, tools: actions }
     )
     expect(prepareQuery).not.toHaveBeenCalled()
     expect(requestDocument).not.toHaveBeenCalled()

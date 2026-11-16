@@ -31,6 +31,20 @@ export function removeSourceMarks(text) {
   return SOURCE_MARKS.reduce((result, mark) => result.replace(mark, ''), text)
 }
 
+// WORKAROUND for linagora/cozy-stack#5291, see makeChatAdapter. Keep it
+// after the workaround is removed: the conversations saved meanwhile hold
+// the instructions in their queries.
+const QUERY_INSTRUCTIONS =
+  /^\[Instructions\]\n[\s\S]*?\n\[End of instructions\]\n\n/
+
+/**
+ * @param {string} query - the content of a message kept by the stack
+ * @returns {string} the query without the instructions at its head
+ */
+export function removeQueryInstructions(query) {
+  return query.replace(QUERY_INSTRUCTIONS, '')
+}
+
 // The parser of the Markdown component of cozy-ui, which shows the answers
 const markdown = unified().use(remarkParse).use(remarkGfm)
 
@@ -255,6 +269,18 @@ export function makeChatAdapter({
       ]
         .filter(Boolean)
         .join('\n\n')
+      // WORKAROUND, to remove once linagora/cozy-stack#5291 is deployed in
+      // production: without documents the stack passes system messages as
+      // they are and adds its own for the tools; Mistral refuses a second one.
+      // Until the stack joins them, the instructions go at the head of the
+      // query. A result sends none: they came with its query. To remove:
+      // isSystemInQuery and q, back to `q: query` and `instructions: system`.
+      const isSystemInQuery =
+        !hasDocuments && actions?.length > 0 && system !== ''
+      const q =
+        isSystemInQuery && query !== null
+          ? `[Instructions]\n${system}\n[End of instructions]\n\n${query}`
+          : query
       const answer = makeAnswer()
       const reasoning = makeAnswer()
       const getContent = ({ isWhole = false } = {}) => {
@@ -277,10 +303,10 @@ export function makeChatAdapter({
           'POST',
           `/ai/chat/conversations/${conversationId}`,
           {
-            ...(result ? { result } : { q: query }),
+            ...(result ? { result } : { q }),
             // The LLM answers alone, unless the user asks for their documents
             ...(!hasDocuments && { documents: false }),
-            ...(system && { instructions: system }),
+            ...(system && !isSystemInQuery && { instructions: system }),
             ...(actions?.length > 0 && { tools: actions }),
             ...(assistantId && { assistantID: assistantId }),
             ...(websearch && { websearch: true })
