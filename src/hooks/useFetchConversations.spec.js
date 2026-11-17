@@ -297,4 +297,22 @@ describe('useFetchConversations', () => {
     })
     expect(mockClient.query).toHaveBeenCalledTimes(2)
   })
+
+  it('refetches on a realtime event while the first page is on its way', () => {
+    mockClient.query.mockReturnValue(new Promise(() => {}))
+    const TestComponent = () => {
+      useFetchConversations()
+      return null
+    }
+    act(() => {
+      render(<TestComponent />)
+    })
+    const handlers =
+      useRealtime.mock.calls.at(-1)[1]['io.cozy.ai.chat.conversations']
+
+    act(() => {
+      handlers.deleted({ _id: 'c1' })
+    })
+    expect(mockClient.query).toHaveBeenCalledTimes(2)
+  })
 })

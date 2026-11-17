@@ -34,12 +34,15 @@ const useFetchConversations = ({ query = {} } = {}) => {
   const [isLoading, setIsLoading] = useState(false)
   const previousQueryRef = useRef()
   const latestRequestIdRef = useRef(0)
+  // A first page on its way may predate a realtime event and overwrite it
+  const isRefreshingRef = useRef(false)
 
   const conversationsQuery = useMemo(() => buildChatConversationsQuery(), [])
 
   const fetchConversations = useCallback(
     async (bookmark = null, fetchQuery) => {
       const requestId = ++latestRequestIdRef.current
+      if (!bookmark) isRefreshingRef.current = true
       setIsLoading(true)
       try {
         const response = await client.query(
@@ -71,6 +74,7 @@ const useFetchConversations = ({ query = {} } = {}) => {
       } finally {
         if (requestId === latestRequestIdRef.current) {
           setIsLoading(false)
+          isRefreshingRef.current = false
         }
       }
     },
@@ -102,8 +106,15 @@ const useFetchConversations = ({ query = {} } = {}) => {
   // was a large share of the stack CPU under load
   const updateConversation = useCallback(
     doc => {
-      if (!conversationsRef.current.some(({ _id }) => _id === doc._id)) {
-        // Not loaded yet (older than the loaded pages): it comes first now
+      const loaded = conversationsRef.current.find(({ _id }) => _id === doc._id)
+      // Refetched when not loaded yet (older than the loaded pages: it comes
+      // first now), when a first page is on its way, or for a new assistant
+      if (
+        !loaded ||
+        isRefreshingRef.current ||
+        loaded.relationships?.assistant?.data?._id !==
+          doc.relationships?.assistant?.data?._id
+      ) {
         refreshConversations()
         return
       }
@@ -120,9 +131,13 @@ const useFetchConversations = ({ query = {} } = {}) => {
     [refreshConversations]
   )
 
-  const removeConversation = useCallback(doc => {
-    setConversations(prev => prev.filter(({ _id }) => _id !== doc._id))
-  }, [])
+  const removeConversation = useCallback(
+    doc => {
+      setConversations(prev => prev.filter(({ _id }) => _id !== doc._id))
+      if (isRefreshingRef.current) refreshConversations()
+    },
+    [refreshConversations]
+  )
 
   useRealtime(
     client,
