@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Builds the production bundle of the assistant (build/) that start.sh installs in the instances,
-# from the working tree, in a Node container: the Node and Yarn of the host are not used. The
+# Builds the production bundle of the assistant (build/) that the stack of start.sh serves, from
+# the working tree, in a Node container: the Node and Yarn of the host are not used. The
 # backend images are pulled by start.sh.
 #
 #   scripts/qa-environment/build.sh    # once, and whenever the code under test changes
