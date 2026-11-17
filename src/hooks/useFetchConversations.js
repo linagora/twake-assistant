@@ -13,6 +13,12 @@ import {
 
 const log = Minilog('[useFetchConversations]')
 
+// The order of the query: ISO dates compare as strings
+const byMostRecentlyUpdated = (a, b) =>
+  (b.cozyMetadata?.updatedAt ?? '').localeCompare(
+    a.cozyMetadata?.updatedAt ?? ''
+  )
+
 /**
  * Uses `client.query` rather than `useQuery`, which drops the `included`
  * array the assistant of each conversation is read from:
@@ -85,16 +91,50 @@ const useFetchConversations = ({ query = {} } = {}) => {
     fetchConversations(null, previousQueryRef.current)
   }, [fetchConversations])
 
+  // Read through a ref: a new handler would subscribe to the realtime again
+  const conversationsRef = useRef(conversations)
+  useEffect(() => {
+    conversationsRef.current = conversations
+  }, [conversations])
+
+  // The event carries the whole document: refetching the page of 50
+  // conversations, with all their messages, on every update of any of them
+  // was a large share of the stack CPU under load
+  const updateConversation = useCallback(
+    doc => {
+      if (!conversationsRef.current.some(({ _id }) => _id === doc._id)) {
+        // Not loaded yet (older than the loaded pages): it comes first now
+        refreshConversations()
+        return
+      }
+      setConversations(prev =>
+        prev
+          .map(conversation =>
+            conversation._id === doc._id
+              ? { ...doc, assistant: conversation.assistant }
+              : conversation
+          )
+          .sort(byMostRecentlyUpdated)
+      )
+    },
+    [refreshConversations]
+  )
+
+  const removeConversation = useCallback(doc => {
+    setConversations(prev => prev.filter(({ _id }) => _id !== doc._id))
+  }, [])
+
   useRealtime(
     client,
     {
       [CHAT_CONVERSATIONS_DOCTYPE]: {
+        // Refetched, for the assistant it includes
         created: refreshConversations,
-        updated: refreshConversations,
-        deleted: refreshConversations
+        updated: updateConversation,
+        deleted: removeConversation
       }
     },
-    [refreshConversations]
+    [refreshConversations, updateConversation, removeConversation]
   )
 
   const fetchMore = useCallback(async () => {

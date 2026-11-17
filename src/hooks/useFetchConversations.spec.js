@@ -4,6 +4,7 @@ import { render, act } from '@testing-library/react'
 import React from 'react'
 
 import { useClient } from 'cozy-client'
+import useRealtime from 'cozy-realtime/dist/useRealtime'
 
 import useFetchConversations from './useFetchConversations'
 
@@ -246,5 +247,54 @@ describe('useFetchConversations', () => {
 
     // Data should not have been overwritten by the stale response
     expect(hookResult.conversations[0]._id).toBe('fresh')
+  })
+
+  it('applies the realtime documents without refetching the list', async () => {
+    mockClient.query.mockResolvedValue({
+      data: [
+        { _id: 'c1', cozyMetadata: { updatedAt: '2026-11-17T10:00:00Z' } },
+        { _id: 'c2', cozyMetadata: { updatedAt: '2026-11-16T10:00:00Z' } }
+      ],
+      included: [],
+      next: false
+    })
+    let hookResult
+    const TestComponent = () => {
+      hookResult = useFetchConversations()
+      return null
+    }
+    act(() => {
+      render(<TestComponent />)
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 10))
+    })
+    const handlers =
+      useRealtime.mock.calls.at(-1)[1]['io.cozy.ai.chat.conversations']
+
+    act(() => {
+      handlers.updated({
+        _id: 'c2',
+        name: 'Renamed',
+        cozyMetadata: { updatedAt: '2026-11-17T11:00:00Z' }
+      })
+    })
+    expect(hookResult.conversations.map(({ _id }) => _id)).toEqual(['c2', 'c1'])
+    expect(hookResult.conversations[0].name).toBe('Renamed')
+    expect(hookResult.conversations[0].assistant._id).toBe(
+      'default_ai_assistant'
+    )
+
+    act(() => {
+      handlers.deleted({ _id: 'c1' })
+    })
+    expect(hookResult.conversations.map(({ _id }) => _id)).toEqual(['c2'])
+    expect(mockClient.query).toHaveBeenCalledTimes(1)
+
+    // One that is not loaded yet comes from the stack
+    act(() => {
+      handlers.updated({ _id: 'c3' })
+    })
+    expect(mockClient.query).toHaveBeenCalledTimes(2)
   })
 })
