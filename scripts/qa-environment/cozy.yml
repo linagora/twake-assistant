@@ -34,7 +34,7 @@ rag:
 jobs:
   workers:
     rag-query:
-      concurrency: 200
+      concurrency: 20
 
 # The other apps (Home, Settings, Drive, Store) come from the registry
 registries:
