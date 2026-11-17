@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Starts a long lived Cozy Stack + CouchDB + Mailpit + fake openRAG stack with the assistant
-# installed, for manual or agent driven exploratory QA. Each start recreates it from scratch.
+# Starts a long lived Cozy Stack + CouchDB + Mailpit + fake openRAG stack serving the
+# assistant, for manual or agent driven exploratory QA. Each start recreates it from scratch.
 #
 #   scripts/qa-environment/build.sh    # once, and whenever the code under test changes
 #   scripts/qa-environment/start.sh
@@ -83,8 +83,9 @@ for uid in $USERS; do
   stack instances add "$domain" \
     --passphrase "${uid}1234" --email "$uid@$ROOT_DOMAIN" --public-name "$name" \
     --locale en --tz Europe/Paris >/dev/null
-  stack apps install assistant file:///app/assistant --domain "$domain" >/dev/null
-  stack apps install scribe-host file:///app/scribe-host --domain "$domain" >/dev/null
+  # The assistant and the scribe host are not installed: the stack serves them from their
+  # directories to every instance (--appdir in docker-compose.yaml). The front end provisions the
+  # assistants on opening; the daily autoprovision service has no trigger here.
   for app in $REGISTRY_APPS; do
     stack apps install "$app" --domain "$domain" >/dev/null \
       || echo "    warning: $app could not be installed from the registry for $uid" >&2

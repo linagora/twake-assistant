@@ -28,6 +28,14 @@ rag:
     url: http://openrag:8000
     api_key: fake
 
+# A rag-query job relays a whole answer stream (I/O, not CPU): its default concurrency of NumCPU
+# caps the answers in flight for the whole stack, and the questions beyond it queue before their
+# first token.
+jobs:
+  workers:
+    rag-query:
+      concurrency: 20
+
 # The other apps (Home, Settings, Drive, Store) come from the registry
 registries:
   default:

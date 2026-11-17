@@ -49,7 +49,11 @@ services:
       # The instances are <uid>.cozy.localhost:<port>: the stack listens on the published port so
       # that the URLs it builds work from the host and from the network alike
       COZY_PORT: "${QA_STACK_PORT:?}"
-    command: ["cozy-stack", "serve", "--dev"]
+    # The assistant and the scribe host are served from their directories (--appdir), not installed:
+    # an app installed from file:// is reinstalled (copied and brotli-compressed, under a lock per
+    # instance and app) on every request of its index page, which the load tests then measure
+    # instead of the opening of the app.
+    command: ["cozy-stack", "serve", "--dev", "--appdir", "assistant:/app/assistant,scribe-host:/app/scribe-host"]
     volumes:
       - ../../build:/app/assistant:ro
       - ./scribe-host:/app/scribe-host:ro
