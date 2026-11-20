@@ -5,9 +5,13 @@ import { ConversationWelcome } from './ConversationWelcome'
 
 const mockSetText = jest.fn()
 const mockKnowledgeBase = jest.fn()
+let mockComposerText = ''
 
 jest.mock('@assistant-ui/react', () => ({
-  useComposerRuntime: () => ({ setText: mockSetText })
+  useComposerRuntime: () => ({
+    getState: () => ({ text: mockComposerText }),
+    setText: mockSetText
+  })
 }))
 jest.mock('twake-i18n', () => ({
   useI18n: () => ({
@@ -28,6 +32,7 @@ jest.mock('../KnowledgeBase/useSelectedAssistantKnowledgeBase', () => ({
 describe('ConversationWelcome', () => {
   beforeEach(() => {
     mockSetText.mockReset()
+    mockComposerText = ''
   })
 
   it('names the assistant and its folder, and starts a prompt from a short action', () => {
@@ -57,6 +62,26 @@ describe('ConversationWelcome', () => {
       'assistant.welcome.actions.summarize.prompt'
     )
     expect(inputRef.current.focus).toHaveBeenCalled()
+  })
+
+  it('keeps the text typed in the composer after the prompt of an action', () => {
+    mockKnowledgeBase.mockReturnValue({
+      assistant: { _id: 'meeting', name: 'Meeting assistant' },
+      hasFolder: true,
+      folderName: 'Meeting recordings'
+    })
+    mockComposerText = 'typed'
+    render(<ConversationWelcome />)
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'assistant.welcome.actions.summarize.label'
+      })
+    )
+
+    expect(mockSetText).toHaveBeenCalledWith(
+      'assistant.welcome.actions.summarize.prompttyped'
+    )
   })
 
   it('says the answers come from any file of the whole Drive', () => {
