@@ -205,7 +205,7 @@
       "new_chat": "Nouvelle conversation",
       "older": "Plus ancien",
       "not_found_title": "Aucune conversation trouvée",
-      "not_found_desc": "Cliquez sur \"Nouvelle conversation\" pour commencer une conversation ou sélectionnez parmi vos discussions récentes",
+      "not_found_desc": "Cliquez sur « %{label} » pour en commencer une, ou essayez d'autres mots.",
       "close": "Fermer"
     },
     "message": {

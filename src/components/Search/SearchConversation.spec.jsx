@@ -99,6 +99,18 @@ describe('SearchConversation', () => {
     expect(lastQuery()).toBeUndefined()
   })
 
+  it('names the button of a new conversation when nothing is found', () => {
+    setup()
+
+    search('zzzz')
+
+    expect(
+      screen.queryByText(
+        'Click "New conversation" to start one, or try other words.'
+      )
+    ).toBeInTheDocument()
+  })
+
   it('groups the results of today under Today', () => {
     mockUseFetchConversations.mockReturnValue({
       conversations: [

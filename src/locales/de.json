@@ -205,7 +205,7 @@
       "new_chat": "Neue Unterhaltung",
       "older": "Älter",
       "not_found_title": "Keine Unterhaltungen gefunden",
-      "not_found_desc": "Klicken Sie auf „Neuer Chat“, um eine Unterhaltung zu beginnen, oder wählen Sie einen Ihrer letzten Chats aus",
+      "not_found_desc": "Klicken Sie auf „%{label}“, um eine zu beginnen, oder versuchen Sie andere Wörter.",
       "close": "Schließen"
     },
     "message": {

@@ -205,7 +205,7 @@
       "new_chat": "New conversation",
       "older": "Older",
       "not_found_title": "No conversations found",
-      "not_found_desc": "Click \"New Chat\" to begin a conversation or select from your recent chats",
+      "not_found_desc": "Click \"%{label}\" to start one, or try other words.",
       "close": "Close"
     },
     "message": {
