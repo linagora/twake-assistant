@@ -385,6 +385,7 @@
       "empty_response": "Kein Ergebnis erhalten. Bitte versuchen Sie es erneut.",
       "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut."
     },
-    "sources": "%{smart_count} Quelle |||| %{smart_count} Quellen"
+    "sources": "%{smart_count} Quelle |||| %{smart_count} Quellen",
+    "stopped": "Antwort angehalten"
   }
 }

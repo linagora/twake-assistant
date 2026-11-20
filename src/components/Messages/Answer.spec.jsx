@@ -196,4 +196,20 @@ describe('Answer', () => {
 
     expect(screen.queryByRole('button', { name: 'Copy' })).toBeInTheDocument()
   })
+
+  it('tells that a stopped answer was stopped, under its text', () => {
+    renderAnswer({
+      ...answer('Bonjour', 'incomplete'),
+      status: { type: 'incomplete', reason: 'cancelled' }
+    })
+
+    expect(screen.queryByText('Bonjour')).toBeInTheDocument()
+    expect(screen.queryByText('Answer stopped')).toBeInTheDocument()
+  })
+
+  it('does not tell a complete answer was stopped', () => {
+    renderAnswer(answer('Bonjour', 'complete'))
+
+    expect(screen.queryByText('Answer stopped')).toBe(null)
+  })
 })

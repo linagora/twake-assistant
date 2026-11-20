@@ -385,6 +385,7 @@
       "empty_response": "No result received. Please try again.",
       "generic": "Something went wrong. Please try again later."
     },
-    "sources": "%{smart_count} source |||| %{smart_count} sources"
+    "sources": "%{smart_count} source |||| %{smart_count} sources",
+    "stopped": "Answer stopped"
   }
 }
