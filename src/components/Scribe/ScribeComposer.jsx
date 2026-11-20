@@ -8,10 +8,10 @@ import React from 'react'
 import { Drive, Icon } from '@linagora/twake-icons'
 import { isMobile as isMobileDevice } from 'cozy-device-helper'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
-import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
 import { useI18n } from 'twake-i18n'
 
 import { ConversationSendButton } from '@/components/Conversations/ConversationSendButton'
+import { DismissibleTooltip } from '@/components/DismissibleTooltip'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import { focusLatestInsert } from '@/components/Scribe/scribeKeyboard'
 import styles from '@/components/Scribe/styles.styl'
@@ -64,7 +64,7 @@ export function ScribeComposer({ placeholder, inputRef }) {
         data-scribe-composer
       />
       <div className="u-flex u-flex-items-center u-flex-shrink-0 u-ml-half">
-        <Tooltip title={documentsLabel}>
+        <DismissibleTooltip title={documentsLabel}>
           <IconButton
             size="small"
             className={
@@ -77,7 +77,7 @@ export function ScribeComposer({ placeholder, inputRef }) {
           >
             <Icon icon={Drive} size={16} />
           </IconButton>
-        </Tooltip>
+        </DismissibleTooltip>
         <ConversationSendButton />
       </div>
     </ComposerPrimitive.Root>

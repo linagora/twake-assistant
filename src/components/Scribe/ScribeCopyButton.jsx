@@ -3,9 +3,9 @@ import React from 'react'
 import { Check, Copy, Icon } from '@linagora/twake-icons'
 import Minilog from 'cozy-minilog'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
-import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
 import { useI18n } from 'twake-i18n'
 
+import { DismissibleTooltip } from '@/components/DismissibleTooltip'
 import styles from '@/components/Scribe/styles.styl'
 import { useDone } from '@/components/Scribe/useDone'
 import { copyAnswer } from '@/lib/clipboard'
@@ -34,7 +34,7 @@ export function ScribeCopyButton({ text }) {
   }
 
   return (
-    <Tooltip title={label}>
+    <DismissibleTooltip title={label}>
       <IconButton
         size="small"
         className="u-mr-half u-mt-half"
@@ -52,6 +52,6 @@ export function ScribeCopyButton({ text }) {
           <Icon icon={Copy} size={ICON_SIZE} />
         )}
       </IconButton>
-    </Tooltip>
+    </DismissibleTooltip>
   )
 }
