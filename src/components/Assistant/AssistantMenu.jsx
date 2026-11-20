@@ -75,6 +75,7 @@ const AssistantMenu = ({ anchorRef, open, onClose, onSelect }) => {
           onClose={onClose}
           onSelect={() => handleSelect(assistant._id)}
           selectedAssistant={selectedAssistant}
+          selected={assistant._id === selectedAssistant._id}
           setIsOpenDeleteAssistant={setIsOpenDeleteAssistant}
           setAssistantIdInAction={setAssistantIdInAction}
           setIsOpenEditAssistant={setIsOpenEditAssistant}
@@ -86,6 +87,7 @@ const AssistantMenu = ({ anchorRef, open, onClose, onSelect }) => {
           onClose={onClose}
           onSelect={() => handleSelect(DEFAULT_ASSISTANT._id)}
           selectedAssistant={selectedAssistant}
+          selected={DEFAULT_ASSISTANT._id === selectedAssistant._id}
           disableActions={true}
         />
       )}
