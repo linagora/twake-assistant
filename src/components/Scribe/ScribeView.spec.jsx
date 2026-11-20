@@ -102,6 +102,7 @@ jest.mock('@assistant-ui/react', () => {
     useThreadRuntime: () => ({ append: jest.fn(), getState: () => mockThread }),
     useMessage: selector => selector(useContext(MessageContext)),
     useMessageRuntime: () => ({}),
+    useComposer: selector => selector({ isEmpty: !mockComposer.text.trim() }),
     useComposerRuntime: () => mockComposer
   }
 })
