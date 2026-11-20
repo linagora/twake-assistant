@@ -21,6 +21,7 @@ import {
   withKnowledgeBaseEntry,
   withoutKnowledgeBaseDoctype
 } from './knowledgeBase'
+import styles from './styles.styl'
 
 const KnowledgeBaseSection = ({ knowledgeBase = [], onChange }) => {
   const { t } = useI18n()
@@ -79,13 +80,12 @@ const KnowledgeBaseSection = ({ knowledgeBase = [], onChange }) => {
             deleteIcon={
               <Icon
                 icon={Cross}
-                size={10}
-                // inline width/height beats MUI v4's fixed deleteIcon class size
-                style={{ height: 10, width: 10 }}
+                size={12}
                 aria-label={t('assistant.knowledge_base.remove')}
               />
             }
             onDelete={handleRemoveFolder}
+            classes={{ deleteIcon: styles['folder-chip-remove'] }}
             className="u-w-auto u-ph-half"
           />
         ) : (
@@ -107,12 +107,12 @@ const KnowledgeBaseSection = ({ knowledgeBase = [], onChange }) => {
               deleteIcon={
                 <Icon
                   icon={Cross}
-                  size={10}
-                  style={{ height: 10, width: 10 }}
+                  size={12}
                   aria-label={t('assistant.knowledge_base.remove_emails')}
                 />
               }
               onDelete={handleRemoveEmails}
+              classes={{ deleteIcon: styles['folder-chip-remove'] }}
               className="u-w-auto u-ph-half u-ml-half"
             />
           ) : (

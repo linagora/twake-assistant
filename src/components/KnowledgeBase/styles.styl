@@ -35,11 +35,16 @@
     background-color var(--defaultBackgroundColor)
 
 // The cross of the design: a thin glyph in a 16px box, 4px after the label,
-// where cozy-ui draws a 22px icon with its own margins
-.folder-chip-remove.folder-chip-remove
+// where cozy-ui draws a 22px icon with its own margins. The padding makes a
+// 24px touch target (WCAG 2.5.8), the negative margins keep the glyph and the
+// chip where they were. Tripled to outweigh the right margin of the outlined
+// chip of cozy-ui, injected after this stylesheet
+.folder-chip-remove.folder-chip-remove.folder-chip-remove
+    box-sizing content-box
     width 12px
     height 12px
-    margin 0 2px 0 6px
+    padding 6px
+    margin -6px -1px -6px 0
 
 // The faint tint of the design under the folder, in both themes: the light
 // blue utility of cozy-ui stays light on a dark background
