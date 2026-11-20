@@ -177,7 +177,8 @@
           "share": "Partager",
           "load_more": "Charger plus",
           "more": "Plus d'actions"
-        }
+        },
+        "rename_label": "Nom de la conversation"
       },
       "app": "AI",
       "new_discussion": "Nouvelle discussion",
@@ -313,11 +314,12 @@
         "model": {
           "label": "Modèle",
           "placeholder": "Entrez le nom du modèle du fournisseur",
-          "unsupported": "Ce modèle n'est pas encore pris en charge."
+          "unsupported_suggestion": "Ce modèle n'est pas encore pris en charge. Essayez %{model}."
         },
         "url": {
           "label": "URL de base",
-          "placeholder": "https://api.example.com/v1"
+          "placeholder": "https://api.example.com/v1",
+          "invalid": "Saisissez une URL http(s)."
         },
         "api_key": {
           "label": "Clé API",

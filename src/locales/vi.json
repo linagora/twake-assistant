@@ -174,7 +174,8 @@
           "share": "Chia sẻ",
           "load_more": "Tải thêm",
           "more": "Thêm thao tác"
-        }
+        },
+        "rename_label": "Tên cuộc trò chuyện"
       },
       "app": "AI",
       "new_discussion": "Cuộc trò chuyện mới",
@@ -313,11 +314,12 @@
         "model": {
           "label": "Mô hình",
           "placeholder": "Nhập tên mô hình của nhà cung cấp",
-          "unsupported": "Mô hình này chưa được hỗ trợ."
+          "unsupported_suggestion": "Mô hình này chưa được hỗ trợ. Hãy thử %{model}."
         },
         "url": {
           "label": "URL",
-          "placeholder": "https://api.example.com/v1"
+          "placeholder": "https://api.example.com/v1",
+          "invalid": "Hãy nhập một URL http(s)."
         },
         "api_key": {
           "label": "Khóa API",

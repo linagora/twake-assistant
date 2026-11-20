@@ -5,7 +5,7 @@ import { useAlert } from 'cozy-ui/transpiled/react/providers/Alert'
 import { useI18n } from 'twake-i18n'
 
 import { OPENRAG_MODEL } from '../constants'
-import { checkIfModelUnsupported } from './helpers'
+import { checkIfBaseUrlInvalid, checkIfModelUnsupported } from './helpers'
 
 const log = Minilog('[AssistantDialog]')
 
@@ -107,7 +107,9 @@ export const useAssistantDialog = ({ onClose, initialData = {} }) => {
         const isCustom = selectedProvider?.id === 'custom'
         const apiKeyMissing = !formData.apiKey?.trim() && !isAllowToSkipApiKey
         const modelMissing = !formData.model?.trim()
-        const baseUrlMissing = isCustom && !formData.baseUrl?.trim()
+        const baseUrlMissing =
+          isCustom &&
+          (!formData.baseUrl?.trim() || checkIfBaseUrlInvalid(formData.baseUrl))
         const modelUnsupported = checkIfModelUnsupported(
           selectedProvider,
           formData.model
