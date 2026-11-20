@@ -101,7 +101,9 @@ export function ScribeSuggestions({ inputRef, className }) {
   // message typed. Its metadata keeps it too, for an answer asked again.
   const handleSend = suggestion => {
     if (suggestion.draft) {
-      composerRuntime.setText(suggestion.draft)
+      // The draft goes before the text already typed, which is kept
+      const { text } = composerRuntime.getState()
+      composerRuntime.setText(text ? suggestion.draft + text : suggestion.draft)
       inputRef?.current?.focus()
       return
     }
