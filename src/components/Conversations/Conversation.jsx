@@ -17,6 +17,7 @@ import KnowledgeBaseChip from '../KnowledgeBase/KnowledgeBaseChip'
 import { SourcesPanel } from '../KnowledgeBase/SourcesPanel'
 import { useIsConversationAssistantGone } from '../KnowledgeBase/useIsConversationAssistantGone'
 import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedAssistantKnowledgeBase'
+import { AnswerAnnouncer } from '../Messages/AnswerAnnouncer'
 import AssistantMessage from '../Messages/AssistantMessage'
 import UserMessage from '../Messages/UserMessage'
 import ConversationComposer from './ConversationComposer'
@@ -132,6 +133,7 @@ const Conversation = ({ className }) => {
             />
           </div>
         </ThreadPrimitive.Viewport>
+        <AnswerAnnouncer />
         <div
           className={cx('u-w-100 u-bxz', isMobile ? 'u-ph-1' : 'u-ph-2', {
             [styles['composer-dock']]: !isThreadEmpty

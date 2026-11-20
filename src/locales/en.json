@@ -386,6 +386,10 @@
       "generic": "Something went wrong. Please try again later."
     },
     "sources": "%{smart_count} source |||| %{smart_count} sources",
-    "stopped": "Answer stopped"
+    "stopped": "Answer stopped",
+    "announce": {
+      "complete": "Twake AI answered: %{text}",
+      "stopped": "Answer stopped"
+    }
   }
 }
