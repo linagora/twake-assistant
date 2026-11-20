@@ -23,6 +23,14 @@ import {
 } from './knowledgeBase'
 import styles from './styles.styl'
 
+// The label of cozy-ui ends with 12px of padding, which the default cross
+// pulled back with a -6px margin: without it, the padding of the cross alone
+// keeps the 6px between the text and the glyph
+const REMOVABLE_CHIP_CLASSES = {
+  label: 'u-pr-0',
+  deleteIcon: styles['folder-chip-remove']
+}
+
 const KnowledgeBaseSection = ({ knowledgeBase = [], onChange }) => {
   const { t } = useI18n()
   const [isPickerOpen, setIsPickerOpen] = useState(false)
@@ -85,7 +93,7 @@ const KnowledgeBaseSection = ({ knowledgeBase = [], onChange }) => {
               />
             }
             onDelete={handleRemoveFolder}
-            classes={{ deleteIcon: styles['folder-chip-remove'] }}
+            classes={REMOVABLE_CHIP_CLASSES}
             className="u-w-auto u-ph-half"
           />
         ) : (
@@ -112,7 +120,7 @@ const KnowledgeBaseSection = ({ knowledgeBase = [], onChange }) => {
                 />
               }
               onDelete={handleRemoveEmails}
-              classes={{ deleteIcon: styles['folder-chip-remove'] }}
+              classes={REMOVABLE_CHIP_CLASSES}
               className="u-w-auto u-ph-half u-ml-half"
             />
           ) : (
