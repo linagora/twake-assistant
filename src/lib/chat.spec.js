@@ -712,7 +712,7 @@ describe('makeChatAdapter', () => {
     expect(results.at(-1).metadata.custom).toEqual({ action })
   })
 
-  it('leaves the answer as it is when the user stops it', async () => {
+  it('leaves the answer as it is, marked as stopped, when the user stops it', async () => {
     const controller = new AbortController()
     const { adapter, events, fetchJSON } = setup({
       events: [{ object: 'delta', content: 'Bonjour' }]
@@ -724,8 +724,10 @@ describe('makeChatAdapter', () => {
     events.push({ _id: 'q1', object: 'delta', content: ' à tous' })
     const results = await running
 
-    expect(results.map(getText)).toEqual(['Bonjour'])
-    expect(results.at(-1).status).toBe(undefined)
+    expect(results.slice(0, -1).map(getText)).toEqual(['Bonjour'])
+    expect(results.at(-1)).toEqual({
+      status: { type: 'incomplete', reason: 'cancelled' }
+    })
     expect(fetchJSON).toHaveBeenLastCalledWith(
       'POST',
       '/ai/chat/conversations/c1/cancel'
@@ -842,7 +844,9 @@ describe('makeChatAdapter', () => {
       await new Promise(resolve => setTimeout(resolve, 0))
       controller.abort()
 
-      expect(await running).toEqual([])
+      expect(await running).toEqual([
+        { status: { type: 'incomplete', reason: 'cancelled' } }
+      ])
       expect(fetchJSON).not.toHaveBeenCalled()
     })
 

@@ -163,6 +163,9 @@ function getDocumentNotice(doc) {
   return doc.isTruncated ? 'truncated' : null
 }
 
+// Without it, assistant-ui takes an answer stopped for a complete one
+const STOPPED = { status: { type: 'incomplete', reason: 'cancelled' } }
+
 function waitForAbort(abortSignal) {
   return new Promise(resolve => {
     if (!abortSignal) return
@@ -297,6 +300,7 @@ export function makeChatAdapter({
           ])) ?? null
         if (abortSignal?.aborted) {
           releaseText(index)
+          yield STOPPED
           return
         }
       }
@@ -391,7 +395,10 @@ export function makeChatAdapter({
         }
 
         // The user has stopped the answer: what came stays as it is
-        if (abortSignal?.aborted) return
+        if (abortSignal?.aborted) {
+          yield STOPPED
+          return
+        }
 
         let answerText = answer.getText({ isWhole: true })
         const proposed = action ? null : readProposedCall(answerText, actions)
