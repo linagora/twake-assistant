@@ -26,7 +26,6 @@ const TwakeKnowledgeSelector = ({
   const {
     dirId,
     folderName,
-    hasFolder,
     isUnavailable,
     setKnowledgeBaseFolder,
     removeKnowledgeBase
@@ -49,7 +48,8 @@ const TwakeKnowledgeSelector = ({
       aria-label={t('assistant.twake_knowledges.search_in')}
       className={cx('u-flex u-flex-items-center', className)}
     >
-      {hasFolder && (
+      {/* Also a folder that is gone, shown unavailable, to be changed */}
+      {!!dirId && (
         <KnowledgeBaseChip
           dirId={dirId}
           folderName={folderName}
