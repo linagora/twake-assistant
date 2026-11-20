@@ -310,7 +310,7 @@ function ScribeLayout({
         conversationId={conversation.id}
         messages={conversation.messages}
       >
-        <AnswerAnnouncer />
+        <AnswerAnnouncer capabilities={props.capabilities} />
         {isCompact ? (
           <ScribeCompactConversation
             conversationId={conversation.id}

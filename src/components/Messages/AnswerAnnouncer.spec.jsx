@@ -7,6 +7,7 @@ import { AnswerAnnouncer } from '@/components/Messages/AnswerAnnouncer'
 import en from '@/locales/en.json'
 
 let mockMessages = []
+let props = {}
 
 jest.mock('@assistant-ui/react', () => ({
   useThread: selector => selector({ messages: mockMessages })
@@ -28,7 +29,7 @@ function setup(...steps) {
     mockMessages = messages
     return (
       <I18n lang="en" polyglot={initTranslation('en', () => en)}>
-        <AnswerAnnouncer />
+        <AnswerAnnouncer {...props} />
       </I18n>
     )
   }
@@ -38,6 +39,10 @@ function setup(...steps) {
 }
 
 describe('AnswerAnnouncer', () => {
+  beforeEach(() => {
+    props = {}
+  })
+
   it('announces a complete answer once, in plain text', () => {
     setup(
       [question],
@@ -69,6 +74,38 @@ describe('AnswerAnnouncer', () => {
     setup(
       [question, answer('', RUNNING)],
       [question, answer('', COMPLETE, { isEmpty: true })]
+    )
+
+    expect(screen.getByRole('status').textContent).toBe(
+      'No result received. Please try again.'
+    )
+  })
+
+  it('announces the text of the insert blocks without their fences', () => {
+    setup(
+      [question, answer('', RUNNING)],
+      [question, answer('Here:\n\n```insert\n**Hello**\n```', COMPLETE)]
+    )
+
+    expect(screen.getByRole('status').textContent).toBe(
+      'Twake AI answered: Here: Hello'
+    )
+  })
+
+  it('announces nothing for a call the view shows in place of a text', () => {
+    props = { capabilities: [{ name: 'create' }] }
+    setup(
+      [question, answer('', RUNNING)],
+      [question, answer('', COMPLETE, { action: { name: 'create' } })]
+    )
+
+    expect(screen.getByRole('status').textContent).toBe('')
+  })
+
+  it('announces an empty answer for a call the view does not show', () => {
+    setup(
+      [question, answer('', RUNNING)],
+      [question, answer('', COMPLETE, { action: { name: 'create' } })]
     )
 
     expect(screen.getByRole('status').textContent).toBe(
