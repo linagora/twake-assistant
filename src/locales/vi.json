@@ -201,6 +201,7 @@
     },
     "search_conversation": {
       "placeholder": "Tìm kiếm trong các cuộc trò chuyện...",
+      "label": "Tìm trong các cuộc trò chuyện của bạn",
       "new_chat": "Cuộc trò chuyện mới",
       "recent": "Cuộc trò chuyện gần đây",
       "older": "Cũ hơn",

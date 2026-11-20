@@ -201,6 +201,7 @@
     "show": "Mostra",
     "search_conversation": {
       "placeholder": "Cerca nelle tue conversazioni...",
+      "label": "Cerca nelle tue conversazioni",
       "new_chat": "Nuova conversazione",
       "recent": "Conversazioni recenti",
       "older": "Meno recenti",

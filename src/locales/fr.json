@@ -201,6 +201,7 @@
     "show": "Afficher",
     "search_conversation": {
       "placeholder": "Rechercher dans vos conversations...",
+      "label": "Rechercher dans vos conversations",
       "new_chat": "Nouvelle conversation",
       "recent": "Conversations récentes",
       "older": "Plus ancien",
