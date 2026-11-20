@@ -30,6 +30,7 @@ const ConversationBar = ({
   const { t } = useI18n()
   const { isMobile } = useBreakpoints()
   const value = useComposer(state => state.text)
+  const label = placeholder ?? t('assistant.search.placeholder')
 
   return (
     <SearchBar
@@ -43,7 +44,7 @@ const ConversationBar = ({
       })}
       icon={null}
       size="auto"
-      placeholder={placeholder ?? t('assistant.search.placeholder')}
+      placeholder={label}
       value={value}
       disabledClear
       disabledHover
@@ -55,6 +56,7 @@ const ConversationBar = ({
           multiline: true,
           inputProps: {
             className: styles['conversationBar-input'],
+            'aria-label': label,
             onHeightChange,
             submitOnEnter: !isMobileDevice()
           },

@@ -81,6 +81,12 @@ describe('ConversationBar', () => {
     expect(mockSend).toHaveBeenCalledTimes(1)
   })
 
+  it('is named after its placeholder', () => {
+    setup()
+
+    expect(screen.getByRole('textbox', { name: 'Ask' })).toBeInTheDocument()
+  })
+
   it('adds a line on Enter on a phone', () => {
     const input = setup({ isNarrow: true, isPhone: true })
 
