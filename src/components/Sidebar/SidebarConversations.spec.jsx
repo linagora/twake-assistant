@@ -131,6 +131,31 @@ describe('SidebarConversations', () => {
     expect(screen.queryByText('Open conversation')).toBeInTheDocument()
   })
 
+  it('shows the full name of a truncated conversation on hover', async () => {
+    setup()
+    const name = screen.getByText('Open conversation')
+    Object.defineProperty(name, 'scrollWidth', { value: 300 })
+    Object.defineProperty(name, 'clientWidth', { value: 150 })
+
+    fireEvent.mouseEnter(name)
+    fireEvent.mouseOver(name)
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Open conversation'
+    )
+  })
+
+  it('shows no tooltip on a name that fits', async () => {
+    setup()
+    const name = screen.getByText('Open conversation')
+
+    fireEvent.mouseEnter(name)
+    fireEvent.mouseOver(name)
+
+    await new Promise(resolve => setTimeout(resolve, 600))
+    expect(screen.queryByRole('tooltip')).toBe(null)
+  })
+
   it('replaces the deleted open conversation with a new one in the history', async () => {
     const { client } = setup()
 
