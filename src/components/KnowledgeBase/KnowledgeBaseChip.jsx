@@ -13,10 +13,10 @@ import flag from 'cozy-flags'
 import ActionsMenu from 'cozy-ui/transpiled/react/ActionsMenu'
 import ActionsMenuItem from 'cozy-ui/transpiled/react/ActionsMenu/ActionsMenuItem'
 import Chip from 'cozy-ui/transpiled/react/Chips'
-import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
+import { DismissibleTooltip } from '../DismissibleTooltip'
 import { CHIP_CLASSES } from '../TwakeKnowledges/SourceButton'
 import sourceStyles from '../TwakeKnowledges/styles.styl'
 import FolderPickerDialog from './FolderPickerDialog'
@@ -62,7 +62,7 @@ const KnowledgeBaseChip = ({
   return (
     <>
       {/* No hint on a folder that is gone */}
-      <Tooltip
+      <DismissibleTooltip
         title={isUnavailable ? '' : t('assistant.knowledge_base.folder_hint')}
         placement="top"
         classes={{
@@ -95,7 +95,7 @@ const KnowledgeBaseChip = ({
             }}
           />
         </div>
-      </Tooltip>
+      </DismissibleTooltip>
       {isMenuOpen && (
         <ActionsMenu
           open

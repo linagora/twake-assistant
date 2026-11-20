@@ -16,12 +16,12 @@ import { RealTimeQueries, isQueryLoading, useQuery } from 'cozy-client'
 import Minilog from 'cozy-minilog'
 import Button from 'cozy-ui/transpiled/react/Buttons'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
-import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useI18n } from 'twake-i18n'
 
 import DocumentAssistant from '@/assets/illu-document-assistant.svg'
 import { WelcomeFolderName } from '@/components/Conversations/ConversationWelcome'
+import { DismissibleTooltip } from '@/components/DismissibleTooltip'
 import { ScribeAnswer } from '@/components/Scribe/ScribeAnswer'
 import { ScribeComposer } from '@/components/Scribe/ScribeComposer'
 import { ScribeHistory } from '@/components/Scribe/ScribeHistory'
@@ -49,7 +49,7 @@ function makeNewConversation() {
 
 function HeaderButton({ label, isPressed, onClick, children }) {
   return (
-    <Tooltip title={label}>
+    <DismissibleTooltip title={label}>
       <IconButton
         size="small"
         color="inherit"
@@ -59,7 +59,7 @@ function HeaderButton({ label, isPressed, onClick, children }) {
       >
         {children}
       </IconButton>
-    </Tooltip>
+    </DismissibleTooltip>
   )
 }
 
