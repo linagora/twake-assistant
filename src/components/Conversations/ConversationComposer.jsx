@@ -25,14 +25,14 @@ const ConversationComposer = ({ placeholder, inputRef }) => {
   const isEmpty = useComposer(state => state.isEmpty)
   const [isMultiline, setIsMultiline] = useState(false)
   const { websearchEnabled, setWebsearchEnabled } = useAssistant()
-  const { hasFolder, isRealAssistant, hasEmail } =
+  const { dirId, isRealAssistant, hasEmail } =
     useSelectedAssistantKnowledgeBase()
 
   const showWebsearch = !!flag('cozy.assistant.websearch.enabled')
   const showMail =
     !!flag('cozy.assistant.source-knowledge.mail.enabled') &&
     (!isRealAssistant || hasEmail)
-  const hasSources = isThreadEmpty && (hasFolder || showWebsearch || showMail)
+  const hasSources = isThreadEmpty && (!!dirId || showWebsearch || showMail)
 
   // Stays multiline until emptied: once the send button leaves its side,
   // the wider input could fit the text on one line and toggle in a loop
