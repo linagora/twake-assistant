@@ -5,17 +5,21 @@ import { useI18n } from 'twake-i18n'
 
 import { getText } from '@/components/Messages/Answer'
 import { toPlainText } from '@/lib/chat'
+import { removeInsertFences } from '@/lib/scribeBlocks'
 
-function getAnnouncement(message, t) {
+function getAnnouncement(message, capabilities, t) {
   const { status, metadata } = message
   // An error is an alert already
   if (status?.type === 'incomplete') {
     return status.reason === 'cancelled' ? t('chat.announce.stopped') : ''
   }
-  const text = toPlainText(getText(message))
-  // The call of an app shows in place of a text
+  const text = toPlainText(removeInsertFences(getText(message)))
+  // The call of an app the view shows is in place of a text
   if (text === '') {
-    return metadata?.custom?.action ? '' : t('chat.errors.empty_response')
+    const name = metadata?.custom?.action?.name
+    return capabilities.some(capability => capability.name === name)
+      ? ''
+      : t('chat.errors.empty_response')
   }
   return t('chat.announce.complete', { text })
 }
@@ -24,8 +28,12 @@ function getAnnouncement(message, t) {
  * Tells screen readers once that the answer of the thread is done, stopped
  * or empty: the streamed text itself is not live, or it would be read word
  * by word
+ *
+ * @param {object} props
+ * @param {import('@/lib/scribe').ScribeCapability[]} [props.capabilities] -
+ *   the capabilities whose calls the view shows
  */
-export function AnswerAnnouncer() {
+export function AnswerAnnouncer({ capabilities = [] }) {
   const { t } = useI18n()
   const last = useThread(state => state.messages.at(-1))
   const [announcement, setAnnouncement] = useState('')
@@ -39,9 +47,9 @@ export function AnswerAnnouncer() {
     if (last?.role === 'user' || status === 'running') {
       setAnnouncement('')
     } else if (previous.status === 'running' && previous.id === last?.id) {
-      setAnnouncement(getAnnouncement(last, t))
+      setAnnouncement(getAnnouncement(last, capabilities, t))
     }
-  }, [last, t])
+  }, [last, capabilities, t])
 
   return (
     <div role="status" className="u-visuallyhidden">
