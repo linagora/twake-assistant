@@ -1,4 +1,4 @@
-import { useComposerRuntime, useThread } from '@assistant-ui/react'
+import { useComposer, useComposerRuntime, useThread } from '@assistant-ui/react'
 import React from 'react'
 
 import { Icon, ArrowUp, Stop } from '@linagora/twake-icons'
@@ -9,6 +9,7 @@ export const ConversationSendButton = () => {
   const { t } = useI18n()
   const composerRuntime = useComposerRuntime()
   const isRunning = useThread(state => state.isRunning)
+  const isEmpty = useComposer(state => state.isEmpty)
 
   const handleSend = () => {
     composerRuntime.send()
@@ -34,6 +35,8 @@ export const ConversationSendButton = () => {
         )
       }
       onClick={isRunning ? handleCancel : handleSend}
+      // Stop stays enabled while an answer is written
+      disabled={!isRunning && isEmpty}
     />
   )
 }
