@@ -203,6 +203,18 @@ describe('getKnowledgeBase', () => {
     expect(getKnowledgeBase({ knowledgeBase })).toBe(knowledgeBase)
     expect(getKnowledgeBase(undefined)).toEqual([])
   })
+
+  it('ignores a deprecated attribute that is not a list', () => {
+    const assistant = {
+      knowledgeBase: 'notalist',
+      relationships: { knowledgeBase: { data: 'bad' } }
+    }
+    expect(getKnowledgeBase({ knowledgeBase: 'notalist' })).toEqual([])
+    expect(getKnowledgeBase({ knowledgeBase: { doctype: 'x' } })).toEqual([])
+    expect(getKnowledgeBase(assistant)).toEqual([])
+    expect(getKnowledgeBaseDirId(assistant)).toBeNull()
+    expect(hasEmailKnowledgeBase(assistant)).toBe(false)
+  })
 })
 
 describe('saveKnowledgeBase', () => {

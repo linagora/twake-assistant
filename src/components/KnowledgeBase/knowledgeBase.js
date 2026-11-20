@@ -59,7 +59,9 @@ export const hasKnowledgeBaseRelationship = assistant =>
  */
 export const getKnowledgeBase = assistant => {
   if (!hasKnowledgeBaseRelationship(assistant)) {
-    return assistant?.knowledgeBase || []
+    return Array.isArray(assistant?.knowledgeBase)
+      ? assistant.knowledgeBase
+      : []
   }
   return HasMany.getHasManyItems(assistant, KNOWLEDGE_BASE).map(
     ({ _id, _type }) =>
