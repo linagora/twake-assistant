@@ -43,7 +43,9 @@
   &.create-item
     border-top 1px solid var(--dividerColor)
 
-  &:hover
+  // With the keyboard, also when Edit or Delete has the focus: not with the
+  // focus on the item alone, which a menu opened by mouse gives too
+  &:hover, &:focus-visible, &:focus-within:not(:focus)
     .menu-item-icon-button
       display inline-flex !important
 

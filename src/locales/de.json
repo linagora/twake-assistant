@@ -351,7 +351,9 @@
       "edit": "Speichern"
     },
     "configure_api_key_title": "Ihren Assistenten konfigurieren",
-    "success": "Assistent erfolgreich aktualisiert"
+    "success": "Assistent erfolgreich aktualisiert",
+    "label": "%{name} bearbeiten",
+    "actions_hint": "Pfeil rechts für Bearbeiten und Löschen"
   },
   "conversation_delete": {
     "title": "Unterhaltung löschen",
@@ -367,7 +369,8 @@
     "buttons": {
       "cancel": "Abbrechen",
       "confirm": "Löschen"
-    }
+    },
+    "label": "%{name} löschen"
   },
   "chat": {
     "thinking": "Der Assistent schreibt…",

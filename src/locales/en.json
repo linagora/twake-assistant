@@ -351,7 +351,9 @@
       "edit": "Edit"
     },
     "configure_api_key_title": "Configure your assistant",
-    "success": "Assistant updated successfully"
+    "success": "Assistant updated successfully",
+    "label": "Edit %{name}",
+    "actions_hint": "Press the right arrow for edit and delete"
   },
   "conversation_delete": {
     "title": "Delete conversation",
@@ -367,7 +369,8 @@
     "buttons": {
       "cancel": "Cancel",
       "confirm": "Delete"
-    }
+    },
+    "label": "Delete %{name}"
   },
   "chat": {
     "thinking": "The assistant is writing…",
