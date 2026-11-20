@@ -13,6 +13,12 @@ import {
 
 const log = Minilog('[useFetchConversations]')
 
+// The order of the query: ISO dates compare as strings
+const byMostRecentlyUpdated = (a, b) =>
+  (b.cozyMetadata?.updatedAt ?? '').localeCompare(
+    a.cozyMetadata?.updatedAt ?? ''
+  )
+
 /**
  * Uses `client.query` rather than `useQuery`, which drops the `included`
  * array the assistant of each conversation is read from:
@@ -28,12 +34,15 @@ const useFetchConversations = ({ query = {} } = {}) => {
   const [isLoading, setIsLoading] = useState(false)
   const previousQueryRef = useRef()
   const latestRequestIdRef = useRef(0)
+  // A first page on its way may predate a realtime event and overwrite it
+  const isRefreshingRef = useRef(false)
 
   const conversationsQuery = useMemo(() => buildChatConversationsQuery(), [])
 
   const fetchConversations = useCallback(
     async (bookmark = null, fetchQuery) => {
       const requestId = ++latestRequestIdRef.current
+      if (!bookmark) isRefreshingRef.current = true
       setIsLoading(true)
       try {
         const response = await client.query(
@@ -65,6 +74,7 @@ const useFetchConversations = ({ query = {} } = {}) => {
       } finally {
         if (requestId === latestRequestIdRef.current) {
           setIsLoading(false)
+          isRefreshingRef.current = false
         }
       }
     },
@@ -85,16 +95,61 @@ const useFetchConversations = ({ query = {} } = {}) => {
     fetchConversations(null, previousQueryRef.current)
   }, [fetchConversations])
 
+  // Read through a ref: a new handler would subscribe to the realtime again
+  const conversationsRef = useRef(conversations)
+  useEffect(() => {
+    conversationsRef.current = conversations
+  }, [conversations])
+
+  // The event carries the whole document: refetching the page of 50
+  // conversations, with all their messages, on every update of any of them
+  // was a large share of the stack CPU under load
+  const updateConversation = useCallback(
+    doc => {
+      const loaded = conversationsRef.current.find(({ _id }) => _id === doc._id)
+      // Refetched when not loaded yet (older than the loaded pages: it comes
+      // first now), when a first page is on its way, or for a new assistant
+      if (
+        !loaded ||
+        isRefreshingRef.current ||
+        loaded.relationships?.assistant?.data?._id !==
+          doc.relationships?.assistant?.data?._id
+      ) {
+        refreshConversations()
+        return
+      }
+      setConversations(prev =>
+        prev
+          .map(conversation =>
+            conversation._id === doc._id
+              ? { ...doc, assistant: conversation.assistant }
+              : conversation
+          )
+          .sort(byMostRecentlyUpdated)
+      )
+    },
+    [refreshConversations]
+  )
+
+  const removeConversation = useCallback(
+    doc => {
+      setConversations(prev => prev.filter(({ _id }) => _id !== doc._id))
+      if (isRefreshingRef.current) refreshConversations()
+    },
+    [refreshConversations]
+  )
+
   useRealtime(
     client,
     {
       [CHAT_CONVERSATIONS_DOCTYPE]: {
+        // Refetched, for the assistant it includes
         created: refreshConversations,
-        updated: refreshConversations,
-        deleted: refreshConversations
+        updated: updateConversation,
+        deleted: removeConversation
       }
     },
-    [refreshConversations]
+    [refreshConversations, updateConversation, removeConversation]
   )
 
   const fetchMore = useCallback(async () => {
