@@ -170,6 +170,7 @@
       "close_sidebar": "Close sidebar",
       "assistant": "Assistant",
       "recent_chats": "Recent",
+      "recent_empty": "Your conversations will appear here",
       "conversation": {
         "actions": {
           "delete": "Delete",
