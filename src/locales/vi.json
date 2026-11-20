@@ -345,6 +345,7 @@
   },
   "assistant_edit": {
     "title": "Chỉnh sửa trợ lý",
+    "load_error": "Không thể tải trợ lý này. Vui lòng thử lại.",
     "buttons": {
       "cancel": "Hủy",
       "next": "Tiếp",
