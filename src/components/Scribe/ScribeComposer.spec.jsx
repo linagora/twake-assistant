@@ -22,6 +22,7 @@ jest.mock('@assistant-ui/react', () => ({
     ),
     Input: props => <textarea {...props} />
   },
+  useComposer: selector => selector({ isEmpty: !mockComposer.text.trim() }),
   useComposerRuntime: () => mockComposer,
   useThread: selector => selector(mockThread)
 }))
@@ -64,7 +65,7 @@ describe('ScribeComposer', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('sends what the user wrote', () => {
-    renderComposer()
+    renderComposer({ text: 'hello' })
 
     fireEvent.click(screen.getByRole('button', { name: 'Send' }))
 
