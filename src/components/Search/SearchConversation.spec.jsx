@@ -34,6 +34,13 @@ jest.mock('cozy-ui/transpiled/react/providers/Breakpoints', () => {
   return { __esModule: true, default: useBreakpoints, useBreakpoints }
 })
 
+const today = new Date().toISOString()
+const conversation = (_id, name) => ({
+  _id,
+  name,
+  cozyMetadata: { updatedAt: today }
+})
+
 const setup = () =>
   render(
     <I18n lang="en" polyglot={initTranslation('en', () => en)}>
@@ -90,5 +97,21 @@ describe('SearchConversation', () => {
     search('')
 
     expect(lastQuery()).toBeUndefined()
+  })
+
+  it('groups the results of today under Today', () => {
+    mockUseFetchConversations.mockReturnValue({
+      conversations: [
+        conversation('1', 'ux-audit-1 budget'),
+        conversation('2', 'Budget review')
+      ],
+      isLoading: false
+    })
+    setup()
+
+    search('budget')
+
+    expect(screen.queryByText('Today')).toBeInTheDocument()
+    expect(screen.queryByText('ux-audit-1 budget')).toBeInTheDocument()
   })
 })
