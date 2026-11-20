@@ -385,6 +385,11 @@
       "empty_response": "Không nhận được kết quả. Vui lòng thử lại.",
       "generic": "Đã xảy ra lỗi. Vui lòng thử lại sau."
     },
-    "sources": "%{smart_count} nguồn |||| %{smart_count} nguồn"
+    "sources": "%{smart_count} nguồn |||| %{smart_count} nguồn",
+    "stopped": "Đã dừng câu trả lời",
+    "announce": {
+      "complete": "Twake AI đã trả lời: %{text}",
+      "stopped": "Đã dừng câu trả lời"
+    }
   }
 }

@@ -385,6 +385,11 @@
       "empty_response": "Результат не получен. Попробуйте ещё раз.",
       "generic": "Что-то пошло не так. Попробуйте позже."
     },
-    "sources": "%{smart_count} источник |||| %{smart_count} источника |||| %{smart_count} источников"
+    "sources": "%{smart_count} источник |||| %{smart_count} источника |||| %{smart_count} источников",
+    "stopped": "Ответ остановлен",
+    "announce": {
+      "complete": "Ответ Twake AI: %{text}",
+      "stopped": "Ответ остановлен"
+    }
   }
 }

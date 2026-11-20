@@ -385,6 +385,11 @@
       "empty_response": "Aucun résultat reçu. Veuillez réessayer.",
       "generic": "Une erreur est survenue. Veuillez réessayer plus tard."
     },
-    "sources": "%{smart_count} source |||| %{smart_count} sources"
+    "sources": "%{smart_count} source |||| %{smart_count} sources",
+    "stopped": "Réponse arrêtée",
+    "announce": {
+      "complete": "Twake AI a répondu : %{text}",
+      "stopped": "Réponse arrêtée"
+    }
   }
 }

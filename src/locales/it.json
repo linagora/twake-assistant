@@ -385,6 +385,11 @@
       "empty_response": "Nessun risultato ricevuto. Riprova.",
       "generic": "Qualcosa è andato storto. Riprova più tardi."
     },
-    "sources": "%{smart_count} fonte |||| %{smart_count} fonti"
+    "sources": "%{smart_count} fonte |||| %{smart_count} fonti",
+    "stopped": "Risposta interrotta",
+    "announce": {
+      "complete": "Twake AI ha risposto: %{text}",
+      "stopped": "Risposta interrotta"
+    }
   }
 }

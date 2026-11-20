@@ -385,6 +385,11 @@
       "empty_response": "No se recibió ningún resultado. Inténtelo de nuevo.",
       "generic": "Algo salió mal. Inténtelo de nuevo más tarde."
     },
-    "sources": "%{smart_count} fuente |||| %{smart_count} fuentes"
+    "sources": "%{smart_count} fuente |||| %{smart_count} fuentes",
+    "stopped": "Respuesta detenida",
+    "announce": {
+      "complete": "Twake AI respondió: %{text}",
+      "stopped": "Respuesta detenida"
+    }
   }
 }
