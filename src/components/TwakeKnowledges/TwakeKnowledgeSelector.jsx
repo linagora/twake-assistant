@@ -26,22 +26,10 @@ const TwakeKnowledgeSelector = ({
   const {
     dirId,
     folderName,
-    hasFolder,
     isUnavailable,
     setKnowledgeBaseFolder,
     removeKnowledgeBase
   } = useSelectedAssistantKnowledgeBase()
-
-  // Pointer activation leaves the focus on the button, whose focus style
-  // would then differ from the sibling sources until something else takes
-  // it. Drop it for pointer activation only (`detail > 0`), so keyboard
-  // users keep their focus ring.
-  const handleToggleWebsearch = event => {
-    if (event.detail > 0) {
-      event.currentTarget.blur()
-    }
-    onToggleWebsearch(event)
-  }
 
   return (
     <div
@@ -49,7 +37,8 @@ const TwakeKnowledgeSelector = ({
       aria-label={t('assistant.twake_knowledges.search_in')}
       className={cx('u-flex u-flex-items-center', className)}
     >
-      {hasFolder && (
+      {/* Also a folder that is gone, shown unavailable, to be changed */}
+      {!!dirId && (
         <KnowledgeBaseChip
           dirId={dirId}
           folderName={folderName}
@@ -64,7 +53,7 @@ const TwakeKnowledgeSelector = ({
           label={t('assistant.websearch.label')}
           isActive={websearchEnabled}
           aria-pressed={websearchEnabled}
-          onClick={handleToggleWebsearch}
+          onClick={onToggleWebsearch}
           className="u-ml-half"
         />
       )}
