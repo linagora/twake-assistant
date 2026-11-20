@@ -33,6 +33,18 @@ const SearchConversationContainer = ({ children, isMobile }) =>
     </Dialog>
   )
 
+/**
+ * Matches `value` literally, whatever the case of its letters. Not `(?i)`:
+ * cozy-client evaluates the selector again in JavaScript, which rejects it,
+ * and CouchDB folds only ASCII letters with it.
+ */
+const makeCaseInsensitivePattern = value =>
+  Array.from(value, char => {
+    const lower = char.toLowerCase()
+    const upper = char.toUpperCase()
+    return lower === upper ? escapeRegExp(char) : `(?:${lower}|${upper})`
+  }).join('')
+
 const SearchConversation = () => {
   const { t, lang } = useI18n()
   const { isMobile } = useBreakpoints()
@@ -52,17 +64,12 @@ const SearchConversation = () => {
     () =>
       debounce(async value => {
         // FIXME: no index serves this query: CouchDB deserializes every
-        // document to evaluate the regex of `$elemMatch`, and fuzzy search is
-        // out of reach. Move it to a client-side search.
+        // document to evaluate the regexes, and fuzzy search is out of reach.
+        // Move it to a client-side search.
+        const re = { $regex: makeCaseInsensitivePattern(value) }
         const fetchQuery = value
           ? {
-              messages: {
-                $elemMatch: {
-                  content: {
-                    $regex: escapeRegExp(value)
-                  }
-                }
-              }
+              $or: [{ name: re }, { messages: { $elemMatch: { content: re } } }]
             }
           : undefined
         setQuery(fetchQuery)
@@ -75,6 +82,15 @@ const SearchConversation = () => {
       debouncedFetchConversations.cancel()
     }
   }, [debouncedFetchConversations])
+
+  const status =
+    !query || isLoading
+      ? null
+      : conversations.length === 0
+        ? t('assistant.search_conversation.not_found_title')
+        : t('assistant.search_conversation.results', {
+            smart_count: conversations.length
+          })
 
   const handleSearchChange = e => {
     const newQuery = e.target.value
@@ -110,6 +126,13 @@ const SearchConversation = () => {
               size={isMobile ? 'medium' : 'small'}
               value={searchStr}
               onChange={handleSearchChange}
+              componentsProps={{
+                inputBase: {
+                  inputProps: {
+                    'aria-label': t('assistant.search_conversation.label')
+                  }
+                }
+              }}
             />
 
             {isMobile && (
@@ -157,7 +180,7 @@ const SearchConversation = () => {
                   })}
                 >
                   {group.key === 'today'
-                    ? t('assistant.search_conversation.recent')
+                    ? t('assistant.time.today')
                     : group.key === 'yesterday'
                       ? t('assistant.time.yesterday')
                       : formatDayLabel(group.dayTimestamp, lang)}
@@ -176,6 +199,9 @@ const SearchConversation = () => {
           {!isLoading && conversations?.length === 0 && (
             <NotFoundConversation />
           )}
+          <div role="status" className="u-visuallyhidden">
+            {status}
+          </div>
         </div>
       </div>
     </SearchConversationContainer>

@@ -27,7 +27,9 @@ const NotFoundConversation = () => {
         </Avatar>
       }
       title={t('assistant.search_conversation.not_found_title')}
-      text={t('assistant.search_conversation.not_found_desc')}
+      text={t('assistant.search_conversation.not_found_desc', {
+        label: t('assistant.search_conversation.new_chat')
+      })}
       componentsProps={{ title: { variant: 'h4' } }}
     />
   )

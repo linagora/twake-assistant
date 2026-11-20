@@ -199,11 +199,12 @@
     "show": "Show",
     "search_conversation": {
       "placeholder": "Search in your conversations...",
+      "label": "Search in your conversations",
       "new_chat": "New conversation",
-      "recent": "Recent Conversations",
       "older": "Older",
       "not_found_title": "No conversations found",
-      "not_found_desc": "Click \"New Chat\" to begin a conversation or select from your recent chats",
+      "not_found_desc": "Click \"%{label}\" to start one, or try other words.",
+      "results": "%{smart_count} conversation found |||| %{smart_count} conversations found",
       "close": "Close"
     },
     "message": {
