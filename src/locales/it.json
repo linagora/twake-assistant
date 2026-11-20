@@ -345,6 +345,7 @@
   },
   "assistant_edit": {
     "title": "Modifica assistente",
+    "load_error": "Impossibile caricare questo assistente. Riprova.",
     "buttons": {
       "cancel": "Annulla",
       "next": "Avanti",

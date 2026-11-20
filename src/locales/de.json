@@ -345,6 +345,7 @@
   },
   "assistant_edit": {
     "title": "Assistent bearbeiten",
+    "load_error": "Dieser Assistent kann nicht geladen werden. Bitte versuchen Sie es erneut.",
     "buttons": {
       "cancel": "Abbrechen",
       "next": "Weiter",

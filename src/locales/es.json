@@ -345,6 +345,7 @@
   },
   "assistant_edit": {
     "title": "Editar asistente",
+    "load_error": "No se puede cargar este asistente. Inténtelo de nuevo.",
     "buttons": {
       "cancel": "Cancelar",
       "next": "Siguiente",
