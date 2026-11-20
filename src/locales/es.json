@@ -206,6 +206,7 @@
       "older": "Anteriores",
       "not_found_title": "No se encontraron conversaciones",
       "not_found_desc": "Haga clic en \"%{label}\" para iniciar una, o pruebe con otras palabras.",
+      "results": "%{smart_count} conversación encontrada |||| %{smart_count} conversaciones encontradas",
       "close": "Cerrar"
     },
     "message": {

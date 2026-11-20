@@ -206,6 +206,7 @@
       "older": "Cũ hơn",
       "not_found_title": "Không tìm thấy cuộc trò chuyện nào",
       "not_found_desc": "Nhấp vào \"%{label}\" để bắt đầu, hoặc thử từ khác.",
+      "results": "Tìm thấy %{smart_count} cuộc trò chuyện",
       "close": "Đóng"
     },
     "twake_knowledges": {

@@ -83,6 +83,15 @@ const SearchConversation = () => {
     }
   }, [debouncedFetchConversations])
 
+  const status =
+    !query || isLoading
+      ? null
+      : conversations.length === 0
+        ? t('assistant.search_conversation.not_found_title')
+        : t('assistant.search_conversation.results', {
+            smart_count: conversations.length
+          })
+
   const handleSearchChange = e => {
     const newQuery = e.target.value
     setSearchStr(newQuery)
@@ -190,6 +199,9 @@ const SearchConversation = () => {
           {!isLoading && conversations?.length === 0 && (
             <NotFoundConversation />
           )}
+          <div role="status" className="u-visuallyhidden">
+            {status}
+          </div>
         </div>
       </div>
     </SearchConversationContainer>
