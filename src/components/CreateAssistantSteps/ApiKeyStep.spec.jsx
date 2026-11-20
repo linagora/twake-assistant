@@ -53,4 +53,25 @@ describe('ApiKeyStep', () => {
       screen.queryByText(/This model is not supported yet\. Try gpt-/)
     ).toBeInTheDocument()
   })
+
+  it.each(['not a url', 'javascript:alert(1)'])(
+    'shows an error for the base url %s',
+    baseUrl => {
+      setup({ providerId: 'custom', formData: { baseUrl } })
+
+      expect(
+        screen.getByLabelText('Base URL').getAttribute('aria-invalid')
+      ).toBe('true')
+      expect(screen.queryByText('Enter an http(s) URL.')).toBeInTheDocument()
+    }
+  )
+
+  it.each(['', 'https://api.example.com/v1'])(
+    'shows no error for the base url "%s"',
+    baseUrl => {
+      setup({ providerId: 'custom', formData: { baseUrl } })
+
+      expect(screen.queryByText('Enter an http(s) URL.')).toBe(null)
+    }
+  )
 })

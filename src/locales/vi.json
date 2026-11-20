@@ -318,7 +318,8 @@
         },
         "url": {
           "label": "URL",
-          "placeholder": "https://api.example.com/v1"
+          "placeholder": "https://api.example.com/v1",
+          "invalid": "Hãy nhập một URL http(s)."
         },
         "api_key": {
           "label": "Khóa API",

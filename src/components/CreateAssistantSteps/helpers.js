@@ -27,3 +27,12 @@ export const checkIfModelUnsupported = (provider, model) => {
   const unsupportedModels = provider?.unsupportedModels || []
   return unsupportedModels.includes(model?.trim())
 }
+
+// Only an http(s) URL reaches a provider
+export const checkIfBaseUrlInvalid = baseUrl => {
+  try {
+    return !['http:', 'https:'].includes(new URL(baseUrl.trim()).protocol)
+  } catch {
+    return true
+  }
+}
