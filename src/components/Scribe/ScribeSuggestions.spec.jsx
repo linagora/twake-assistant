@@ -9,7 +9,11 @@ import { ScribeSuggestions } from '@/components/Scribe/ScribeSuggestions'
 import en from '@/locales/en.json'
 
 const mockThread = { append: jest.fn() }
-const mockComposer = { setText: jest.fn() }
+let mockComposerText = ''
+const mockComposer = {
+  getState: () => ({ text: mockComposerText }),
+  setText: jest.fn()
+}
 let mockIsRunning = false
 
 jest.mock('@assistant-ui/react', () => ({
@@ -37,6 +41,7 @@ describe('ScribeSuggestions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockIsRunning = false
+    mockComposerText = ''
   })
 
   it('turns the chips off while an answer runs', () => {
@@ -118,6 +123,17 @@ describe('ScribeSuggestions', () => {
     expect(mockComposer.setText).toHaveBeenCalledWith('Help me write ')
     expect(inputRef.current.focus).toHaveBeenCalledTimes(1)
     expect(mockThread.append).not.toHaveBeenCalled()
+  })
+
+  it('keeps the text typed in the composer after the draft of a short action', () => {
+    mockComposerText = 'typed'
+    renderSuggestions([
+      { name: 'write', label: 'Help me write', draft: 'Help me write ' }
+    ])
+
+    fireEvent.click(screen.getByRole('button', { name: 'Help me write' }))
+
+    expect(mockComposer.setText).toHaveBeenCalledWith('Help me write typed')
   })
 
   it('shows nothing without prompts', () => {
