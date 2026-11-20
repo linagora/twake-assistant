@@ -199,6 +199,7 @@
     "show": "Anzeigen",
     "search_conversation": {
       "placeholder": "In Ihren Unterhaltungen suchen...",
+      "label": "In Ihren Unterhaltungen suchen",
       "new_chat": "Neue Unterhaltung",
       "recent": "Letzte Unterhaltungen",
       "older": "Älter",

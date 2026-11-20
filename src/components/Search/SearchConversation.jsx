@@ -117,6 +117,13 @@ const SearchConversation = () => {
               size={isMobile ? 'medium' : 'small'}
               value={searchStr}
               onChange={handleSearchChange}
+              componentsProps={{
+                inputBase: {
+                  inputProps: {
+                    'aria-label': t('assistant.search_conversation.label')
+                  }
+                }
+              }}
             />
 
             {isMobile && (

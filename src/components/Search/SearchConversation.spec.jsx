@@ -42,7 +42,10 @@ const setup = () =>
   )
 
 const search = value => {
-  fireEvent.change(screen.getByRole('textbox'), { target: { value } })
+  fireEvent.change(
+    screen.getByRole('textbox', { name: 'Search in your conversations' }),
+    { target: { value } }
+  )
   act(() => {
     jest.advanceTimersByTime(300)
   })

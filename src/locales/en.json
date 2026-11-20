@@ -199,6 +199,7 @@
     "show": "Show",
     "search_conversation": {
       "placeholder": "Search in your conversations...",
+      "label": "Search in your conversations",
       "new_chat": "New conversation",
       "recent": "Recent Conversations",
       "older": "Older",
