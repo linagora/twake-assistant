@@ -203,7 +203,7 @@
       "new_chat": "Nueva conversación",
       "older": "Anteriores",
       "not_found_title": "No se encontraron conversaciones",
-      "not_found_desc": "Haga clic en \"Nuevo chat\" para iniciar una conversación o elija uno de sus chats recientes",
+      "not_found_desc": "Haga clic en \"%{label}\" para iniciar una, o pruebe con otras palabras.",
       "close": "Cerrar"
     },
     "message": {
