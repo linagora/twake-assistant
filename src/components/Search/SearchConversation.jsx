@@ -171,7 +171,7 @@ const SearchConversation = () => {
                   })}
                 >
                   {group.key === 'today'
-                    ? t('assistant.search_conversation.recent')
+                    ? t('assistant.time.today')
                     : group.key === 'yesterday'
                       ? t('assistant.time.yesterday')
                       : formatDayLabel(group.dayTimestamp, lang)}
