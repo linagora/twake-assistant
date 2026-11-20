@@ -59,7 +59,7 @@ const KnowledgeBaseSection = ({ knowledgeBase = [], onChange }) => {
 
   return (
     <div className="u-mb-1">
-      <Typography variant="h6" className="u-mb-half">
+      <Typography variant="h6" component="p" className="u-mb-half">
         {t('assistant_create.steps.basic_info.knowledge_base')}
       </Typography>
       <Typography variant="body2" className="u-mb-half u-c-text-secondary">

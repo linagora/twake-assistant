@@ -45,7 +45,7 @@ const BasicInfoStep = ({
       </Typography>
 
       <div className="u-mb-1">
-        <Typography variant="h6" className="u-mb-half">
+        <Typography variant="h6" component="p" className="u-mb-half">
           {t('assistant_create.steps.basic_info.avatar')}
         </Typography>
         <div className="u-flex u-flex-items-center u-flex-justify-center">
@@ -101,23 +101,38 @@ const BasicInfoStep = ({
       </div>
 
       <div className="u-mb-1">
-        <Typography variant="h6" className="u-mb-half">
+        <Typography
+          variant="h6"
+          component="label"
+          display="block"
+          htmlFor="assistant-name"
+          className="u-mb-half"
+        >
           {t('assistant_create.steps.basic_info.name')}
         </Typography>
         <TextField
+          id="assistant-name"
           fullWidth
           placeholder={t('assistant_create.steps.basic_info.name_placeholder')}
           value={name}
           onChange={onChange('name')}
           variant="outlined"
+          inputProps={{ 'aria-required': true }}
         />
       </div>
 
       <div className="u-mb-1">
-        <Typography variant="h6" className="u-mb-half">
+        <Typography
+          variant="h6"
+          component="label"
+          display="block"
+          htmlFor="assistant-prompt"
+          className="u-mb-half"
+        >
           {t('assistant_create.steps.basic_info.prompt_label')}
         </Typography>
         <TextField
+          id="assistant-prompt"
           fullWidth
           multiline
           rows={6}

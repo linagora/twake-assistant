@@ -117,10 +117,11 @@ describe('ScribeView', () => {
     openMenuOf('Other request')
     fireEvent.click(screen.getByRole('menuitem', { name: 'Rename' }))
     const dialog = screen.getByRole('dialog')
-    fireEvent.change(within(dialog).getByRole('textbox'), {
-      target: { value: 'New name' }
-    })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Edit' }))
+    fireEvent.change(
+      within(dialog).getByRole('textbox', { name: 'Conversation name' }),
+      { target: { value: 'New name' } }
+    )
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Rename' }))
 
     await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null))
     expect(client.save).toHaveBeenCalledWith(

@@ -127,6 +127,9 @@ const ConversationActions = ({
               fullWidth
               variant="outlined"
               value={newName}
+              inputProps={{
+                'aria-label': t('assistant.sidebar.conversation.rename_label')
+              }}
               onChange={e => setNewName(e.target.value)}
               onKeyDown={e => {
                 if (e.key === 'Enter' && newName.trim()) {
@@ -143,7 +146,7 @@ const ConversationActions = ({
                 onClick={() => setShowRenameDialog(false)}
               />
               <Button
-                label={t('assistant_edit.buttons.edit')}
+                label={t('assistant.sidebar.conversation.actions.rename')}
                 onClick={handleRename}
                 disabled={!newName.trim()}
               />

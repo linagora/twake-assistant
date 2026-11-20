@@ -177,7 +177,8 @@
           "share": "Share",
           "load_more": "Load more",
           "more": "More actions"
-        }
+        },
+        "rename_label": "Conversation name"
       },
       "app": "AI",
       "new_discussion": "New discussion",
@@ -313,7 +314,7 @@
         "model": {
           "label": "Model",
           "placeholder": "Enter the model name of the provider",
-          "unsupported": "This model is not supported yet."
+          "unsupported_suggestion": "This model is not supported yet. Try %{model}."
         },
         "url": {
           "label": "Base URL",
