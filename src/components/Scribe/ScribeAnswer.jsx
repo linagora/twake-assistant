@@ -82,22 +82,23 @@ function DocumentNotice({ notice }) {
   return null
 }
 
-function ScribeAnswerActions({ text, ...props }) {
+function ScribeAnswerActions({ text, isWhole, ...props }) {
   const { answerActions } = useScribe()
 
   return (
     <div {...props} className="u-flex u-flex-items-center u-flex-wrap">
       <ScribeCopyButton text={text} />
-      {answerActions.map(action => (
-        <AnswerActionButton key={action.name} action={action} text={text} />
-      ))}
+      {isWhole &&
+        answerActions.map(action => (
+          <AnswerActionButton key={action.name} action={action} text={text} />
+        ))}
     </div>
   )
 }
 
 /**
  * An answer of the LLM, with Copy and the buttons of the actions of the app
- * once it is complete, under the whole answer or under each of its insert
+ * once it is complete, Copy only once it is stopped, under the whole answer or under each of its insert
  * blocks, shown as cards: in the compact layout, the one of the latest
  * exchange only. Above it, whether the document of the request was cut or
  * could not be read.
@@ -109,6 +110,9 @@ export function ScribeAnswer() {
   const messageId = useMessage(message => message.id)
   const text = useMessage(getText)
   const status = useMessage(message => message.status?.type)
+  const isStopped = useMessage(
+    message => message.status?.reason === 'cancelled'
+  )
   const documentNotice = useMessage(
     message => message.metadata?.custom?.documentNotice
   )
@@ -168,9 +172,11 @@ export function ScribeAnswer() {
   )
   const parts =
     !parentPrompt && hasInsertBlocks(text) ? splitAnswerBlocks(text) : null
-  // Only a whole answer, or a whole block, goes into the document of the app
+  // Only a whole answer, or a whole block, goes into the document of the app:
+  // what came of a stopped one can only be copied
   const isComplete = status === 'complete'
-  const canAct = isComplete && text.trim() !== ''
+  const isEnded = isComplete || isStopped
+  const canAct = isEnded && text.trim() !== ''
   // The steps that follow one another show as one line, the one of the first
   const isStep = useMessage(message => getStep(message, capabilities) !== null)
   // A string, not the group: the selector of useThread must return the same
@@ -214,8 +220,8 @@ export function ScribeAnswer() {
           parts?.map((part, index) =>
             part.type === 'block' ? (
               <ScribeBlockCard key={index} text={part.text}>
-                {isComplete && part.text.trim() !== '' && (
-                  <ScribeAnswerActions text={part.text} />
+                {isEnded && part.text.trim() !== '' && (
+                  <ScribeAnswerActions text={part.text} isWhole={isComplete} />
                 )}
               </ScribeBlockCard>
             ) : (
@@ -235,7 +241,11 @@ export function ScribeAnswer() {
           />
         )}
         {canAct && !parts && (
-          <ScribeAnswerActions text={text} data-scribe-card="answer" />
+          <ScribeAnswerActions
+            text={text}
+            isWhole={isComplete}
+            data-scribe-card="answer"
+          />
         )}
         {card}
       </Answer>

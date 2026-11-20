@@ -73,6 +73,11 @@ function renderAnswer(message, answerActions = [], capabilities = []) {
   )
 }
 
+const stopped = text => ({
+  ...answer(text, 'incomplete'),
+  status: { type: 'incomplete', reason: 'cancelled' }
+})
+
 describe('ScribeAnswer', () => {
   beforeEach(() => {
     mockThread = { messages: [] }
@@ -187,6 +192,20 @@ describe('ScribeAnswer', () => {
     expect(actions[1].onClick).not.toHaveBeenCalled()
   })
 
+  it('offers to copy what came of a stopped answer, but not to put it into the document', async () => {
+    renderAnswer(stopped('Bonj'), actions)
+
+    expect(screen.queryByText('Answer stopped')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Insert' })).toBe(null)
+    expect(screen.queryByRole('button', { name: 'Replace' })).toBe(null)
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Copy' }))
+    })
+
+    expect(copyAnswer).toHaveBeenCalledWith('Bonj')
+  })
+
   describe('the insert blocks of an answer', () => {
     const blocks =
       'Here:\n\n```insert\nHello\n```\n\nand\n\n```insert\nBye\n```'
@@ -250,6 +269,18 @@ describe('ScribeAnswer', () => {
       expect(cards[0]).toHaveTextContent('Hel')
       expect(screen.queryByText('the').tagName).toBe('STRONG')
       expect(screen.queryByRole('button')).toBe(null)
+    })
+
+    it('offers to copy only the blocks of a stopped answer', () => {
+      const { container } = renderAnswer(stopped(blocks), actions)
+      const cards = getCards(container)
+
+      expect(cards).toHaveLength(2)
+      expect(within(cards[0]).getAllByRole('button')).toHaveLength(1)
+      expect(
+        within(cards[0]).queryByRole('button', { name: 'Copy' })
+      ).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Insert' })).toBe(null)
     })
 
     it('keeps the whole answer insertable without a block', () => {
