@@ -51,7 +51,7 @@ const ConversationLoader = ({
   conversationId: string
 }): JSX.Element | null => {
   const { t } = useI18n()
-  const { setSelectedAssistantId } = useAssistant()
+  const { setSelectedAssistantId, setWebsearchEnabled } = useAssistant()
   const conversationQuery = buildChatConversationQueryById(conversationId)
   const queryResult = useQuery(
     conversationQuery.definition,
@@ -90,6 +90,13 @@ const ConversationLoader = ({
   useLayoutEffect(() => {
     if (resolvedAssistantId) setSelectedAssistantId(resolvedAssistantId)
   }, [conversationId, resolvedAssistantId, setSelectedAssistantId])
+
+  // Web search is off in every conversation, new or reopened, until the
+  // user turns it on in it: never inherited from another one
+  useLayoutEffect(
+    () => setWebsearchEnabled(false),
+    [conversationId, setWebsearchEnabled]
+  )
 
   if (resolvedAssistantId === undefined) {
     return (
