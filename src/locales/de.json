@@ -204,6 +204,7 @@
       "older": "Älter",
       "not_found_title": "Keine Unterhaltungen gefunden",
       "not_found_desc": "Klicken Sie auf „%{label}“, um eine zu beginnen, oder versuchen Sie andere Wörter.",
+      "results": "%{smart_count} Unterhaltung gefunden |||| %{smart_count} Unterhaltungen gefunden",
       "close": "Schließen"
     },
     "message": {

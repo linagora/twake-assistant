@@ -204,6 +204,7 @@
       "older": "Older",
       "not_found_title": "No conversations found",
       "not_found_desc": "Click \"%{label}\" to start one, or try other words.",
+      "results": "%{smart_count} conversation found |||| %{smart_count} conversations found",
       "close": "Close"
     },
     "message": {

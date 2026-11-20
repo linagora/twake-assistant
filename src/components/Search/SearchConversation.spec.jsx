@@ -99,7 +99,13 @@ describe('SearchConversation', () => {
     expect(lastQuery()).toBeUndefined()
   })
 
-  it('names the button of a new conversation when nothing is found', () => {
+  it('announces nothing before a search', () => {
+    setup()
+
+    expect(screen.getByRole('status')).toHaveTextContent('')
+  })
+
+  it('announces that no conversation is found', () => {
     setup()
 
     search('zzzz')
@@ -109,9 +115,12 @@ describe('SearchConversation', () => {
         'Click "New conversation" to start one, or try other words.'
       )
     ).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'No conversations found'
+    )
   })
 
-  it('groups the results of today under Today', () => {
+  it('announces the number of results and groups them under today', () => {
     mockUseFetchConversations.mockReturnValue({
       conversations: [
         conversation('1', 'ux-audit-1 budget'),
@@ -123,7 +132,22 @@ describe('SearchConversation', () => {
 
     search('budget')
 
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '2 conversations found'
+    )
     expect(screen.queryByText('Today')).toBeInTheDocument()
     expect(screen.queryByText('ux-audit-1 budget')).toBeInTheDocument()
+  })
+
+  it('announces nothing while loading', () => {
+    mockUseFetchConversations.mockReturnValue({
+      conversations: [],
+      isLoading: true
+    })
+    setup()
+
+    search('budget')
+
+    expect(screen.getByRole('status')).toHaveTextContent('')
   })
 })
