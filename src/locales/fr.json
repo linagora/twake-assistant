@@ -347,6 +347,7 @@
   },
   "assistant_edit": {
     "title": "Modifier l'assistant",
+    "load_error": "Impossible de charger cet assistant. Veuillez réessayer.",
     "buttons": {
       "cancel": "Annuler",
       "next": "Suivant",

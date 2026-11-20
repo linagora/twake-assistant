@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 import { Icon, Cross } from '@linagora/twake-icons'
 import { useClient } from 'cozy-client'
 import { editAssistant } from 'cozy-client/dist/models/assistant'
+import Minilog from 'cozy-minilog'
 import Button from 'cozy-ui/transpiled/react/Buttons'
 import Dialog from 'cozy-ui/transpiled/react/Dialog'
 import {
@@ -32,6 +33,8 @@ import {
 } from '../KnowledgeBase/knowledgeBase'
 import { buildAssistantByIdWithProviderQuery } from '../queries'
 
+const log = Minilog('[EditAssistantDialog]')
+
 const EditAssistantDialog = ({ open, onClose }) => {
   const { t } = useI18n()
   const client = useClient()
@@ -55,6 +58,11 @@ const EditAssistantDialog = ({ open, onClose }) => {
     handleChangeModel
   } = useAssistantDialog({ onClose })
 
+  // `onClose` is a new function at each render of the parent: read through a
+  // ref so that it does not fetch the assistant again.
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
   useEffect(() => {
     if (!open || !assistantIdInAction) return
 
@@ -63,6 +71,7 @@ const EditAssistantDialog = ({ open, onClose }) => {
         buildAssistantByIdWithProviderQuery(assistantIdInAction)
       const response = await client.query(definition(), { as: options.as })
       const assistant = response.data
+      if (!assistant) throw new Error('Assistant not found')
       const provider = response.included?.[0]
       const providerId =
         assistant?.relationships?.provider?.data?.metadata?.providerId
@@ -92,8 +101,21 @@ const EditAssistantDialog = ({ open, onClose }) => {
             : selectProviderDefault.name
       })
     }
-    fetchAssistant()
-  }, [client, assistantIdInAction, open, setFormData, setSelectedProvider])
+    // Editing blank fields would overwrite the stored assistant: close instead.
+    fetchAssistant().catch(error => {
+      log.error('Cannot load the assistant', error)
+      showAlert({ message: t('assistant_edit.load_error'), severity: 'error' })
+      onCloseRef.current()
+    })
+  }, [
+    client,
+    assistantIdInAction,
+    open,
+    setFormData,
+    setSelectedProvider,
+    showAlert,
+    t
+  ])
 
   const getTitle = () => {
     if (step === STEPS.API_KEY) {
