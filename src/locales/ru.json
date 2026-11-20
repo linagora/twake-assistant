@@ -159,6 +159,7 @@
       "close_sidebar": "Закрыть боковую панель",
       "assistant": "Ассистент",
       "recent_chats": "Недавние",
+      "recent_empty": "Здесь появятся ваши разговоры",
       "conversation": {
         "actions": {
           "delete": "Удалить",
