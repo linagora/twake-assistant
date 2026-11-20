@@ -33,6 +33,18 @@ const SearchConversationContainer = ({ children, isMobile }) =>
     </Dialog>
   )
 
+/**
+ * Matches `value` literally, whatever the case of its letters. Not `(?i)`:
+ * cozy-client evaluates the selector again in JavaScript, which rejects it,
+ * and CouchDB folds only ASCII letters with it.
+ */
+const makeCaseInsensitivePattern = value =>
+  Array.from(value, char => {
+    const lower = char.toLowerCase()
+    const upper = char.toUpperCase()
+    return lower === upper ? escapeRegExp(char) : `(?:${lower}|${upper})`
+  }).join('')
+
 const SearchConversation = () => {
   const { t, lang } = useI18n()
   const { isMobile } = useBreakpoints()
@@ -52,17 +64,12 @@ const SearchConversation = () => {
     () =>
       debounce(async value => {
         // FIXME: no index serves this query: CouchDB deserializes every
-        // document to evaluate the regex of `$elemMatch`, and fuzzy search is
-        // out of reach. Move it to a client-side search.
+        // document to evaluate the regexes, and fuzzy search is out of reach.
+        // Move it to a client-side search.
+        const re = { $regex: makeCaseInsensitivePattern(value) }
         const fetchQuery = value
           ? {
-              messages: {
-                $elemMatch: {
-                  content: {
-                    $regex: escapeRegExp(value)
-                  }
-                }
-              }
+              $or: [{ name: re }, { messages: { $elemMatch: { content: re } } }]
             }
           : undefined
         setQuery(fetchQuery)
