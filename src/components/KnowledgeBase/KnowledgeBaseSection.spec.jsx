@@ -36,6 +36,8 @@ describe('KnowledgeBaseSection', () => {
       expect(cross).toHaveClass('folder-chip-remove')
       // An inline size would beat the padding of the rule
       expect(cross.getAttribute('style')).toBe(null)
+      // The padding of the cross replaces the end padding of the label
+      expect(cross.previousElementSibling).toHaveClass('u-pr-0')
     }
   })
 })
