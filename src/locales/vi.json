@@ -167,6 +167,7 @@
       "close_sidebar": "Đóng thanh bên",
       "assistant": "Trợ lý",
       "recent_chats": "Gần đây",
+      "recent_empty": "Các cuộc trò chuyện của bạn sẽ hiện ở đây",
       "conversation": {
         "actions": {
           "delete": "Xóa",

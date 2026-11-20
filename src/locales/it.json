@@ -170,6 +170,7 @@
       "close_sidebar": "Chiudi la barra laterale",
       "assistant": "Assistente",
       "recent_chats": "Recenti",
+      "recent_empty": "Le tue conversazioni appariranno qui",
       "conversation": {
         "actions": {
           "delete": "Elimina",

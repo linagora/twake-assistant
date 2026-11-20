@@ -1,5 +1,5 @@
 import cx from 'classnames'
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import flag from 'cozy-flags'
@@ -20,7 +20,16 @@ export const SidebarConversations = () => {
   const { conversationId } = useParams()
   const { isOpenSearchConversation } = useAssistant()
   const { goToConversation } = useConversation()
-  const { conversations, hasMore, fetchMore } = useFetchConversations()
+  const { conversations, hasMore, fetchMore, isLoading } =
+    useFetchConversations()
+
+  // The hook is not loading yet on the first render: wait for a fetch to
+  // start before telling the list is empty, so the caption does not flash
+  const [hasFetched, setHasFetched] = useState(false)
+  useEffect(() => {
+    if (isLoading) setHasFetched(true)
+  }, [isLoading])
+  const isEmpty = hasFetched && !isLoading && conversations.length === 0
 
   // Read on a delete rather than a dependency of `handleDelete`: a stable
   // `handleDelete` lets the memoized list items skip a conversation switch
@@ -55,6 +64,11 @@ export const SidebarConversations = () => {
       >
         {t('assistant.sidebar.recent_chats')}
       </Typography>
+      {isEmpty && (
+        <Typography variant="body2" color="textSecondary" className="u-ph-1">
+          {t('assistant.sidebar.recent_empty')}
+        </Typography>
+      )}
       <div
         className={cx(
           'u-flex-auto u-ov-auto u-ph-1 u-pb-half',
