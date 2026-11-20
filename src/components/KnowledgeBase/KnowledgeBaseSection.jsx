@@ -21,6 +21,15 @@ import {
   withKnowledgeBaseEntry,
   withoutKnowledgeBaseDoctype
 } from './knowledgeBase'
+import styles from './styles.styl'
+
+// The label of cozy-ui ends with 12px of padding, which the default cross
+// pulled back with a -6px margin: without it, the padding of the cross alone
+// keeps the 6px between the text and the glyph
+const REMOVABLE_CHIP_CLASSES = {
+  label: 'u-pr-0',
+  deleteIcon: styles['folder-chip-remove']
+}
 
 const KnowledgeBaseSection = ({ knowledgeBase = [], onChange }) => {
   const { t } = useI18n()
@@ -79,13 +88,12 @@ const KnowledgeBaseSection = ({ knowledgeBase = [], onChange }) => {
             deleteIcon={
               <Icon
                 icon={Cross}
-                size={10}
-                // inline width/height beats MUI v4's fixed deleteIcon class size
-                style={{ height: 10, width: 10 }}
+                size={12}
                 aria-label={t('assistant.knowledge_base.remove')}
               />
             }
             onDelete={handleRemoveFolder}
+            classes={REMOVABLE_CHIP_CLASSES}
             className="u-w-auto u-ph-half"
           />
         ) : (
@@ -107,12 +115,12 @@ const KnowledgeBaseSection = ({ knowledgeBase = [], onChange }) => {
               deleteIcon={
                 <Icon
                   icon={Cross}
-                  size={10}
-                  style={{ height: 10, width: 10 }}
+                  size={12}
                   aria-label={t('assistant.knowledge_base.remove_emails')}
                 />
               }
               onDelete={handleRemoveEmails}
+              classes={REMOVABLE_CHIP_CLASSES}
               className="u-w-auto u-ph-half u-ml-half"
             />
           ) : (
