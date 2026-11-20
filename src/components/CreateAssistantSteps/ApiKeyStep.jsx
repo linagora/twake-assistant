@@ -9,7 +9,7 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useCozyTheme } from 'cozy-ui-plus/dist/providers/CozyTheme'
 import { useI18n } from 'twake-i18n'
 
-import { checkIfModelUnsupported } from './helpers'
+import { checkIfBaseUrlInvalid, checkIfModelUnsupported } from './helpers'
 
 const ApiKeyStep = ({ formData, selectedProvider, onChange }) => {
   const { type: theme } = useCozyTheme()
@@ -26,6 +26,7 @@ const ApiKeyStep = ({ formData, selectedProvider, onChange }) => {
 
   const isCustomModel = id === 'custom'
   const isModelUnsupported = checkIfModelUnsupported(selectedProvider, model)
+  const isBaseUrlInvalid = !!baseUrl.trim() && checkIfBaseUrlInvalid(baseUrl)
 
   return (
     <div className="u-flex u-flex-column u-gap-1">
@@ -59,6 +60,12 @@ const ApiKeyStep = ({ formData, selectedProvider, onChange }) => {
             variant="outlined"
             type="text"
             inputProps={{ 'aria-required': true }}
+            error={isBaseUrlInvalid}
+            helperText={
+              isBaseUrlInvalid
+                ? t('assistant_create.steps.configuration.url.invalid')
+                : undefined
+            }
           />
         </div>
       )}

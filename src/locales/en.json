@@ -318,7 +318,8 @@
         },
         "url": {
           "label": "Base URL",
-          "placeholder": "https://api.example.com/v1"
+          "placeholder": "https://api.example.com/v1",
+          "invalid": "Enter an http(s) URL."
         },
         "api_key": {
           "label": "API Key",
