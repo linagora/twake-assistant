@@ -43,10 +43,11 @@ export const ConversationWelcome = ({ inputRef }) => {
   const { assistant, hasFolder, folderName, isRoot } =
     useSelectedAssistantKnowledgeBase()
 
+  // The prompt goes before the text already typed, which is kept
   const handleAction = action => {
-    composerRuntime.setText(
-      t(`assistant.welcome.actions.${action.name}.prompt`)
-    )
+    const prompt = t(`assistant.welcome.actions.${action.name}.prompt`)
+    const { text } = composerRuntime.getState()
+    composerRuntime.setText(text ? prompt + text : prompt)
     inputRef?.current?.focus()
   }
 
