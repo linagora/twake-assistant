@@ -3,6 +3,7 @@ import React from 'react'
 
 import { I18n, initTranslation } from 'twake-i18n'
 
+import { useIsConversationAssistantGone } from '@/components/KnowledgeBase/useIsConversationAssistantGone'
 import AssistantMessage from '@/components/Messages/AssistantMessage'
 import en from '@/locales/en.json'
 
@@ -21,6 +22,13 @@ jest.mock('@assistant-ui/react', () => ({
   },
   useMessage: selector => selector(mockMessage),
   useAuiState: selector => selector({ message: mockMessage })
+}))
+
+jest.mock('react-router-dom', () => ({
+  useParams: () => ({ conversationId: 'c1' })
+}))
+jest.mock('@/components/KnowledgeBase/useIsConversationAssistantGone', () => ({
+  useIsConversationAssistantGone: jest.fn()
 }))
 
 const answer = (text, status) => ({
@@ -42,6 +50,10 @@ function renderMessage(message) {
 }
 
 describe('AssistantMessage', () => {
+  beforeEach(() => {
+    useIsConversationAssistantGone.mockReturnValue(false)
+  })
+
   it('offers to copy an answer', () => {
     renderMessage(answer('Bonjour', { type: 'complete', reason: 'stop' }))
 
@@ -53,5 +65,27 @@ describe('AssistantMessage', () => {
 
     expect(screen.queryByRole('button', { name: 'Copy' })).toBe(null)
     expect(screen.queryByRole('button', { name: 'Retry' })).toBeInTheDocument()
+  })
+
+  it('offers to retry the last answer', () => {
+    renderMessage(answer('Bonjour', { type: 'complete', reason: 'stop' }))
+
+    expect(useIsConversationAssistantGone).toHaveBeenCalledWith('c1')
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBeInTheDocument()
+  })
+
+  it('offers no retry in a conversation whose agent was deleted', () => {
+    useIsConversationAssistantGone.mockReturnValue(true)
+    renderMessage(answer('Bonjour', { type: 'complete', reason: 'stop' }))
+
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBe(null)
+    expect(screen.queryByRole('button', { name: 'Copy' })).toBeInTheDocument()
+  })
+
+  it('offers no retry while the agent of the conversation loads', () => {
+    useIsConversationAssistantGone.mockReturnValue(null)
+    renderMessage(answer('Bonjour', { type: 'complete', reason: 'stop' }))
+
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBe(null)
   })
 })
