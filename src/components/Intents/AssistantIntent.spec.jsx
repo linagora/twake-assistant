@@ -58,6 +58,7 @@ jest.mock('@assistant-ui/react', () => ({
   },
   useThread: selector => selector({ messages: [], isRunning: false }),
   useThreadRuntime: () => ({}),
+  useComposer: selector => selector({ isEmpty: !mockComposer.text.trim() }),
   useComposerRuntime: () => mockComposer
 }))
 jest.mock('cozy-client', () => ({
