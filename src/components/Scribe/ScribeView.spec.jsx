@@ -119,10 +119,6 @@ jest.mock('cozy-minilog', () => {
   }
   return () => log
 })
-jest.mock('lottie-react', () => ({
-  __esModule: true,
-  default: () => <div data-testid="scribe-loader" />
-}))
 
 const pastConversation = {
   _id: 'c1',

@@ -49,10 +49,6 @@ jest.mock('cozy-minilog', () => {
   const log = { error: jest.fn() }
   return () => log
 })
-jest.mock('lottie-react', () => ({
-  __esModule: true,
-  default: () => <div data-testid="scribe-loader" />
-}))
 
 const answer = (text, status, custom = {}) => ({
   id: 'a1',
@@ -114,7 +110,6 @@ describe('ScribeAnswer', () => {
     const status = screen.getByRole('status')
 
     expect(status).toHaveTextContent('Translating to French…')
-    expect(within(status).queryByTestId('scribe-loader')).toBeInTheDocument()
   })
 
   it('shows the answer as it comes, without the actions yet', () => {

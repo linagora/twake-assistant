@@ -34,10 +34,10 @@ function ThinkingDots(props) {
   )
 }
 
-function AnswerWaiting({ label, indicator }) {
+function AnswerWaiting({ label }) {
   return (
     <div role="status" className="u-flex u-flex-items-center">
-      {indicator}
+      <ThinkingDots />
       <Typography
         variant="body2"
         color="textSecondary"
@@ -116,16 +116,13 @@ function AnswerReasoning({ reasoning, isRunning }) {
  * @param {import('react').ReactNode} [props.content] - what the view shows
  * of the text, in place of its Markdown
  * @param {string} [props.waitingLabel] - what the view says it does until
- * the answer comes, as text: without it, three dots named for screen
- * readers only
- * @param {import('react').ReactNode} [props.waitingIndicator] - what the
- * view shows beside its waiting label
+ * the answer comes, as text beside the three dots: without it, the dots
+ * named for screen readers only
  */
 export function Answer({
   isCallShown = false,
   content = null,
   waitingLabel = null,
-  waitingIndicator = <ThinkingDots />,
   children,
   ...props
 }) {
@@ -163,7 +160,7 @@ export function Answer({
       {isWaiting &&
         !hasReasoning &&
         (waitingLabel ? (
-          <AnswerWaiting label={waitingLabel} indicator={waitingIndicator} />
+          <AnswerWaiting label={waitingLabel} />
         ) : (
           <ThinkingDots role="status" aria-label={t('chat.thinking')} />
         ))}

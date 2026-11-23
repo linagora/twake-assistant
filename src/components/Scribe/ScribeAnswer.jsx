@@ -18,7 +18,6 @@ import { Answer, getErrorKind, getText } from '@/components/Messages/Answer'
 import { ScribeBlockCard } from '@/components/Scribe/ScribeBlockCard'
 import { ScribeCapabilityCard } from '@/components/Scribe/ScribeCapabilityCard'
 import { ScribeCopyButton } from '@/components/Scribe/ScribeCopyButton'
-import { ScribeLoader } from '@/components/Scribe/ScribeLoader'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import styles from '@/components/Scribe/styles.styl'
 import { useDone } from '@/components/Scribe/useDone'
@@ -213,9 +212,6 @@ export function ScribeAnswer() {
       <Answer
         isCallShown={!!capability}
         waitingLabel={getRunningLabel(parentPrompt, t)}
-        waitingIndicator={
-          <ScribeLoader size={layout === 'compact' ? 40 : 20} />
-        }
         content={
           parts?.map((part, index) =>
             part.type === 'block' ? (
