@@ -351,7 +351,9 @@
       "edit": "Salva"
     },
     "configure_api_key_title": "Configura il tuo assistente",
-    "success": "Assistente aggiornato correttamente"
+    "success": "Assistente aggiornato correttamente",
+    "label": "Modifica %{name}",
+    "actions_hint": "Freccia destra per Modifica ed Elimina"
   },
   "conversation_delete": {
     "title": "Elimina conversazione",
@@ -367,7 +369,8 @@
     "buttons": {
       "cancel": "Annulla",
       "confirm": "Elimina"
-    }
+    },
+    "label": "Elimina %{name}"
   },
   "chat": {
     "thinking": "L'assistente sta scrivendo…",

@@ -351,7 +351,9 @@
       "edit": "Lưu"
     },
     "configure_api_key_title": "Cấu hình trợ lý của bạn",
-    "success": "Chỉnh sửa trợ lý thành công"
+    "success": "Chỉnh sửa trợ lý thành công",
+    "label": "Sửa %{name}",
+    "actions_hint": "Nhấn mũi tên phải để Sửa và Xóa"
   },
   "conversation_delete": {
     "title": "Xóa cuộc trò chuyện",
@@ -367,7 +369,8 @@
     "buttons": {
       "cancel": "Hủy",
       "confirm": "Xóa"
-    }
+    },
+    "label": "Xóa %{name}"
   },
   "chat": {
     "thinking": "Trợ lý đang viết…",
