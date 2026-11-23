@@ -552,6 +552,79 @@ describe('makeChatAdapter', () => {
     expect(results.at(-1).metadata.custom).toEqual({ action })
   })
 
+  const PROPOSED =
+    '(Proposed to the user: insert_table {"columns":["Q","MRR"],"rows":["Q1 | 100","Q2 | 110"]})'
+
+  it('gives a call the LLM wrote as text as its call, showing nothing of it', async () => {
+    const { adapter } = setup({
+      events: [
+        { object: 'delta', content: PROPOSED.slice(0, 12), position: 0 },
+        { object: 'delta', content: PROPOSED.slice(12), position: 1 },
+        { object: 'done' }
+      ],
+      options: { actions: [{ name: 'insert_table' }] }
+    })
+
+    const results = await run(adapter, [userMessage('Make a table')])
+
+    expect(results.map(getText)).toEqual(results.map(() => ''))
+    expect(results.at(-1).metadata.custom).toEqual({
+      action: {
+        name: 'insert_table',
+        params: { columns: ['Q', 'MRR'], rows: ['Q1 | 100', 'Q2 | 110'] }
+      }
+    })
+  })
+
+  it('keeps the text written after a call written as text', async () => {
+    const { adapter } = setup({
+      events: [
+        { object: 'delta', content: `${PROPOSED}\n\nHere it is` },
+        { object: 'done' }
+      ],
+      options: { actions: [{ name: 'insert_table' }] }
+    })
+
+    const results = await run(adapter, [userMessage('Make a table')])
+
+    expect(getText(results.at(-1))).toBe('Here it is')
+    expect(results.at(-1).metadata.custom.action.name).toBe('insert_table')
+  })
+
+  it('shows as text a call written as text of a tool the request has not', async () => {
+    const { adapter } = setup({
+      events: [{ object: 'delta', content: PROPOSED }, { object: 'done' }],
+      options: { actions: [{ name: 'insert_slide' }] }
+    })
+
+    const results = await run(adapter, [userMessage('Make a table')])
+
+    expect(getText(results.at(-1))).toBe(PROPOSED)
+    expect(results.at(-1).metadata.custom).toEqual({})
+  })
+
+  it('shows as text a call written as text that lacks a required param', async () => {
+    const { adapter } = setup({
+      events: [{ object: 'delta', content: PROPOSED }, { object: 'done' }],
+      options: {
+        actions: [
+          {
+            name: 'insert_table',
+            parameters: {
+              properties: { columns: {}, rows: {}, title: {} },
+              required: ['title']
+            }
+          }
+        ]
+      }
+    })
+
+    const results = await run(adapter, [userMessage('Make a table')])
+
+    expect(getText(results.at(-1))).toBe(PROPOSED)
+    expect(results.at(-1).metadata.custom).toEqual({})
+  })
+
   it('keeps the id of the message the stack saves the call on', async () => {
     const action = { name: 'search_emails', params: { from: 'Claire' } }
     const { adapter } = setup({

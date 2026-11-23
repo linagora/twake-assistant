@@ -344,6 +344,35 @@ describe('getScribeRequest', () => {
 })
 
 describe('makeChatMessages', () => {
+  it('shows a call the LLM wrote as text as its call', () => {
+    const [message] = makeChatMessages(
+      [
+        {
+          id: 'm2',
+          role: 'assistant',
+          content:
+            '(Proposed to the user: insert_table {"columns":["Q"],"rows":["Q1"]})'
+        }
+      ],
+      mockT
+    )
+
+    expect(message).toEqual({
+      id: 'm2',
+      role: 'assistant',
+      content: '',
+      metadata: {
+        custom: {
+          isPast: true,
+          action: {
+            name: 'insert_table',
+            params: { columns: ['Q'], rows: ['Q1'] }
+          }
+        }
+      }
+    })
+  })
+
   it('shows the requests and the answers of a past conversation', () => {
     const messages = makeChatMessages(
       [
