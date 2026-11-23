@@ -29,6 +29,10 @@ jest.mock('@assistant-ui/react', () => ({
 jest.mock('@/components/Scribe/ScribeProvider', () => ({
   useScribe: jest.fn()
 }))
+jest.mock('cozy-ui/transpiled/react/providers/Breakpoints', () => {
+  const useBreakpoints = () => ({ isMobile: true })
+  return { __esModule: true, default: useBreakpoints, useBreakpoints }
+})
 
 function renderComposer({
   isRunning = false,

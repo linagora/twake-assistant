@@ -10,6 +10,7 @@ import { isMobile as isMobileDevice } from 'cozy-device-helper'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
 import { useI18n } from 'twake-i18n'
 
+import { ConversationComposerRoot } from '@/components/Conversations/ConversationComposerRoot'
 import { ConversationSendButton } from '@/components/Conversations/ConversationSendButton'
 import { DismissibleTooltip } from '@/components/DismissibleTooltip'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
@@ -48,7 +49,7 @@ export function ScribeComposer({ placeholder, inputRef }) {
   }
 
   return (
-    <ComposerPrimitive.Root
+    <ConversationComposerRoot
       className={`${styles['scribe-composer']} u-flex u-flex-items-end`}
     >
       <ComposerPrimitive.Input
@@ -80,6 +81,6 @@ export function ScribeComposer({ placeholder, inputRef }) {
         </DismissibleTooltip>
         <ConversationSendButton />
       </div>
-    </ComposerPrimitive.Root>
+    </ConversationComposerRoot>
   )
 }

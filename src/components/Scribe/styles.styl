@@ -158,12 +158,10 @@ $gutter = 1rem
 .scribe-include :global(.MuiFormControlLabel-label)
     font-size .875rem
 
+// Under the menu of a prompt and the alerts: the z-index of the composer of
+// the assistant puts it over them, and the menu opens on it
 .scribe-composer
-    box-sizing border-box
-    padding .5rem .5rem .5rem 1rem
-    border 1px solid var(--dividerColor)
-    border-radius 1.5rem
-    background-color var(--paperBackgroundColor)
+    z-index auto !important
 
 // As high as the send button on one line
 .scribe-composer-input
