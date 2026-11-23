@@ -13,10 +13,14 @@ $gutter = 1rem
 .scribe-messages
     flex 1 1 auto
     box-sizing border-box
-    padding 0 $gutter $gutter
+    padding $gutter $gutter 2rem
     overflow-y auto
     // The text does not move when an answer grows past the panel
     scrollbar-gutter stable
+    // As in the assistant, the text dissolves under the header and above the
+    // composer instead of being cut; the paddings keep the first and the
+    // last lines clear of it
+    mask-image linear-gradient(transparent, #000 $gutter, #000 calc(100% - 2rem), transparent)
 
 .scribe-messages
 .scribe-history
