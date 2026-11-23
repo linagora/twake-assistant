@@ -119,6 +119,10 @@ jest.mock('cozy-minilog', () => {
   }
   return () => log
 })
+jest.mock('cozy-ui/transpiled/react/providers/Breakpoints', () => {
+  const useBreakpoints = () => ({ isMobile: true })
+  return { __esModule: true, default: useBreakpoints, useBreakpoints }
+})
 
 const pastConversation = {
   _id: 'c1',
