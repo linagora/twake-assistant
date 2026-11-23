@@ -1,9 +1,10 @@
 import cx from 'classnames'
-import React from 'react'
+import React, { useState } from 'react'
 
 import ListItem from 'cozy-ui/transpiled/react/ListItem'
 import ListItemSecondaryAction from 'cozy-ui/transpiled/react/ListItemSecondaryAction'
 import ListItemText from 'cozy-ui/transpiled/react/ListItemText'
+import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
 import { useI18n } from 'twake-i18n'
 
 import { getNameOfConversation } from '../helpers'
@@ -17,6 +18,15 @@ const ConversationListItem = ({
   onDelete
 }) => {
   const { t } = useI18n()
+  const [isTruncated, setIsTruncated] = useState(false)
+  const name = getNameOfConversation(conversation, t)
+
+  // Measured on hover, before the tooltip delay ends: the full name is only
+  // shown when the sidebar cuts it
+  const handleNameMouseEnter = event => {
+    const { scrollWidth, clientWidth } = event.currentTarget
+    setIsTruncated(scrollWidth > clientWidth)
+  }
 
   return (
     <ListItem
@@ -37,14 +47,21 @@ const ConversationListItem = ({
           className: styles['conversation-list-item-text']
         }}
         primary={
-          <span
-            className={cx(
-              'u-ellipsis u-db',
-              styles['conversation-list-item-title']
-            )}
+          <Tooltip
+            title={isTruncated ? name : ''}
+            placement="right"
+            enterDelay={500}
           >
-            {getNameOfConversation(conversation, t)}
-          </span>
+            <span
+              className={cx(
+                'u-ellipsis u-db',
+                styles['conversation-list-item-title']
+              )}
+              onMouseEnter={handleNameMouseEnter}
+            >
+              {name}
+            </span>
+          </Tooltip>
         }
       />
       <ListItemSecondaryAction

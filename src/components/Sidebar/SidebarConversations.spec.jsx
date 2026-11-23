@@ -30,15 +30,14 @@ jest.mock('@/components/AssistantProvider', () => ({
     setIsOpenSearchConversation: () => {}
   })
 }))
+const someConversations = [
+  { _id: 'c1', name: 'Open conversation' },
+  { _id: 'c2', name: 'Other conversation' }
+]
+let mockFetchResult
 jest.mock('@/hooks/useFetchConversations', () => ({
   __esModule: true,
-  default: () => ({
-    conversations: [
-      { _id: 'c1', name: 'Open conversation' },
-      { _id: 'c2', name: 'Other conversation' }
-    ],
-    hasMore: false
-  })
+  default: () => mockFetchResult
 }))
 
 function Location() {
@@ -50,7 +49,12 @@ function Location() {
 function setup() {
   const client = createMockClient({})
   client.destroy = jest.fn().mockResolvedValue({})
-  render(
+  const { rerender } = render(<Sidebar client={client} />)
+  return { client, rerender: () => rerender(<Sidebar client={client} />) }
+}
+
+function Sidebar({ client }) {
+  return (
     <CozyProvider client={client}>
       <I18n lang="en" polyglot={initTranslation('en', () => en)}>
         <CozyTheme>
@@ -78,7 +82,6 @@ function setup() {
       </I18n>
     </CozyProvider>
   )
-  return client
 }
 
 async function deleteConversation(name) {
@@ -92,8 +95,69 @@ async function deleteConversation(name) {
 }
 
 describe('SidebarConversations', () => {
+  beforeEach(() => {
+    mockFetchResult = {
+      conversations: someConversations,
+      hasMore: false,
+      isLoading: false
+    }
+  })
+
+  it('shows a caption under Recent once the fetched list is empty', () => {
+    mockFetchResult = { conversations: [], hasMore: false, isLoading: false }
+    const { rerender } = setup()
+    // Nothing fetched yet: no caption flashes before the first result
+    expect(screen.queryByText('Your conversations will appear here')).toBe(null)
+
+    mockFetchResult = { ...mockFetchResult, isLoading: true }
+    rerender()
+    expect(screen.queryByText('Your conversations will appear here')).toBe(null)
+
+    mockFetchResult = { ...mockFetchResult, isLoading: false }
+    rerender()
+    expect(
+      screen.queryByText('Your conversations will appear here')
+    ).toBeInTheDocument()
+  })
+
+  it('hides the empty caption when there are conversations', () => {
+    const { rerender } = setup()
+    mockFetchResult = { ...mockFetchResult, isLoading: true }
+    rerender()
+    mockFetchResult = { ...mockFetchResult, isLoading: false }
+    rerender()
+
+    expect(screen.queryByText('Your conversations will appear here')).toBe(null)
+    expect(screen.queryByText('Open conversation')).toBeInTheDocument()
+  })
+
+  it('shows the full name of a truncated conversation on hover', async () => {
+    setup()
+    const name = screen.getByText('Open conversation')
+    Object.defineProperty(name, 'scrollWidth', { value: 300 })
+    Object.defineProperty(name, 'clientWidth', { value: 150 })
+
+    fireEvent.mouseEnter(name)
+    fireEvent.mouseOver(name)
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Open conversation'
+    )
+  })
+
+  it('shows no tooltip on a name that fits', async () => {
+    setup()
+    const name = screen.getByText('Open conversation')
+
+    fireEvent.mouseEnter(name)
+    fireEvent.mouseOver(name)
+
+    await new Promise(resolve => setTimeout(resolve, 600))
+    expect(screen.queryByRole('tooltip')).toBe(null)
+  })
+
   it('replaces the deleted open conversation with a new one in the history', async () => {
-    const client = setup()
+    const { client } = setup()
 
     await deleteConversation('Open conversation')
 
@@ -106,7 +170,7 @@ describe('SidebarConversations', () => {
   })
 
   it('stays on the open conversation when another one is deleted', async () => {
-    const client = setup()
+    const { client } = setup()
 
     await deleteConversation('Other conversation')
 

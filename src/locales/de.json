@@ -170,6 +170,7 @@
       "close_sidebar": "Seitenleiste schließen",
       "assistant": "Assistent",
       "recent_chats": "Zuletzt verwendet",
+      "recent_empty": "Ihre Unterhaltungen werden hier angezeigt",
       "conversation": {
         "actions": {
           "delete": "Löschen",
