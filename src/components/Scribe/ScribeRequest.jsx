@@ -4,6 +4,7 @@ import React from 'react'
 import Markdown from 'cozy-ui/transpiled/react/Markdown'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 
+import messageStyles from '@/components/Messages/styles.styl'
 import { useScribe } from '@/components/Scribe/ScribeProvider'
 import styles from '@/components/Scribe/styles.styl'
 import { useIsInLatestExchange } from '@/components/Scribe/useLatestExchange'
@@ -40,7 +41,9 @@ export function ScribeRequest() {
   const quote = selection ?? sentTexts[index] ?? null
 
   return (
-    <MessagePrimitive.Root className={styles['scribe-request']}>
+    <MessagePrimitive.Root
+      className={`u-mt-1 u-ml-auto u-pv-1 u-ph-1-half u-bxz ${messageStyles['cozyThread-user-messages']} ${styles['scribe-request']}`}
+    >
       {quote !== null && (
         <Typography
           data-testid="scribe-quote"
