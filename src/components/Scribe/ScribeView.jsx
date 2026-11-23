@@ -22,6 +22,7 @@ import { useI18n } from 'twake-i18n'
 
 import DocumentAssistant from '@/assets/illu-document-assistant.svg'
 import { WelcomeFolderName } from '@/components/Conversations/ConversationWelcome'
+import { AnswerAnnouncer } from '@/components/Messages/AnswerAnnouncer'
 import { ScribeAnswer } from '@/components/Scribe/ScribeAnswer'
 import { ScribeComposer } from '@/components/Scribe/ScribeComposer'
 import { ScribeHistory } from '@/components/Scribe/ScribeHistory'
@@ -309,6 +310,7 @@ function ScribeLayout({
         conversationId={conversation.id}
         messages={conversation.messages}
       >
+        <AnswerAnnouncer capabilities={props.capabilities} />
         {isCompact ? (
           <ScribeCompactConversation
             conversationId={conversation.id}

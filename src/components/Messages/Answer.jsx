@@ -1,7 +1,7 @@
 import { MessagePrimitive, useMessage } from '@assistant-ui/react'
 import React, { useState } from 'react'
 
-import { Icon, Right } from '@linagora/twake-icons'
+import { Icon, Right, Stop } from '@linagora/twake-icons'
 import Alert from 'cozy-ui/transpiled/react/Alert'
 import ButtonBase from 'cozy-ui/transpiled/react/ButtonBase'
 import Collapse from 'cozy-ui/transpiled/react/Collapse'
@@ -142,6 +142,11 @@ export function Answer({
   const errorKind = useMessage(getErrorKind)
   const sources = useMessage(message => message.metadata?.custom?.sources)
   const hasCall = useMessage(message => !!message.metadata?.custom?.action)
+  const isStopped = useMessage(
+    message =>
+      message.status?.type === 'incomplete' &&
+      message.status?.reason === 'cancelled'
+  )
   const isEmpty =
     useMessage(message => message.metadata?.custom?.isEmpty === true) ||
     (status === 'complete' && text === '' && hasCall && !isCallShown)
@@ -166,6 +171,21 @@ export function Answer({
         <AnswerReasoning reasoning={reasoning} isRunning={isWaiting} />
       )}
       {text !== '' && (content ?? <Markdown content={text} />)}
+      {isStopped && (
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          className="u-flex u-flex-items-center u-mt-half"
+        >
+          <Icon
+            icon={Stop}
+            size={12}
+            aria-hidden="true"
+            className="u-mr-half"
+          />
+          {t('chat.stopped')}
+        </Typography>
+      )}
       {isError && (
         <Alert severity="error">
           {t(
