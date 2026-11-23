@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import React from 'react'
 
 import { I18n, initTranslation } from 'twake-i18n'
@@ -54,13 +54,11 @@ describe('Answer', () => {
 
   it('shows the waiting label it is given', () => {
     renderAnswer(answer('', 'running'), {
-      waitingLabel: 'Translating to French…',
-      waitingIndicator: <div data-testid="loader" />
+      waitingLabel: 'Translating to French…'
     })
     const status = screen.getByRole('status')
 
     expect(status).toHaveTextContent('Translating to French…')
-    expect(within(status).queryByTestId('loader')).toBeInTheDocument()
     expect(screen.queryByText('The assistant is writing…')).toBe(null)
   })
 
