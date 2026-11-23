@@ -9,7 +9,7 @@ import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useCozyTheme } from 'cozy-ui-plus/dist/providers/CozyTheme'
 import { useI18n } from 'twake-i18n'
 
-import { checkIfModelUnsupported } from './helpers'
+import { checkIfBaseUrlInvalid, checkIfModelUnsupported } from './helpers'
 
 const ApiKeyStep = ({ formData, selectedProvider, onChange }) => {
   const { type: theme } = useCozyTheme()
@@ -26,6 +26,7 @@ const ApiKeyStep = ({ formData, selectedProvider, onChange }) => {
 
   const isCustomModel = id === 'custom'
   const isModelUnsupported = checkIfModelUnsupported(selectedProvider, model)
+  const isBaseUrlInvalid = !!baseUrl.trim() && checkIfBaseUrlInvalid(baseUrl)
 
   return (
     <div className="u-flex u-flex-column u-gap-1">
@@ -39,10 +40,17 @@ const ApiKeyStep = ({ formData, selectedProvider, onChange }) => {
 
       {isCustomModel && (
         <div className="u-mb-1">
-          <Typography variant="h6" className="u-mb-half">
+          <Typography
+            variant="h6"
+            component="label"
+            display="block"
+            htmlFor="assistant-base-url"
+            className="u-mb-half"
+          >
             {t('assistant_create.steps.configuration.url.label')}
           </Typography>
           <TextField
+            id="assistant-base-url"
             fullWidth
             placeholder={t(
               'assistant_create.steps.configuration.url.placeholder'
@@ -51,15 +59,29 @@ const ApiKeyStep = ({ formData, selectedProvider, onChange }) => {
             onChange={onChange('baseUrl')}
             variant="outlined"
             type="text"
+            inputProps={{ 'aria-required': true }}
+            error={isBaseUrlInvalid}
+            helperText={
+              isBaseUrlInvalid
+                ? t('assistant_create.steps.configuration.url.invalid')
+                : undefined
+            }
           />
         </div>
       )}
 
       <div className="u-mb-1">
-        <Typography variant="h6" className="u-mb-half">
+        <Typography
+          variant="h6"
+          component="label"
+          display="block"
+          htmlFor="assistant-model"
+          className="u-mb-half"
+        >
           {t('assistant_create.steps.configuration.model.label')}
         </Typography>
         <TextField
+          id="assistant-model"
           fullWidth
           placeholder={t(
             'assistant_create.steps.configuration.model.placeholder'
@@ -68,20 +90,31 @@ const ApiKeyStep = ({ formData, selectedProvider, onChange }) => {
           onChange={onChange('model')}
           variant="outlined"
           type="text"
+          inputProps={{ 'aria-required': true }}
           error={isModelUnsupported}
           helperText={
             isModelUnsupported
-              ? t('assistant_create.steps.configuration.model.unsupported')
+              ? t(
+                  'assistant_create.steps.configuration.model.unsupported_suggestion',
+                  { model: selectedProvider.models[0] }
+                )
               : undefined
           }
         />
       </div>
 
       <div className="u-mb-1">
-        <Typography variant="h6" className="u-mb-half">
+        <Typography
+          variant="h6"
+          component="label"
+          display="block"
+          htmlFor="assistant-api-key"
+          className="u-mb-half"
+        >
           {t('assistant_create.steps.configuration.api_key.label')}
         </Typography>
         <TextField
+          id="assistant-api-key"
           fullWidth
           placeholder={
             encryptedApiKey
@@ -92,6 +125,7 @@ const ApiKeyStep = ({ formData, selectedProvider, onChange }) => {
           onChange={onChange('apiKey')}
           variant="outlined"
           type={showPassword ? 'text' : 'password'}
+          inputProps={{ 'aria-required': !encryptedApiKey || null }}
           InputProps={{
             endAdornment: (
               <IconButton
@@ -118,7 +152,7 @@ const ApiKeyStep = ({ formData, selectedProvider, onChange }) => {
           'u-bg-coolGrey': theme === 'dark'
         })}
       >
-        <Typography variant="h6" className="u-mb-half">
+        <Typography variant="h6" component="p" className="u-mb-half">
           {t('assistant_create.steps.configuration.no_key')}
         </Typography>
         <Typography variant="body2" color="textSecondary">

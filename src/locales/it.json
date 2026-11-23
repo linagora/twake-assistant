@@ -177,7 +177,8 @@
           "share": "Condividi",
           "load_more": "Carica altro",
           "more": "Altre azioni"
-        }
+        },
+        "rename_label": "Nome della conversazione"
       },
       "app": "AI",
       "new_discussion": "Nuova discussione",
@@ -313,11 +314,12 @@
         "model": {
           "label": "Modello",
           "placeholder": "Inserisci il nome del modello del fornitore",
-          "unsupported": "Questo modello non è ancora supportato."
+          "unsupported_suggestion": "Questo modello non è ancora supportato. Prova %{model}."
         },
         "url": {
           "label": "URL di base",
-          "placeholder": "https://api.example.com/v1"
+          "placeholder": "https://api.example.com/v1",
+          "invalid": "Inserisci un URL http(s)."
         },
         "api_key": {
           "label": "Chiave API",

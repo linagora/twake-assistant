@@ -166,7 +166,8 @@
           "share": "Поделиться",
           "load_more": "Загрузить еще",
           "more": "Другие действия"
-        }
+        },
+        "rename_label": "Название беседы"
       },
       "app": "AI",
       "new_discussion": "Новая беседа",
@@ -313,11 +314,12 @@
         "model": {
           "label": "Модель",
           "placeholder": "Введите название модели провайдера",
-          "unsupported": "Эта модель пока не поддерживается."
+          "unsupported_suggestion": "Эта модель пока не поддерживается. Попробуйте %{model}."
         },
         "url": {
           "label": "Базовый URL",
-          "placeholder": "https://api.example.com/v1"
+          "placeholder": "https://api.example.com/v1",
+          "invalid": "Введите URL-адрес http(s)."
         },
         "api_key": {
           "label": "API-ключ",

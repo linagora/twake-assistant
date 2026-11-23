@@ -177,7 +177,8 @@
           "share": "Teilen",
           "load_more": "Mehr laden",
           "more": "Weitere Aktionen"
-        }
+        },
+        "rename_label": "Name der Unterhaltung"
       },
       "app": "AI",
       "new_discussion": "Neue Unterhaltung",
@@ -313,11 +314,12 @@
         "model": {
           "label": "Modell",
           "placeholder": "Geben Sie den Modellnamen des Anbieters ein",
-          "unsupported": "Dieses Modell wird noch nicht unterstützt."
+          "unsupported_suggestion": "Dieses Modell wird noch nicht unterstützt. Versuchen Sie %{model}."
         },
         "url": {
           "label": "Basis-URL",
-          "placeholder": "https://api.example.com/v1"
+          "placeholder": "https://api.example.com/v1",
+          "invalid": "Geben Sie eine http(s)-URL ein."
         },
         "api_key": {
           "label": "API-Schlüssel",
