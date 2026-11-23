@@ -8,6 +8,7 @@ import {
 } from '@linagora/twake-icons'
 
 import {
+  readProposedCall,
   removeQueryInstructions,
   removeSourceMarks,
   toPlainText
@@ -397,7 +398,14 @@ export function makeChatMessages(messages, t) {
         }
       }
 
-      const text = removeSourceMarks(message.content ?? '')
+      // WORKAROUND of readProposedCall: a past answer may hold a call as text
+      const proposed = message.action
+        ? null
+        : readProposedCall(message.content ?? '')
+      const action = message.action
+        ? { ...message.action, messageId: message.id }
+        : (proposed?.action ?? null)
+      const text = removeSourceMarks(proposed?.text ?? message.content ?? '')
       return {
         id: message.id,
         role: 'assistant',
@@ -410,11 +418,9 @@ export function makeChatMessages(messages, t) {
         metadata: {
           custom: {
             isPast: true,
-            ...(text.trim() === '' && !message.action && { isEmpty: true }),
+            ...(text.trim() === '' && !action && { isEmpty: true }),
             ...(message.sources?.length > 0 && { sources: message.sources }),
-            ...(message.action && {
-              action: { ...message.action, messageId: message.id }
-            })
+            ...(action && { action })
           }
         }
       }

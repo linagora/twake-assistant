@@ -179,6 +179,20 @@ describe('getDescriptionOfConversation', () => {
     expect(getDescriptionOfConversation(convo)).toBe('It is 4')
   })
 
+  it('describes a call written as text by the text after it', () => {
+    const convo = {
+      messages: [
+        { role: 'user', content: 'note?' },
+        {
+          role: 'assistant',
+          content:
+            '(Proposed to the user: create_note {"title":"Courses"})\n\n# Courses'
+        }
+      ]
+    }
+    expect(getDescriptionOfConversation(convo)).toBe('Courses')
+  })
+
   it('describes an answer in Markdown by its words', () => {
     const convo = {
       messages: [

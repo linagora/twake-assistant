@@ -1,4 +1,4 @@
-import { removeSourceMarks, toPlainText } from '@/lib/chat'
+import { readProposedCall, removeSourceMarks, toPlainText } from '@/lib/chat'
 import { getScribeRequest } from '@/lib/scribe'
 
 export const makeConversationId = () =>
@@ -13,7 +13,9 @@ export const makeConversationId = () =>
  * @returns {string}
  */
 export const formatAnswer = (message, t) => {
-  const content = message.content ?? ''
+  const raw = message.content ?? ''
+  // WORKAROUND of readProposedCall: the text of a call is not an answer
+  const content = readProposedCall(raw)?.text ?? raw
   return message.role === 'assistant' && !removeSourceMarks(content).trim()
     ? t('chat.errors.empty_response')
     : toPlainText(content)

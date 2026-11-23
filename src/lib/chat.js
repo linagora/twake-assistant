@@ -31,6 +31,56 @@ export function removeSourceMarks(text) {
   return SOURCE_MARKS.reduce((result, mark) => result.replace(mark, ''), text)
 }
 
+// WORKAROUND, to remove once cozy-stack sends a call without a result as a
+// tool call in the history: it writes it there as text, "(Proposed to the
+// user: name {params})" (describeAction of model/rag/actions.go), and the LLM
+// then writes its next call in that text instead of calling the tool.
+const PROPOSED_CALL_START = '(Proposed to the user:'
+const PROPOSED_CALL =
+  /^\(Proposed to the user: ([\w-]+) (\{.*\})\)(?:\s+([\s\S]*))?$/
+
+/**
+ * @param {string} text - an answer of the LLM
+ * @param {object[]|null} [tools] - the tools of the request: a call of
+ * another one is no call
+ * @returns {{ action: { name: string, params: object }, text: string }|null}
+ * the call, and the text written after it
+ */
+export function readProposedCall(text, tools = null) {
+  const match = PROPOSED_CALL.exec(text.trim())
+  if (!match) return null
+  const tool = tools?.find(({ name }) => name === match[1])
+  if (tools && !tool) return null
+  let params
+  try {
+    params = JSON.parse(match[2])
+  } catch {
+    return null
+  }
+  if (typeof params !== 'object' || params === null || Array.isArray(params))
+    return null
+  // The stack checks the params of a call; this one did not go through it.
+  // ponytail: names only, not the types nor the user-written values
+  const schema = tool?.parameters
+  if (schema?.required?.some(name => params[name] == null)) return null
+  if (schema?.properties) {
+    params = Object.fromEntries(
+      Object.entries(params).filter(([name]) => name in schema.properties)
+    )
+  }
+  return { action: { name: match[1], params }, text: match[3] ?? '' }
+}
+
+// While it comes, an answer that may be such a call shows nothing
+function hideProposedCall(text) {
+  const start = text.trimStart()
+  return start !== '' &&
+    (start.startsWith(PROPOSED_CALL_START) ||
+      PROPOSED_CALL_START.startsWith(start))
+    ? ''
+    : text
+}
+
 // WORKAROUND for linagora/cozy-stack#5291, see makeChatAdapter. Keep it
 // after the workaround is removed: the conversations saved meanwhile hold
 // the instructions in their queries.
@@ -283,11 +333,16 @@ export function makeChatAdapter({
           : query
       const answer = makeAnswer()
       const reasoning = makeAnswer()
-      const getContent = ({ isWhole = false } = {}) => {
+      const getContent = ({
+        isWhole = false,
+        text = actions?.length > 0
+          ? hideProposedCall(answer.getText({ isWhole }))
+          : answer.getText({ isWhole })
+      } = {}) => {
         const thought = reasoning.getText({ isWhole })
         return [
           ...(thought !== '' ? [{ type: 'reasoning', text: thought }] : []),
-          { type: 'text', text: answer.getText({ isWhole }) }
+          { type: 'text', text }
         ]
       }
       let sources = null
@@ -338,9 +393,14 @@ export function makeChatAdapter({
         // The user has stopped the answer: what came stays as it is
         if (abortSignal?.aborted) return
 
-        const answerText = answer.getText({ isWhole: true })
+        let answerText = answer.getText({ isWhole: true })
+        const proposed = action ? null : readProposedCall(answerText, actions)
+        if (proposed) {
+          action = proposed.action
+          answerText = proposed.text
+        }
         yield {
-          content: getContent({ isWhole: true }),
+          content: getContent({ isWhole: true, text: answerText }),
           status: { type: 'complete', reason: 'stop' },
           metadata: {
             custom: {
