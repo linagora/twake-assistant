@@ -27,9 +27,9 @@ export function isClosing(line, marker) {
 
 /**
  * Splits an answer of the LLM into its prose and its insert blocks: a fence
- * whose info string is `insert` opens a block up to its closing fence, or
- * to the end of an answer still written. Other fences, and what they hold,
- * stay prose.
+ * whose info string is `insert`, or a fence without one whose next line is
+ * `insert`, opens a block up to its closing fence, or to the end of an answer
+ * still written. Other fences, and what they hold, stay prose.
  *
  * @param {string} text - the answer, in Markdown
  * @returns {AnswerPart[]} without empty prose
@@ -50,7 +50,9 @@ export function splitAnswerBlocks(text) {
     block = null
   }
 
-  for (const line of text.split('\n')) {
+  const lines = text.split('\n')
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i]
     if (block) {
       if (isClosing(line, block.marker)) {
         addBlock()
@@ -65,9 +67,13 @@ export function splitAnswerBlocks(text) {
       continue
     }
     const fence = readFence(line)
-    if (fence?.info === INSERT_INFO) {
+    // The LLM of production may write the info string on the next line
+    const isInfoNext =
+      fence?.info === '' && lines[i + 1]?.trim() === INSERT_INFO
+    if (fence?.info === INSERT_INFO || isInfoNext) {
       addProse()
       block = { marker: fence.marker, lines: [] }
+      if (isInfoNext) i += 1
       continue
     }
     if (fence) codeMarker = fence.marker

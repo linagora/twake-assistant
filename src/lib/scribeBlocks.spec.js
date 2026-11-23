@@ -43,6 +43,23 @@ describe('splitAnswerBlocks', () => {
     ])
   })
 
+  it('reads an insert block whose info string is on the line after its fence', () => {
+    const text =
+      'Voici :\n\n```\ninsert\n| A | B |\n| --- | --- |\n| 1 | 2 |\n```'
+
+    expect(splitAnswerBlocks(text)).toEqual([
+      { type: 'prose', text: 'Voici :' },
+      { type: 'block', text: '| A | B |\n| --- | --- |\n| 1 | 2 |' }
+    ])
+    expect(hasInsertBlocks('```\ninsert\nTexte')).toBe(true)
+  })
+
+  it('leaves a fence whose later line is insert as prose', () => {
+    const text = '```\nconst a = 1\ninsert\n```'
+
+    expect(splitAnswerBlocks(text)).toEqual([{ type: 'prose', text }])
+  })
+
   it('leaves other fences as prose', () => {
     const code = 'Run:\n\n```js\nconsole.log(1)\n```\n\nThen:\n\n```\nls\n```'
     // A fence of insert written inside a code block is code

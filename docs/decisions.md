@@ -31,3 +31,10 @@ Categories: UX, UI, Product, Architecture, Infra, Tech.
 - Decided by: Paul Tran-Van, in a session with an agent (Claude Code), 2026-11-23
 - Why: without the row of dashes, the lines of a table are no table: the scribe showed them as code, and the app would write them as code.
 - Scope: desktop and mobile, the scribe in every language.
+
+## 2026-11-23, [Architecture] An insert block may have its info string on the next line
+
+- Decision: a fence without an info string whose next line is `insert` opens an insert block, as a fence whose info string is `insert` does.
+- Decided by: Paul Tran-Van, in a session with an agent (Claude Code), 2026-11-23
+- Why: the LLM of production writes the info string on the line after the fence, and its blocks, tables included, showed as code.
+- Scope: desktop and mobile, the answers of the scribe.
