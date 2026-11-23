@@ -110,7 +110,7 @@ const Conversation = ({ className }) => {
           )}
         >
           <div className="u-maw-7 u-mh-auto">
-            {hasSources && (
+            {!isThreadEmpty && !!dirId && (
               <div
                 className={cx(
                   'u-flex u-flex-justify-end',
