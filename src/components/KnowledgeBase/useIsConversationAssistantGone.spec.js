@@ -6,6 +6,8 @@ import { useIsConversationAssistantGone } from './useIsConversationAssistantGone
 
 jest.mock('cozy-client', () => ({
   useQuery: jest.fn(),
+  isQueryLoading: ({ fetchStatus }) =>
+    fetchStatus === 'loading' || fetchStatus === 'pending',
   // queries.js computes its default fetch policy at import time.
   fetchPolicies: { olderThan: jest.fn(() => 'mock-fetch-policy') },
   Q: jest.fn(() => ({
@@ -44,7 +46,7 @@ describe('useIsConversationAssistantGone', () => {
       'still loading its assistant',
       conversation('a1'),
       { fetchStatus: 'loading' },
-      false
+      null
     ],
     [
       'bound to an assistant that exists',

@@ -15,7 +15,8 @@ const AssistantMessage = () => {
   const isAssistantGone = useMessage(
     s => s.metadata?.custom?.isAssistantGone === true
   )
-  // A conversation whose agent was deleted is read-only
+  // A conversation whose agent was deleted is read-only. Not known yet
+  // (null) while its agent loads: no Retry until then
   const isConversationAssistantGone =
     useIsConversationAssistantGone(conversationId)
 
@@ -23,7 +24,7 @@ const AssistantMessage = () => {
     <Answer>
       <AssistantMessageActions
         canCopy={!isError && hasText}
-        canRetry={!isAssistantGone && !isConversationAssistantGone}
+        canRetry={!isAssistantGone && isConversationAssistantGone === false}
       />
     </Answer>
   )

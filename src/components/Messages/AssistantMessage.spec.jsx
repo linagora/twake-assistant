@@ -81,4 +81,11 @@ describe('AssistantMessage', () => {
     expect(screen.queryByRole('button', { name: 'Retry' })).toBe(null)
     expect(screen.queryByRole('button', { name: 'Copy' })).toBeInTheDocument()
   })
+
+  it('offers no retry while the agent of the conversation loads', () => {
+    useIsConversationAssistantGone.mockReturnValue(null)
+    renderMessage(answer('Bonjour', { type: 'complete', reason: 'stop' }))
+
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBe(null)
+  })
 })
