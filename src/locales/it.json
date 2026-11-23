@@ -201,11 +201,12 @@
     "show": "Mostra",
     "search_conversation": {
       "placeholder": "Cerca nelle tue conversazioni...",
+      "label": "Cerca nelle tue conversazioni",
       "new_chat": "Nuova conversazione",
-      "recent": "Conversazioni recenti",
       "older": "Meno recenti",
       "not_found_title": "Nessuna conversazione trovata",
-      "not_found_desc": "Fai clic su \"Nuova chat\" per iniziare una conversazione o scegline una tra le tue chat recenti",
+      "not_found_desc": "Fai clic su \"%{label}\" per iniziarne una, o prova con altre parole.",
+      "results": "%{smart_count} conversazione trovata |||| %{smart_count} conversazioni trovate",
       "close": "Chiudi"
     },
     "message": {
