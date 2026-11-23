@@ -2,11 +2,11 @@ import React, { useRef } from 'react'
 
 import { Icon, Plus } from '@linagora/twake-icons'
 import TextField from 'cozy-ui/transpiled/react/TextField'
-import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
 import Typography from 'cozy-ui/transpiled/react/Typography'
 import { useCozyTheme } from 'cozy-ui/transpiled/react/providers/CozyTheme'
 import { useI18n } from 'twake-i18n'
 
+import { DismissibleTooltip } from '../DismissibleTooltip'
 import KnowledgeBaseSection from '../KnowledgeBase/KnowledgeBaseSection'
 import styles from './styles.styl'
 
@@ -49,7 +49,7 @@ const BasicInfoStep = ({
           {t('assistant_create.steps.basic_info.avatar')}
         </Typography>
         <div className="u-flex u-flex-items-center u-flex-justify-center">
-          <Tooltip
+          <DismissibleTooltip
             title={t('assistant_create.steps.basic_info.upload_photo')}
             placement="bottom-start"
             arrow={false}
@@ -88,7 +88,7 @@ const BasicInfoStep = ({
                 <Icon icon={Plus} />
               )}
             </div>
-          </Tooltip>
+          </DismissibleTooltip>
           <input
             type="file"
             ref={fileInputRef}

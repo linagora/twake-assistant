@@ -3,8 +3,9 @@ import React from 'react'
 
 import { Check, Copy, Icon, Restore } from '@linagora/twake-icons'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
-import Tooltip from 'cozy-ui/transpiled/react/Tooltip'
 import { useI18n } from 'twake-i18n'
+
+import { DismissibleTooltip } from '@/components/DismissibleTooltip'
 
 const ICON_SIZE = 16
 
@@ -26,22 +27,22 @@ const AssistantMessageActions = ({ canCopy, canRetry = true }) => {
       className="u-flex u-flex-items-center u-mt-half"
     >
       {canCopy && (
-        <Tooltip title={copyLabel}>
+        <DismissibleTooltip title={copyLabel}>
           <ActionBarPrimitive.Copy asChild>
             <IconButton size="small" aria-label={copyLabel}>
               <Icon icon={isCopied ? Check : Copy} size={ICON_SIZE} />
             </IconButton>
           </ActionBarPrimitive.Copy>
-        </Tooltip>
+        </DismissibleTooltip>
       )}
       {isLast && canRetry && (
-        <Tooltip title={retryLabel}>
+        <DismissibleTooltip title={retryLabel}>
           <ActionBarPrimitive.Reload asChild>
             <IconButton size="small" aria-label={retryLabel}>
               <Icon icon={Restore} size={ICON_SIZE} />
             </IconButton>
           </ActionBarPrimitive.Reload>
-        </Tooltip>
+        </DismissibleTooltip>
       )}
     </ActionBarPrimitive.Root>
   )
