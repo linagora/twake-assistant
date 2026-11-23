@@ -24,3 +24,10 @@ Categories: UX, UI, Product, Architecture, Infra, Tech.
 - Decided by: agent ([#181](https://github.com/linagora/twake-assistant/pull/181)), to be confirmed by the design team
 - Why: the label tells which prompt is running.
 - Scope: desktop and mobile, the scribe in its panel and compact layouts.
+
+## 2026-11-23, [Product] The scribe asks for tables in Markdown with their row of dashes
+
+- Decision: the instructions of the scribe ask the LLM to write a table as a Markdown table, its header row followed by a row of dashes, one `---` per column, and forbid a horizontal rule, where they forbade a separator line.
+- Decided by: Paul Tran-Van, in a session with an agent (Claude Code), 2026-11-23
+- Why: without the row of dashes, the lines of a table are no table: the scribe showed them as code, and the app would write them as code.
+- Scope: desktop and mobile, the scribe in every language.
