@@ -86,6 +86,20 @@ async function deleteConversation(request) {
 }
 
 describe('ScribeView', () => {
+  it('marks the conversation on screen as the current one', () => {
+    setup()
+    openHistory()
+    fireEvent.click(screen.getByText('Open request'))
+    openHistory()
+
+    expect(
+      screen.getByText('Open request').closest('[role="button"]')
+    ).toHaveAttribute('aria-current', 'page')
+    expect(
+      screen.getByText('Other request').closest('[role="button"]')
+    ).not.toHaveAttribute('aria-current')
+  })
+
   it('asks for a confirmation before it deletes a conversation', () => {
     const client = setup()
     openHistory()
