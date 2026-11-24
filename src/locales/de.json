@@ -284,7 +284,7 @@
         "prompt_label": "Anweisungen",
         "prompt_placeholder": "Legen Sie den Kontext fest und passen Sie die Antworten des Assistenten an",
         "knowledge_base": "Wissensdatenbank (optional)",
-        "knowledge_base_placeholder": "In Unterhaltungen können einige oder alle hochgeladenen Dateien offengelegt werden.",
+        "knowledge_base_placeholder": "Der Assistent antwortet anhand der Dateien dieses Ordners und kann sie zitieren. Ohne Ordner antwortet er anhand Ihres gesamten Drive.",
         "from_drive": "Aus Drive",
         "from_mail": "Aus Mail"
       },

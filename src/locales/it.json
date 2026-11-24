@@ -284,7 +284,7 @@
         "prompt_label": "Istruzioni",
         "prompt_placeholder": "Definisci il contesto e personalizza le risposte dell'assistente",
         "knowledge_base": "Base di conoscenza (facoltativa)",
-        "knowledge_base_placeholder": "Le conversazioni possono rivelare alcuni o tutti i file caricati.",
+        "knowledge_base_placeholder": "L'assistente risponde a partire dai file di questa cartella e può citarli. Senza cartella, risponde a partire da tutto il tuo Drive.",
         "from_drive": "Da Drive",
         "from_mail": "Da Mail"
       },

@@ -284,7 +284,7 @@
         "prompt_label": "Instructions",
         "prompt_placeholder": "Set the context and customize the assistant's responses",
         "knowledge_base": "Knowledge Base (optional)",
-        "knowledge_base_placeholder": "Conversations may reveal some or all of the files that have been uploaded.",
+        "knowledge_base_placeholder": "The assistant answers from the files of this folder and may quote them. Without a folder, it answers from your whole Drive.",
         "from_drive": "From Drive",
         "from_mail": "From Mail"
       },

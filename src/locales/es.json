@@ -284,7 +284,7 @@
         "prompt_label": "Instrucciones",
         "prompt_placeholder": "Defina el contexto y personalice las respuestas del asistente",
         "knowledge_base": "Base de conocimientos (opcional)",
-        "knowledge_base_placeholder": "Las conversaciones pueden revelar una parte o la totalidad de los archivos subidos.",
+        "knowledge_base_placeholder": "El asistente responde a partir de los archivos de esta carpeta y puede citarlos. Sin carpeta, responde a partir de todo su Drive.",
         "from_drive": "Desde Drive",
         "from_mail": "Desde Mail"
       },

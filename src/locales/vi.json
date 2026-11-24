@@ -284,7 +284,7 @@
         "prompt_label": "Hướng dẫn",
         "prompt_placeholder": "Xác định ngữ cảnh và tùy chỉnh câu trả lời của trợ lý",
         "knowledge_base": "Cơ sở tri thức (tùy chọn)",
-        "knowledge_base_placeholder": "Các cuộc trò chuyện có thể làm lộ một phần hoặc toàn bộ các tệp đã được tải lên.",
+        "knowledge_base_placeholder": "Trợ lý trả lời dựa trên các tệp trong thư mục này và có thể trích dẫn chúng. Nếu không có thư mục, trợ lý trả lời dựa trên toàn bộ Drive của bạn.",
         "from_drive": "Từ Drive",
         "from_mail": "Từ Mail"
       },
