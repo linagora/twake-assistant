@@ -41,6 +41,10 @@
     "it": {
       "short_description": "Il tuo assistente IA",
       "long_description": "Chatta con un assistente IA che risponde a partire dai documenti del tuo Twake Workplace."
+    },
+    "mn": {
+      "short_description": "Таны AI туслах",
+      "long_description": "Таны Twake Workplace-ийн баримт бичгүүдэд үндэслэн хариулдаг AI туслахтай ярилцаарай."
     }
   },
   "routes": {
