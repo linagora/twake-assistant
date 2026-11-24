@@ -7,6 +7,7 @@ import { SidebarComingSoon } from './SidebarComingSoon'
 import { SidebarConversations } from './SidebarConversations'
 import { SidebarHeader } from './SidebarHeader'
 import { SidebarNewChatButton } from './SidebarNewChatButton'
+import { SIDEBAR_ID } from './SidebarToggleButton'
 import styles from './styles.styl'
 
 export const SidebarDesktop = ({
@@ -20,6 +21,7 @@ export const SidebarDesktop = ({
     <Drawer
       variant="permanent"
       className="u-h-100"
+      PaperProps={{ id: SIDEBAR_ID }}
       classes={{
         // No border: the sidebar of the design is a plain background
         paper: cx(

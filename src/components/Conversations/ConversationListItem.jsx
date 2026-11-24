@@ -39,6 +39,7 @@ const ConversationListItem = ({
         className: styles['conversation-list-item-container']
       }}
       selected={selected}
+      aria-current={selected ? 'page' : undefined}
     >
       <ListItemText
         className="u-m-0"

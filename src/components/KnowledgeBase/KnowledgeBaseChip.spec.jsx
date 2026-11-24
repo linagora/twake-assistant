@@ -103,10 +103,18 @@ describe('KnowledgeBaseChip', () => {
       expect(screen.queryByTestId('folder-picker')).toBe(null)
     })
 
-    it('leaves the folder out of the conversation from its cross', () => {
+    it('leaves the folder out of the conversation with the Delete key', () => {
       const onRemove = jest.fn()
       setup({ onRemove })
-      fireEvent.click(screen.getByLabelText('assistant.knowledge_base.remove'))
+      const chip = screen.getByRole('button', { name: 'Meetings' })
+
+      expect(chip).toHaveAccessibleDescription(
+        'assistant.knowledge_base.remove_hint'
+      )
+      expect(chip).toHaveAttribute('aria-keyshortcuts', 'Delete')
+
+      fireEvent.keyDown(chip, { key: 'Delete' })
+      fireEvent.keyUp(chip, { key: 'Delete' })
 
       expect(onRemove).toHaveBeenCalled()
       expect(screen.queryByRole('menu')).toBe(null)

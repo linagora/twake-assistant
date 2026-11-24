@@ -39,6 +39,7 @@ const ConversationListItemWider = ({
         }
       )}
       selected={selected}
+      aria-current={selected ? 'page' : undefined}
     >
       <ListItemIcon>
         <AssistantAvatar

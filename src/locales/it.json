@@ -224,6 +224,7 @@
       "open_folder": "Apri in Drive",
       "picker_error": "Impossibile aprire il selettore di cartelle di Drive. Riprova.",
       "remove": "Rimuovi la cartella",
+      "remove_hint": "Premi Canc per rimuovere la cartella",
       "remove_emails": "Rimuovi le email",
       "select_folder": "Seleziona questa cartella",
       "unavailable": "Cartella non disponibile"

@@ -34,6 +34,7 @@ function HistoryItem({ conversation, isSelected, onOpen, onDelete }) {
       gutters="disabled"
       className="u-ph-half u-bdrs-4"
       selected={isSelected}
+      aria-current={isSelected ? 'page' : undefined}
       onClick={() => onOpen(conversation)}
       ContainerProps={{
         className: listStyles['conversation-list-item-container']

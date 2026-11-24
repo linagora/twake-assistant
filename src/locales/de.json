@@ -224,6 +224,7 @@
       "open_folder": "In Drive öffnen",
       "picker_error": "Die Auswahl der Drive-Ordner kann nicht geöffnet werden. Bitte versuchen Sie es erneut.",
       "remove": "Ordner entfernen",
+      "remove_hint": "Entf drücken, um den Ordner zu entfernen",
       "remove_emails": "E-Mails entfernen",
       "select_folder": "Diesen Ordner auswählen",
       "unavailable": "Ordner nicht verfügbar"
