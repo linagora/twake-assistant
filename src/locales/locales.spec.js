@@ -3,6 +3,7 @@ import english from '@/locales/en.json'
 import spanish from '@/locales/es.json'
 import french from '@/locales/fr.json'
 import italian from '@/locales/it.json'
+import mongolian from '@/locales/mn.json'
 import russian from '@/locales/ru.json'
 import vietnamese from '@/locales/vi.json'
 
@@ -12,7 +13,8 @@ const locales = {
   vi: vietnamese,
   de: german,
   es: spanish,
-  it: italian
+  it: italian,
+  mn: mongolian
 }
 
 function flatten(value, path = []) {
