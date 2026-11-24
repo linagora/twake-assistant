@@ -130,10 +130,12 @@ export function ScribeAnswer() {
   const isAssistantGone = useMessage(
     message => message.metadata?.custom?.isAssistantGone === true
   )
-  // The model gave no text, as when its reasoning took all its tokens: it
-  // may answer if asked again
+  // The model gave no text, as when its reasoning took all its tokens, or
+  // a past question has no answer: it may answer if asked again
   const hasNoAnswer = useMessage(
-    message => message.metadata?.custom?.isEmpty === true
+    message =>
+      message.metadata?.custom?.isEmpty === true ||
+      message.metadata?.custom?.isInterrupted === true
   )
   // Only the last answer of the current conversation: asking an earlier one
   // again would hide what follows it, and a past request has lost its prompt

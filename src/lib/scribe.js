@@ -427,11 +427,22 @@ export function makeChatMessages(messages, t) {
     })
 
   // A last question without an answer: stopped, failed, or cut by a reload.
-  // The stack keeps no answer then, and the user may ask it again.
+  // The stack keeps no answer then. The user may ask it again, with the
+  // query as it was sent.
   const question = chatMessages.at(-1)
   if (question?.role !== 'user') return chatMessages
+  const sent = messages.findLast(message => message.role === 'user')
   return [
-    ...chatMessages,
+    ...chatMessages.slice(0, -1),
+    {
+      ...question,
+      metadata: {
+        custom: {
+          ...question.metadata?.custom,
+          query: removeQueryInstructions(sent.content)
+        }
+      }
+    },
     {
       id: `${question.id}-interrupted`,
       role: 'assistant',

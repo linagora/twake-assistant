@@ -308,7 +308,7 @@ describe('getScribeRequest', () => {
       id: 'm1',
       role: 'user',
       content: 'Translate',
-      metadata: { custom: { selection: 'Bonjour' } }
+      metadata: { custom: { selection: 'Bonjour', query: typed } }
     })
   })
 
@@ -456,7 +456,7 @@ describe('makeChatMessages', () => {
     expect(withDocument.metadata.custom.selection).toBe('Bonjour')
     expect(withDocument.content).toBe('Fix it')
     expect(onlyDocument.metadata).toBeUndefined()
-    expect(withoutText.metadata).toBeUndefined()
+    expect(withoutText.metadata.custom.selection).toBeUndefined()
   })
 
   it('keeps the text of a past chip request as its selection', () => {
@@ -497,7 +497,7 @@ describe('makeChatMessages', () => {
     expect(
       messages
         .filter(message => message.role === 'user')
-        .map(message => message.metadata)
+        .map(message => message.metadata?.custom?.selection)
     ).toEqual([undefined, undefined])
   })
 
@@ -521,7 +521,9 @@ describe('makeChatMessages', () => {
         id: 'm3',
         role: 'user',
         content: 'Fix it',
-        metadata: { custom: { selection: 'Hi' } }
+        metadata: {
+          custom: { selection: 'Hi', query: 'Fix it\n\nText:\n"""\nHi\n"""' }
+        }
       },
       {
         id: 'm3-interrupted',
@@ -542,6 +544,7 @@ describe('makeChatMessages', () => {
     )
 
     expect(messages.map(message => message.id)).toEqual(['m1', 'm2'])
+    expect(messages[0].metadata).toBeUndefined()
   })
 
   it('says an empty answer is empty', () => {

@@ -240,6 +240,23 @@ describe('makeChatAdapter', () => {
     ])
   })
 
+  it('sends again the query of a past question as it was sent', async () => {
+    const prepareQuery = jest.fn(text => `${text} + the text`)
+    const requestDocument = jest.fn()
+    const { adapter, fetchJSON } = setup({
+      events: [{ object: 'done' }],
+      options: { prepareQuery, hasDocument: true, requestDocument }
+    })
+
+    await run(adapter, [userMessage('Fix it')], undefined, {
+      custom: { query: 'Fix it\n\nText:\n"""\nHi\n"""' }
+    })
+
+    expect(fetchJSON.mock.calls[0][2].q).toBe('Fix it\n\nText:\n"""\nHi\n"""')
+    expect(prepareQuery).not.toHaveBeenCalled()
+    expect(requestDocument).not.toHaveBeenCalled()
+  })
+
   it('answers from the documents when the user asks for them', async () => {
     const sources = [{ id: 'f1', doctype: 'io.cozy.files' }]
     const { adapter, fetchJSON } = setup({

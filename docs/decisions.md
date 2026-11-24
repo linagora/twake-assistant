@@ -31,3 +31,10 @@ Categories: UX, UI, Product, Architecture, Infra, Tech.
 - Decided by: agent (branch fix/interrupted-answer-after-reload, [#99](https://github.com/linagora/twake-assistant/issues/99)), to be confirmed by Paul Tran-Van
 - Why: the stack keeps no running state and no answer of a stopped or failed question; a question left alone looks like lost data.
 - Scope: desktop and mobile, the conversations of the assistant and of the scribe.
+
+## 2026-11-24, [Architecture] A past question is asked again with the query it sent
+
+- Decision: asking again a past question without an answer sends the query the stack kept for it (with its text and document, without the instructions at its head), not the request as shown nor the current text of the app.
+- Decided by: agent (branch fix/interrupted-answer-after-reload, [#99](https://github.com/linagora/twake-assistant/issues/99)), to be confirmed by Paul Tran-Van
+- Why: a past request of the scribe shows only its label, and the app may have another text by then.
+- Scope: desktop and mobile, the scribe and the assistant.

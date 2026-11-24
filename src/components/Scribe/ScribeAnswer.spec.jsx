@@ -555,6 +555,26 @@ describe('ScribeAnswer', () => {
     expect(screen.queryByRole('button', { name: 'Try again' })).toBe(null)
   })
 
+  it('asks again a past question left without an answer, with its query', () => {
+    mockThread = {
+      messages: [
+        { id: 'q1', role: 'user', metadata: { custom: { query: 'Fix it' } } }
+      ]
+    }
+    renderAnswer(
+      { ...answer('', 'complete', { isInterrupted: true }), parentId: 'q1' },
+      actions
+    )
+
+    expect(screen.queryByText(en.chat.interrupted)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Copy' })).toBe(null)
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
+
+    expect(mockReload).toHaveBeenCalledWith({
+      runConfig: { custom: { query: 'Fix it' } }
+    })
+  })
+
   describe('the call of a capability the LLM proposes', () => {
     const insertSlide = { name: 'insert_slide', label: 'Insert' }
     const action = { name: 'insert_slide', params: { title: 'Risks' } }

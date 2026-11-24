@@ -280,16 +280,21 @@ export function makeChatAdapter({
       } = getRequest()
       const index =
         messages.filter(message => message.role === 'user').length - 1
-      const isFirstOnText = index === getTextIndex(index)
       // A prompt of the catalogue, from a suggestion, brings its own query
-      // and instructions, about the text of the app only
+      // and instructions, about the text of the app only. A past question
+      // asked again brings the query it sent, its text and document in it.
       const custom = runConfig?.custom ?? {}
+      const isFirstOnText = !custom.query && index === getTextIndex(index)
       // The result of a call the app gives: the LLM goes on with it, in
       // place of a request of the user
       const result = custom.result ?? null
       const prompt = custom.prompt ? preparePrompt?.(custom.prompt) : null
       const isDocumentIncluded =
-        hasDocument && Boolean(requestDocument) && !custom.prompt && !result
+        hasDocument &&
+        Boolean(requestDocument) &&
+        !custom.prompt &&
+        !custom.query &&
+        !result
       let doc = null
       if (isDocumentIncluded) {
         // The app may take seconds to answer, or never: Stop does not wait
@@ -306,7 +311,8 @@ export function makeChatAdapter({
       }
       const query = result
         ? null
-        : (prompt?.q ??
+        : (custom.query ??
+          prompt?.q ??
           prepareQuery(text, {
             isFirstOnText,
             document: doc?.document ?? null
