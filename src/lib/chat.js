@@ -366,7 +366,8 @@ export function makeChatAdapter({
             // The LLM answers alone, unless the user asks for their documents
             ...(!hasDocuments && { documents: false }),
             ...(system && !isSystemInQuery && { instructions: system }),
-            ...(actions?.length > 0 && { tools: actions }),
+            // With tools, the answer comes whole, its calls in one piece
+            ...(actions?.length > 0 && { tools: actions, stream: false }),
             ...(assistantId && { assistantID: assistantId }),
             ...(websearch && { websearch: true })
           }

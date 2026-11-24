@@ -38,3 +38,10 @@ Categories: UX, UI, Product, Architecture, Infra, Tech.
 - Decided by: Paul Tran-Van, in a session with an agent (Claude Code), 2026-11-23
 - Why: the LLM of production writes the info string on the line after the fence, and its blocks, tables included, showed as code.
 - Scope: desktop and mobile, the answers of the scribe.
+
+## 2026-11-24, [Tech] A request with tools asks the answer whole
+
+- Decision: when the request gives the LLM tools, the assistant asks the chat for the answer whole (`stream: false`): it shows at once, not as it is written.
+- Decided by: Paul Tran-Van, in a session with an agent (Claude Code), 2026-11-24
+- Why: the production openRAG (vLLM, Mistral) garbles the arguments of a tool call it streams, not of one it does not: the stack could read none of its calls.
+- Scope: desktop and mobile, the requests with tools (the scribe of Drive in spreadsheets and presentations, the capabilities of the apps).

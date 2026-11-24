@@ -148,7 +148,8 @@ describe('makeChatAdapter', () => {
     expect(fetchJSON.mock.calls[0][2]).toEqual({
       q: '[Instructions]\nAnswer with the text only\n[End of instructions]\n\nFix it',
       documents: false,
-      tools: actions
+      tools: actions,
+      stream: false
     })
     expect(removeQueryInstructions(fetchJSON.mock.calls[0][2].q)).toBe('Fix it')
   })
@@ -165,7 +166,8 @@ describe('makeChatAdapter', () => {
     expect(fetchJSON.mock.calls[0][2]).toEqual({
       q: 'Fix it',
       instructions: 'Scribe',
-      tools: actions
+      tools: actions,
+      stream: false
     })
   })
 
@@ -531,7 +533,8 @@ describe('makeChatAdapter', () => {
     expect(fetchJSON.mock.calls[0][2]).toEqual({
       q: 'Add a slide',
       documents: false,
-      tools: actions
+      tools: actions,
+      stream: false
     })
   })
 
@@ -689,7 +692,7 @@ describe('makeChatAdapter', () => {
       'POST',
       '/ai/chat/conversations/c1',
       // The instructions came with the query the result follows
-      { result, documents: false, tools: actions }
+      { result, documents: false, tools: actions, stream: false }
     )
     expect(prepareQuery).not.toHaveBeenCalled()
     expect(requestDocument).not.toHaveBeenCalled()
