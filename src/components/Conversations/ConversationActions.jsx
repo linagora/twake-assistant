@@ -37,6 +37,7 @@ const ConversationActions = ({
   const [isDeleting, setIsDeleting] = useState(false)
   const [newName, setNewName] = useState('')
   const anchorRef = useRef(null)
+  const cancelDeleteRef = useRef(null)
 
   const toggleMenu = e => {
     e?.stopPropagation()
@@ -161,10 +162,16 @@ const ConversationActions = ({
           open
           disableEnforceFocus={false}
           title={t('conversation_delete.title')}
+          // Not `autoFocus`: Material UI v4 crashes on a button focused by
+          // the keyboard before its ripple is mounted
+          TransitionProps={{
+            onEntered: () => cancelDeleteRef.current?.focus()
+          }}
           content={t('conversation_delete.content')}
           actions={
             <>
               <Button
+                ref={cancelDeleteRef}
                 variant="secondary"
                 label={t('conversation_delete.buttons.cancel')}
                 onClick={() => setShowDeleteDialog(false)}

@@ -1,4 +1,4 @@
-import React, { useId, useState } from 'react'
+import React, { useId, useRef, useState } from 'react'
 
 import { Icon, Cross } from '@linagora/twake-icons'
 import { useClient, useQuery } from 'cozy-client'
@@ -32,6 +32,7 @@ const DeleteAssistantDialog = ({ open, onClose }) => {
   const [isDeleting, setIsDeleting] = useState(false)
   const defaultId = useDefaultAssistantId()
   const titleId = useId()
+  const cancelRef = useRef(null)
 
   const assistantQuery =
     buildAssistantByIdWithProviderQuery(assistantIdInAction)
@@ -78,6 +79,9 @@ const DeleteAssistantDialog = ({ open, onClose }) => {
       className={styles.CreateAssistantDialog}
       aria-labelledby={titleId}
       disableEnforceFocus={false}
+      // Not `autoFocus`: Material UI v4 crashes on a button focused by the
+      // keyboard before its ripple is mounted
+      TransitionProps={{ onEntered: () => cancelRef.current?.focus() }}
     >
       <DialogTitle id={titleId} disableTypography={true}>
         {t('assistant_delete.title')}
@@ -94,6 +98,7 @@ const DeleteAssistantDialog = ({ open, onClose }) => {
       </DialogContent>
       <DialogActions>
         <Button
+          ref={cancelRef}
           variant="text"
           onClick={onClose}
           label={t('assistant_delete.buttons.cancel')}
