@@ -22,7 +22,7 @@ const ICONS = {
   PlusSmall
 }
 
-const Provider = ({ selectedProvider, provider, onSelect }) => {
+const Provider = ({ selectedProvider, provider, tabIndex, onSelect }) => {
   const { t } = useI18n()
   const { type: theme } = useCozyTheme()
   const isSelected = selectedProvider?.id === provider.id
@@ -31,6 +31,9 @@ const Provider = ({ selectedProvider, provider, onSelect }) => {
   return (
     <button
       type="button"
+      role="radio"
+      aria-checked={isSelected}
+      tabIndex={tabIndex}
       className={cx(
         'u-p-1 u-c-pointer u-flex u-flex-row u-flex-items-center',
         styles['model-card'],
@@ -73,6 +76,7 @@ const Provider = ({ selectedProvider, provider, onSelect }) => {
           icon={Check}
           className={`u-c-white u-bg-primary u-br-circle u-p-half ${styles['check-icon']}`}
           size={12}
+          aria-hidden="true"
         />
       )}
     </button>
