@@ -45,3 +45,10 @@ Categories: UX, UI, Product, Architecture, Infra, Tech.
 - Decided by: Paul Tran-Van, in a session with an agent (Claude Code), 2026-11-24
 - Why: the production openRAG (vLLM, Mistral) garbles the arguments of a tool call it streams, not of one it does not: the stack could read none of its calls.
 - Scope: desktop and mobile, the requests with tools (the scribe of Drive in spreadsheets and presentations, the capabilities of the apps).
+
+## 2026-11-24, [Architecture] The instructions go as a system message again, with tools and without the documents
+
+- Decision: the assistant sends its instructions in the `instructions` field of the chat in every case, a result included; it no longer puts them at the head of the query without the documents and with tools. It still reads back the queries saved that way.
+- Decided by: Paul Tran-Van, in a session with an agent (Claude Code), 2026-11-24
+- Why: linagora/cozy-stack#5291, deployed on staging and production, joins the system messages for the LLM; at the head of the query, the instructions outweighed the tools, and the production LLM seldom called one.
+- Scope: desktop and mobile, the scribe and the assistant, without the documents and with tools.
