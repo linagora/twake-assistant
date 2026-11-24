@@ -1,7 +1,7 @@
 import {
   CheckList,
   Comment,
-  Globe,
+  Exchange,
   Pen,
   Text,
   TextInfo
@@ -45,7 +45,7 @@ const SUGGESTIONS = [
   },
   {
     name: 'translate',
-    icon: Globe,
+    icon: Exchange,
     options: [
       { name: 'french', prompt: 'translate-french' },
       { name: 'english', prompt: 'translate-english' },
@@ -73,7 +73,7 @@ function keepCatalogued(suggestions) {
 }
 
 const SHORT_ACTIONS = [
-  { name: 'translate', icon: Globe },
+  { name: 'translate', icon: Exchange },
   { name: 'correct', icon: TextInfo },
   { name: 'write', icon: Pen }
 ]
@@ -83,7 +83,7 @@ const SHORT_ACTIONS = [
 export const FOLDER_ACTIONS = [
   { name: 'summarize', icon: Text },
   { name: 'find_decision', icon: TextInfo },
-  { name: 'translate', icon: Globe },
+  { name: 'translate', icon: Exchange },
   { name: 'key_points', icon: CheckList }
 ]
 
