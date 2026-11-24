@@ -377,7 +377,9 @@ function getScribeSelection(content) {
 }
 
 /**
- * The messages of a past conversation, as the assistant shows them
+ * The messages of a past conversation, as the assistant shows them. A
+ * request sent again, to regenerate its answer, is shown once: the stack
+ * keeps it twice, and its answers follow it.
  *
  * @param {object[]} messages - the messages of the conversation kept by the
  * stack
@@ -385,8 +387,16 @@ function getScribeSelection(content) {
  * @returns {import('@assistant-ui/react').ThreadMessageLike[]}
  */
 export function makeChatMessages(messages, t) {
+  let lastQuery = null
   return messages
     .filter(message => message.role === 'user' || message.role === 'assistant')
+    .filter(message => {
+      if (message.role !== 'user') return true
+      const query = removeQueryInstructions(message.content)
+      const isSentAgain = query === lastQuery
+      lastQuery = query
+      return !isSentAgain
+    })
     .map(message => {
       if (message.role === 'user') {
         const selection = getScribeSelection(message.content)

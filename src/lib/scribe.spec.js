@@ -426,6 +426,36 @@ describe('makeChatMessages', () => {
     ])
   })
 
+  it('shows a request sent again once, followed by its answers', () => {
+    const messages = makeChatMessages(
+      [
+        { id: 'q1', role: 'user', content: 'Hello' },
+        { id: 'a1', role: 'assistant', content: 'Hi' },
+        { id: 'q2', role: 'user', content: 'Holidays?' },
+        { id: 'a2', role: 'assistant', content: 'In August' },
+        { id: 'q3', role: 'user', content: 'Holidays?' },
+        { id: 'a3', role: 'assistant', content: 'In summer' },
+        // Stopped, then sent again
+        { id: 'q4', role: 'user', content: 'Meetings?' },
+        { id: 'q5', role: 'user', content: 'Meetings?' },
+        { id: 'a5', role: 'assistant', content: 'On Monday' },
+        { id: 'q6', role: 'user', content: 'Hello' }
+      ],
+      mockT
+    )
+
+    expect(messages.map(message => message.id)).toEqual([
+      'q1',
+      'a1',
+      'q2',
+      'a2',
+      'a3',
+      'q4',
+      'a5',
+      'q6'
+    ])
+  })
+
   it('keeps the text of the app of a past request as its selection', () => {
     const [withText, withDocument, onlyDocument, withoutText] =
       makeChatMessages(
