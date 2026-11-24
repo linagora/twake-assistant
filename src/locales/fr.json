@@ -28,6 +28,7 @@
     },
     "instructions": "Tu aides l'utilisateur à travailler un texte dans son éditeur. Regarde d'abord ce qu'il demande.\nS'il pose une question sur le texte ou demande ton avis, réponds-lui normalement, en quelques phrases, sans réécrire le texte, et n'utilise aucun bloc.\nS'il demande d'écrire ou de modifier un texte, mets chaque texte destiné à son document dans un fenced block dont l'info string est `insert`, et écris tout le reste, comme un commentaire, en dehors des blocs : les blocs sont insérés tels quels dans le document. Écris ce texte dans la langue du texte, en une seule version, sans introduction dans le bloc, sans ligne de séparation, sans emoji et sans rien à compléter entre crochets. Garde la forme du texte, sauf si on te demande de la changer, et n'invente pas d'informations.",
     "content": "Texte :",
+    "action_done": "%{action} : fait",
     "actions": {
       "copy": "Copier",
       "copied": "Copié",

@@ -606,13 +606,17 @@ describe('makeScribeAnswerActions', () => {
   })
 
   it('names an unknown action after itself', () => {
-    const [action] = makeScribeAnswerActions(
-      [{ name: 'create_task', label: null }],
+    const [createTask, done] = makeScribeAnswerActions(
+      [
+        { name: 'create_task', label: null },
+        { name: 'done', label: null }
+      ],
       mockT,
       jest.fn()
     )
 
-    expect(action.label).toBe('create_task')
+    expect(createTask.label).toBe('create_task')
+    expect(done.label).toBe('done')
   })
 })
 

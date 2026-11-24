@@ -28,6 +28,7 @@ import { findStepGroup, getRunningLabel, getStep } from '@/lib/scribe'
 import { hasInsertBlocks, splitAnswerBlocks } from '@/lib/scribeBlocks'
 
 function AnswerActionButton({ action, text }) {
+  const { t } = useI18n()
   const [isDone, markDone] = useDone()
 
   const handleClick = () => {
@@ -36,23 +37,29 @@ function AnswerActionButton({ action, text }) {
   }
 
   return (
-    <Button
-      size="small"
-      variant="secondary"
-      className="u-mr-half u-mt-half"
-      label={action.label}
-      startIcon={
-        isDone ? (
-          <Icon
-            icon={Check}
-            size={16}
-            className={styles['scribe-check']}
-            data-testid="scribe-check"
-          />
-        ) : undefined
-      }
-      onClick={handleClick}
-    />
+    <>
+      <Button
+        size="small"
+        variant="secondary"
+        className="u-mr-half u-mt-half"
+        label={action.label}
+        startIcon={
+          isDone ? (
+            <Icon
+              icon={Check}
+              size={16}
+              className={styles['scribe-check']}
+              data-testid="scribe-check"
+            />
+          ) : undefined
+        }
+        onClick={handleClick}
+      />
+      {/* Always there, so that a screen reader tells what fills it */}
+      <span role="status" className="u-visuallyhidden">
+        {isDone ? t('scribe.action_done', { action: action.label }) : ''}
+      </span>
+    </>
   )
 }
 
