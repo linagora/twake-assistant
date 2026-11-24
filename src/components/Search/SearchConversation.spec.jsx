@@ -74,6 +74,14 @@ describe('SearchConversation', () => {
     jest.useRealTimers()
   })
 
+  it('puts the focus in the field', () => {
+    setup()
+
+    expect(
+      screen.getByRole('textbox', { name: 'Search in your conversations' })
+    ).toHaveFocus()
+  })
+
   it('searches names and messages whatever the case, literally', () => {
     setup()
 

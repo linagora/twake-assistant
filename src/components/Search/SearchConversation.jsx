@@ -133,6 +133,7 @@ const SearchConversation = () => {
               onChange={handleSearchChange}
               componentsProps={{
                 inputBase: {
+                  autoFocus: true,
                   inputProps: {
                     'aria-label': t('assistant.search_conversation.label')
                   }
