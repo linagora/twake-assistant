@@ -24,3 +24,10 @@ Categories: UX, UI, Product, Architecture, Infra, Tech.
 - Decided by: agent ([#181](https://github.com/linagora/twake-assistant/pull/181)), to be confirmed by the design team
 - Why: the label tells which prompt is running.
 - Scope: desktop and mobile, the scribe in its panel and compact layouts.
+
+## 2026-11-24, [UX] The page title names the view, then "Twake Assistant"
+
+- Decision: the page title is the title of the view followed by " – Twake Assistant": the name of the conversation (else its first question), "New conversation" on an empty one, the label of the search while it is open, and the title of the scribe header in the scribe; the suffix is the title of the HTML page, "Twake Assistant", in every language, not the translated `assistant.name` ("Assistant Twake" in French).
+- Decided by: agent (fix of [#126](https://github.com/linagora/twake-assistant/issues/126)), to be confirmed by Paul Tran-Van
+- Why: #126 expects "Nouvelle conversation – Twake Assistant" in French, and the tab keeps the name it has before the app loads.
+- Scope: desktop and mobile, the assistant and the scribe intent.

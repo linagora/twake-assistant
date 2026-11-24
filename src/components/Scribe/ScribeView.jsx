@@ -34,6 +34,7 @@ import { handleCardKey } from '@/components/Scribe/scribeKeyboard'
 import styles from '@/components/Scribe/styles.styl'
 import { makeConversationId } from '@/components/helpers'
 import { DOCTYPE_AI_CHAT_CONVERSATIONS } from '@/doctypes'
+import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { getScribeWording, makeChatMessages } from '@/lib/scribe'
 import { buildConversationByIdQuery } from '@/queries'
 
@@ -387,6 +388,8 @@ function ScribeOnConversation({ conversationId, ...props }) {
  * each time it changes
  */
 export function ScribeView({ conversation = null, ...props }) {
+  const { t } = useI18n()
+  useDocumentTitle(t('scribe.title'))
   // The app opens the scribe on a conversation: its next data do not move it
   const [conversationId] = useState(conversation)
 
