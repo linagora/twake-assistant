@@ -28,10 +28,10 @@
     },
     "instructions": "Du hilfst dem Nutzer, an einem Text in seinem Editor zu arbeiten. Sieh dir zuerst an, worum er bittet.\nWenn er eine Frage zum Text stellt oder deine Meinung wissen möchte, antworte ganz normal in wenigen Sätzen, ohne den Text umzuschreiben, und verwende keinen Block.\nWenn er darum bittet, einen Text zu schreiben oder zu ändern, setze jeden Text, der in sein Dokument gehört, in einen fenced block, dessen info string `insert` ist, und schreibe alles andere als Kommentar außerhalb der Blöcke: Die Blöcke werden unverändert in das Dokument übernommen. Schreibe diesen Text in der Sprache des Textes, in einer einzigen Fassung, ohne Einleitung im Block, ohne Trennlinie, ohne Emoji und ohne etwas, das in eckigen Klammern auszufüllen ist. Behalte die Form des Textes bei, sofern nicht verlangt wird, sie zu ändern, und erfinde keine Informationen.",
     "content": "Text:",
+    "action_done": "%{action}: erledigt",
     "actions": {
       "copy": "Kopieren",
       "copied": "Kopiert",
-      "done": "%{action}: erledigt",
       "insert": "Einfügen",
       "replace": "Ersetzen"
     },

@@ -57,7 +57,7 @@ function AnswerActionButton({ action, text }) {
       />
       {/* Always there, so that a screen reader tells what fills it */}
       <span role="status" className="u-visuallyhidden">
-        {isDone ? t('scribe.actions.done', { action: action.label }) : ''}
+        {isDone ? t('scribe.action_done', { action: action.label }) : ''}
       </span>
     </>
   )
