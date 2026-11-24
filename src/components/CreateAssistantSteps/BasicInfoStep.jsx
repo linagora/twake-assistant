@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 
 import { Icon, Plus } from '@linagora/twake-icons'
 import TextField from 'cozy-ui/transpiled/react/TextField'
@@ -22,6 +22,8 @@ const BasicInfoStep = ({
   const { t } = useI18n()
   const { type } = useCozyTheme()
   const fileInputRef = useRef(null)
+  const [isNameLeftEmpty, setIsNameLeftEmpty] = useState(false)
+  const isNameError = isNameLeftEmpty && !name?.trim()
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click()
@@ -109,6 +111,8 @@ const BasicInfoStep = ({
           className="u-mb-half"
         >
           {t('assistant_create.steps.basic_info.name')}
+          {/* aria-required says it to screen readers */}
+          <span aria-hidden="true"> *</span>
         </Typography>
         <TextField
           id="assistant-name"
@@ -116,6 +120,13 @@ const BasicInfoStep = ({
           placeholder={t('assistant_create.steps.basic_info.name_placeholder')}
           value={name}
           onChange={onChange('name')}
+          onBlur={() => setIsNameLeftEmpty(!name?.trim())}
+          error={isNameError}
+          helperText={
+            isNameError
+              ? t('assistant_create.steps.basic_info.name_required')
+              : null
+          }
           variant="outlined"
           inputProps={{ 'aria-required': true }}
         />

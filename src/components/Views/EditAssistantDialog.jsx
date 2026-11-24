@@ -175,7 +175,11 @@ const EditAssistantDialog = ({ open, onClose }) => {
         <Button
           variant="secondary"
           onClick={handleBack}
-          label={t('assistant_edit.buttons.cancel')}
+          label={
+            step === STEPS.BASIC_INFO
+              ? t('assistant_edit.buttons.cancel')
+              : t('assistant_create.buttons.back')
+          }
         />
         <Button
           variant="primary"

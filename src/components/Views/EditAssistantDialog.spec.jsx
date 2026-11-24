@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 
 import { CozyProvider, createMockClient } from 'cozy-client'
@@ -15,8 +15,10 @@ jest.mock('cozy-ui/transpiled/react/providers/Breakpoints', () => {
   const useBreakpoints = () => ({ isMobile: false })
   return { __esModule: true, default: useBreakpoints, useBreakpoints }
 })
+// Stable, as the real one: the fetch effect depends on `t`
+const mockT = key => key
 jest.mock('twake-i18n', () => ({
-  useI18n: () => ({ t: key => key })
+  useI18n: () => ({ t: mockT })
 }))
 jest.mock('../AssistantProvider', () => ({
   useAssistant: () => ({ assistantIdInAction: 'assistant-id' })
@@ -64,5 +66,32 @@ describe('EditAssistantDialog', () => {
       message: 'assistant_edit.load_error',
       severity: 'error'
     })
+  })
+
+  it('goes back with Back after the first step, and closes with Cancel on it', async () => {
+    const { onClose } = renderDialog(
+      jest.fn().mockResolvedValue({ data: { name: 'Cook' }, included: [] })
+    )
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: 'assistant_edit.buttons.next' })
+      ).toBeEnabled()
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'assistant_edit.buttons.next' })
+    )
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'assistant_create.buttons.back'
+      })
+    )
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'assistant_edit.buttons.cancel'
+      })
+    )
+
+    expect(onClose).toHaveBeenCalledTimes(1)
   })
 })

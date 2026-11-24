@@ -272,6 +272,7 @@
   },
   "assistant_create": {
     "title": "Assistent erstellen",
+    "step": "Schritt %{current} von %{total}",
     "steps": {
       "basic_info": {
         "description": "Passen Sie Ihren Assistenten an. Wählen Sie seine Wissensdatenbank und dann sein KI-Modell.",
@@ -279,10 +280,11 @@
         "upload_photo": "Foto hochladen",
         "name": "Name",
         "name_placeholder": "Geben Sie Ihrem Assistenten einen Namen",
+        "name_required": "Geben Sie einen Namen ein, um fortzufahren",
         "prompt_label": "Anweisungen",
         "prompt_placeholder": "Legen Sie den Kontext fest und passen Sie die Antworten des Assistenten an",
         "knowledge_base": "Wissensdatenbank (optional)",
-        "knowledge_base_placeholder": "In Unterhaltungen können einige oder alle hochgeladenen Dateien offengelegt werden.",
+        "knowledge_base_placeholder": "Der Assistent antwortet anhand der Dateien dieses Ordners und kann sie zitieren. Ohne Ordner antwortet er anhand Ihres gesamten Drive.",
         "from_drive": "Aus Drive",
         "from_mail": "Aus Mail"
       },
@@ -335,6 +337,7 @@
     },
     "buttons": {
       "cancel": "Abbrechen",
+      "back": "Zurück",
       "next": "Weiter",
       "create": "Erstellen"
     },

@@ -272,6 +272,7 @@
   },
   "assistant_create": {
     "title": "Créer un assistant",
+    "step": "Étape %{current} sur %{total}",
     "steps": {
       "basic_info": {
         "description": "Personnalisez votre assistant. Choisissez la base de connaissances, puis son modèle d'IA.",
@@ -279,10 +280,11 @@
         "upload_photo": "Importer une photo",
         "name": "Nom",
         "name_placeholder": "Nommez votre assistant",
+        "name_required": "Saisissez un nom pour continuer",
         "prompt_label": "Instructions",
         "prompt_placeholder": "Définir le contexte et personnaliser les réponses de l'assistant",
         "knowledge_base": "Base de connaissances (optionnel)",
-        "knowledge_base_placeholder": "Les conversations peuvent révéler une partie ou l'intégralité des fichiers qui ont été téléversés.",
+        "knowledge_base_placeholder": "L'assistant répond à partir des fichiers de ce dossier et peut les citer. Sans dossier, il répond à partir de tout votre Drive.",
         "from_drive": "Depuis Drive",
         "from_mail": "Depuis Mail"
       },
@@ -335,6 +337,7 @@
     },
     "buttons": {
       "cancel": "Annuler",
+      "back": "Retour",
       "next": "Suivant",
       "create": "Créer"
     },

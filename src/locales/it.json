@@ -272,6 +272,7 @@
   },
   "assistant_create": {
     "title": "Crea assistente",
+    "step": "Passo %{current} di %{total}",
     "steps": {
       "basic_info": {
         "description": "Personalizza il tuo assistente. Scegli la sua base di conoscenza, poi il suo modello di IA.",
@@ -279,10 +280,11 @@
         "upload_photo": "Carica una foto",
         "name": "Nome",
         "name_placeholder": "Dai un nome al tuo assistente",
+        "name_required": "Inserisci un nome per continuare",
         "prompt_label": "Istruzioni",
         "prompt_placeholder": "Definisci il contesto e personalizza le risposte dell'assistente",
         "knowledge_base": "Base di conoscenza (facoltativa)",
-        "knowledge_base_placeholder": "Le conversazioni possono rivelare alcuni o tutti i file caricati.",
+        "knowledge_base_placeholder": "L'assistente risponde a partire dai file di questa cartella e può citarli. Senza cartella, risponde a partire da tutto il tuo Drive.",
         "from_drive": "Da Drive",
         "from_mail": "Da Mail"
       },
@@ -335,6 +337,7 @@
     },
     "buttons": {
       "cancel": "Annulla",
+      "back": "Indietro",
       "next": "Avanti",
       "create": "Crea"
     },

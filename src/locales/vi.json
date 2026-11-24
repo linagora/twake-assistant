@@ -272,6 +272,7 @@
   },
   "assistant_create": {
     "title": "Tạo trợ lý",
+    "step": "Bước %{current}/%{total}",
     "steps": {
       "basic_info": {
         "description": "Tùy chỉnh trợ lý của bạn. Chọn cơ sở tri thức, sau đó là mô hình AI.",
@@ -279,10 +280,11 @@
         "upload_photo": "Tải ảnh lên",
         "name": "Tên",
         "name_placeholder": "Đặt tên cho trợ lý của bạn",
+        "name_required": "Nhập tên để tiếp tục",
         "prompt_label": "Hướng dẫn",
         "prompt_placeholder": "Xác định ngữ cảnh và tùy chỉnh câu trả lời của trợ lý",
         "knowledge_base": "Cơ sở tri thức (tùy chọn)",
-        "knowledge_base_placeholder": "Các cuộc trò chuyện có thể làm lộ một phần hoặc toàn bộ các tệp đã được tải lên.",
+        "knowledge_base_placeholder": "Trợ lý trả lời dựa trên các tệp trong thư mục này và có thể trích dẫn chúng. Nếu không có thư mục, trợ lý trả lời dựa trên toàn bộ Drive của bạn.",
         "from_drive": "Từ Drive",
         "from_mail": "Từ Mail"
       },
@@ -335,6 +337,7 @@
     },
     "buttons": {
       "cancel": "Hủy",
+      "back": "Quay lại",
       "next": "Tiếp",
       "create": "Tạo"
     },
