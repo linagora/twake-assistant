@@ -11,6 +11,9 @@ const AssistantMessage = () => {
   const { conversationId } = useParams()
   const isError = useMessage(s => s.metadata?.custom?.isError === true)
   const hasText = useMessage(message => getText(message) !== '')
+  const isInterrupted = useMessage(
+    s => s.metadata?.custom?.isInterrupted === true
+  )
   // Retrying fails again: the agent of the conversation is gone
   const isAssistantGone = useMessage(
     s => s.metadata?.custom?.isAssistantGone === true
@@ -25,6 +28,7 @@ const AssistantMessage = () => {
       <AssistantMessageActions
         canCopy={!isError && hasText}
         canRetry={!isAssistantGone && isConversationAssistantGone === false}
+        isInterrupted={isInterrupted}
       />
     </Answer>
   )

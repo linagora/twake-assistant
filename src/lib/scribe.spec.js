@@ -494,10 +494,54 @@ describe('makeChatMessages', () => {
       mockT
     )
 
-    expect(messages.map(message => message.metadata)).toEqual([
-      undefined,
-      undefined
+    expect(
+      messages
+        .filter(message => message.role === 'user')
+        .map(message => message.metadata)
+    ).toEqual([undefined, undefined])
+  })
+
+  it('shows a last question without an answer as interrupted, to ask again', () => {
+    const messages = makeChatMessages(
+      [
+        { id: 'm1', role: 'user', content: 'Hello' },
+        { id: 'm2', role: 'assistant', content: 'Bonjour' },
+        {
+          id: 'm3',
+          role: 'user',
+          content:
+            '[Instructions]\nEdit only\n[End of instructions]\n\nFix it\n\nText:\n"""\nHi\n"""'
+        }
+      ],
+      mockT
+    )
+
+    expect(messages.slice(2)).toEqual([
+      {
+        id: 'm3',
+        role: 'user',
+        content: 'Fix it',
+        metadata: { custom: { selection: 'Hi' } }
+      },
+      {
+        id: 'm3-interrupted',
+        role: 'assistant',
+        content: '',
+        metadata: { custom: { isInterrupted: true } }
+      }
     ])
+  })
+
+  it('shows no interrupted answer after a last answer', () => {
+    const messages = makeChatMessages(
+      [
+        { id: 'm1', role: 'user', content: 'Hello' },
+        { id: 'm2', role: 'assistant', content: 'Bonjour' }
+      ],
+      mockT
+    )
+
+    expect(messages.map(message => message.id)).toEqual(['m1', 'm2'])
   })
 
   it('says an empty answer is empty', () => {

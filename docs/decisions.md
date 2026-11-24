@@ -24,3 +24,10 @@ Categories: UX, UI, Product, Architecture, Infra, Tech.
 - Decided by: agent ([#181](https://github.com/linagora/twake-assistant/pull/181)), to be confirmed by the design team
 - Why: the label tells which prompt is running.
 - Scope: desktop and mobile, the scribe in its panel and compact layouts.
+
+## 2026-11-24, [UX] A past question without an answer shows as interrupted
+
+- Decision: when a conversation is opened again and its last question has no stored answer, the assistant shows under it "No answer: it was stopped or interrupted." with an "Ask again" button in place of the Retry icon, and the scribe with its "Try again" button; this also holds while the stack still answers it after a reload or a return to the conversation, since the app cannot know, and only for the last question, as Retry.
+- Decided by: agent (branch fix/interrupted-answer-after-reload, [#99](https://github.com/linagora/twake-assistant/issues/99)), to be confirmed by Paul Tran-Van
+- Why: the stack keeps no running state and no answer of a stopped or failed question; a question left alone looks like lost data.
+- Scope: desktop and mobile, the conversations of the assistant and of the scribe.

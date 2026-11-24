@@ -2,6 +2,7 @@ import { ActionBarPrimitive, useAuiState } from '@assistant-ui/react'
 import React from 'react'
 
 import { Check, Copy, Icon, Restore } from '@linagora/twake-icons'
+import Button from 'cozy-ui/transpiled/react/Buttons'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
 import { useI18n } from 'twake-i18n'
 
@@ -9,7 +10,11 @@ import { DismissibleTooltip } from '@/components/DismissibleTooltip'
 
 const ICON_SIZE = 16
 
-const AssistantMessageActions = ({ canCopy, canRetry = true }) => {
+const AssistantMessageActions = ({
+  canCopy,
+  canRetry = true,
+  isInterrupted = false
+}) => {
   const { t } = useI18n()
 
   const isCopied = useAuiState(({ message }) => message.isCopied)
@@ -35,7 +40,17 @@ const AssistantMessageActions = ({ canCopy, canRetry = true }) => {
           </ActionBarPrimitive.Copy>
         </DismissibleTooltip>
       )}
-      {isLast && canRetry && (
+      {/* A question left without an answer: asked again in words */}
+      {isLast && canRetry && isInterrupted && (
+        <ActionBarPrimitive.Reload asChild>
+          <Button
+            size="small"
+            variant="secondary"
+            label={t('chat.ask_again')}
+          />
+        </ActionBarPrimitive.Reload>
+      )}
+      {isLast && canRetry && !isInterrupted && (
         <DismissibleTooltip title={retryLabel}>
           <ActionBarPrimitive.Reload asChild>
             <IconButton size="small" aria-label={retryLabel}>

@@ -395,6 +395,8 @@
     },
     "sources": "%{smart_count} source |||| %{smart_count} sources",
     "stopped": "Answer stopped",
+    "interrupted": "No answer: it was stopped or interrupted.",
+    "ask_again": "Ask again",
     "announce": {
       "complete": "Twake AI answered: %{text}",
       "stopped": "Answer stopped"

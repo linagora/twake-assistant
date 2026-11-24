@@ -395,6 +395,8 @@
     },
     "sources": "%{smart_count} fuente |||| %{smart_count} fuentes",
     "stopped": "Respuesta detenida",
+    "interrupted": "Sin respuesta: se detuvo o se interrumpió.",
+    "ask_again": "Volver a preguntar",
     "announce": {
       "complete": "Twake AI respondió: %{text}",
       "stopped": "Respuesta detenida"

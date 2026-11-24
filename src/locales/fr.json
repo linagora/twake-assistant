@@ -395,6 +395,8 @@
     },
     "sources": "%{smart_count} source |||| %{smart_count} sources",
     "stopped": "Réponse arrêtée",
+    "interrupted": "Pas de réponse : elle a été arrêtée ou interrompue.",
+    "ask_again": "Redemander",
     "announce": {
       "complete": "Twake AI a répondu : %{text}",
       "stopped": "Réponse arrêtée"

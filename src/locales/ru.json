@@ -395,6 +395,8 @@
     },
     "sources": "%{smart_count} источник |||| %{smart_count} источника |||| %{smart_count} источников",
     "stopped": "Ответ остановлен",
+    "interrupted": "Нет ответа: он был остановлен или прерван.",
+    "ask_again": "Спросить снова",
     "announce": {
       "complete": "Ответ Twake AI: %{text}",
       "stopped": "Ответ остановлен"

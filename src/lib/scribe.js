@@ -385,7 +385,7 @@ function getScribeSelection(content) {
  * @returns {import('@assistant-ui/react').ThreadMessageLike[]}
  */
 export function makeChatMessages(messages, t) {
-  return messages
+  const chatMessages = messages
     .filter(message => message.role === 'user' || message.role === 'assistant')
     .map(message => {
       if (message.role === 'user') {
@@ -425,6 +425,20 @@ export function makeChatMessages(messages, t) {
         }
       }
     })
+
+  // A last question without an answer: stopped, failed, or cut by a reload.
+  // The stack keeps no answer then, and the user may ask it again.
+  const question = chatMessages.at(-1)
+  if (question?.role !== 'user') return chatMessages
+  return [
+    ...chatMessages,
+    {
+      id: `${question.id}-interrupted`,
+      role: 'assistant',
+      content: '',
+      metadata: { custom: { isInterrupted: true } }
+    }
+  ]
 }
 
 /**

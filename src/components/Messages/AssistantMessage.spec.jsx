@@ -82,6 +82,20 @@ describe('AssistantMessage', () => {
     expect(screen.queryByRole('button', { name: 'Copy' })).toBeInTheDocument()
   })
 
+  it('tells a question was left without an answer, and offers to ask it again', () => {
+    renderMessage({
+      ...answer('', { type: 'complete', reason: 'unknown' }),
+      metadata: { custom: { isInterrupted: true } }
+    })
+
+    expect(screen.queryByText(en.chat.interrupted)).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Ask again' })
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBe(null)
+    expect(screen.queryByRole('button', { name: 'Copy' })).toBe(null)
+  })
+
   it('offers no retry while the agent of the conversation loads', () => {
     useIsConversationAssistantGone.mockReturnValue(null)
     renderMessage(answer('Bonjour', { type: 'complete', reason: 'stop' }))

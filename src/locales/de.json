@@ -395,6 +395,8 @@
     },
     "sources": "%{smart_count} Quelle |||| %{smart_count} Quellen",
     "stopped": "Antwort angehalten",
+    "interrupted": "Keine Antwort: Sie wurde angehalten oder unterbrochen.",
+    "ask_again": "Erneut fragen",
     "announce": {
       "complete": "Twake AI hat geantwortet: %{text}",
       "stopped": "Antwort angehalten"

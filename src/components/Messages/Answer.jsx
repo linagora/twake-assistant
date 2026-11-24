@@ -144,6 +144,10 @@ export function Answer({
       message.status?.type === 'incomplete' &&
       message.status?.reason === 'cancelled'
   )
+  // A question left without an answer, in a past conversation
+  const isInterrupted = useMessage(
+    message => message.metadata?.custom?.isInterrupted === true
+  )
   const isEmpty =
     useMessage(message => message.metadata?.custom?.isEmpty === true) ||
     (status === 'complete' && text === '' && hasCall && !isCallShown)
@@ -181,6 +185,11 @@ export function Answer({
             className="u-mr-half"
           />
           {t('chat.stopped')}
+        </Typography>
+      )}
+      {isInterrupted && (
+        <Typography variant="body2" color="textSecondary">
+          {t('chat.interrupted')}
         </Typography>
       )}
       {isError && (
