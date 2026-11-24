@@ -27,7 +27,7 @@ Categories: UX, UI, Product, Architecture, Infra, Tech.
 
 ## 2026-11-24, [UX] A past question without an answer shows as interrupted
 
-- Decision: when a conversation is opened again and its last question has no stored answer, the assistant shows under it "No answer: it was stopped or interrupted." with an "Ask again" button in place of the Retry icon, and the scribe with its "Try again" button; this also holds while the stack still answers it after a reload or a return to the conversation, since the app cannot know, and only for the last question, as Retry.
+- Decision: when a conversation is opened again and its last question has no stored answer, the assistant shows under it "No answer: it was stopped or interrupted." with an "Ask again" button in place of the Retry icon, and the scribe with its "Try again" button. Not while this tab may still have it answered: a question it asked and has not seen end, even in a conversation left before the end, and a conversation the compact scribe hands to the panel; the question then shows alone. After a reload, or from another tab or frame, the app cannot know, and a question still answered by the stack shows as interrupted. Only the last question, as Retry: a new question typed under it leaves the message above it until the conversation is opened again.
 - Decided by: agent (branch fix/interrupted-answer-after-reload, [#99](https://github.com/linagora/twake-assistant/issues/99)), to be confirmed by Paul Tran-Van
 - Why: the stack keeps no running state and no answer of a stopped or failed question; a question left alone looks like lost data.
 - Scope: desktop and mobile, the conversations of the assistant and of the scribe.

@@ -534,6 +534,16 @@ describe('makeChatMessages', () => {
     ])
   })
 
+  it('shows a last question alone while it may still be answered', () => {
+    const messages = makeChatMessages(
+      [{ id: 'm1', role: 'user', content: 'Hello' }],
+      mockT,
+      { isRunning: true }
+    )
+
+    expect(messages).toEqual([{ id: 'm1', role: 'user', content: 'Hello' }])
+  })
+
   it('shows no interrupted answer after a last answer', () => {
     const messages = makeChatMessages(
       [

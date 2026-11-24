@@ -382,9 +382,12 @@ function getScribeSelection(content) {
  * @param {object[]} messages - the messages of the conversation kept by the
  * stack
  * @param {Function} t - translation function
+ * @param {object} [options]
+ * @param {boolean} [options.isRunning] - the last question may still be
+ * answered: it is shown alone, not as interrupted
  * @returns {import('@assistant-ui/react').ThreadMessageLike[]}
  */
-export function makeChatMessages(messages, t) {
+export function makeChatMessages(messages, t, { isRunning = false } = {}) {
   const chatMessages = messages
     .filter(message => message.role === 'user' || message.role === 'assistant')
     .map(message => {
@@ -430,7 +433,7 @@ export function makeChatMessages(messages, t) {
   // The stack keeps no answer then. The user may ask it again, with the
   // query as it was sent.
   const question = chatMessages.at(-1)
-  if (question?.role !== 'user') return chatMessages
+  if (question?.role !== 'user' || isRunning) return chatMessages
   const sent = messages.findLast(message => message.role === 'user')
   return [
     ...chatMessages.slice(0, -1),

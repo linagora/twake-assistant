@@ -34,6 +34,7 @@ import { handleCardKey } from '@/components/Scribe/scribeKeyboard'
 import styles from '@/components/Scribe/styles.styl'
 import { makeConversationId } from '@/components/helpers'
 import { DOCTYPE_AI_CHAT_CONVERSATIONS } from '@/doctypes'
+import { isAnswerRunning } from '@/lib/chat'
 import { getScribeWording, makeChatMessages } from '@/lib/scribe'
 import { buildConversationByIdQuery } from '@/queries'
 
@@ -265,7 +266,9 @@ function ScribeLayout({
     if (past._id !== conversation.id) {
       setConversation({
         id: past._id,
-        messages: makeChatMessages(past.messages, t)
+        messages: makeChatMessages(past.messages, t, {
+          isRunning: isAnswerRunning(past._id)
+        })
       })
     }
     setIsHistoryOpen(false)
@@ -335,12 +338,13 @@ function isNotFound(error) {
 
 // The stack does not have a conversation before its first request, as the
 // one of a draft handed over: the scribe goes on with its id. On another
-// error, a new conversation: no request goes to one whose history is not shown
+// error, a new conversation: no request goes to one whose history is not shown.
+// The compact scribe that hands it over may have left an answer running.
 function makeHandedConversation(conversationId, result, t) {
   if (result.data) {
     return {
       id: conversationId,
-      messages: makeChatMessages(result.data.messages, t)
+      messages: makeChatMessages(result.data.messages, t, { isRunning: true })
     }
   }
   return isNotFound(result.lastError)

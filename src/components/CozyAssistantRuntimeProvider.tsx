@@ -22,6 +22,7 @@ import { DEFAULT_ASSISTANT } from './constants'
 import { buildChatConversationQueryById } from './queries'
 
 import { useChatRuntime } from '@/hooks/useChatRuntime'
+import { isAnswerRunning } from '@/lib/chat'
 import { makeChatMessages } from '@/lib/scribe'
 
 const log = Minilog('🔍 [CozyAssistantRuntimeProvider]')
@@ -69,8 +70,11 @@ const ConversationLoader = ({
   const requestedId = locationState?.assistantId
 
   const initialMessages = useMemo(
-    () => makeChatMessages(conversation?.messages ?? NO_MESSAGES, t),
-    [conversation?.messages, t]
+    () =>
+      makeChatMessages(conversation?.messages ?? NO_MESSAGES, t, {
+        isRunning: isAnswerRunning(conversationId)
+      }),
+    [conversation?.messages, t, conversationId]
   )
 
   // Undefined until the conversation, and the default a new one starts

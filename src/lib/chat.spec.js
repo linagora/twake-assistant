@@ -1,4 +1,5 @@
 import {
+  isAnswerRunning,
   makeChat,
   makeChatAdapter,
   removeQueryInstructions,
@@ -1120,6 +1121,34 @@ describe('makeChat', () => {
     await run(chat.adapter, [...past, userMessage('Shorter')])
 
     expect(sent).toEqual(['Shorter + the text'])
+  })
+
+  it('tells an answer runs until it ends, or goes on in the stack once left', async () => {
+    const fetchJSON = jest.fn(async () => ({
+      data: { attributes: { messages: [{ id: 'q1', role: 'user' }] } }
+    }))
+    const chat = makeChat({
+      client: { stackClient: { fetchJSON } },
+      conversationId: 'running'
+    })
+    const send = async reason => {
+      const controller = new AbortController()
+      const running = run(
+        chat.adapter,
+        [userMessage('Hello')],
+        controller.signal
+      )
+      await new Promise(resolve => setTimeout(resolve, 0))
+      const isRunning = isAnswerRunning('running')
+      controller.abort(reason)
+      await running
+      return isRunning
+    }
+
+    expect(await send({ detach: false })).toBe(true)
+    expect(isAnswerRunning('running')).toBe(false)
+    expect(await send({ detach: true })).toBe(true)
+    expect(isAnswerRunning('running')).toBe(true)
   })
 
   it('gives its adapter the events it receives', async () => {

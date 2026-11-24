@@ -445,6 +445,21 @@ export function makeChatAdapter({
   }
 }
 
+// The conversations this tab has an answer running for. One the user leaves
+// stays: its answer goes on in the stack, and only a new run here ends it.
+// ponytail: kept until the next run or a reload; clear it from the realtime
+// events of the conversation if a left answer must show as interrupted.
+const runningConversations = new Set()
+
+/**
+ * @param {string} conversationId
+ * @returns {boolean} whether this tab has asked a question of the
+ * conversation that the stack may still be answering
+ */
+export function isAnswerRunning(conversationId) {
+  return runningConversations.has(conversationId)
+}
+
 const DEFAULT_REQUEST = {
   prepareQuery: text => text,
   hasDocuments: false,
@@ -486,19 +501,32 @@ export function makeChat({ client, conversationId, textIndex = 0 }) {
     if (firstOnText === index) firstOnText = null
   }
 
+  const adapter = makeChatAdapter({
+    client,
+    conversationId,
+    events,
+    getRequest: () => request,
+    getTextIndex: index => {
+      if (firstOnText === null) firstOnText = index
+      return firstOnText
+    },
+    releaseText
+  })
+
   return {
     events,
-    adapter: makeChatAdapter({
-      client,
-      conversationId,
-      events,
-      getRequest: () => request,
-      getTextIndex: index => {
-        if (firstOnText === null) firstOnText = index
-        return firstOnText
-      },
-      releaseText
-    }),
+    adapter: {
+      async *run(options) {
+        runningConversations.add(conversationId)
+        try {
+          yield* adapter.run(options)
+        } finally {
+          if (!options.abortSignal?.reason?.detach) {
+            runningConversations.delete(conversationId)
+          }
+        }
+      }
+    },
     setRequest: nextRequest => {
       request = { ...DEFAULT_REQUEST, ...nextRequest }
     },
