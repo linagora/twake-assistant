@@ -34,7 +34,7 @@ Categories: UX, UI, Product, Architecture, Infra, Tech.
 
 ## 2026-11-24, [Architecture] A past question is asked again with the query it sent
 
-- Decision: asking again a past question without an answer sends the query the stack kept for it (with its text and document, without the instructions at its head), not the request as shown nor the current text of the app.
+- Decision: asking again a past question without an answer sends the query the stack kept for it (with its text and document, without the instructions at its head), not the request as shown nor the current text of the app. A prompt of the catalogue goes with its own instructions, the others with the current instructions of the scribe.
 - Decided by: agent (branch fix/interrupted-answer-after-reload, [#99](https://github.com/linagora/twake-assistant/issues/99)), to be confirmed by Paul Tran-Van
 - Why: a past request of the scribe shows only its label, and the app may have another text by then.
 - Scope: desktop and mobile, the scribe and the assistant.

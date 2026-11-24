@@ -431,10 +431,14 @@ export function makeChatMessages(messages, t, { isRunning = false } = {}) {
 
   // A last question without an answer: stopped, failed, or cut by a reload.
   // The stack keeps no answer then. The user may ask it again, with the
-  // query as it was sent.
+  // query as it was sent, and the instructions of its prompt.
   const question = chatMessages.at(-1)
   if (question?.role !== 'user' || isRunning) return chatMessages
   const sent = messages.findLast(message => message.role === 'user')
+  const query = removeQueryInstructions(sent.content)
+  const instructions = matchPrompt(query)?.prompt.messages.find(
+    message => message.role === 'system'
+  )?.content
   return [
     ...chatMessages.slice(0, -1),
     {
@@ -442,7 +446,8 @@ export function makeChatMessages(messages, t, { isRunning = false } = {}) {
       metadata: {
         custom: {
           ...question.metadata?.custom,
-          query: removeQueryInstructions(sent.content)
+          query,
+          ...(instructions && { instructions })
         }
       }
     },

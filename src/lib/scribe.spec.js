@@ -534,6 +534,22 @@ describe('makeChatMessages', () => {
     ])
   })
 
+  it('asks a past prompt again with its instructions', () => {
+    const { q, instructions } =
+      makeScribePreparePrompt('Bonjour')('correct-grammar')
+    const [question] = makeChatMessages(
+      [{ id: 'm1', role: 'user', content: q }],
+      mockT
+    )
+
+    expect(instructions).toBeTruthy()
+    expect(question.metadata.custom).toEqual({
+      selection: 'Bonjour',
+      query: q,
+      instructions
+    })
+  })
+
   it('shows a last question alone while it may still be answered', () => {
     const messages = makeChatMessages(
       [{ id: 'm1', role: 'user', content: 'Hello' }],
