@@ -360,6 +360,19 @@ describe('ScribeAnswer', () => {
       expect(within(insert).queryByTestId('scribe-check')).toBe(null)
     })
 
+    it('tells screen readers that the action is done, for 1.5 s', () => {
+      renderAnswer(answer('Bonjour', 'complete'), actions)
+      expect(screen.queryByText('Insert: done')).toBe(null)
+
+      fireEvent.click(screen.getByRole('button', { name: 'Insert' }))
+
+      expect(screen.getByText('Insert: done')).toHaveAttribute('role', 'status')
+      expect(screen.queryByText('Replace: done')).toBe(null)
+
+      act(() => jest.advanceTimersByTime(1500))
+      expect(screen.queryByText('Insert: done')).toBe(null)
+    })
+
     it('starts the 1.5 s again on a second click', () => {
       renderAnswer(answer('Bonjour', 'complete'), actions)
       const insert = screen.getByRole('button', { name: 'Insert' })
@@ -525,9 +538,11 @@ describe('ScribeAnswer', () => {
       actions
     )
 
-    expect(screen.queryByRole('status')).toHaveTextContent(
-      'Document too long — only part of it was sent to the assistant.'
-    )
+    expect(
+      screen.getByText(
+        'Document too long — only part of it was sent to the assistant.'
+      )
+    ).toHaveAttribute('role', 'status')
     expect(screen.queryByRole('alert')).toBe(null)
     expect(screen.queryByText('Bonjour')).toBeInTheDocument()
   })

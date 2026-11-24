@@ -31,6 +31,7 @@
     "actions": {
       "copy": "Kopieren",
       "copied": "Kopiert",
+      "done": "%{action}: erledigt",
       "insert": "Einfügen",
       "replace": "Ersetzen"
     },

@@ -31,6 +31,7 @@
     "actions": {
       "copy": "Sao chép",
       "copied": "Đã sao chép",
+      "done": "%{action}: đã xong",
       "insert": "Chèn",
       "replace": "Thay thế"
     },
