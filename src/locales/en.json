@@ -272,6 +272,7 @@
   },
   "assistant_create": {
     "title": "Create Assistant",
+    "step": "Step %{current} of %{total}",
     "steps": {
       "basic_info": {
         "description": "Customize your assistant. Choose its knowledge base, then its AI model.",

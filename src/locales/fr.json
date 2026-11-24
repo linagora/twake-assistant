@@ -272,6 +272,7 @@
   },
   "assistant_create": {
     "title": "Créer un assistant",
+    "step": "Étape %{current} sur %{total}",
     "steps": {
       "basic_info": {
         "description": "Personnalisez votre assistant. Choisissez la base de connaissances, puis son modèle d'IA.",

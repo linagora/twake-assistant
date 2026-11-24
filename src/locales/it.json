@@ -272,6 +272,7 @@
   },
   "assistant_create": {
     "title": "Crea assistente",
+    "step": "Passo %{current} di %{total}",
     "steps": {
       "basic_info": {
         "description": "Personalizza il tuo assistente. Scegli la sua base di conoscenza, poi il suo modello di IA.",

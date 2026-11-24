@@ -272,6 +272,7 @@
   },
   "assistant_create": {
     "title": "Tạo trợ lý",
+    "step": "Bước %{current}/%{total}",
     "steps": {
       "basic_info": {
         "description": "Tùy chỉnh trợ lý của bạn. Chọn cơ sở tri thức, sau đó là mô hình AI.",

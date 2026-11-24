@@ -272,6 +272,7 @@
   },
   "assistant_create": {
     "title": "Создать ассистента",
+    "step": "Шаг %{current} из %{total}",
     "steps": {
       "basic_info": {
         "description": "Настройте вашего ассистента. Выберите базу знаний, затем модель ИИ.",

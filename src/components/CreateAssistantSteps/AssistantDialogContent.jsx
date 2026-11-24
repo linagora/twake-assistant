@@ -1,11 +1,15 @@
 import React from 'react'
 
+import Typography from 'cozy-ui/transpiled/react/Typography'
+import { useI18n } from 'twake-i18n'
+
+import { OPENRAG_MODEL } from '../constants'
 import ApiKeyStep from './ApiKeyStep'
 import BasicInfoStep from './BasicInfoStep'
 import ProviderSelectionStep from './ProviderSelectionStep'
 import { STEPS } from './useAssistantDialog'
 
-const AssistantDialogContent = ({
+const StepContent = ({
   step,
   formData,
   selectedProvider,
@@ -46,6 +50,27 @@ const AssistantDialogContent = ({
     default:
       return null
   }
+}
+
+const AssistantDialogContent = props => {
+  const { t } = useI18n()
+  const { step, selectedProvider } = props
+  // Only a provider other than Twake needs the API key step
+  const total =
+    selectedProvider && selectedProvider.id !== OPENRAG_MODEL ? 3 : 2
+
+  return (
+    <>
+      <Typography
+        variant="caption"
+        component="p"
+        className="u-mb-1 u-c-text-secondary"
+      >
+        {t('assistant_create.step', { current: step + 1, total })}
+      </Typography>
+      <StepContent {...props} />
+    </>
+  )
 }
 
 export default AssistantDialogContent
