@@ -70,7 +70,13 @@ const FolderPickerDialog = ({ open, onClose, onSelect }) => {
   }, [open, client, intentHost])
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      disableEnforceFocus={false}
+    >
       <DialogContent className="u-p-0">
         {/* The intent protocol may also resize this element (inline styles) */}
         <div ref={setIntentHost} className={styles.intentHost} />

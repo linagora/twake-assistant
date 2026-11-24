@@ -28,7 +28,12 @@ const SearchConversationContainer = ({ children, isMobile }) =>
       {children}
     </div>
   ) : (
-    <Dialog fullScreen open className="u-w-100 u-h-100">
+    <Dialog
+      fullScreen
+      open
+      disableEnforceFocus={false}
+      className="u-w-100 u-h-100"
+    >
       {children}
     </Dialog>
   )

@@ -95,6 +95,7 @@ const CreateAssistantDialog = ({ open, onClose }) => {
       classes={{ paper: 'large' }}
       fullScreen={!!isMobile}
       className={styles.CreateAssistantDialog}
+      disableEnforceFocus={false}
     >
       <DialogTitle disableTypography={true}>{getTitle()}</DialogTitle>
       <IconButton

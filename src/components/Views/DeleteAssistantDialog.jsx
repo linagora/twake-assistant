@@ -75,6 +75,7 @@ const DeleteAssistantDialog = ({ open, onClose }) => {
       onClose={onClose}
       maxWidth="sm"
       className={styles.CreateAssistantDialog}
+      disableEnforceFocus={false}
     >
       <DialogTitle disableTypography={true}>
         {t('assistant_delete.title')}

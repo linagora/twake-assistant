@@ -120,6 +120,7 @@ const ConversationActions = ({
       {showRenameDialog && (
         <ConfirmDialog
           open
+          disableEnforceFocus={false}
           title={t('assistant.sidebar.conversation.actions.rename')}
           content={
             <TextField
@@ -158,6 +159,7 @@ const ConversationActions = ({
       {showDeleteDialog && (
         <ConfirmDialog
           open
+          disableEnforceFocus={false}
           title={t('conversation_delete.title')}
           content={t('conversation_delete.content')}
           actions={
