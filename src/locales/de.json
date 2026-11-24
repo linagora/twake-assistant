@@ -336,6 +336,7 @@
     },
     "buttons": {
       "cancel": "Abbrechen",
+      "back": "Zurück",
       "next": "Weiter",
       "create": "Erstellen"
     },

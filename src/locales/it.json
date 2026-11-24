@@ -336,6 +336,7 @@
     },
     "buttons": {
       "cancel": "Annulla",
+      "back": "Indietro",
       "next": "Avanti",
       "create": "Crea"
     },

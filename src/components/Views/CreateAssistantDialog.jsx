@@ -119,7 +119,11 @@ const CreateAssistantDialog = ({ open, onClose }) => {
         <Button
           variant="secondary"
           onClick={handleBack}
-          label={t('assistant_create.buttons.cancel')}
+          label={
+            step === STEPS.BASIC_INFO
+              ? t('assistant_create.buttons.cancel')
+              : t('assistant_create.buttons.back')
+          }
         />
         <Button
           variant="primary"

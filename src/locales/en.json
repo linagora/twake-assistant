@@ -336,6 +336,7 @@
     },
     "buttons": {
       "cancel": "Cancel",
+      "back": "Back",
       "next": "Next",
       "create": "Create"
     },

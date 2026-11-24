@@ -336,6 +336,7 @@
     },
     "buttons": {
       "cancel": "Hủy",
+      "back": "Quay lại",
       "next": "Tiếp",
       "create": "Tạo"
     },
