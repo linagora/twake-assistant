@@ -16,6 +16,7 @@ import itemStyles from '../Assistant/styles.styl'
 import { SidebarComingSoon } from './SidebarComingSoon'
 import { SidebarConversations } from './SidebarConversations'
 import { SidebarMobileToolbar } from './SidebarMobileToolbar'
+import { SIDEBAR_ID } from './SidebarToggleButton'
 import styles from './styles.styl'
 
 const MenuItem = ({ icon, label, onClick }) => (
@@ -55,7 +56,7 @@ export const SidebarMobile = ({
   // header names the app, as the bar does, and closes it
   return (
     <>
-      <SidebarMobileToolbar onToggle={onToggle} />
+      <SidebarMobileToolbar isExpanded={open} onToggle={onToggle} />
       <div ref={containerRef}>
         <Drawer
           variant="temporary"
@@ -70,6 +71,7 @@ export const SidebarMobile = ({
             container: () => containerRef.current
           }}
           className={styles['sidebar-drawer--mobile']}
+          PaperProps={{ id: SIDEBAR_ID }}
           classes={{
             paper: cx(
               styles['sidebar-paper'],

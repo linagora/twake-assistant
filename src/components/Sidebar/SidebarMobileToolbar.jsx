@@ -8,7 +8,7 @@ import AssistantSelection from '../Assistant/AssistantSelection'
 import { SidebarToggleButton } from './SidebarToggleButton'
 import styles from './styles.styl'
 
-export const SidebarMobileToolbar = ({ onToggle }) => {
+export const SidebarMobileToolbar = ({ isExpanded, onToggle }) => {
   const { createNewConversation } = useConversation()
 
   return (
@@ -19,7 +19,7 @@ export const SidebarMobileToolbar = ({ onToggle }) => {
         styles['sidebar-mobile-toolbar']
       )}
     >
-      <SidebarToggleButton onClick={onToggle} />
+      <SidebarToggleButton isExpanded={isExpanded} onClick={onToggle} />
       {flag('cozy.assistant.create-assistant.enabled') && (
         // A conversation keeps the assistant it started with: picking
         // another one starts a new conversation, as from the sidebar
