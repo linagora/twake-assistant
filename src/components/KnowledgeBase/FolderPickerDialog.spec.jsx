@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 
 import CozyTheme from 'cozy-ui/transpiled/react/providers/CozyTheme'
@@ -66,5 +66,28 @@ describe('FolderPickerDialog', () => {
 
     await waitFor(() => expect(onClose).toHaveBeenCalled())
     expect(onSelect).not.toHaveBeenCalled()
+  })
+
+  it('names the dialog and the frame of the picker', async () => {
+    mockCreate.mockReturnValue({
+      start: element => {
+        element.appendChild(document.createElement('iframe'))
+        return new Promise(() => {})
+      }
+    })
+    render(
+      <CozyTheme>
+        <FolderPickerDialog open onClose={jest.fn()} onSelect={jest.fn()} />
+      </CozyTheme>
+    )
+
+    const dialog = screen.getByRole('dialog', {
+      name: 'assistant.knowledge_base.select_folder'
+    })
+    await waitFor(() =>
+      expect(dialog.querySelector('iframe').title).toBe(
+        'assistant.knowledge_base.picker_title'
+      )
+    )
   })
 })

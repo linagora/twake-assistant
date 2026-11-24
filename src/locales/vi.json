@@ -220,6 +220,7 @@
       "emails": "Email",
       "open_folder": "Mở trong Drive",
       "picker_error": "Không thể mở bộ chọn thư mục Drive. Vui lòng thử lại.",
+      "picker_title": "Trình chọn thư mục Drive",
       "remove": "Gỡ thư mục",
       "remove_emails": "Gỡ email",
       "select_folder": "Chọn thư mục này",

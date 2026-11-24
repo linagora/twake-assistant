@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useId, useRef } from 'react'
 
 import { Icon, Cross } from '@linagora/twake-icons'
 import { useClient } from 'cozy-client'
@@ -41,6 +41,7 @@ const EditAssistantDialog = ({ open, onClose }) => {
   const { assistantIdInAction } = useAssistant()
   const { showAlert } = useAlert()
   const { isMobile } = useBreakpoints()
+  const titleId = useId()
 
   const {
     step,
@@ -151,9 +152,12 @@ const EditAssistantDialog = ({ open, onClose }) => {
       classes={{ paper: 'large' }}
       fullScreen={!!isMobile}
       className={styles.CreateAssistantDialog}
+      aria-labelledby={titleId}
       disableEnforceFocus={false}
     >
-      <DialogTitle disableTypography={true}>{getTitle()}</DialogTitle>
+      <DialogTitle id={titleId} disableTypography={true}>
+        {getTitle()}
+      </DialogTitle>
       <IconButton
         aria-label={t('assistant.dialog.close')}
         onClick={onClose}

@@ -223,6 +223,7 @@
       "emails": "Emails",
       "open_folder": "Ouvrir dans Drive",
       "picker_error": "Impossible d'ouvrir le sélecteur de dossier Drive. Veuillez réessayer.",
+      "picker_title": "Sélecteur de dossier Drive",
       "remove": "Retirer le dossier",
       "remove_emails": "Retirer les emails",
       "select_folder": "Sélectionner ce dossier",

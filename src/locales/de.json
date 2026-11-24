@@ -223,6 +223,7 @@
       "emails": "E-Mails",
       "open_folder": "In Drive öffnen",
       "picker_error": "Die Auswahl der Drive-Ordner kann nicht geöffnet werden. Bitte versuchen Sie es erneut.",
+      "picker_title": "Drive-Ordnerauswahl",
       "remove": "Ordner entfernen",
       "remove_emails": "E-Mails entfernen",
       "select_folder": "Diesen Ordner auswählen",

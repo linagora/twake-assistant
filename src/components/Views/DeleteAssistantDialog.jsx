@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useId, useState } from 'react'
 
 import { Icon, Cross } from '@linagora/twake-icons'
 import { useClient, useQuery } from 'cozy-client'
@@ -31,6 +31,7 @@ const DeleteAssistantDialog = ({ open, onClose }) => {
   const { showAlert } = useAlert()
   const [isDeleting, setIsDeleting] = useState(false)
   const defaultId = useDefaultAssistantId()
+  const titleId = useId()
 
   const assistantQuery =
     buildAssistantByIdWithProviderQuery(assistantIdInAction)
@@ -75,9 +76,10 @@ const DeleteAssistantDialog = ({ open, onClose }) => {
       onClose={onClose}
       maxWidth="sm"
       className={styles.CreateAssistantDialog}
+      aria-labelledby={titleId}
       disableEnforceFocus={false}
     >
-      <DialogTitle disableTypography={true}>
+      <DialogTitle id={titleId} disableTypography={true}>
         {t('assistant_delete.title')}
       </DialogTitle>
       <IconButton

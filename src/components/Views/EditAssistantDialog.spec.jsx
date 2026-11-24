@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 
 import { CozyProvider, createMockClient } from 'cozy-client'
@@ -40,6 +40,14 @@ const renderDialog = query => {
 describe('EditAssistantDialog', () => {
   beforeEach(() => {
     mockShowAlert.mockReset()
+  })
+
+  it('is named by its title', () => {
+    renderDialog(jest.fn().mockReturnValue(new Promise(() => {})))
+
+    expect(
+      screen.queryByRole('dialog', { name: 'assistant_edit.title' })
+    ).not.toBe(null)
   })
 
   it('shows an error and closes when the assistant cannot be fetched', async () => {

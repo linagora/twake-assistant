@@ -223,6 +223,7 @@
       "emails": "Correos",
       "open_folder": "Abrir en Drive",
       "picker_error": "No se puede abrir el selector de carpetas de Drive. Inténtelo de nuevo.",
+      "picker_title": "Selector de carpetas de Drive",
       "remove": "Quitar la carpeta",
       "remove_emails": "Quitar los correos",
       "select_folder": "Seleccionar esta carpeta",

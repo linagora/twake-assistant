@@ -223,6 +223,7 @@
       "emails": "Email",
       "open_folder": "Apri in Drive",
       "picker_error": "Impossibile aprire il selettore di cartelle di Drive. Riprova.",
+      "picker_title": "Selettore di cartelle Drive",
       "remove": "Rimuovi la cartella",
       "remove_emails": "Rimuovi le email",
       "select_folder": "Seleziona questa cartella",

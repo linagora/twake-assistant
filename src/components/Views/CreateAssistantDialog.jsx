@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useId } from 'react'
 
 import { Icon, Cross } from '@linagora/twake-icons'
 import { useClient } from 'cozy-client'
@@ -35,6 +35,7 @@ const CreateAssistantDialog = ({ open, onClose }) => {
   const client = useClient()
   const { showAlert } = useAlert()
   const { isMobile } = useBreakpoints()
+  const titleId = useId()
   const { createNewConversation } = useConversation()
 
   const {
@@ -95,9 +96,12 @@ const CreateAssistantDialog = ({ open, onClose }) => {
       classes={{ paper: 'large' }}
       fullScreen={!!isMobile}
       className={styles.CreateAssistantDialog}
+      aria-labelledby={titleId}
       disableEnforceFocus={false}
     >
-      <DialogTitle disableTypography={true}>{getTitle()}</DialogTitle>
+      <DialogTitle id={titleId} disableTypography={true}>
+        {getTitle()}
+      </DialogTitle>
       <IconButton
         aria-label={t('assistant.dialog.close')}
         onClick={onClose}

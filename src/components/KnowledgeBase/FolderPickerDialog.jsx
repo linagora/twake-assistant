@@ -25,6 +25,13 @@ const FolderPickerDialog = ({ open, onClose, onSelect }) => {
     if (!open || !intentHost) return undefined
 
     let cancelled = false
+    // cozy-interapp inserts the frame of the intent without a title
+    const observer = new MutationObserver(() => {
+      for (const frame of intentHost.querySelectorAll('iframe')) {
+        frame.title = t('assistant.knowledge_base.picker_title')
+      }
+    })
+    observer.observe(intentHost, { childList: true })
     const intents = new Intents({ client })
     const startPromise = intents
       .create('PICK', 'io.cozy.files', {
@@ -64,6 +71,7 @@ const FolderPickerDialog = ({ open, onClose, onSelect }) => {
 
     return () => {
       cancelled = true
+      observer.disconnect()
       startPromise.stop?.()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -75,6 +83,7 @@ const FolderPickerDialog = ({ open, onClose, onSelect }) => {
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      PaperProps={{ 'aria-label': t('assistant.knowledge_base.select_folder') }}
       disableEnforceFocus={false}
     >
       <DialogContent className="u-p-0">

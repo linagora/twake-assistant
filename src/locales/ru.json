@@ -220,6 +220,7 @@
       "emails": "Письма",
       "open_folder": "Открыть в Drive",
       "picker_error": "Не удалось открыть выбор папки Drive. Пожалуйста, попробуйте ещё раз.",
+      "picker_title": "Выбор папки Drive",
       "remove": "Убрать папку",
       "remove_emails": "Убрать письма",
       "select_folder": "Выбрать эту папку",
