@@ -81,9 +81,9 @@ function hideProposedCall(text) {
     : text
 }
 
-// WORKAROUND for linagora/cozy-stack#5291, see makeChatAdapter. Keep it
-// after the workaround is removed: the conversations saved meanwhile hold
-// the instructions in their queries.
+// Until linagora/cozy-stack#5291, a query with tools and without the
+// documents began with the instructions: the conversations saved then still
+// hold them.
 const QUERY_INSTRUCTIONS =
   /^\[Instructions\]\n[\s\S]*?\n\[End of instructions\]\n\n/
 
@@ -287,7 +287,13 @@ export function makeChatAdapter({
       // The result of a call the app gives: the LLM goes on with it, in
       // place of a request of the user
       const result = custom.result ?? null
-      const prompt = custom.prompt ? preparePrompt?.(custom.prompt) : null
+      // The stack keeps no instructions: a result sends those of the request
+      // it follows, from a suggestion or a prompt of the catalogue too
+      const asked = result
+        ? (messages.findLast(message => message.role === 'user')?.metadata
+            ?.custom ?? {})
+        : custom
+      const prompt = asked.prompt ? preparePrompt?.(asked.prompt) : null
       const isDocumentIncluded =
         hasDocument && Boolean(requestDocument) && !custom.prompt && !result
       let doc = null
@@ -318,23 +324,11 @@ export function makeChatAdapter({
       // yield that has some: the notice goes in each one
       const notice = documentNotice ? { documentNotice } : {}
       const system = [
-        prompt ? prompt.instructions : (custom.instructions ?? instructions),
+        prompt ? prompt.instructions : (asked.instructions ?? instructions),
         rules
       ]
         .filter(Boolean)
         .join('\n\n')
-      // WORKAROUND, to remove once linagora/cozy-stack#5291 is deployed in
-      // production: without documents the stack passes system messages as
-      // they are and adds its own for the tools; Mistral refuses a second one.
-      // Until the stack joins them, the instructions go at the head of the
-      // query. A result sends none: they came with its query. To remove:
-      // isSystemInQuery and q, back to `q: query` and `instructions: system`.
-      const isSystemInQuery =
-        !hasDocuments && actions?.length > 0 && system !== ''
-      const q =
-        isSystemInQuery && query !== null
-          ? `[Instructions]\n${system}\n[End of instructions]\n\n${query}`
-          : query
       const answer = makeAnswer()
       const reasoning = makeAnswer()
       const getContent = ({
@@ -362,10 +356,10 @@ export function makeChatAdapter({
           'POST',
           `/ai/chat/conversations/${conversationId}`,
           {
-            ...(result ? { result } : { q }),
+            ...(result ? { result } : { q: query }),
             // The LLM answers alone, unless the user asks for their documents
             ...(!hasDocuments && { documents: false }),
-            ...(system && !isSystemInQuery && { instructions: system }),
+            ...(system && { instructions: system }),
             // With tools, the answer comes whole, its calls in one piece
             ...(actions?.length > 0 && { tools: actions, stream: false }),
             ...(assistantId && { assistantID: assistantId }),
