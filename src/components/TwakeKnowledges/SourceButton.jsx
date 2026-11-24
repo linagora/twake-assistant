@@ -1,9 +1,11 @@
 import cx from 'classnames'
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useEffect, useRef, useState } from 'react'
 
 import { Icon } from '@linagora/twake-icons'
+import Chip from 'cozy-ui/transpiled/react/Chips'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
 
+import { DismissibleTooltip } from '../DismissibleTooltip'
 import styles from './styles.styl'
 
 /**
@@ -18,7 +20,9 @@ export const CHIP_CLASSES = {
 /**
  * A monochrome `icon` is tinted primary when active; a multicolor one, with
  * `preserveColor`, is dimmed when inactive. Without `onClick` it is a static
- * indicator, not a button.
+ * indicator, not a button. With `onClick` it is a toggle named by a tooltip,
+ * that also shows its label once active, so the state does not rest on the
+ * colour of the icon alone.
  */
 const SourceButton = forwardRef(
   (
@@ -33,6 +37,29 @@ const SourceButton = forwardRef(
     },
     ref
   ) => {
+    // The active and inactive toggles are different elements: the one that
+    // replaces the focused one takes the focus back. A render later: the
+    // button of cozy-ui throws when focused before its first effect, which
+    // mounts its focus ripple, has rendered.
+    const nodeRef = useRef(null)
+    const hadFocus = useRef(false)
+    const [isFocusPending, setIsFocusPending] = useState(false)
+    useEffect(() => {
+      if (!hadFocus.current) return
+      hadFocus.current = false
+      setIsFocusPending(true)
+    }, [isActive])
+    useEffect(() => {
+      if (!isFocusPending) return
+      setIsFocusPending(false)
+      nodeRef.current?.focus()
+    }, [isFocusPending])
+    const setRef = node => {
+      nodeRef.current = node
+      if (typeof ref === 'function') ref(node)
+      else if (ref) ref.current = node
+    }
+
     const content = preserveColor ? (
       <Icon
         icon={icon}
@@ -69,18 +96,39 @@ const SourceButton = forwardRef(
       )
     }
 
+    const handleClick = event => {
+      onClick(event)
+      hadFocus.current = document.activeElement === event.currentTarget
+    }
+
     return (
-      <IconButton
-        ref={ref}
-        size="small"
-        aria-label={label}
-        title={label}
-        onClick={onClick}
-        className={cx(styles['source-button'], className)}
-        {...props}
-      >
-        {content}
-      </IconButton>
+      <DismissibleTooltip title={label}>
+        {isActive ? (
+          <Chip
+            ref={setRef}
+            variant="ghost"
+            focusRipple
+            icon={<Icon icon={icon} size={16} />}
+            label={label}
+            aria-label={label}
+            onClick={handleClick}
+            className={cx(styles['source-chip'], className)}
+            classes={CHIP_CLASSES}
+            {...props}
+          />
+        ) : (
+          <IconButton
+            ref={setRef}
+            size="small"
+            aria-label={label}
+            onClick={handleClick}
+            className={cx(styles['source-button'], className)}
+            {...props}
+          >
+            {content}
+          </IconButton>
+        )}
+      </DismissibleTooltip>
     )
   }
 )
