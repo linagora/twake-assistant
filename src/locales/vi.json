@@ -267,7 +267,9 @@
       "any_content_folder": "Mọi nội dung trong thư mục này",
       "close": "Ẩn nguồn",
       "show": "Hiện nguồn",
-      "any_content": "Mọi nội dung trong Drive"
+      "any_content": "Mọi nội dung trong Drive",
+      "web": "Tìm kiếm web",
+      "web_hint": "Trang web công khai"
     }
   },
   "assistant_create": {

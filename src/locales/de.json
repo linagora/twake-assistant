@@ -267,7 +267,9 @@
       "any_content_folder": "Alle Inhalte dieses Ordners",
       "close": "Quellen ausblenden",
       "show": "Quellen anzeigen",
-      "any_content": "Alle Inhalte aus Drive"
+      "any_content": "Alle Inhalte aus Drive",
+      "web": "Websuche",
+      "web_hint": "Öffentliche Webseiten"
     }
   },
   "assistant_create": {

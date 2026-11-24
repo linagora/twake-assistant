@@ -38,7 +38,8 @@ const Conversation = ({ className }) => {
     useIsConversationAssistantGone(conversationId) || isLastAnswerAssistantGone
   const {
     isOpenSources: isOpenSourcesDesktop,
-    setIsOpenSources: setIsOpenSourcesDesktop
+    setIsOpenSources: setIsOpenSourcesDesktop,
+    websearchEnabled
   } = useAssistant()
   // Over the conversation on mobile: only on its button, and closed again
   // with the next conversation
@@ -65,9 +66,10 @@ const Conversation = ({ className }) => {
   const inputRef = useRef(null)
 
   // A started conversation keeps its folder at its top, and details it in
-  // the sources panel: beside the conversation on desktop, over it on
-  // mobile, where its button stays to open and close it
-  const hasSources = !isThreadEmpty && hasFolder
+  // the sources panel, with the web while web search is on: beside the
+  // conversation on desktop, over it on mobile, where its button stays to
+  // open and close it
+  const hasSources = !isThreadEmpty && (hasFolder || websearchEnabled)
   const placeholder = hasFolder
     ? t('assistant.search.placeholder_folder')
     : t('assistant.search.placeholder')
@@ -200,9 +202,11 @@ const Conversation = ({ className }) => {
               styles['sources-panel'],
               styles['sources-panel--mobile']
             )}
+            hasFolder={hasFolder}
             dirId={dirId}
             folderName={folderName}
             isRoot={isRoot}
+            hasWebsearch={websearchEnabled}
             onClose={() => setIsOpenSources(false)}
           />
         )}
@@ -211,9 +215,11 @@ const Conversation = ({ className }) => {
         <div className="u-flex-shrink-0 u-pt-1 u-pr-half">
           <SourcesPanel
             className={styles['sources-panel']}
+            hasFolder={hasFolder}
             dirId={dirId}
             folderName={folderName}
             isRoot={isRoot}
+            hasWebsearch={websearchEnabled}
             onClose={() => setIsOpenSources(false)}
           />
         </div>

@@ -267,7 +267,9 @@
       "any_content_folder": "Tutto il contenuto di questa cartella",
       "close": "Nascondi le fonti",
       "show": "Mostra le fonti",
-      "any_content": "Tutto il contenuto di Drive"
+      "any_content": "Tutto il contenuto di Drive",
+      "web": "Ricerca web",
+      "web_hint": "Pagine web pubbliche"
     }
   },
   "assistant_create": {

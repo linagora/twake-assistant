@@ -19,6 +19,7 @@ describe('SourcesPanel', () => {
     const onClose = jest.fn()
     render(
       <SourcesPanel
+        hasFolder
         dirId="folder-id"
         folderName="Meeting recordings"
         onClose={onClose}
@@ -45,6 +46,7 @@ describe('SourcesPanel', () => {
   it('names the whole Drive without a folder', () => {
     render(
       <SourcesPanel
+        hasFolder
         dirId="io.cozy.files.root-dir"
         folderName="assistant.twake_knowledges.drive"
         isRoot
@@ -58,5 +60,35 @@ describe('SourcesPanel', () => {
     expect(
       screen.queryByText('assistant.sources_panel.any_content')
     ).toBeInTheDocument()
+  })
+
+  it('lists the web under the folder while web search is on', () => {
+    render(
+      <SourcesPanel
+        hasFolder
+        dirId="folder-id"
+        folderName="Projects"
+        hasWebsearch
+        onClose={jest.fn()}
+      />
+    )
+
+    expect(screen.queryByText('Projects')).toBeInTheDocument()
+    expect(
+      screen.queryByText('assistant.sources_panel.web')
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByText('assistant.sources_panel.web_hint')
+    ).toBeInTheDocument()
+  })
+
+  it('shows the web alone, without a folder', () => {
+    render(<SourcesPanel hasWebsearch onClose={jest.fn()} />)
+
+    expect(
+      screen.queryByText('assistant.sources_panel.web')
+    ).toBeInTheDocument()
+    expect(screen.queryByText('assistant.sources_panel.connected')).toBe(null)
+    expect(screen.queryByRole('link')).toBe(null)
   })
 })

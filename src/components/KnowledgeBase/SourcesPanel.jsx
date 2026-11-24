@@ -1,7 +1,7 @@
 import cx from 'classnames'
 import React from 'react'
 
-import { Cross, Drive, Icon, LinkOut } from '@linagora/twake-icons'
+import { Cross, Drive, Globe, Icon, LinkOut } from '@linagora/twake-icons'
 import { useClient, generateWebLink } from 'cozy-client'
 import Button from 'cozy-ui/transpiled/react/Buttons'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
@@ -15,14 +15,17 @@ import { useI18n } from 'twake-i18n'
 import styles from './styles.styl'
 
 /**
- * The sources of the answers of a conversation: the knowledge base folder
- * of its assistant, as a card beside the conversation
+ * The sources of the answers of a conversation, as a card beside the
+ * conversation: the knowledge base folder of its assistant, and the web
+ * while web search is on. The counter counts the folders only.
  */
 export const SourcesPanel = ({
   className,
+  hasFolder,
   dirId,
   folderName,
   isRoot,
+  hasWebsearch,
   onClose
 }) => {
   const { t } = useI18n()
@@ -47,9 +50,11 @@ export const SourcesPanel = ({
           <Typography variant="body1">
             {t('assistant.sources_panel.title')}
           </Typography>
-          <Typography variant="overline" component="p">
-            {t('assistant.sources_panel.connected', { smart_count: 1 })}
-          </Typography>
+          {hasFolder && (
+            <Typography variant="overline" component="p">
+              {t('assistant.sources_panel.connected', { smart_count: 1 })}
+            </Typography>
+          )}
         </div>
         <IconButton
           size="small"
@@ -60,35 +65,61 @@ export const SourcesPanel = ({
           <Icon icon={Cross} size={16} aria-hidden="true" />
         </IconButton>
       </div>
-      <ListItem
-        className={cx('u-bdrs-8 u-mt-half u-g-half', styles['sources-item'])}
-      >
-        <ListItemIcon>
-          <Icon icon={Drive} size={20} preserveColor aria-hidden="true" />
-        </ListItemIcon>
-        <ListItemText
-          primary={folderName}
-          primaryTypographyProps={{ variant: 'body2', className: 'u-ellipsis' }}
-          secondary={t(
-            isRoot
-              ? 'assistant.sources_panel.any_content'
-              : 'assistant.sources_panel.any_content_folder'
-          )}
-          secondaryTypographyProps={{ variant: 'caption' }}
-          className="u-m-0 u-miw-0"
-        />
-      </ListItem>
-      <Button
-        variant="text"
-        size="small"
-        component="a"
-        href={folderUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        startIcon={<Icon icon={LinkOut} size={16} />}
-        label={t('assistant.knowledge_base.open_folder')}
-        className="u-mt-half"
-      />
+      {hasFolder && (
+        <>
+          <ListItem
+            className={cx(
+              'u-bdrs-8 u-mt-half u-g-half',
+              styles['sources-item']
+            )}
+          >
+            <ListItemIcon>
+              <Icon icon={Drive} size={20} preserveColor aria-hidden="true" />
+            </ListItemIcon>
+            <ListItemText
+              primary={folderName}
+              primaryTypographyProps={{
+                variant: 'body2',
+                className: 'u-ellipsis'
+              }}
+              secondary={t(
+                isRoot
+                  ? 'assistant.sources_panel.any_content'
+                  : 'assistant.sources_panel.any_content_folder'
+              )}
+              secondaryTypographyProps={{ variant: 'caption' }}
+              className="u-m-0 u-miw-0"
+            />
+          </ListItem>
+          <Button
+            variant="text"
+            size="small"
+            component="a"
+            href={folderUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            startIcon={<Icon icon={LinkOut} size={16} />}
+            label={t('assistant.knowledge_base.open_folder')}
+            className="u-mt-half"
+          />
+        </>
+      )}
+      {hasWebsearch && (
+        <ListItem
+          className={cx('u-bdrs-8 u-mt-half u-g-half', styles['sources-item'])}
+        >
+          <ListItemIcon>
+            <Icon icon={Globe} size={20} aria-hidden="true" />
+          </ListItemIcon>
+          <ListItemText
+            primary={t('assistant.sources_panel.web')}
+            primaryTypographyProps={{ variant: 'body2' }}
+            secondary={t('assistant.sources_panel.web_hint')}
+            secondaryTypographyProps={{ variant: 'caption' }}
+            className="u-m-0 u-miw-0"
+          />
+        </ListItem>
+      )}
     </Paper>
   )
 }

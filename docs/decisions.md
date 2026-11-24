@@ -24,3 +24,10 @@ Categories: UX, UI, Product, Architecture, Infra, Tech.
 - Decided by: agent ([#181](https://github.com/linagora/twake-assistant/pull/181)), to be confirmed by the design team
 - Why: the label tells which prompt is running.
 - Scope: desktop and mobile, the scribe in its panel and compact layouts.
+
+## 2026-11-24, [UI] The Sources card shows for the web alone
+
+- Decision: while web search is on in a started conversation, the Sources card and its button show even when the conversation has no folder, with the web row alone and no folder counter, since the counter counts folders only.
+- Decided by: agent (branch fix/websearch-state-label, [#97](https://github.com/linagora/twake-assistant/issues/97)), to be confirmed by the design team
+- Why: the web is then the only source of the answers, and "0 folders connected" would say nothing useful.
+- Scope: desktop and mobile, the Sources card of the assistant.
