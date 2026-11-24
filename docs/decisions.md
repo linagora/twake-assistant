@@ -24,3 +24,10 @@ Categories: UX, UI, Product, Architecture, Infra, Tech.
 - Decided by: agent ([#181](https://github.com/linagora/twake-assistant/pull/181)), to be confirmed by the design team
 - Why: the label tells which prompt is running.
 - Scope: desktop and mobile, the scribe in its panel and compact layouts.
+
+## 2026-11-24, [UX] Escape keeps the focus on the folder chip
+
+- Decision: Escape on a folder chip, or in the menu it opens, leaves the focus on the chip; it no longer drops the focus on the page as Material UI does for a chip.
+- Decided by: agent (fix/dialog-focus-names, for #118), to be confirmed by Paul Tran-Van
+- Why: #118 asks for the focus back on the chip when Escape closes its menu, and the Escape that only hides its tooltip should not lose the focus either.
+- Scope: desktop and mobile, the folder chip of the composer and of the questions of a conversation.

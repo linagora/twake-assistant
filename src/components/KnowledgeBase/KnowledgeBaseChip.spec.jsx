@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 
 import flag from 'cozy-flags'
@@ -74,6 +74,18 @@ describe('KnowledgeBaseChip', () => {
       fireEvent.click(screen.getByText(CHANGE_FOLDER))
 
       expect(screen.queryByTestId('folder-picker')).not.toBe(null)
+    })
+
+    it('gives the focus back to the chip when Escape closes the menu', async () => {
+      setup()
+      const chip = screen.getByRole('button', { name: 'Meetings' })
+      chip.focus()
+      fireEvent.click(chip)
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' })
+      await waitFor(() => expect(screen.queryByRole('menu')).toBe(null))
+      fireEvent.keyUp(document.activeElement, { key: 'Escape' })
+
+      expect(chip).toHaveFocus()
     })
 
     it('still offers to change an unavailable folder', () => {

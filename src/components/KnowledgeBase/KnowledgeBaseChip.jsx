@@ -78,6 +78,11 @@ const KnowledgeBaseChip = ({
             aria-haspopup={hasActions ? 'menu' : undefined}
             aria-expanded={hasActions ? isMenuOpen : undefined}
             onClick={hasActions ? () => setIsMenuOpen(true) : undefined}
+            // Material UI blurs a chip on the keyup of Escape, after the
+            // menu closed by its keydown gave the focus back to the chip
+            onKeyUpCapture={event => {
+              if (event.key === 'Escape') event.stopPropagation()
+            }}
             {...(onRemove && {
               onDelete: onRemove,
               deleteIcon: (
