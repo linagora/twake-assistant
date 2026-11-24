@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { Filter, Icon } from '@linagora/twake-icons'
+import { useQuery } from 'cozy-client'
 import Alert from 'cozy-ui/transpiled/react/Alert'
 import Button from 'cozy-ui/transpiled/react/Buttons'
 import IconButton from 'cozy-ui/transpiled/react/IconButton'
@@ -12,6 +13,7 @@ import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
 import { useI18n } from 'twake-i18n'
 
 import useConversation from '../../hooks/useConversation'
+import { useDocumentTitle } from '../../hooks/useDocumentTitle'
 import { useAssistant } from '../AssistantProvider'
 import KnowledgeBaseChip from '../KnowledgeBase/KnowledgeBaseChip'
 import { SourcesPanel } from '../KnowledgeBase/SourcesPanel'
@@ -20,6 +22,7 @@ import { useSelectedAssistantKnowledgeBase } from '../KnowledgeBase/useSelectedA
 import { AnswerAnnouncer } from '../Messages/AnswerAnnouncer'
 import AssistantMessage from '../Messages/AssistantMessage'
 import UserMessage from '../Messages/UserMessage'
+import { buildChatConversationQueryById } from '../queries'
 import ConversationComposer from './ConversationComposer'
 import { ConversationWelcome } from './ConversationWelcome'
 import styles from './styles.styl'
@@ -57,6 +60,24 @@ const Conversation = ({ className }) => {
   } = useSelectedAssistantKnowledgeBase()
 
   const isThreadEmpty = useThread(state => state.messages.length === 0)
+  // Named as in Recent: its name, else its first question, which the thread
+  // has before the stack saves the conversation
+  const conversationQuery = buildChatConversationQueryById(conversationId)
+  const { data: conversation } = useQuery(
+    conversationQuery.definition,
+    conversationQuery.options
+  )
+  const question = useThread(
+    state =>
+      state.messages
+        .find(message => message.role === 'user')
+        ?.content.find(part => part.type === 'text')?.text
+  )
+  useDocumentTitle(
+    conversation?.name ||
+      question ||
+      t('assistant.search_conversation.new_chat')
+  )
   // On mobile the conversation scrolls under the sidebar bar: once it has,
   // a fade below the bar dissolves the text instead of cutting it (at the
   // top of the scroll, the first message sits clear of the bar).

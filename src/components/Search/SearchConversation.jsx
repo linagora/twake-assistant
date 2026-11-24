@@ -14,6 +14,7 @@ import { useBreakpoints } from 'cozy-ui/transpiled/react/providers/Breakpoints'
 import { useI18n } from 'twake-i18n'
 
 import useConversation from '../../hooks/useConversation'
+import { useDocumentTitle } from '../../hooks/useDocumentTitle'
 import useFetchConversations from '../../hooks/useFetchConversations'
 import { useAssistant } from '../AssistantProvider'
 import ConversationList from '../Conversations/ConversationList'
@@ -54,6 +55,7 @@ const SearchConversation = () => {
   const { createNewConversation, goToConversation } = useConversation()
   const { setIsOpenSearchConversation } = useAssistant()
   const { conversations, isLoading } = useFetchConversations({ query })
+  useDocumentTitle(t('assistant.search_conversation.label'))
 
   const groupedConversations = useMemo(
     () => groupConversationsByDate(conversations || []),
