@@ -1,5 +1,5 @@
 import cx from 'classnames'
-import React, { useRef, useState } from 'react'
+import React, { useId, useRef, useState } from 'react'
 
 import {
   CrossSmall,
@@ -26,8 +26,8 @@ import styles from './styles.styl'
  * The folder the assistant answers from. Clicking opens a menu rather than
  * Drive: open the folder in a new tab, or change it with the folder picker,
  * saved on the assistant at once. Changing it follows the flag of editing
- * assistants. With `onRemove`, a cross leaves the folder out of the
- * conversation.
+ * assistants. With `onRemove`, a cross, or the Delete key, leaves the folder
+ * out of the conversation.
  */
 const KnowledgeBaseChip = ({
   className,
@@ -40,6 +40,7 @@ const KnowledgeBaseChip = ({
   const { t } = useI18n()
   const client = useClient()
   const chipRef = useRef(null)
+  const removeHintId = useId()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isPickerOpen, setIsPickerOpen] = useState(false)
   const canChangeFolder = flag('cozy.assistant.create-assistant.enabled')
@@ -80,13 +81,12 @@ const KnowledgeBaseChip = ({
             onClick={hasActions ? () => setIsMenuOpen(true) : undefined}
             {...(onRemove && {
               onDelete: onRemove,
+              // The chip is named after the folder, the cross is for the mouse
               deleteIcon: (
-                <Icon
-                  icon={CrossSmall}
-                  size={12}
-                  aria-label={t('assistant.knowledge_base.remove')}
-                />
-              )
+                <Icon icon={CrossSmall} size={12} aria-hidden="true" />
+              ),
+              'aria-keyshortcuts': 'Delete',
+              'aria-describedby': removeHintId
             })}
             className={cx(sourceStyles['source-chip'], styles['folder-chip'])}
             classes={{
@@ -94,6 +94,11 @@ const KnowledgeBaseChip = ({
               deleteIcon: styles['folder-chip-remove']
             }}
           />
+          {onRemove && (
+            <span id={removeHintId} className="u-visuallyhidden">
+              {t('assistant.knowledge_base.remove_hint')}
+            </span>
+          )}
         </div>
       </DismissibleTooltip>
       {isMenuOpen && (

@@ -221,6 +221,7 @@
       "open_folder": "Открыть в Drive",
       "picker_error": "Не удалось открыть выбор папки Drive. Пожалуйста, попробуйте ещё раз.",
       "remove": "Убрать папку",
+      "remove_hint": "Нажмите Delete, чтобы убрать папку",
       "remove_emails": "Убрать письма",
       "select_folder": "Выбрать эту папку",
       "unavailable": "Папка недоступна"

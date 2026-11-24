@@ -224,6 +224,7 @@
       "open_folder": "Abrir en Drive",
       "picker_error": "No se puede abrir el selector de carpetas de Drive. Inténtelo de nuevo.",
       "remove": "Quitar la carpeta",
+      "remove_hint": "Pulse Supr para quitar la carpeta",
       "remove_emails": "Quitar los correos",
       "select_folder": "Seleccionar esta carpeta",
       "unavailable": "Carpeta no disponible"
