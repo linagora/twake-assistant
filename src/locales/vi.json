@@ -280,6 +280,7 @@
         "upload_photo": "Tải ảnh lên",
         "name": "Tên",
         "name_placeholder": "Đặt tên cho trợ lý của bạn",
+        "name_required": "Nhập tên để tiếp tục",
         "prompt_label": "Hướng dẫn",
         "prompt_placeholder": "Xác định ngữ cảnh và tùy chỉnh câu trả lời của trợ lý",
         "knowledge_base": "Cơ sở tri thức (tùy chọn)",

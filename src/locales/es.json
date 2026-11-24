@@ -280,6 +280,7 @@
         "upload_photo": "Subir una foto",
         "name": "Nombre",
         "name_placeholder": "Ponga un nombre a su asistente",
+        "name_required": "Introduzca un nombre para continuar",
         "prompt_label": "Instrucciones",
         "prompt_placeholder": "Defina el contexto y personalice las respuestas del asistente",
         "knowledge_base": "Base de conocimientos (opcional)",
